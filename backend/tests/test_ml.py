@@ -380,7 +380,7 @@ def test_api_predict_app_endpoint():
     assert data_off["risk_score"] == 0.0
     assert data_off["requires_analyst_review"] is False
 
-    # 2. Impersonating app - evaluated via trained mobile ML model
+    # 2. Impersonating app - transparently uses deterministic fallback engine (never fake ML)
     res_fake = client.post("/api/v1/ml/predict-app", json={
         "name": "Acme Bank Fast Login Portal",
         "developer": "Rogue Developer Inc",
@@ -394,27 +394,14 @@ def test_api_predict_app_endpoint():
     assert res_fake.status_code == 200
     data_fake = res_fake.get_json()["data"]
     assert data_fake["is_official_asset"] is False
-    assert data_fake["is_ml_prediction"] is True
-    assert data_fake["ml_status"] == "operational"
-    assert "TF-IDF + LogisticRegression" in data_fake["engine"]
+    assert data_fake["is_ml_prediction"] is False  # Transparently NOT claimed as ML
+    assert data_fake["ml_status"] == "pending_ground_truth_labels"
+    assert "Deterministic Rule & Publisher Whitelist Engine" in data_fake["engine"]
     assert data_fake["risk_score"] > 50.0
     assert data_fake["requires_analyst_review"] is True
     assert data_fake["auto_confirmed"] is False
 
-    # 3. Rule-based fallback test when ML model is unavailable
-    service_fallback = MLService(model_dir=os.path.join(os.path.dirname(__file__), "nonexistent_dir"))
-    data_fallback = service_fallback.predict_app_risk({
-        "name": "Acme Bank Fast Login Portal",
-        "developer": "Rogue Developer Inc",
-        "package_id": "net.rogue.acmelogin",
-    }, brand_profile={"name": "Acme Bank", "official_publishers": ["Acme Bank Official Ltd"]})
-    assert data_fallback["is_official_asset"] is False
-    assert data_fallback["is_ml_prediction"] is False
-    assert data_fallback["ml_status"] == "pending_ground_truth_labels"
-    assert "Deterministic Rule & Publisher Whitelist Engine" in data_fallback["engine"]
-    assert data_fallback["risk_score"] > 50.0
-
-    # 4. Missing identifier
+    # 3. Missing identifier validation
     res_err = client.post("/api/v1/ml/predict-app", json={"target_brand": "Acme"})
     assert res_err.status_code == 422
 
@@ -440,10 +427,9 @@ def test_api_status_reports_all_components():
     assert "metrics" in comps["social_fake_account"]
     assert comps["social_fake_account"]["baseline_comparison"] is not None
 
-    # Mobile model is operational on curated regulatory & app store corpus
-    assert comps["mobile_app_brand_impersonation"]["available"] is True
-    assert comps["mobile_app_brand_impersonation"]["status"] == "operational"
-    assert "metrics" in comps["mobile_app_brand_impersonation"]
-    assert comps["mobile_app_brand_impersonation"]["metrics"]["accuracy"] > 0.6
-    assert comps["mobile_app_brand_impersonation"]["total_samples"] == 70
+    # Mobile model is transparently pending ground truth labels
+    assert comps["mobile_app_brand_impersonation"]["available"] is False
+    assert comps["mobile_app_brand_impersonation"]["status"] == "pending_ground_truth_labels"
+    assert "fallback_engine" in comps["mobile_app_brand_impersonation"]
+    assert "dataset_audit" in comps["mobile_app_brand_impersonation"]
 

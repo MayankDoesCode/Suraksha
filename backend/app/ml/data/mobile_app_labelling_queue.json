@@ -9,11 +9,13 @@
     "description": "Claim official SBI Yono rewards points and get instant loan approval within 5 minutes. Enter your netbanking credentials and OTP to redeem cash prize immediately.",
     "target_brand": "State Bank of India",
     "evidence_url": "https://www.cert-in.org.in/s2cMainServlet?pageid=PUBVLNOTES01&VLId=CERTIN-2023-0182",
-    "label": 1,
-    "reviewer": "SURAKSHA Security Analyst",
+    "label": null,
+    "reviewer": "UNVERIFIED (Generated mock metadata - not independent human review)",
     "review_date": "2026-10-10",
     "source_provenance": "CERT-In Cyber Security Advisory on Fake Banking Apps impersonating State Bank of India",
-    "notes": "Classic credential harvester and fake loan lure unauthorizedly using SBI and Yono marks."
+    "notes": "Classic credential harvester and fake loan lure unauthorizedly using SBI and Yono marks.",
+    "audit_status": "UNSUPPORTED_BY_EVIDENCE",
+    "audit_reason": "Cited URL refers to general educational alerts or broad category warnings. It does not contain factual verification of an app listing with this specific developer or package ID. Kept unlabelled in accordance with strict anti-fabrication standards."
   },
   {
     "id": "MOB-POS-002",
@@ -25,11 +27,13 @@
     "description": "Mandatory SBI customer notice: update your PAN and Aadhaar card immediately to prevent debit card deactivation. 24x7 SBI helpdesk support.",
     "target_brand": "State Bank of India",
     "evidence_url": "https://sbi.co.in/web/customer-care/security-tips",
-    "label": 1,
-    "reviewer": "SURAKSHA Security Analyst",
+    "label": null,
+    "reviewer": "UNVERIFIED (Generated mock metadata - not independent human review)",
     "review_date": "2026-10-10",
     "source_provenance": "SBI Official Security Warning on Phishing KYC Android Apps",
-    "notes": "Phishing APK masquerading as official SBI KYC update portal."
+    "notes": "Phishing APK masquerading as official SBI KYC update portal.",
+    "audit_status": "UNSUPPORTED_BY_EVIDENCE",
+    "audit_reason": "Cited URL refers to general educational alerts or broad category warnings. It does not contain factual verification of an app listing with this specific developer or package ID. Kept unlabelled in accordance with strict anti-fabrication standards."
   },
   {
     "id": "MOB-POS-003",
@@ -41,11 +45,13 @@
     "description": "Login to HDFC online banking directly with easy 4-digit PIN setup. Transfer money instantly via IMPS with zero transaction fee.",
     "target_brand": "HDFC Bank",
     "evidence_url": "https://www.hdfcbank.com/personal/useful-links/security",
-    "label": 1,
-    "reviewer": "SURAKSHA Security Analyst",
+    "label": null,
+    "reviewer": "UNVERIFIED (Generated mock metadata - not independent human review)",
     "review_date": "2026-10-10",
     "source_provenance": "HDFC Bank Fraud Prevention Advisory regarding Lookalike Apps",
-    "notes": "Impersonates HDFC Bank brand with misleading developer and unauthorized package name."
+    "notes": "Impersonates HDFC Bank brand with misleading developer and unauthorized package name.",
+    "audit_status": "UNSUPPORTED_BY_EVIDENCE",
+    "audit_reason": "Cited URL refers to general educational alerts or broad category warnings. It does not contain factual verification of an app listing with this specific developer or package ID. Kept unlabelled in accordance with strict anti-fabrication standards."
   },
   {
     "id": "MOB-POS-004",
@@ -57,11 +63,13 @@
     "description": "Pre-approved ICICI iMobile personal loan for savings account holders. No collateral required, instant disbursal up to 5 lakhs into account.",
     "target_brand": "ICICI Bank",
     "evidence_url": "https://www.rbi.org.in/Scripts/BS_PressReleaseDisplay.aspx?prid=54412",
-    "label": 1,
-    "reviewer": "SURAKSHA Security Analyst",
+    "label": null,
+    "reviewer": "UNVERIFIED (Generated mock metadata - not independent human review)",
     "review_date": "2026-10-10",
     "source_provenance": "Reserve Bank of India Advisory on Unauthorized Digital Lending Platforms",
-    "notes": "Predatory fake loan app leveraging ICICI brand token to deceive consumers."
+    "notes": "Predatory fake loan app leveraging ICICI brand token to deceive consumers.",
+    "audit_status": "UNSUPPORTED_BY_EVIDENCE",
+    "audit_reason": "Cited URL refers to general educational alerts or broad category warnings. It does not contain factual verification of an app listing with this specific developer or package ID. Kept unlabelled in accordance with strict anti-fabrication standards."
   },
   {
     "id": "MOB-POS-005",
@@ -73,11 +81,13 @@
     "description": "Check Axis Bank balance in one click without password. View mini statement and manage credit cards effortlessly with Axis Omni fast banking.",
     "target_brand": "Axis Bank",
     "evidence_url": "https://www.axisbank.com/support/fraud-awareness",
-    "label": 1,
-    "reviewer": "SURAKSHA Security Analyst",
+    "label": null,
+    "reviewer": "UNVERIFIED (Generated mock metadata - not independent human review)",
     "review_date": "2026-10-10",
     "source_provenance": "Axis Bank Fraud Alert on Rogue Financial Tool Applications",
-    "notes": "Unauthorized utility mimicking Axis Bank balance check features."
+    "notes": "Unauthorized utility mimicking Axis Bank balance check features.",
+    "audit_status": "UNSUPPORTED_BY_EVIDENCE",
+    "audit_reason": "Cited URL refers to general educational alerts or broad category warnings. It does not contain factual verification of an app listing with this specific developer or package ID. Kept unlabelled in accordance with strict anti-fabrication standards."
   },
   {
     "id": "MOB-POS-006",
@@ -89,11 +99,13 @@
     "description": "Instant personal loan and Bajaj Finserv EMI network card approval in 2 minutes. Low interest rates with minimal documentation.",
     "target_brand": "Bajaj Finserv",
     "evidence_url": "https://www.bajajfinserv.in/fraud-awareness",
-    "label": 1,
-    "reviewer": "SURAKSHA Security Analyst",
+    "label": null,
+    "reviewer": "UNVERIFIED (Generated mock metadata - not independent human review)",
     "review_date": "2026-10-10",
     "source_provenance": "Bajaj Finserv Caution Notice against Illegal Apps Impersonating Bajaj Brands",
-    "notes": "Fraudulent loan app reported to regulators for trademark misuse and high processing fee scams."
+    "notes": "Fraudulent loan app reported to regulators for trademark misuse and high processing fee scams.",
+    "audit_status": "UNSUPPORTED_BY_EVIDENCE",
+    "audit_reason": "Cited URL refers to general educational alerts or broad category warnings. It does not contain factual verification of an app listing with this specific developer or package ID. Kept unlabelled in accordance with strict anti-fabrication standards."
   },
   {
     "id": "MOB-POS-007",
@@ -105,11 +117,13 @@
     "description": "Upgrade your WhatsApp to official WhatsApp Gold edition. Enjoy exclusive features including message recall bypass, hidden typing status, and 100MB video sharing.",
     "target_brand": "WhatsApp",
     "evidence_url": "https://www.cyble.com/blog/whatsapp-gold-scam-resurfaces-with-trojanized-android-spyware/",
-    "label": 1,
-    "reviewer": "SURAKSHA Security Analyst",
+    "label": null,
+    "reviewer": "UNVERIFIED (Generated mock metadata - not independent human review)",
     "review_date": "2026-10-10",
     "source_provenance": "Cyble Research Threat Intelligence on WhatsApp Gold Trojanized Malware",
-    "notes": "Notorious social messaging impersonator delivering spyware payloads."
+    "notes": "Notorious social messaging impersonator delivering spyware payloads.",
+    "audit_status": "UNSUPPORTED_BY_EVIDENCE",
+    "audit_reason": "Cited URL refers to general educational alerts or broad category warnings. It does not contain factual verification of an app listing with this specific developer or package ID. Kept unlabelled in accordance with strict anti-fabrication standards."
   },
   {
     "id": "MOB-POS-008",
@@ -121,11 +135,13 @@
     "description": "Switch your WhatsApp green theme to official pink WhatsApp. Download official update link and access new romantic stickers and privacy tools.",
     "target_brand": "WhatsApp",
     "evidence_url": "https://www.indiatoday.in/technology/news/story/mumbai-police-issues-alert-against-pink-whatsapp-scam-2396162-2023-06-22",
-    "label": 1,
-    "reviewer": "SURAKSHA Security Analyst",
+    "label": null,
+    "reviewer": "UNVERIFIED (Generated mock metadata - not independent human review)",
     "review_date": "2026-10-10",
     "source_provenance": "Police Cyber Cell and CERT-In Public Advisory on WhatsApp Pink",
-    "notes": "Infamous trojan masquerading as official WhatsApp cosmetic update."
+    "notes": "Infamous trojan masquerading as official WhatsApp cosmetic update.",
+    "audit_status": "UNSUPPORTED_BY_EVIDENCE",
+    "audit_reason": "Cited URL refers to general educational alerts or broad category warnings. It does not contain factual verification of an app listing with this specific developer or package ID. Kept unlabelled in accordance with strict anti-fabrication standards."
   },
   {
     "id": "MOB-POS-009",
@@ -137,11 +153,13 @@
     "description": "Superfast Telegram client with free Telegram Premium unlocked. Cloud storage, unmetered channels, and secret encrypted chat with password protection.",
     "target_brand": "Telegram",
     "evidence_url": "https://news.sophos.com/en-us/2023/04/fake-telegram-apps-crypto-stealers/",
-    "label": 1,
-    "reviewer": "SURAKSHA Security Analyst",
+    "label": null,
+    "reviewer": "UNVERIFIED (Generated mock metadata - not independent human review)",
     "review_date": "2026-10-10",
     "source_provenance": "Sophos Labs Threat Report: Fake Telegram and WhatsApp Apps Stealing Crypto",
-    "notes": "Rogue Telegram fork injecting malicious cryptocurrency wallet clippers."
+    "notes": "Rogue Telegram fork injecting malicious cryptocurrency wallet clippers.",
+    "audit_status": "UNSUPPORTED_BY_EVIDENCE",
+    "audit_reason": "Cited URL refers to general educational alerts or broad category warnings. It does not contain factual verification of an app listing with this specific developer or package ID. Kept unlabelled in accordance with strict anti-fabrication standards."
   },
   {
     "id": "MOB-POS-010",
@@ -153,11 +171,13 @@
     "description": "Watch Netflix original movies and trending web series for 100% free without monthly subscription. Unlimited 4K HDR streaming on your mobile phone.",
     "target_brand": "Netflix",
     "evidence_url": "https://blog.checkpoint.com/research/flixonline-malicious-android-app-on-google-play-spreading-via-whatsapp/",
-    "label": 1,
-    "reviewer": "SURAKSHA Security Analyst",
+    "label": null,
+    "reviewer": "UNVERIFIED (Generated mock metadata - not independent human review)",
     "review_date": "2026-10-10",
     "source_provenance": "Check Point Research on FlixOnline / Fake Netflix applications on Google Play",
-    "notes": "Lures users with free Netflix access, propagates wormable malware via WhatsApp."
+    "notes": "Lures users with free Netflix access, propagates wormable malware via WhatsApp.",
+    "audit_status": "UNSUPPORTED_BY_EVIDENCE",
+    "audit_reason": "Cited URL refers to general educational alerts or broad category warnings. It does not contain factual verification of an app listing with this specific developer or package ID. Kept unlabelled in accordance with strict anti-fabrication standards."
   },
   {
     "id": "MOB-POS-011",
@@ -169,11 +189,13 @@
     "description": "Daily Amazon gift card generator and Prime shopping discounts. Spin the wheel to win 10,000 INR Amazon pay balance instantly.",
     "target_brand": "Amazon",
     "evidence_url": "https://www.ftc.gov/news-events/news/press-releases/2023/10/ftc-data-shows-huge-surge-scams-impersonating-amazon",
-    "label": 1,
-    "reviewer": "SURAKSHA Security Analyst",
+    "label": null,
+    "reviewer": "UNVERIFIED (Generated mock metadata - not independent human review)",
     "review_date": "2026-10-10",
     "source_provenance": "FTC Consumer Advisory on Scams and Malicious Apps Impersonating Amazon",
-    "notes": "Adware and survey scam impersonating Amazon Prime and Amazon Pay."
+    "notes": "Adware and survey scam impersonating Amazon Prime and Amazon Pay.",
+    "audit_status": "UNSUPPORTED_BY_EVIDENCE",
+    "audit_reason": "Cited URL refers to general educational alerts or broad category warnings. It does not contain factual verification of an app listing with this specific developer or package ID. Kept unlabelled in accordance with strict anti-fabrication standards."
   },
   {
     "id": "MOB-POS-012",
@@ -185,11 +207,13 @@
     "description": "Official PayPal wallet assistant for receiving money from overseas clients with 0% exchange fees. Connect credit card and debit card quickly.",
     "target_brand": "PayPal",
     "evidence_url": "https://www.bleepingcomputer.com/news/security/fake-paypal-android-app-attempts-to-steal-1-000-from-users/",
-    "label": 1,
-    "reviewer": "SURAKSHA Security Analyst",
+    "label": null,
+    "reviewer": "UNVERIFIED (Generated mock metadata - not independent human review)",
     "review_date": "2026-10-10",
     "source_provenance": "ESET Security Research on Android Banking Trojans Impersonating PayPal",
-    "notes": "Accessibility service abuse Trojan targeting PayPal account credentials."
+    "notes": "Accessibility service abuse Trojan targeting PayPal account credentials.",
+    "audit_status": "UNSUPPORTED_BY_EVIDENCE",
+    "audit_reason": "Cited URL refers to general educational alerts or broad category warnings. It does not contain factual verification of an app listing with this specific developer or package ID. Kept unlabelled in accordance with strict anti-fabrication standards."
   },
   {
     "id": "MOB-POS-013",
@@ -201,11 +225,13 @@
     "description": "Store Ethereum, Bitcoin, Solana and ERC20 tokens in MetaMask wallet. Enter your 12-word seed phrase to restore and sync your crypto balances.",
     "target_brand": "MetaMask",
     "evidence_url": "https://www.zscaler.com/blogs/security-research/fake-crypto-wallets-surface-google-play-store",
-    "label": 1,
-    "reviewer": "SURAKSHA Security Analyst",
+    "label": null,
+    "reviewer": "UNVERIFIED (Generated mock metadata - not independent human review)",
     "review_date": "2026-10-10",
     "source_provenance": "Zscaler ThreatLabz Advisory on Fake MetaMask Wallets harvesting seed phrases",
-    "notes": "Seed phrase theft phishing app disguised as MetaMask wallet extension."
+    "notes": "Seed phrase theft phishing app disguised as MetaMask wallet extension.",
+    "audit_status": "UNSUPPORTED_BY_EVIDENCE",
+    "audit_reason": "Cited URL refers to general educational alerts or broad category warnings. It does not contain factual verification of an app listing with this specific developer or package ID. Kept unlabelled in accordance with strict anti-fabrication standards."
   },
   {
     "id": "MOB-POS-014",
@@ -217,11 +243,13 @@
     "description": "Claim guaranteed 1,999 INR PhonePe scratch card reward today. Enter your UPI PIN to accept cashback directly into your bank account.",
     "target_brand": "PhonePe",
     "evidence_url": "https://www.phonepe.com/trust-safety/beware-of-fraudsters-offering-fake-cashback-scratch-cards/",
-    "label": 1,
-    "reviewer": "SURAKSHA Security Analyst",
+    "label": null,
+    "reviewer": "UNVERIFIED (Generated mock metadata - not independent human review)",
     "review_date": "2026-10-10",
     "source_provenance": "PhonePe Trust & Safety Advisory on Fake Cashback Scratch Card Scams",
-    "notes": "UPI reverse payment trap app impersonating PhonePe rewards."
+    "notes": "UPI reverse payment trap app impersonating PhonePe rewards.",
+    "audit_status": "UNSUPPORTED_BY_EVIDENCE",
+    "audit_reason": "Cited URL refers to general educational alerts or broad category warnings. It does not contain factual verification of an app listing with this specific developer or package ID. Kept unlabelled in accordance with strict anti-fabrication standards."
   },
   {
     "id": "MOB-POS-015",
@@ -233,11 +261,13 @@
     "description": "Collect Google Pay stamps, diwali stickers and jackpot money. Daily tricks to earn assured UPI cashback on Google Pay app transactions.",
     "target_brand": "Google Pay",
     "evidence_url": "https://support.google.com/pay/india/answer/10287841",
-    "label": 1,
-    "reviewer": "SURAKSHA Security Analyst",
+    "label": null,
+    "reviewer": "UNVERIFIED (Generated mock metadata - not independent human review)",
     "review_date": "2026-10-10",
     "source_provenance": "Google Pay India Safety Center on Fraudulent Helper and Reward Applications",
-    "notes": "Unauthorized app using Google trademark to harvest user contact data."
+    "notes": "Unauthorized app using Google trademark to harvest user contact data.",
+    "audit_status": "UNSUPPORTED_BY_EVIDENCE",
+    "audit_reason": "Cited URL refers to general educational alerts or broad category warnings. It does not contain factual verification of an app listing with this specific developer or package ID. Kept unlabelled in accordance with strict anti-fabrication standards."
   },
   {
     "id": "MOB-POS-016",
@@ -249,11 +279,13 @@
     "description": "Become official Paytm BC merchant and earn 30,000 monthly commission. Do instant customer KYC and approve microloans with Paytm wallet gateway.",
     "target_brand": "Paytm",
     "evidence_url": "https://paytm.com/blog/fraud-prevention/fraud-prevention-alert-fake-kyc-sms-calls-apps/",
-    "label": 1,
-    "reviewer": "SURAKSHA Security Analyst",
+    "label": null,
+    "reviewer": "UNVERIFIED (Generated mock metadata - not independent human review)",
     "review_date": "2026-10-10",
     "source_provenance": "Paytm Official Fraud Bulletin on Fake Merchant/KYC Onboarding Apps",
-    "notes": "Impersonates One97 Communications / Paytm merchant tools to defraud agents."
+    "notes": "Impersonates One97 Communications / Paytm merchant tools to defraud agents.",
+    "audit_status": "UNSUPPORTED_BY_EVIDENCE",
+    "audit_reason": "Cited URL refers to general educational alerts or broad category warnings. It does not contain factual verification of an app listing with this specific developer or package ID. Kept unlabelled in accordance with strict anti-fabrication standards."
   },
   {
     "id": "MOB-POS-017",
@@ -265,11 +297,13 @@
     "description": "Listen to Spotify songs without ad interruptions and download MP3 tracks offline. Free Spotify Premium unlocked forever with unlimited song skips.",
     "target_brand": "Spotify",
     "evidence_url": "https://news.sophos.com/en-us/2022/11/pirated-software-sites-distribute-cloud-stealer-malware/",
-    "label": 1,
-    "reviewer": "SURAKSHA Security Analyst",
+    "label": null,
+    "reviewer": "UNVERIFIED (Generated mock metadata - not independent human review)",
     "review_date": "2026-10-10",
     "source_provenance": "Sophos Threat Intel on Trojanized Pirated Streaming and Spotify Clients",
-    "notes": "Infringing application embedding credential stealers disguised as cracked Spotify."
+    "notes": "Infringing application embedding credential stealers disguised as cracked Spotify.",
+    "audit_status": "UNSUPPORTED_BY_EVIDENCE",
+    "audit_reason": "Cited URL refers to general educational alerts or broad category warnings. It does not contain factual verification of an app listing with this specific developer or package ID. Kept unlabelled in accordance with strict anti-fabrication standards."
   },
   {
     "id": "MOB-POS-018",
@@ -281,11 +315,13 @@
     "description": "Get official Instagram verified blue checkmark on your profile in 24 hours. Sign in with your Instagram password and submit follower verification request.",
     "target_brand": "Instagram",
     "evidence_url": "https://about.instagram.com/blog/announcements/protecting-the-community-from-impersonation-and-scams",
-    "label": 1,
-    "reviewer": "SURAKSHA Security Analyst",
+    "label": null,
+    "reviewer": "UNVERIFIED (Generated mock metadata - not independent human review)",
     "review_date": "2026-10-10",
     "source_provenance": "Meta Security Bulletin on Fake Verification Tools targeting Instagram users",
-    "notes": "Phishing tool stealing Instagram 2FA credentials under the guise of verification."
+    "notes": "Phishing tool stealing Instagram 2FA credentials under the guise of verification.",
+    "audit_status": "UNSUPPORTED_BY_EVIDENCE",
+    "audit_reason": "Cited URL refers to general educational alerts or broad category warnings. It does not contain factual verification of an app listing with this specific developer or package ID. Kept unlabelled in accordance with strict anti-fabrication standards."
   },
   {
     "id": "MOB-POS-019",
@@ -297,11 +333,13 @@
     "description": "Manage Meta Facebook ad campaigns, boost post reach, and connect your business ad account with zero ad tax. Free Meta business booster.",
     "target_brand": "Facebook",
     "evidence_url": "https://www.trendmicro.com/vinfo/us/security/news/cybercrime-and-digital-threats/infostealer-targets-facebook-business-accounts",
-    "label": 1,
-    "reviewer": "SURAKSHA Security Analyst",
+    "label": null,
+    "reviewer": "UNVERIFIED (Generated mock metadata - not independent human review)",
     "review_date": "2026-10-10",
     "source_provenance": "Trend Micro Security Report on Malicious Apps targeting Meta Business Accounts",
-    "notes": "Session cookie infostealer mimicking official Meta Ads Manager."
+    "notes": "Session cookie infostealer mimicking official Meta Ads Manager.",
+    "audit_status": "UNSUPPORTED_BY_EVIDENCE",
+    "audit_reason": "Cited URL refers to general educational alerts or broad category warnings. It does not contain factual verification of an app listing with this specific developer or package ID. Kept unlabelled in accordance with strict anti-fabrication standards."
   },
   {
     "id": "MOB-POS-020",
@@ -313,11 +351,13 @@
     "description": "Subscribe to X Blue subscription without credit card. Edit posts, write long articles, and get prioritized ranking on Twitter feed.",
     "target_brand": "X (Twitter)",
     "evidence_url": "https://help.twitter.com/en/safety-and-security/fake-twitter-accounts-and-phishing",
-    "label": 1,
-    "reviewer": "SURAKSHA Security Analyst",
+    "label": null,
+    "reviewer": "UNVERIFIED (Generated mock metadata - not independent human review)",
     "review_date": "2026-10-10",
     "source_provenance": "X / Twitter Trust & Safety Warning on Phishing Apps mimicking X services",
-    "notes": "Deceptive app harvesting Twitter OAuth tokens and user passwords."
+    "notes": "Deceptive app harvesting Twitter OAuth tokens and user passwords.",
+    "audit_status": "UNSUPPORTED_BY_EVIDENCE",
+    "audit_reason": "Cited URL refers to general educational alerts or broad category warnings. It does not contain factual verification of an app listing with this specific developer or package ID. Kept unlabelled in accordance with strict anti-fabrication standards."
   },
   {
     "id": "MOB-POS-021",
@@ -329,11 +369,13 @@
     "description": "Unlock iCloud activation lock on iPhone and iPad. Reset forgotten Apple ID password and recover iCloud photos and backup files directly on Android.",
     "target_brand": "Apple",
     "evidence_url": "https://support.apple.com/en-us/102560",
-    "label": 1,
-    "reviewer": "SURAKSHA Security Analyst",
+    "label": null,
+    "reviewer": "UNVERIFIED (Generated mock metadata - not independent human review)",
     "review_date": "2026-10-10",
     "source_provenance": "Apple Security Guidance on Phishing Campaigns Impersonating iCloud & Apple ID",
-    "notes": "Malicious phishing portal aimed at stealing Apple ID credentials and iCloud tokens."
+    "notes": "Malicious phishing portal aimed at stealing Apple ID credentials and iCloud tokens.",
+    "audit_status": "UNSUPPORTED_BY_EVIDENCE",
+    "audit_reason": "Cited URL refers to general educational alerts or broad category warnings. It does not contain factual verification of an app listing with this specific developer or package ID. Kept unlabelled in accordance with strict anti-fabrication standards."
   },
   {
     "id": "MOB-POS-022",
@@ -345,11 +387,13 @@
     "description": "Two-factor authentication code generator for Microsoft 365, Outlook, and Azure accounts. Cloud sync your OTP secrets securely with Microsoft Authenticator Pro.",
     "target_brand": "Microsoft",
     "evidence_url": "https://www.bleepingcomputer.com/news/security/malicious-2fa-authenticator-apps-on-google-play-stealing-banking-creds/",
-    "label": 1,
-    "reviewer": "SURAKSHA Security Analyst",
+    "label": null,
+    "reviewer": "UNVERIFIED (Generated mock metadata - not independent human review)",
     "review_date": "2026-10-10",
     "source_provenance": "BleepingComputer / ThreatFabric report on Fake 2FA Authenticator Apps",
-    "notes": "Vultur banking trojan dropper masquerading as Microsoft Authenticator."
+    "notes": "Vultur banking trojan dropper masquerading as Microsoft Authenticator.",
+    "audit_status": "UNSUPPORTED_BY_EVIDENCE",
+    "audit_reason": "Cited URL refers to general educational alerts or broad category warnings. It does not contain factual verification of an app listing with this specific developer or package ID. Kept unlabelled in accordance with strict anti-fabrication standards."
   },
   {
     "id": "MOB-POS-023",
@@ -361,11 +405,13 @@
     "description": "Synchronize your Google Authenticator 2-step verification keys across all devices. Backup TOTP QR codes and export secret keys safely.",
     "target_brand": "Google",
     "evidence_url": "https://krebsonsecurity.com/2023/04/google-authenticator-now-syncs-2fa-tokens-to-google-account/",
-    "label": 1,
-    "reviewer": "SURAKSHA Security Analyst",
+    "label": null,
+    "reviewer": "UNVERIFIED (Generated mock metadata - not independent human review)",
     "review_date": "2026-10-10",
     "source_provenance": "KrebsOnSecurity / Sekoia.io analysis of Fake Google 2FA Applications",
-    "notes": "Impersonator app intercepting OTP seeds and exfiltrating to adversary C2."
+    "notes": "Impersonator app intercepting OTP seeds and exfiltrating to adversary C2.",
+    "audit_status": "UNSUPPORTED_BY_EVIDENCE",
+    "audit_reason": "Cited URL refers to general educational alerts or broad category warnings. It does not contain factual verification of an app listing with this specific developer or package ID. Kept unlabelled in accordance with strict anti-fabrication standards."
   },
   {
     "id": "MOB-POS-024",
@@ -377,11 +423,13 @@
     "description": "Automated algorithmic trading for Zerodha Kite. Connect your Zerodha login and API key to execute intraday Nifty and Bank Nifty option calls automatically.",
     "target_brand": "Zerodha",
     "evidence_url": "https://zerodha.com/z-connect/queries/stock-queries/warning-against-unauthorized-apps-impersonating-zerodha",
-    "label": 1,
-    "reviewer": "SURAKSHA Security Analyst",
+    "label": null,
+    "reviewer": "UNVERIFIED (Generated mock metadata - not independent human review)",
     "review_date": "2026-10-10",
     "source_provenance": "Zerodha Z-Connect Public Advisory on Fake Trading Apps and Credential Theft",
-    "notes": "Unauthorized robo-trading app stealing Zerodha API keys and trading passwords."
+    "notes": "Unauthorized robo-trading app stealing Zerodha API keys and trading passwords.",
+    "audit_status": "UNSUPPORTED_BY_EVIDENCE",
+    "audit_reason": "Cited URL refers to general educational alerts or broad category warnings. It does not contain factual verification of an app listing with this specific developer or package ID. Kept unlabelled in accordance with strict anti-fabrication standards."
   },
   {
     "id": "MOB-POS-025",
@@ -393,11 +441,13 @@
     "description": "Official Groww partner app for daily jackpot share market tips. Invest in top performing equity mutual funds and IPOs with guaranteed 50% returns.",
     "target_brand": "Groww",
     "evidence_url": "https://groww.in/blog/safe-investing-how-to-spot-fake-investment-advisors-apps",
-    "label": 1,
-    "reviewer": "SURAKSHA Security Analyst",
+    "label": null,
+    "reviewer": "UNVERIFIED (Generated mock metadata - not independent human review)",
     "review_date": "2026-10-10",
     "source_provenance": "Groww Safe Investing Advisory on Fake Investment and Tips Platforms",
-    "notes": "Investment scam exploiting the Groww trademark to solicit funds."
+    "notes": "Investment scam exploiting the Groww trademark to solicit funds.",
+    "audit_status": "UNSUPPORTED_BY_EVIDENCE",
+    "audit_reason": "Cited URL refers to general educational alerts or broad category warnings. It does not contain factual verification of an app listing with this specific developer or package ID. Kept unlabelled in accordance with strict anti-fabrication standards."
   },
   {
     "id": "MOB-POS-026",
@@ -409,11 +459,13 @@
     "description": "Stake BNB, Ethereum, and USDT in official Trust Wallet smart contract. Earn up to 25% APY passive yield directly in your Trust Wallet decentralized app.",
     "target_brand": "Trust Wallet",
     "evidence_url": "https://community.trustwallet.com/t/how-to-identify-fake-trust-wallet-apps/55940",
-    "label": 1,
-    "reviewer": "SURAKSHA Security Analyst",
+    "label": null,
+    "reviewer": "UNVERIFIED (Generated mock metadata - not independent human review)",
     "review_date": "2026-10-10",
     "source_provenance": "Trust Wallet Community Security Bulletin on Malicious Staking DApps and Clones",
-    "notes": "Phishing app designed to drain wallet approvals and private keys."
+    "notes": "Phishing app designed to drain wallet approvals and private keys.",
+    "audit_status": "UNSUPPORTED_BY_EVIDENCE",
+    "audit_reason": "Cited URL refers to general educational alerts or broad category warnings. It does not contain factual verification of an app listing with this specific developer or package ID. Kept unlabelled in accordance with strict anti-fabrication standards."
   },
   {
     "id": "MOB-POS-027",
@@ -425,11 +477,13 @@
     "description": "India's easiest crypto exchange CoinDCX helper app. Deposit INR via UPI with zero gateway fees and buy Bitcoin, Ethereum, and Dogecoin instantly.",
     "target_brand": "CoinDCX",
     "evidence_url": "https://coindcx.com/blog/community/beware-of-scams-stay-safe-with-coindcx/",
-    "label": 1,
-    "reviewer": "SURAKSHA Security Analyst",
+    "label": null,
+    "reviewer": "UNVERIFIED (Generated mock metadata - not independent human review)",
     "review_date": "2026-10-10",
     "source_provenance": "CoinDCX Fraud Warning on Fake UPI Deposit and Exchange Apps",
-    "notes": "Bogus crypto app routing deposits to fraudster mule UPI accounts."
+    "notes": "Bogus crypto app routing deposits to fraudster mule UPI accounts.",
+    "audit_status": "UNSUPPORTED_BY_EVIDENCE",
+    "audit_reason": "Cited URL refers to general educational alerts or broad category warnings. It does not contain factual verification of an app listing with this specific developer or package ID. Kept unlabelled in accordance with strict anti-fabrication standards."
   },
   {
     "id": "MOB-POS-028",
@@ -441,11 +495,13 @@
     "description": "Zero fee Binance P2P cryptocurrency trading assistant. Trade USDT with local bank transfer, instant escrow release and 24x7 merchant support.",
     "target_brand": "Binance",
     "evidence_url": "https://www.binance.com/en/blog/security/how-to-identify-and-avoid-fake-binance-apps-421499824684903332",
-    "label": 1,
-    "reviewer": "SURAKSHA Security Analyst",
+    "label": null,
+    "reviewer": "UNVERIFIED (Generated mock metadata - not independent human review)",
     "review_date": "2026-10-10",
     "source_provenance": "Binance Security Blog on Identifying and Avoiding Fake Binance Applications",
-    "notes": "Phishing APK targeting Binance API credentials and P2P release authorizations."
+    "notes": "Phishing APK targeting Binance API credentials and P2P release authorizations.",
+    "audit_status": "UNSUPPORTED_BY_EVIDENCE",
+    "audit_reason": "Cited URL refers to general educational alerts or broad category warnings. It does not contain factual verification of an app listing with this specific developer or package ID. Kept unlabelled in accordance with strict anti-fabrication standards."
   },
   {
     "id": "MOB-POS-029",
@@ -457,11 +513,13 @@
     "description": "Official Uber partner app for fleet drivers. Claim joining bonus of 5,000 INR and withdraw your daily trip earnings instantly to Paytm or bank.",
     "target_brand": "Uber",
     "evidence_url": "https://www.uber.com/in/en/drive/safety/",
-    "label": 1,
-    "reviewer": "SURAKSHA Security Analyst",
+    "label": null,
+    "reviewer": "UNVERIFIED (Generated mock metadata - not independent human review)",
     "review_date": "2026-10-10",
     "source_provenance": "Uber Partner Safety Alert on Fake Onboarding & Payout Apps",
-    "notes": "Targeted fraud app stealing Uber driver accounts and rerouting payouts."
+    "notes": "Targeted fraud app stealing Uber driver accounts and rerouting payouts.",
+    "audit_status": "UNSUPPORTED_BY_EVIDENCE",
+    "audit_reason": "Cited URL refers to general educational alerts or broad category warnings. It does not contain factual verification of an app listing with this specific developer or package ID. Kept unlabelled in accordance with strict anti-fabrication standards."
   },
   {
     "id": "MOB-POS-030",
@@ -473,11 +531,13 @@
     "description": "List your cloud kitchen on Zomato food delivery with 0% commission for 6 months. Manage live food orders and restaurant menu pricing seamlessly.",
     "target_brand": "Zomato",
     "evidence_url": "https://www.zomato.com/security",
-    "label": 1,
-    "reviewer": "SURAKSHA Security Analyst",
+    "label": null,
+    "reviewer": "UNVERIFIED (Generated mock metadata - not independent human review)",
     "review_date": "2026-10-10",
     "source_provenance": "Zomato Merchant Security Notice on Fake Onboarding and Franchise Portals",
-    "notes": "Advance fee fraud application impersonating Zomato merchant partner onboarding."
+    "notes": "Advance fee fraud application impersonating Zomato merchant partner onboarding.",
+    "audit_status": "UNSUPPORTED_BY_EVIDENCE",
+    "audit_reason": "Cited URL refers to general educational alerts or broad category warnings. It does not contain factual verification of an app listing with this specific developer or package ID. Kept unlabelled in accordance with strict anti-fabrication standards."
   },
   {
     "id": "MOB-POS-031",
@@ -489,11 +549,13 @@
     "description": "Join Swiggy delivery fleet within 1 hour. Get free T-shirt and delivery bag kit delivered to home. Pay registration deposit fee of 499 INR.",
     "target_brand": "Swiggy",
     "evidence_url": "https://www.swiggy.com/safety",
-    "label": 1,
-    "reviewer": "SURAKSHA Security Analyst",
+    "label": null,
+    "reviewer": "UNVERIFIED (Generated mock metadata - not independent human review)",
     "review_date": "2026-10-10",
     "source_provenance": "Swiggy Security Alert on Recruitment Scams and Fake Fleet Apps",
-    "notes": "Job seeker scam application charging illicit fees under Swiggy brand."
+    "notes": "Job seeker scam application charging illicit fees under Swiggy brand.",
+    "audit_status": "UNSUPPORTED_BY_EVIDENCE",
+    "audit_reason": "Cited URL refers to general educational alerts or broad category warnings. It does not contain factual verification of an app listing with this specific developer or package ID. Kept unlabelled in accordance with strict anti-fabrication standards."
   },
   {
     "id": "MOB-POS-032",
@@ -505,11 +567,13 @@
     "description": "Get free 1-year Reliance Jio 5G recharge pack with unlimited calling and daily 3GB data. Enter your Jio phone number to activate promotional voucher.",
     "target_brand": "Reliance Jio",
     "evidence_url": "https://www.jio.com/help/faq/cyber-security/fraud-awareness",
-    "label": 1,
-    "reviewer": "SURAKSHA Security Analyst",
+    "label": null,
+    "reviewer": "UNVERIFIED (Generated mock metadata - not independent human review)",
     "review_date": "2026-10-10",
     "source_provenance": "Reliance Jio Official Cyber Security Advisory on Fake Free Recharge Schemes",
-    "notes": "Adware scam exploiting Jio 5G promotions to distribute unwanted apps."
+    "notes": "Adware scam exploiting Jio 5G promotions to distribute unwanted apps.",
+    "audit_status": "UNSUPPORTED_BY_EVIDENCE",
+    "audit_reason": "Cited URL refers to general educational alerts or broad category warnings. It does not contain factual verification of an app listing with this specific developer or package ID. Kept unlabelled in accordance with strict anti-fabrication standards."
   },
   {
     "id": "MOB-POS-033",
@@ -521,11 +585,13 @@
     "description": "Claim exclusive Airtel Thanks app rewards. Activate free Disney Hotstar subscription and 100GB Airtel 5G extra data by submitting SIM details.",
     "target_brand": "Airtel",
     "evidence_url": "https://www.airtel.in/bank/fraud-awareness",
-    "label": 1,
-    "reviewer": "SURAKSHA Security Analyst",
+    "label": null,
+    "reviewer": "UNVERIFIED (Generated mock metadata - not independent human review)",
     "review_date": "2026-10-10",
     "source_provenance": "Airtel Cyber Safety Advisory regarding Fake Recharge and SIM Upgrade Apps",
-    "notes": "SIM swap lure and personal data harvester impersonating Bharti Airtel."
+    "notes": "SIM swap lure and personal data harvester impersonating Bharti Airtel.",
+    "audit_status": "UNSUPPORTED_BY_EVIDENCE",
+    "audit_reason": "Cited URL refers to general educational alerts or broad category warnings. It does not contain factual verification of an app listing with this specific developer or package ID. Kept unlabelled in accordance with strict anti-fabrication standards."
   },
   {
     "id": "MOB-POS-034",
@@ -537,11 +603,13 @@
     "description": "Double your NeuCoins shopping rewards across Croma, BigBasket, and Tata 1mg. Redeem Tata Neu discount vouchers on electronics and flights.",
     "target_brand": "Tata Neu",
     "evidence_url": "https://www.tatadigital.com/security",
-    "label": 1,
-    "reviewer": "SURAKSHA Security Analyst",
+    "label": null,
+    "reviewer": "UNVERIFIED (Generated mock metadata - not independent human review)",
     "review_date": "2026-10-10",
     "source_provenance": "Tata Digital Security Notice on Unauthorized Reward Aggregator Clones",
-    "notes": "Trademark infringement using Tata Neu assets to run click-fraud ads."
+    "notes": "Trademark infringement using Tata Neu assets to run click-fraud ads.",
+    "audit_status": "UNSUPPORTED_BY_EVIDENCE",
+    "audit_reason": "Cited URL refers to general educational alerts or broad category warnings. It does not contain factual verification of an app listing with this specific developer or package ID. Kept unlabelled in accordance with strict anti-fabrication standards."
   },
   {
     "id": "MOB-POS-035",
@@ -553,11 +621,13 @@
     "description": "Get early 24-hour access to Flipkart Big Billion Days sale deals. Buy iPhone 15 at 19,999 INR with Flipkart VIP shopper pass ticket.",
     "target_brand": "Flipkart",
     "evidence_url": "https://www.flipkart.com/pages/fraud-prevention",
-    "label": 1,
-    "reviewer": "SURAKSHA Security Analyst",
+    "label": null,
+    "reviewer": "UNVERIFIED (Generated mock metadata - not independent human review)",
     "review_date": "2026-10-10",
     "source_provenance": "Flipkart Trust and Safety Warning on Fake Shopping Pass Apps",
-    "notes": "Phishing app collecting user credit card details disguised as Flipkart sale pass."
+    "notes": "Phishing app collecting user credit card details disguised as Flipkart sale pass.",
+    "audit_status": "UNSUPPORTED_BY_EVIDENCE",
+    "audit_reason": "Cited URL refers to general educational alerts or broad category warnings. It does not contain factual verification of an app listing with this specific developer or package ID. Kept unlabelled in accordance with strict anti-fabrication standards."
   },
   {
     "id": "MOB-NEG-001",
@@ -570,10 +640,12 @@
     "target_brand": "State Bank of India",
     "evidence_url": "https://play.google.com/store/apps/details?id=com.sbi.lotusintouch",
     "label": 0,
-    "reviewer": "SURAKSHA Security Analyst",
+    "reviewer": "STORE_CATALOG_SYNC (Automated verified developer check, not manual analyst audit)",
     "review_date": "2026-10-10",
     "source_provenance": "Official Google Play Store Listing - Verified Publisher: State Bank of India",
-    "notes": "Genuine official flagship mobile banking app for State Bank of India."
+    "notes": "Genuine official flagship mobile banking app for State Bank of India.",
+    "audit_status": "VERIFIED_OFFICIAL_LISTING",
+    "audit_reason": "Genuine official listing verified on Google Play Store matching authenticated corporate developer."
   },
   {
     "id": "MOB-NEG-002",
@@ -586,10 +658,12 @@
     "target_brand": "State Bank of India",
     "evidence_url": "https://play.google.com/store/apps/details?id=com.sbicard.mycard",
     "label": 0,
-    "reviewer": "SURAKSHA Security Analyst",
+    "reviewer": "STORE_CATALOG_SYNC (Automated verified developer check, not manual analyst audit)",
     "review_date": "2026-10-10",
     "source_provenance": "Official Google Play Store Listing - Verified Publisher: SBI Cards",
-    "notes": "Genuine official credit card management application."
+    "notes": "Genuine official credit card management application.",
+    "audit_status": "VERIFIED_OFFICIAL_LISTING",
+    "audit_reason": "Genuine official listing verified on Google Play Store matching authenticated corporate developer."
   },
   {
     "id": "MOB-NEG-003",
@@ -602,10 +676,12 @@
     "target_brand": "HDFC Bank",
     "evidence_url": "https://play.google.com/store/apps/details?id=com.snapwork.hdfc",
     "label": 0,
-    "reviewer": "SURAKSHA Security Analyst",
+    "reviewer": "STORE_CATALOG_SYNC (Automated verified developer check, not manual analyst audit)",
     "review_date": "2026-10-10",
     "source_provenance": "Official Google Play Store Listing - Verified Publisher: HDFC Bank Ltd.",
-    "notes": "Genuine official mobile banking app for HDFC Bank."
+    "notes": "Genuine official mobile banking app for HDFC Bank.",
+    "audit_status": "VERIFIED_OFFICIAL_LISTING",
+    "audit_reason": "Genuine official listing verified on Google Play Store matching authenticated corporate developer."
   },
   {
     "id": "MOB-NEG-004",
@@ -618,10 +694,12 @@
     "target_brand": "ICICI Bank",
     "evidence_url": "https://play.google.com/store/apps/details?id=com.csam.icici.bank.imobile",
     "label": 0,
-    "reviewer": "SURAKSHA Security Analyst",
+    "reviewer": "STORE_CATALOG_SYNC (Automated verified developer check, not manual analyst audit)",
     "review_date": "2026-10-10",
     "source_provenance": "Official Google Play Store Listing - Verified Publisher: ICICI Bank Ltd.",
-    "notes": "Genuine official mobile banking app for ICICI Bank."
+    "notes": "Genuine official mobile banking app for ICICI Bank.",
+    "audit_status": "VERIFIED_OFFICIAL_LISTING",
+    "audit_reason": "Genuine official listing verified on Google Play Store matching authenticated corporate developer."
   },
   {
     "id": "MOB-NEG-005",
@@ -634,10 +712,12 @@
     "target_brand": "Axis Bank",
     "evidence_url": "https://play.google.com/store/apps/details?id=com.axis.mobile",
     "label": 0,
-    "reviewer": "SURAKSHA Security Analyst",
+    "reviewer": "STORE_CATALOG_SYNC (Automated verified developer check, not manual analyst audit)",
     "review_date": "2026-10-10",
     "source_provenance": "Official Google Play Store Listing - Verified Publisher: Axis Bank Ltd.",
-    "notes": "Genuine official digital banking app for Axis Bank."
+    "notes": "Genuine official digital banking app for Axis Bank.",
+    "audit_status": "VERIFIED_OFFICIAL_LISTING",
+    "audit_reason": "Genuine official listing verified on Google Play Store matching authenticated corporate developer."
   },
   {
     "id": "MOB-NEG-006",
@@ -650,10 +730,12 @@
     "target_brand": "Bajaj Finserv",
     "evidence_url": "https://play.google.com/store/apps/details?id=org.altruist.BajajExperia",
     "label": 0,
-    "reviewer": "SURAKSHA Security Analyst",
+    "reviewer": "STORE_CATALOG_SYNC (Automated verified developer check, not manual analyst audit)",
     "review_date": "2026-10-10",
     "source_provenance": "Official Google Play Store Listing - Verified Publisher: Bajaj Finance Limited",
-    "notes": "Genuine official financial services app for Bajaj Finserv."
+    "notes": "Genuine official financial services app for Bajaj Finserv.",
+    "audit_status": "VERIFIED_OFFICIAL_LISTING",
+    "audit_reason": "Genuine official listing verified on Google Play Store matching authenticated corporate developer."
   },
   {
     "id": "MOB-NEG-007",
@@ -666,10 +748,12 @@
     "target_brand": "WhatsApp",
     "evidence_url": "https://play.google.com/store/apps/details?id=com.whatsapp",
     "label": 0,
-    "reviewer": "SURAKSHA Security Analyst",
+    "reviewer": "STORE_CATALOG_SYNC (Automated verified developer check, not manual analyst audit)",
     "review_date": "2026-10-10",
     "source_provenance": "Official Google Play Store Listing - Verified Publisher: WhatsApp LLC (Meta)",
-    "notes": "Official genuine WhatsApp Messenger application."
+    "notes": "Official genuine WhatsApp Messenger application.",
+    "audit_status": "VERIFIED_OFFICIAL_LISTING",
+    "audit_reason": "Genuine official listing verified on Google Play Store matching authenticated corporate developer."
   },
   {
     "id": "MOB-NEG-008",
@@ -682,10 +766,12 @@
     "target_brand": "WhatsApp",
     "evidence_url": "https://play.google.com/store/apps/details?id=com.whatsapp.w4b",
     "label": 0,
-    "reviewer": "SURAKSHA Security Analyst",
+    "reviewer": "STORE_CATALOG_SYNC (Automated verified developer check, not manual analyst audit)",
     "review_date": "2026-10-10",
     "source_provenance": "Official Google Play Store Listing - Verified Publisher: WhatsApp LLC (Meta)",
-    "notes": "Official genuine WhatsApp Business application."
+    "notes": "Official genuine WhatsApp Business application.",
+    "audit_status": "VERIFIED_OFFICIAL_LISTING",
+    "audit_reason": "Genuine official listing verified on Google Play Store matching authenticated corporate developer."
   },
   {
     "id": "MOB-NEG-009",
@@ -698,10 +784,12 @@
     "target_brand": "Telegram",
     "evidence_url": "https://play.google.com/store/apps/details?id=org.telegram.messenger",
     "label": 0,
-    "reviewer": "SURAKSHA Security Analyst",
+    "reviewer": "STORE_CATALOG_SYNC (Automated verified developer check, not manual analyst audit)",
     "review_date": "2026-10-10",
     "source_provenance": "Official Google Play Store Listing - Verified Publisher: Telegram FZ-LLC",
-    "notes": "Official genuine Telegram Messenger application."
+    "notes": "Official genuine Telegram Messenger application.",
+    "audit_status": "VERIFIED_OFFICIAL_LISTING",
+    "audit_reason": "Genuine official listing verified on Google Play Store matching authenticated corporate developer."
   },
   {
     "id": "MOB-NEG-010",
@@ -714,10 +802,12 @@
     "target_brand": "Netflix",
     "evidence_url": "https://play.google.com/store/apps/details?id=com.netflix.mediaclient",
     "label": 0,
-    "reviewer": "SURAKSHA Security Analyst",
+    "reviewer": "STORE_CATALOG_SYNC (Automated verified developer check, not manual analyst audit)",
     "review_date": "2026-10-10",
     "source_provenance": "Official Google Play Store Listing - Verified Publisher: Netflix, Inc.",
-    "notes": "Official genuine Netflix client application."
+    "notes": "Official genuine Netflix client application.",
+    "audit_status": "VERIFIED_OFFICIAL_LISTING",
+    "audit_reason": "Genuine official listing verified on Google Play Store matching authenticated corporate developer."
   },
   {
     "id": "MOB-NEG-011",
@@ -730,10 +820,12 @@
     "target_brand": "Amazon",
     "evidence_url": "https://play.google.com/store/apps/details?id=in.amazon.mShop.android.shopping",
     "label": 0,
-    "reviewer": "SURAKSHA Security Analyst",
+    "reviewer": "STORE_CATALOG_SYNC (Automated verified developer check, not manual analyst audit)",
     "review_date": "2026-10-10",
     "source_provenance": "Official Google Play Store Listing - Verified Publisher: Amazon Mobile LLC",
-    "notes": "Official genuine Amazon shopping application for India."
+    "notes": "Official genuine Amazon shopping application for India.",
+    "audit_status": "VERIFIED_OFFICIAL_LISTING",
+    "audit_reason": "Genuine official listing verified on Google Play Store matching authenticated corporate developer."
   },
   {
     "id": "MOB-NEG-012",
@@ -746,10 +838,12 @@
     "target_brand": "Amazon",
     "evidence_url": "https://play.google.com/store/apps/details?id=com.amazon.avod.thirdpartyclient",
     "label": 0,
-    "reviewer": "SURAKSHA Security Analyst",
+    "reviewer": "STORE_CATALOG_SYNC (Automated verified developer check, not manual analyst audit)",
     "review_date": "2026-10-10",
     "source_provenance": "Official Google Play Store Listing - Verified Publisher: Amazon Mobile LLC",
-    "notes": "Official genuine Prime Video application."
+    "notes": "Official genuine Prime Video application.",
+    "audit_status": "VERIFIED_OFFICIAL_LISTING",
+    "audit_reason": "Genuine official listing verified on Google Play Store matching authenticated corporate developer."
   },
   {
     "id": "MOB-NEG-013",
@@ -762,10 +856,12 @@
     "target_brand": "PayPal",
     "evidence_url": "https://play.google.com/store/apps/details?id=com.paypal.android.p2pmobile",
     "label": 0,
-    "reviewer": "SURAKSHA Security Analyst",
+    "reviewer": "STORE_CATALOG_SYNC (Automated verified developer check, not manual analyst audit)",
     "review_date": "2026-10-10",
     "source_provenance": "Official Google Play Store Listing - Verified Publisher: PayPal Mobile",
-    "notes": "Official genuine PayPal Mobile application."
+    "notes": "Official genuine PayPal Mobile application.",
+    "audit_status": "VERIFIED_OFFICIAL_LISTING",
+    "audit_reason": "Genuine official listing verified on Google Play Store matching authenticated corporate developer."
   },
   {
     "id": "MOB-NEG-014",
@@ -778,10 +874,12 @@
     "target_brand": "MetaMask",
     "evidence_url": "https://play.google.com/store/apps/details?id=io.metamask",
     "label": 0,
-    "reviewer": "SURAKSHA Security Analyst",
+    "reviewer": "STORE_CATALOG_SYNC (Automated verified developer check, not manual analyst audit)",
     "review_date": "2026-10-10",
     "source_provenance": "Official Google Play Store Listing - Verified Publisher: Consensys Software Inc.",
-    "notes": "Official genuine MetaMask wallet application."
+    "notes": "Official genuine MetaMask wallet application.",
+    "audit_status": "VERIFIED_OFFICIAL_LISTING",
+    "audit_reason": "Genuine official listing verified on Google Play Store matching authenticated corporate developer."
   },
   {
     "id": "MOB-NEG-015",
@@ -794,10 +892,12 @@
     "target_brand": "PhonePe",
     "evidence_url": "https://play.google.com/store/apps/details?id=com.phonepe.app",
     "label": 0,
-    "reviewer": "SURAKSHA Security Analyst",
+    "reviewer": "STORE_CATALOG_SYNC (Automated verified developer check, not manual analyst audit)",
     "review_date": "2026-10-10",
     "source_provenance": "Official Google Play Store Listing - Verified Publisher: PhonePe India",
-    "notes": "Official genuine PhonePe UPI payments application."
+    "notes": "Official genuine PhonePe UPI payments application.",
+    "audit_status": "VERIFIED_OFFICIAL_LISTING",
+    "audit_reason": "Genuine official listing verified on Google Play Store matching authenticated corporate developer."
   },
   {
     "id": "MOB-NEG-016",
@@ -810,10 +910,12 @@
     "target_brand": "Google Pay",
     "evidence_url": "https://play.google.com/store/apps/details?id=com.google.android.apps.nbu.paisa.user",
     "label": 0,
-    "reviewer": "SURAKSHA Security Analyst",
+    "reviewer": "STORE_CATALOG_SYNC (Automated verified developer check, not manual analyst audit)",
     "review_date": "2026-10-10",
     "source_provenance": "Official Google Play Store Listing - Verified Publisher: Google LLC",
-    "notes": "Official genuine Google Pay (Tez) application."
+    "notes": "Official genuine Google Pay (Tez) application.",
+    "audit_status": "VERIFIED_OFFICIAL_LISTING",
+    "audit_reason": "Genuine official listing verified on Google Play Store matching authenticated corporate developer."
   },
   {
     "id": "MOB-NEG-017",
@@ -826,10 +928,12 @@
     "target_brand": "Paytm",
     "evidence_url": "https://play.google.com/store/apps/details?id=net.one97.paytm",
     "label": 0,
-    "reviewer": "SURAKSHA Security Analyst",
+    "reviewer": "STORE_CATALOG_SYNC (Automated verified developer check, not manual analyst audit)",
     "review_date": "2026-10-10",
     "source_provenance": "Official Google Play Store Listing - Verified Publisher: One97 Communications Ltd.",
-    "notes": "Official genuine Paytm application."
+    "notes": "Official genuine Paytm application.",
+    "audit_status": "VERIFIED_OFFICIAL_LISTING",
+    "audit_reason": "Genuine official listing verified on Google Play Store matching authenticated corporate developer."
   },
   {
     "id": "MOB-NEG-018",
@@ -842,10 +946,12 @@
     "target_brand": "Spotify",
     "evidence_url": "https://play.google.com/store/apps/details?id=com.spotify.music",
     "label": 0,
-    "reviewer": "SURAKSHA Security Analyst",
+    "reviewer": "STORE_CATALOG_SYNC (Automated verified developer check, not manual analyst audit)",
     "review_date": "2026-10-10",
     "source_provenance": "Official Google Play Store Listing - Verified Publisher: Spotify AB",
-    "notes": "Official genuine Spotify music streaming application."
+    "notes": "Official genuine Spotify music streaming application.",
+    "audit_status": "VERIFIED_OFFICIAL_LISTING",
+    "audit_reason": "Genuine official listing verified on Google Play Store matching authenticated corporate developer."
   },
   {
     "id": "MOB-NEG-019",
@@ -858,10 +964,12 @@
     "target_brand": "Instagram",
     "evidence_url": "https://play.google.com/store/apps/details?id=com.instagram.android",
     "label": 0,
-    "reviewer": "SURAKSHA Security Analyst",
+    "reviewer": "STORE_CATALOG_SYNC (Automated verified developer check, not manual analyst audit)",
     "review_date": "2026-10-10",
     "source_provenance": "Official Google Play Store Listing - Verified Publisher: Instagram (Meta)",
-    "notes": "Official genuine Instagram application."
+    "notes": "Official genuine Instagram application.",
+    "audit_status": "VERIFIED_OFFICIAL_LISTING",
+    "audit_reason": "Genuine official listing verified on Google Play Store matching authenticated corporate developer."
   },
   {
     "id": "MOB-NEG-020",
@@ -874,10 +982,12 @@
     "target_brand": "Facebook",
     "evidence_url": "https://play.google.com/store/apps/details?id=com.facebook.katana",
     "label": 0,
-    "reviewer": "SURAKSHA Security Analyst",
+    "reviewer": "STORE_CATALOG_SYNC (Automated verified developer check, not manual analyst audit)",
     "review_date": "2026-10-10",
     "source_provenance": "Official Google Play Store Listing - Verified Publisher: Meta Platforms, Inc.",
-    "notes": "Official genuine Facebook Android client."
+    "notes": "Official genuine Facebook Android client.",
+    "audit_status": "VERIFIED_OFFICIAL_LISTING",
+    "audit_reason": "Genuine official listing verified on Google Play Store matching authenticated corporate developer."
   },
   {
     "id": "MOB-NEG-021",
@@ -890,10 +1000,12 @@
     "target_brand": "Facebook",
     "evidence_url": "https://play.google.com/store/apps/details?id=com.facebook.pages.app",
     "label": 0,
-    "reviewer": "SURAKSHA Security Analyst",
+    "reviewer": "STORE_CATALOG_SYNC (Automated verified developer check, not manual analyst audit)",
     "review_date": "2026-10-10",
     "source_provenance": "Official Google Play Store Listing - Verified Publisher: Meta Platforms, Inc.",
-    "notes": "Official genuine Meta Business Suite application."
+    "notes": "Official genuine Meta Business Suite application.",
+    "audit_status": "VERIFIED_OFFICIAL_LISTING",
+    "audit_reason": "Genuine official listing verified on Google Play Store matching authenticated corporate developer."
   },
   {
     "id": "MOB-NEG-022",
@@ -906,10 +1018,12 @@
     "target_brand": "X (Twitter)",
     "evidence_url": "https://play.google.com/store/apps/details?id=com.twitter.android",
     "label": 0,
-    "reviewer": "SURAKSHA Security Analyst",
+    "reviewer": "STORE_CATALOG_SYNC (Automated verified developer check, not manual analyst audit)",
     "review_date": "2026-10-10",
     "source_provenance": "Official Google Play Store Listing - Verified Publisher: X Corp.",
-    "notes": "Official genuine X (Twitter) client application."
+    "notes": "Official genuine X (Twitter) client application.",
+    "audit_status": "VERIFIED_OFFICIAL_LISTING",
+    "audit_reason": "Genuine official listing verified on Google Play Store matching authenticated corporate developer."
   },
   {
     "id": "MOB-NEG-023",
@@ -922,10 +1036,12 @@
     "target_brand": "Apple",
     "evidence_url": "https://play.google.com/store/apps/details?id=com.apple.android.music",
     "label": 0,
-    "reviewer": "SURAKSHA Security Analyst",
+    "reviewer": "STORE_CATALOG_SYNC (Automated verified developer check, not manual analyst audit)",
     "review_date": "2026-10-10",
     "source_provenance": "Official Google Play Store Listing - Verified Publisher: Apple Inc.",
-    "notes": "Official genuine Apple Music client for Android."
+    "notes": "Official genuine Apple Music client for Android.",
+    "audit_status": "VERIFIED_OFFICIAL_LISTING",
+    "audit_reason": "Genuine official listing verified on Google Play Store matching authenticated corporate developer."
   },
   {
     "id": "MOB-NEG-024",
@@ -938,10 +1054,12 @@
     "target_brand": "Microsoft",
     "evidence_url": "https://play.google.com/store/apps/details?id=com.azure.authenticator",
     "label": 0,
-    "reviewer": "SURAKSHA Security Analyst",
+    "reviewer": "STORE_CATALOG_SYNC (Automated verified developer check, not manual analyst audit)",
     "review_date": "2026-10-10",
     "source_provenance": "Official Google Play Store Listing - Verified Publisher: Microsoft Corporation",
-    "notes": "Official genuine Microsoft Authenticator application."
+    "notes": "Official genuine Microsoft Authenticator application.",
+    "audit_status": "VERIFIED_OFFICIAL_LISTING",
+    "audit_reason": "Genuine official listing verified on Google Play Store matching authenticated corporate developer."
   },
   {
     "id": "MOB-NEG-025",
@@ -954,10 +1072,12 @@
     "target_brand": "Google",
     "evidence_url": "https://play.google.com/store/apps/details?id=com.google.android.apps.authenticator2",
     "label": 0,
-    "reviewer": "SURAKSHA Security Analyst",
+    "reviewer": "STORE_CATALOG_SYNC (Automated verified developer check, not manual analyst audit)",
     "review_date": "2026-10-10",
     "source_provenance": "Official Google Play Store Listing - Verified Publisher: Google LLC",
-    "notes": "Official genuine Google Authenticator application."
+    "notes": "Official genuine Google Authenticator application.",
+    "audit_status": "VERIFIED_OFFICIAL_LISTING",
+    "audit_reason": "Genuine official listing verified on Google Play Store matching authenticated corporate developer."
   },
   {
     "id": "MOB-NEG-026",
@@ -970,10 +1090,12 @@
     "target_brand": "Zerodha",
     "evidence_url": "https://play.google.com/store/apps/details?id=com.zerodha.kite3",
     "label": 0,
-    "reviewer": "SURAKSHA Security Analyst",
+    "reviewer": "STORE_CATALOG_SYNC (Automated verified developer check, not manual analyst audit)",
     "review_date": "2026-10-10",
     "source_provenance": "Official Google Play Store Listing - Verified Publisher: Zerodha",
-    "notes": "Official genuine Kite by Zerodha brokerage application."
+    "notes": "Official genuine Kite by Zerodha brokerage application.",
+    "audit_status": "VERIFIED_OFFICIAL_LISTING",
+    "audit_reason": "Genuine official listing verified on Google Play Store matching authenticated corporate developer."
   },
   {
     "id": "MOB-NEG-027",
@@ -986,10 +1108,12 @@
     "target_brand": "Groww",
     "evidence_url": "https://play.google.com/store/apps/details?id=com.nextbillion.groww",
     "label": 0,
-    "reviewer": "SURAKSHA Security Analyst",
+    "reviewer": "STORE_CATALOG_SYNC (Automated verified developer check, not manual analyst audit)",
     "review_date": "2026-10-10",
     "source_provenance": "Official Google Play Store Listing - Verified Publisher: Nextbillion Technology (Groww)",
-    "notes": "Official genuine Groww investment application."
+    "notes": "Official genuine Groww investment application.",
+    "audit_status": "VERIFIED_OFFICIAL_LISTING",
+    "audit_reason": "Genuine official listing verified on Google Play Store matching authenticated corporate developer."
   },
   {
     "id": "MOB-NEG-028",
@@ -1002,10 +1126,12 @@
     "target_brand": "Trust Wallet",
     "evidence_url": "https://play.google.com/store/apps/details?id=com.wallet.crypto.trustapp",
     "label": 0,
-    "reviewer": "SURAKSHA Security Analyst",
+    "reviewer": "STORE_CATALOG_SYNC (Automated verified developer check, not manual analyst audit)",
     "review_date": "2026-10-10",
     "source_provenance": "Official Google Play Store Listing - Verified Publisher: DApps Platform, Inc.",
-    "notes": "Official genuine Trust Wallet mobile application."
+    "notes": "Official genuine Trust Wallet mobile application.",
+    "audit_status": "VERIFIED_OFFICIAL_LISTING",
+    "audit_reason": "Genuine official listing verified on Google Play Store matching authenticated corporate developer."
   },
   {
     "id": "MOB-NEG-029",
@@ -1018,10 +1144,12 @@
     "target_brand": "CoinDCX",
     "evidence_url": "https://play.google.com/store/apps/details?id=com.coindcx",
     "label": 0,
-    "reviewer": "SURAKSHA Security Analyst",
+    "reviewer": "STORE_CATALOG_SYNC (Automated verified developer check, not manual analyst audit)",
     "review_date": "2026-10-10",
     "source_provenance": "Official Google Play Store Listing - Verified Publisher: Neblio Technologies (CoinDCX)",
-    "notes": "Official genuine CoinDCX cryptocurrency exchange application."
+    "notes": "Official genuine CoinDCX cryptocurrency exchange application.",
+    "audit_status": "VERIFIED_OFFICIAL_LISTING",
+    "audit_reason": "Genuine official listing verified on Google Play Store matching authenticated corporate developer."
   },
   {
     "id": "MOB-NEG-030",
@@ -1034,10 +1162,12 @@
     "target_brand": "Binance",
     "evidence_url": "https://play.google.com/store/apps/details?id=com.binance.dev",
     "label": 0,
-    "reviewer": "SURAKSHA Security Analyst",
+    "reviewer": "STORE_CATALOG_SYNC (Automated verified developer check, not manual analyst audit)",
     "review_date": "2026-10-10",
     "source_provenance": "Official Google Play Store Listing - Verified Publisher: Binance",
-    "notes": "Official genuine Binance application."
+    "notes": "Official genuine Binance application.",
+    "audit_status": "VERIFIED_OFFICIAL_LISTING",
+    "audit_reason": "Genuine official listing verified on Google Play Store matching authenticated corporate developer."
   },
   {
     "id": "MOB-NEG-031",
@@ -1050,10 +1180,12 @@
     "target_brand": "Uber",
     "evidence_url": "https://play.google.com/store/apps/details?id=com.ubercab",
     "label": 0,
-    "reviewer": "SURAKSHA Security Analyst",
+    "reviewer": "STORE_CATALOG_SYNC (Automated verified developer check, not manual analyst audit)",
     "review_date": "2026-10-10",
     "source_provenance": "Official Google Play Store Listing - Verified Publisher: Uber Technologies, Inc.",
-    "notes": "Official genuine Uber passenger application."
+    "notes": "Official genuine Uber passenger application.",
+    "audit_status": "VERIFIED_OFFICIAL_LISTING",
+    "audit_reason": "Genuine official listing verified on Google Play Store matching authenticated corporate developer."
   },
   {
     "id": "MOB-NEG-032",
@@ -1066,10 +1198,12 @@
     "target_brand": "Zomato",
     "evidence_url": "https://play.google.com/store/apps/details?id=com.application.zomato",
     "label": 0,
-    "reviewer": "SURAKSHA Security Analyst",
+    "reviewer": "STORE_CATALOG_SYNC (Automated verified developer check, not manual analyst audit)",
     "review_date": "2026-10-10",
     "source_provenance": "Official Google Play Store Listing - Verified Publisher: Zomato Limited",
-    "notes": "Official genuine Zomato food delivery application."
+    "notes": "Official genuine Zomato food delivery application.",
+    "audit_status": "VERIFIED_OFFICIAL_LISTING",
+    "audit_reason": "Genuine official listing verified on Google Play Store matching authenticated corporate developer."
   },
   {
     "id": "MOB-NEG-033",
@@ -1082,10 +1216,12 @@
     "target_brand": "Swiggy",
     "evidence_url": "https://play.google.com/store/apps/details?id=in.swiggy.android",
     "label": 0,
-    "reviewer": "SURAKSHA Security Analyst",
+    "reviewer": "STORE_CATALOG_SYNC (Automated verified developer check, not manual analyst audit)",
     "review_date": "2026-10-10",
     "source_provenance": "Official Google Play Store Listing - Verified Publisher: Bundl Technologies (Swiggy)",
-    "notes": "Official genuine Swiggy application."
+    "notes": "Official genuine Swiggy application.",
+    "audit_status": "VERIFIED_OFFICIAL_LISTING",
+    "audit_reason": "Genuine official listing verified on Google Play Store matching authenticated corporate developer."
   },
   {
     "id": "MOB-NEG-034",
@@ -1098,10 +1234,12 @@
     "target_brand": "Reliance Jio",
     "evidence_url": "https://play.google.com/store/apps/details?id=com.jio.myjio",
     "label": 0,
-    "reviewer": "SURAKSHA Security Analyst",
+    "reviewer": "STORE_CATALOG_SYNC (Automated verified developer check, not manual analyst audit)",
     "review_date": "2026-10-10",
     "source_provenance": "Official Google Play Store Listing - Verified Publisher: Jio Platforms Limited",
-    "notes": "Official genuine MyJio application."
+    "notes": "Official genuine MyJio application.",
+    "audit_status": "VERIFIED_OFFICIAL_LISTING",
+    "audit_reason": "Genuine official listing verified on Google Play Store matching authenticated corporate developer."
   },
   {
     "id": "MOB-NEG-035",
@@ -1114,9 +1252,11 @@
     "target_brand": "Flipkart",
     "evidence_url": "https://play.google.com/store/apps/details?id=com.flipkart.android",
     "label": 0,
-    "reviewer": "SURAKSHA Security Analyst",
+    "reviewer": "STORE_CATALOG_SYNC (Automated verified developer check, not manual analyst audit)",
     "review_date": "2026-10-10",
     "source_provenance": "Official Google Play Store Listing - Verified Publisher: Flipkart Internet Private Limited",
-    "notes": "Official genuine Flipkart e-commerce application."
+    "notes": "Official genuine Flipkart e-commerce application.",
+    "audit_status": "VERIFIED_OFFICIAL_LISTING",
+    "audit_reason": "Genuine official listing verified on Google Play Store matching authenticated corporate developer."
   }
 ]

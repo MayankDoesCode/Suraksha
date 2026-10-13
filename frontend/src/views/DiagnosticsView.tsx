@@ -829,33 +829,33 @@ export const DiagnosticsView: React.FC = () => {
                     <span className="text-[10px] uppercase font-bold text-slate-500 tracking-wider block mb-1">Engine Status</span>
                     <p className="text-xs font-semibold text-amber-800 flex items-center gap-1.5">
                       <AlertCircle className="w-3.5 h-3.5 text-amber-600" />
-                      <span>Pending Verified Ground Truth</span>
+                      <span>Pending Ground-Truth Labels</span>
                     </p>
-                    <p className="text-[10px] text-slate-500 font-mono mt-1">Supervised Model Not Yet Deployed</p>
+                    <p className="text-[10px] text-slate-500 font-mono mt-1">Supervised Training Paused (Anti-Fabrication)</p>
                   </div>
                   <div className="p-3.5 rounded-xl bg-slate-50 border border-slate-200">
-                    <span className="text-[10px] uppercase font-bold text-slate-500 tracking-wider block mb-1">Drebin Dataset Audit Verdict</span>
+                    <span className="text-[10px] uppercase font-bold text-slate-500 tracking-wider block mb-1">Evidence URL Audit Verdict</span>
                     <p className="text-xs font-semibold text-rose-800">
-                      Ineligible: Binary Device Malware ≠ App Store Brand Impersonation
+                      General Warnings ≠ Documented App Incidents
                     </p>
-                    <p className="text-[10px] text-slate-500 font-mono mt-1">Evaluated to prevent false-labeling</p>
+                    <p className="text-[10px] text-slate-500 font-mono mt-1">35 candidates moved to unlabelled triage</p>
                   </div>
                   <div className="p-3.5 rounded-xl bg-slate-50 border border-slate-200">
                     <span className="text-[10px] uppercase font-bold text-slate-500 tracking-wider block mb-1">Active Protection</span>
                     <p className="text-xs font-semibold text-slate-800">
                       SURAKSHA Deterministic Rule &amp; Publisher Whitelist Engine
                     </p>
-                    <p className="text-[10px] text-purple-600 font-mono mt-1 font-semibold">Explicit Fallback Baseline Active</p>
+                    <p className="text-[10px] text-purple-600 font-mono mt-1 font-semibold">Verified Publisher Keystores + Heuristic Rules</p>
                   </div>
                 </div>
 
                 <div className="p-3.5 rounded-xl bg-amber-50 border border-amber-200 text-xs text-amber-900 space-y-1">
                   <span className="font-bold flex items-center gap-1.5">
                     <ShieldAlert className="w-4 h-4 text-amber-600" />
-                    <span>Zero Hallucination Guarantee &amp; Labelling Workflow</span>
+                    <span>Zero-Fabrication Guarantee &amp; Evidence Audit</span>
                   </span>
                   <p className="text-[11px] leading-relaxed">
-                    We refuse to invent fake training labels or mislabel Android malware as brand impersonation. All mobile app candidates are currently evaluated using verified publisher allowlists, package signature cross-referencing, and keyword lure detection. Curated triage decisions are recorded to the analyst queue (<code>mobile_app_labelling_queue.json</code>) to establish genuine ground truth before supervised model activation.
+                    A thorough audit of cited evidence URLs revealed that regulatory advisories (CERT-In, RBI, FTC) discuss general scam categories rather than verifiable, individual app listing incident files. In accordance with SURAKSHA's strict zero-hallucination policy, synthetic candidate labels were rejected and quarantined into the unlabelled triage queue (<code>label: null</code>). Mobile risk detection is actively enforced via verified corporate allowlists, package signature cross-referencing, and deterministic lure detection.
                   </p>
                 </div>
               </>

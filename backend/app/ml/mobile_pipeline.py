@@ -246,7 +246,16 @@ def train_and_evaluate_mobile_model(
 
     # Check whether sufficient ground truth exists
     queue_display_path = "backend/app/ml/data/mobile_app_labelling_queue.json"
+    unlabelled_count = sum(1 for r in records if r.get("label") is None)
     if pos_count < MINIMUM_TRAINING_SAMPLES_PER_CLASS or neg_count < MINIMUM_TRAINING_SAMPLES_PER_CLASS:
+        # Remove any stale model artifact so unverified ML inference is disabled
+        model_path = os.path.join(out_dir, MOBILE_MODEL_FILENAME)
+        if os.path.exists(model_path):
+            try:
+                os.remove(model_path)
+            except Exception:
+                pass
+
         manifest = {
             "trained": False,
             "status": "pending_ground_truth_labels",
@@ -255,8 +264,9 @@ def train_and_evaluate_mobile_model(
             "model_artifact": None,
             "timestamp": datetime.now(timezone.utc).isoformat(),
             "reason": (
-                f"Insufficient analyst-curated training samples in '{queue_display_path}' "
-                f"(current: {pos_count} impersonators, {neg_count} benign; required: {MINIMUM_TRAINING_SAMPLES_PER_CLASS} each). "
+                f"Insufficient verified ground-truth training samples in '{queue_display_path}' "
+                f"(current: {pos_count} verified impersonators, {neg_count} benign, {unlabelled_count} unlabelled triage candidates; "
+                f"required: {MINIMUM_TRAINING_SAMPLES_PER_CLASS} each). "
                 "Supervised training paused to prevent label fabrication."
             ),
             "dataset_audit": {
@@ -265,10 +275,19 @@ def train_and_evaluate_mobile_model(
                     "status": "unavailable_for_public_download",
                     "reason": "Paper analyzes 150k fake apps from proprietary crawler; dataset is not publicly hosted or downloadable.",
                 },
+                "evidence_url_audit": {
+                    "status": "unsupported_by_evidence",
+                    "reason": (
+                        "35 positive candidate apps cited general regulatory advisories or fraud hubs, "
+                        "which discuss scam categories but do not document the exact app listings or package IDs. "
+                        "Moved to unlabelled triage queue to prevent synthetic training leakage."
+                    ),
+                },
                 "labelling_queue_path": queue_display_path,
                 "current_samples": len(records),
-                "impersonator_samples": pos_count,
-                "benign_samples": neg_count,
+                "verified_impersonator_samples": pos_count,
+                "verified_benign_samples": neg_count,
+                "unlabelled_triage_samples": unlabelled_count,
             },
             "architecture": "FeatureUnion(word_tfidf + char_wb_tfidf) + LogisticRegression(balanced)",
             "fallback_engine": "SURAKSHA Deterministic Rule & Publisher Whitelist Engine",
