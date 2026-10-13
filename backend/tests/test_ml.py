@@ -258,3 +258,176 @@ def test_url_pipeline_domain_leakage_prevention(tmp_path):
     assert os.path.exists(os.path.join(output_dir, URL_MODEL_FILENAME))
     assert os.path.exists(os.path.join(output_dir, URL_MANIFEST_FILENAME))
     assert manifest["metrics"]["accuracy"] >= 0.0
+
+
+def test_social_pipeline_feature_extraction():
+    from backend.app.ml.social_pipeline import extract_social_features, FEATURE_COLUMNS
+    profile = {
+        "userFollowerCount": 500,
+        "userFollowingCount": 100,
+        "userBiographyLength": 85,
+        "userMediaCount": 42,
+        "userHasProfilPic": 1,
+        "userIsPrivate": 0,
+        "usernameDigitCount": 2,
+        "usernameLength": 12,
+    }
+    feats = extract_social_features(profile)
+    assert len(feats.columns) == len(FEATURE_COLUMNS)
+    assert feats["userFollowerCount"].iloc[0] == 500.0
+    assert feats["userFollowingCount"].iloc[0] == 100.0
+
+
+def test_social_pipeline_missing_data_blocker(tmp_path):
+    from backend.app.ml.social_pipeline import train_and_evaluate_social_model
+    output_dir = str(tmp_path / "social_models")
+    manifest = train_and_evaluate_social_model(data_dir=str(tmp_path / "nonexistent"), output_dir=output_dir)
+    assert manifest["trained"] is False
+    assert manifest["status"] in ["missing_dataset", "missing_labelled_data"]
+    assert manifest["metrics"] is None
+
+
+def test_mobile_pipeline_feature_extraction_and_allowlist():
+    from backend.app.ml.mobile_pipeline import (
+        build_mobile_feature_text,
+        extract_mobile_entity_signals,
+        record_app_for_analyst_review,
+    )
+    brand_profile = {
+        "name": "Acme Bank",
+        "official_publishers": ["Acme Financial Group Ltd"],
+        "official_packages": ["com.acmebank.mobile"],
+    }
+    # Official app matching allowlist
+    official_app = {
+        "name": "Acme Bank Mobile",
+        "developer": "Acme Financial Group Ltd",
+        "package_id": "com.acmebank.mobile",
+    }
+    signals_off = extract_mobile_entity_signals(official_app, brand_profile)
+    assert signals_off["publisher_verified"] is True
+    assert signals_off["package_verified"] is True
+    assert signals_off["developer_mismatch"] is False
+
+    # Impersonator app
+    fake_app = {
+        "name": "Acme Bank Quick Loan & KYC Update",
+        "developer": "Instant Cash Dev 2026",
+        "package_id": "org.freefunds.acmeupdate",
+        "description": "Log in with your corporate credentials to unlock immediate credit.",
+    }
+    signals_fake = extract_mobile_entity_signals(fake_app, brand_profile)
+    assert signals_fake["publisher_verified"] is False
+    assert signals_fake["developer_mismatch"] is True
+    assert signals_fake["brand_mentioned"] is True
+    assert signals_fake["lure_count"] >= 1
+
+    feature_text = build_mobile_feature_text(fake_app, "Acme Bank")
+    assert "brand:acme bank" in feature_text
+    assert "dev:instant cash dev" in feature_text
+
+
+def test_api_predict_social_endpoint():
+    app = create_app("testing")
+    client = app.test_client()
+
+    # 1. Valid request with bot-like signals and brand target
+    res = client.post("/api/v1/ml/predict-social", json={
+        "username": "official_acme_support_helpdesk_992",
+        "target_brand": "Acme Bank",
+        "display_name": "Acme Bank Verified Customer Care",
+        "followers_count": 2,
+        "following_count": 2400,
+        "posts_count": 0,
+        "has_profile_pic": 0,
+        "biography": "Official 24/7 recovery desk for Acme Bank accounts. DM credentials to unlock.",
+    })
+    assert res.status_code == 200
+    body = res.get_json()
+    assert body["success"] is True
+    data = body["data"]
+    assert data["task"] == "social_profile_threat_detection"
+    assert "risk_score" in data
+    assert data["requires_analyst_review"] is True
+    assert data["auto_confirmed"] is False
+    assert "generic_fake_account_ml" in data
+    assert "brand_impersonation_assessment" in data
+
+    # 2. Missing username & display_name
+    res_err = client.post("/api/v1/ml/predict-social", json={"target_brand": "Acme"})
+    assert res_err.status_code == 422
+
+
+def test_api_predict_app_endpoint():
+    app = create_app("testing")
+    client = app.test_client()
+
+    # 1. Official app - allowlist match
+    res_off = client.post("/api/v1/ml/predict-app", json={
+        "name": "Acme Bank Mobile",
+        "developer": "Acme Bank Official Ltd",
+        "package_id": "com.acmebank.app",
+        "target_brand": "Acme Bank",
+        "brand_profile": {
+            "name": "Acme Bank",
+            "official_publishers": ["Acme Bank Official Ltd"],
+            "official_packages": ["com.acmebank.app"],
+        },
+    })
+    assert res_off.status_code == 200
+    data_off = res_off.get_json()["data"]
+    assert data_off["is_official_asset"] is True
+    assert data_off["risk_score"] == 0.0
+    assert data_off["requires_analyst_review"] is False
+
+    # 2. Impersonating app - transparent baseline rule engine (never fake ML)
+    res_fake = client.post("/api/v1/ml/predict-app", json={
+        "name": "Acme Bank Fast Login Portal",
+        "developer": "Rogue Developer Inc",
+        "package_id": "net.rogue.acmelogin",
+        "target_brand": "Acme Bank",
+        "brand_profile": {
+            "name": "Acme Bank",
+            "official_publishers": ["Acme Bank Official Ltd"],
+        },
+    })
+    assert res_fake.status_code == 200
+    data_fake = res_fake.get_json()["data"]
+    assert data_fake["is_official_asset"] is False
+    assert data_fake["is_ml_prediction"] is False  # Explicitly NOT claimed as ML
+    assert data_fake["ml_status"] == "pending_ground_truth_labels"
+    assert data_fake["risk_score"] > 50.0
+    assert data_fake["requires_analyst_review"] is True
+    assert data_fake["auto_confirmed"] is False
+
+    # 3. Missing identifier
+    res_err = client.post("/api/v1/ml/predict-app", json={"target_brand": "Acme"})
+    assert res_err.status_code == 422
+
+
+def test_api_status_reports_all_components():
+    app = create_app("testing")
+    client = app.test_client()
+
+    res = client.get("/api/v1/ml/status")
+    assert res.status_code == 200
+    data = res.get_json()["data"]
+    assert "components" in data
+    comps = data["components"]
+
+    # URL model is operational
+    assert comps["url_phishing"]["available"] is True
+    assert comps["url_phishing"]["status"] == "operational"
+    assert "metrics" in comps["url_phishing"]
+
+    # Social model is operational on InstaFake
+    assert comps["social_fake_account"]["available"] is True
+    assert comps["social_fake_account"]["status"] == "operational"
+    assert "metrics" in comps["social_fake_account"]
+    assert comps["social_fake_account"]["baseline_comparison"] is not None
+
+    # Mobile model is explicitly marked pending ground truth labels
+    assert comps["mobile_app_brand_impersonation"]["available"] is False
+    assert comps["mobile_app_brand_impersonation"]["status"] == "pending_ground_truth_labels"
+    assert "fallback_engine" in comps["mobile_app_brand_impersonation"]
+

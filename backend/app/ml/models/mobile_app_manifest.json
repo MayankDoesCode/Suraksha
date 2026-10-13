@@ -1,0 +1,22 @@
+{
+  "trained": false,
+  "status": "pending_ground_truth_labels",
+  "task": "mobile_app_brand_impersonation",
+  "model_version": null,
+  "model_artifact": null,
+  "timestamp": "2026-10-13T17:23:18.060312+00:00",
+  "reason": "Insufficient analyst-curated training samples in 'backend/app/ml/data/mobile_app_labelling_queue.json' (current: 0 impersonators, 0 benign; required: 25 each). Drebin dataset was evaluated and found ineligible (it measures device malware binaries, not app store trademark impersonation). Supervised training paused to prevent label fabrication.",
+  "dataset_audit": {
+    "drebin_evaluation": {
+      "source": "drebin.mlsec.org",
+      "status": "ineligible_task_mismatch",
+      "reason": "Classifies low-level Android APK malware/exploits, not app store listing trademark impersonation."
+    },
+    "labelling_queue_path": "backend/app/ml/data/mobile_app_labelling_queue.json",
+    "current_samples": 0,
+    "impersonator_samples": 0,
+    "benign_samples": 0
+  },
+  "architecture": "TfidfVectorizer(char_wb, (3,5)) + LogisticRegression(balanced)",
+  "fallback_engine": "SURAKSHA Deterministic Rule & Publisher Whitelist Engine"
+}

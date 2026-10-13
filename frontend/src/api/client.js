@@ -189,6 +189,20 @@ class ApiClient {
       body: JSON.stringify({ url }),
     });
   }
+
+  async predictSocialRisk(profileData) {
+    return this.request('/ml/predict-social', {
+      method: 'POST',
+      body: JSON.stringify(profileData),
+    });
+  }
+
+  async predictAppRisk(appData) {
+    return this.request('/ml/predict-app', {
+      method: 'POST',
+      body: JSON.stringify(appData),
+    });
+  }
 }
 
 export const api = new ApiClient(API_BASE_URL);

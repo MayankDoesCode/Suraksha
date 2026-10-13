@@ -74,3 +74,63 @@ def predict_url_phishing():
         "success": True,
         "data": result
     }), 200
+
+
+@ml_bp.route("/predict-social", methods=["POST"])
+def predict_social_account():
+    """
+    Dedicated endpoint for Social Profile threat classification.
+    Uses InstaFake ML pipeline for fake account probability and
+    deterministic heuristics for brand trademark corroboration.
+    """
+    payload = request.get_json(silent=True) or {}
+    username = payload.get("username") or payload.get("handle") or payload.get("candidate_name") or payload.get("name")
+    if not username:
+        return jsonify({
+            "success": False,
+            "error": {
+                "code": "VALIDATION_ERROR",
+                "message": "Field 'username' or 'handle' is required."
+            }
+        }), 422
+
+    brand_profile = payload.get("brand_profile")
+    if not brand_profile and payload.get("brand_name"):
+        brand_profile = {"name": payload.get("brand_name")}
+
+    service = get_ml_service()
+    result = service.predict_social_risk(payload, brand_profile=brand_profile)
+    return jsonify({
+        "success": True,
+        "data": result
+    }), 200
+
+
+@ml_bp.route("/predict-app", methods=["POST"])
+def predict_mobile_app():
+    """
+    Dedicated endpoint for Mobile Application threat classification.
+    Evaluates listing metadata, developer identities, and brand token signals.
+    """
+    payload = request.get_json(silent=True) or {}
+    app_title = payload.get("candidate_name") or payload.get("name") or payload.get("app_title")
+    if not app_title:
+        return jsonify({
+            "success": False,
+            "error": {
+                "code": "VALIDATION_ERROR",
+                "message": "Field 'candidate_name' or 'app_title' is required."
+            }
+        }), 422
+
+    brand_profile = payload.get("brand_profile")
+    if not brand_profile and payload.get("brand_name"):
+        brand_profile = {"name": payload.get("brand_name")}
+
+    service = get_ml_service()
+    result = service.predict_app_risk(payload, brand_profile=brand_profile)
+    return jsonify({
+        "success": True,
+        "data": result
+    }), 200
+

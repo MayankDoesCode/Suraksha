@@ -749,6 +749,22 @@ export const AppMonitoringView: React.FC = () => {
                 </div>
               </div>
 
+              {/* Engine Telemetry & Explicit Deterministic Baseline Notice */}
+              <div className="p-3.5 rounded-xl bg-purple-50/70 border border-purple-200 text-xs space-y-2">
+                <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-1.5">
+                  <span className="font-bold text-purple-950 flex items-center gap-1.5">
+                    <ShieldAlert className="w-3.5 h-3.5 text-purple-600" />
+                    <span>Active Engine: SURAKSHA Deterministic Rule &amp; Publisher Whitelist Engine</span>
+                  </span>
+                  <span className="text-[10px] font-mono font-bold px-2 py-0.5 rounded-full bg-amber-100 text-amber-800 border border-amber-300 self-start sm:self-auto">
+                    ML Status: Pending Ground Truth Data
+                  </span>
+                </div>
+                <p className="text-[11px] text-purple-900 leading-relaxed">
+                  Supervised ML model is intentionally marked pending verified corporate app listing data. Drebin malware dataset was audited and deemed ineligible (evaluates low-level binary exploits, not app store trademark squatting). Threat score is evaluated strictly via verified publisher keystore matching, package syntax cross-referencing, and keyword lure detection.
+                </p>
+              </div>
+
               {/* Exclusion Banner if Official */}
               {analysisResult.isExcluded && (
                 <div className="p-4 rounded-xl bg-emerald-50 border border-emerald-200 flex items-start gap-3">
