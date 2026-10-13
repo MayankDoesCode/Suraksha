@@ -7,11 +7,15 @@ import BrandDetailDrawer from './components/BrandDetailDrawer';
 import DeleteConfirmModal from './components/DeleteConfirmModal';
 import DiagnosticsView from './components/DiagnosticsView';
 import PlannedModuleView from './components/PlannedModuleView';
+import SocialMonitoringView from './components/SocialMonitoringView';
+import AppMonitoringView from './components/AppMonitoringView';
+import ThreatExplorerView from './components/ThreatExplorerView';
 import api from './api/client';
 
 export default function App() {
   const [currentView, setCurrentView] = useState('brands');
   const [brands, setBrands] = useState([]);
+  const [metrics, setMetrics] = useState(null);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
   const [search, setSearch] = useState('');
@@ -52,6 +56,16 @@ export default function App() {
     }
   }, []);
 
+  // Fetch Platform Metrics
+  const fetchMetrics = useCallback(async () => {
+    try {
+      const res = await api.getMetrics();
+      setMetrics(res.data);
+    } catch {
+      // Ignore background metrics error
+    }
+  }, []);
+
   // Fetch Brands List
   const fetchBrands = useCallback(async (searchTerm = search) => {
     setLoading(true);
@@ -70,7 +84,8 @@ export default function App() {
   useEffect(() => {
     fetchHealth();
     fetchBrands('');
-  }, [fetchHealth]);
+    fetchMetrics();
+  }, [fetchHealth, fetchMetrics]);
 
   // Handle Search Input with debounce
   useEffect(() => {
@@ -93,6 +108,7 @@ export default function App() {
       showToast(`Brand "${created.data.name}" registered successfully.`);
     }
     await fetchBrands(search);
+    await fetchMetrics();
     setIsModalOpen(false);
     setEditingBrand(null);
   };
@@ -108,6 +124,7 @@ export default function App() {
         setSelectedBrand(null);
       }
       await fetchBrands(search);
+      await fetchMetrics();
     } catch (err) {
       showToast(`Delete failed: ${err.message}`, 'error');
     } finally {
@@ -145,6 +162,7 @@ export default function App() {
           healthLoading={healthLoading}
           onRefresh={() => {
             fetchHealth();
+            fetchMetrics();
             if (currentView === 'brands') fetchBrands();
           }}
           onOpenCreateModal={handleOpenCreate}
@@ -175,11 +193,36 @@ export default function App() {
               error={error}
               search={search}
               setSearch={setSearch}
-              onRefresh={() => fetchBrands(search)}
+              metrics={metrics}
+              onRefresh={() => {
+                fetchBrands(search);
+                fetchMetrics();
+              }}
               onOpenCreate={handleOpenCreate}
               onSelectBrand={setSelectedBrand}
               onEditBrand={handleOpenEdit}
               onDeleteBrand={setDeletingBrand}
+            />
+          )}
+
+          {currentView === 'social' && (
+            <SocialMonitoringView
+              brands={brands}
+              onRefreshMetrics={fetchMetrics}
+            />
+          )}
+
+          {currentView === 'apps' && (
+            <AppMonitoringView
+              brands={brands}
+              onRefreshMetrics={fetchMetrics}
+            />
+          )}
+
+          {currentView === 'threats' && (
+            <ThreatExplorerView
+              brands={brands}
+              onRefreshMetrics={fetchMetrics}
             />
           )}
 
@@ -191,7 +234,7 @@ export default function App() {
             />
           )}
 
-          {['social', 'domains', 'apps', 'campaigns'].includes(currentView) && (
+          {['domains', 'campaigns'].includes(currentView) && (
             <PlannedModuleView
               moduleId={currentView}
               brandCount={brands.length}

@@ -1,5 +1,5 @@
 /**
- * SentinelShield REST API Client
+ * SURAKSHA REST API Client
  * Connects to versioned Flask API under /api/v1/
  */
 
@@ -43,7 +43,7 @@ class ApiClient {
       return data;
     } catch (err) {
       if (err.name === 'TypeError' && err.message.includes('fetch')) {
-        const networkError = new Error('Cannot connect to SentinelShield backend server. Please verify it is running on ' + this.baseUrl);
+        const networkError = new Error('Cannot connect to SURAKSHA backend server. Please verify it is running on ' + this.baseUrl);
         networkError.code = 'CONNECTION_FAILED';
         networkError.details = [];
         throw networkError;
@@ -90,6 +90,45 @@ class ApiClient {
     return this.request(`/brands/${encodeURIComponent(id)}`, {
       method: 'DELETE',
     });
+  }
+
+  // Threat Intelligence & Findings
+  async listFindings({ brandId = '', assetType = '', severity = '', reviewStatus = '', search = '', page = 1, perPage = 50 } = {}) {
+    const params = new URLSearchParams();
+    if (brandId) params.append('brand_id', brandId);
+    if (assetType) params.append('asset_type', assetType);
+    if (severity) params.append('severity', severity);
+    if (reviewStatus) params.append('review_status', reviewStatus);
+    if (search) params.append('search', search);
+    if (page) params.append('page', page);
+    if (perPage) params.append('per_page', perPage);
+
+    const queryString = params.toString() ? `?${params.toString()}` : '';
+    return this.request(`/findings${queryString}`);
+  }
+
+  async getFinding(id) {
+    return this.request(`/findings/${encodeURIComponent(id)}`);
+  }
+
+  async updateFindingStatus(id, reviewStatus) {
+    return this.request(`/findings/${encodeURIComponent(id)}/status`, {
+      method: 'PATCH',
+      body: JSON.stringify({ review_status: reviewStatus }),
+    });
+  }
+
+  // Brand Asset Scanning & Detection
+  async scanCandidate(brandId, payload) {
+    return this.request(`/brands/${encodeURIComponent(brandId)}/scan`, {
+      method: 'POST',
+      body: JSON.stringify(payload),
+    });
+  }
+
+  // Platform Metrics
+  async getMetrics() {
+    return this.request('/metrics');
   }
 }
 

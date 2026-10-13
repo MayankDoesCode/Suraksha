@@ -14,7 +14,16 @@ if project_root not in sys.path:
     sys.path.insert(0, project_root)
 
 from backend.app.database import Base
-from backend.app.models import Brand, BrandDomain, BrandSocialHandle, BrandAppIdentifier, BrandPublisher
+from backend.app.models import (
+    Brand,
+    BrandDomain,
+    BrandSocialHandle,
+    BrandAppIdentifier,
+    BrandPublisher,
+    Finding,
+    DetectionSignalRecord,
+    EvidenceRecord,
+)
 
 # this is the Alembic Config object, which provides
 # access to the values within the .ini file in use.

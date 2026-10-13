@@ -15,5 +15,5 @@ if __name__ == "__main__":
     port = int(os.getenv("PORT", 5000))
     host = os.getenv("HOST", "127.0.0.1")
     debug = os.getenv("FLASK_DEBUG", "1") == "1"
-    print(f"[*] Starting SentinelShield API Server on http://{host}:{port}")
+    print(f"[*] Starting SURAKSHA API Server on http://{host}:{port}")
     app.run(host=host, port=port, debug=debug)

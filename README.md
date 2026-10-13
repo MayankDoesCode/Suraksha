@@ -1,6 +1,8 @@
-# SentinelShield — Digital Risk Protection Platform
+# SURAKSHA — AI-Assisted Digital Risk Protection Platform
 
-SentinelShield is an enterprise-grade Digital Risk Protection (DRP) platform designed to discover, assess, and investigate brand impersonation, fraudulent profiles, lookalike domains, and suspicious mobile applications across digital ecosystems.
+> **Detect. Verify. Protect.**
+
+SURAKSHA is an AI-assisted Digital Risk Protection (DRP) platform designed to discover, assess, and investigate brand impersonation, fraudulent profiles, lookalike domains, and suspicious mobile applications across digital ecosystems.
 
 ---
 

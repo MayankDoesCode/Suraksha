@@ -17,7 +17,7 @@ def get_health():
         "success": db_ok,
         "status": "healthy" if db_ok else "degraded",
         "timestamp": datetime.now(timezone.utc).isoformat(),
-        "service": "SentinelShield API",
+        "service": "SURAKSHA API",
         "version": "1.0.0",
         "environment": current_app.config.get("ENV", "development"),
         "database": {

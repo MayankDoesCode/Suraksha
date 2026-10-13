@@ -23,7 +23,7 @@ def setup_logging(log_level: str = "INFO"):
 
 def create_app(config_name: str | None = None) -> Flask:
     """
-    Application factory for SentinelShield REST API.
+    Application factory for SURAKSHA REST API.
     Initializes database, CORS, routing, and centralized error handling.
     """
     app = Flask(__name__)
@@ -33,7 +33,7 @@ def create_app(config_name: str | None = None) -> Flask:
     # Set up logging
     setup_logging(app.config.get("LOG_LEVEL", "INFO"))
     logger = logging.getLogger(__name__)
-    logger.info("Initializing SentinelShield API (env: %s)", config_name or os.getenv("FLASK_ENV", "development"))
+    logger.info("Initializing SURAKSHA API (env: %s)", config_name or os.getenv("FLASK_ENV", "development"))
 
     # Initialize database
     init_db(app.config["DATABASE_URL"])

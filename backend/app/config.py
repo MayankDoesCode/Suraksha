@@ -26,7 +26,7 @@ class BaseConfig:
     LOG_LEVEL = os.getenv("LOG_LEVEL", "INFO").upper()
     
     # Platform metadata
-    PLATFORM_NAME = "SentinelShield"
+    PLATFORM_NAME = "SURAKSHA"
     API_VERSION = "v1"
 
 class DevelopmentConfig(BaseConfig):

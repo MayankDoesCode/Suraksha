@@ -18,7 +18,7 @@ export default function Sidebar({ currentView, setCurrentView, health }) {
       id: 'brands',
       label: 'Brand Profiles',
       icon: Shield,
-      phase: 'Phase 1',
+      phase: 'Core',
       active: true,
       description: 'Identity parameters & verified assets',
     },
@@ -26,31 +26,39 @@ export default function Sidebar({ currentView, setCurrentView, health }) {
       id: 'social',
       label: 'Social Impersonation',
       icon: Share2,
-      phase: 'Phase 2',
-      active: false,
+      phase: 'Engine',
+      active: true,
       description: 'Fake profiles & rogue accounts',
-    },
-    {
-      id: 'domains',
-      label: 'Domain / URL Watch',
-      icon: Globe,
-      phase: 'Phase 2',
-      active: false,
-      description: 'Lookalike domains & typosquatting',
     },
     {
       id: 'apps',
       label: 'Mobile App Guard',
       icon: Smartphone,
-      phase: 'Phase 2',
-      active: false,
+      phase: 'Engine',
+      active: true,
       description: 'Impersonating app listings',
+    },
+    {
+      id: 'threats',
+      label: 'Threat Intelligence',
+      icon: Crosshair,
+      phase: 'Live',
+      active: true,
+      description: 'Central findings database & triage',
+    },
+    {
+      id: 'domains',
+      label: 'Domain / URL Watch',
+      icon: Globe,
+      phase: 'Planned',
+      active: false,
+      description: 'Lookalike domains & typosquatting',
     },
     {
       id: 'campaigns',
       label: 'Threat Campaigns',
-      icon: Crosshair,
-      phase: 'Phase 2',
+      icon: Layers,
+      phase: 'Planned',
       active: false,
       description: 'Cross-platform correlated actors',
     },
@@ -75,10 +83,10 @@ export default function Sidebar({ currentView, setCurrentView, health }) {
             </div>
             <div>
               <div className="text-base font-bold tracking-wider text-white flex items-center gap-1.5 font-mono">
-                SENTINEL<span className="text-cyber-accent">SHIELD</span>
+                SURAKSHA
               </div>
               <div className="text-[11px] text-cyber-textMuted uppercase tracking-widest font-mono">
-                Digital Risk Protection
+                Detect. Verify. Protect.
               </div>
             </div>
           </div>
@@ -159,7 +167,7 @@ export default function Sidebar({ currentView, setCurrentView, health }) {
           </div>
         </div>
         <div className="mt-3 text-center text-[10px] text-cyber-textMuted font-mono">
-          SentinelShield © 2026 • Phase 1
+          SURAKSHA © 2026 • Detect. Verify. Protect.
         </div>
       </div>
     </aside>

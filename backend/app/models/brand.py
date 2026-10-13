@@ -44,6 +44,12 @@ class Brand(Base):
         cascade="all, delete-orphan",
         order_by="BrandPublisher.publisher_name.asc()"
     )
+    findings = relationship(
+        "Finding",
+        back_populates="brand",
+        cascade="all, delete-orphan",
+        order_by="Finding.created_at.desc()"
+    )
 
     def to_dict(self, include_relations: bool = True) -> dict:
         data = {

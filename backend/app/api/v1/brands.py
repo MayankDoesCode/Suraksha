@@ -77,3 +77,26 @@ def delete_brand(brand_id: str):
         "success": True,
         "message": "Brand profile deleted successfully"
     }), 200
+
+@brands_bp.route("/brands/<string:brand_id>/scan", methods=["POST"])
+def scan_candidate(brand_id: str):
+    """Evaluate candidate asset against brand profile and derive explainable risk score."""
+    from backend.app.services.detection_service import DetectionService
+    detection_service = DetectionService()
+    payload = request.get_json(silent=True)
+    if payload is None:
+        return jsonify({
+            "success": False,
+            "error": {
+                "code": "BAD_REQUEST",
+                "message": "Malformed JSON payload or empty request body",
+                "details": []
+            }
+        }), 400
+
+    result = detection_service.evaluate_candidate(brand_id, payload)
+    return jsonify({
+        "success": True,
+        "data": result
+    }), 200
+

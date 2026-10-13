@@ -49,7 +49,7 @@ export default function DiagnosticsView({ health, loading, onRefresh }) {
           </div>
           <div className="text-xl font-bold font-mono text-white flex items-center gap-2">
             <Server className="w-5 h-5 text-cyber-accent" />
-            SentinelShield API
+            {health?.service || 'SURAKSHA API'}
           </div>
           <div className="text-xs text-cyber-textMuted font-mono">
             Version: {health?.version || '1.0.0'} • Flask 3.1

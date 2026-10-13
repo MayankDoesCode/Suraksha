@@ -14,20 +14,24 @@ export default function Header({
       subtitle: 'Verified organizational assets, domains, social accounts & package signatures',
     },
     social: {
-      title: 'Social Impersonation Watch (Planned)',
-      subtitle: 'Phase 2 detection module for rogue profiles, bio cloning, and spoofed accounts',
+      title: 'Social Impersonation Watch',
+      subtitle: 'Deterministic signal detection for rogue profiles, handle mimicry, and fake helpdesk accounts',
+    },
+    apps: {
+      title: 'Mobile Application Guard',
+      subtitle: 'Package signature audit, unauthorized developer accounts & brand asset clone detection',
+    },
+    threats: {
+      title: 'Threat Intelligence Explorer',
+      subtitle: 'Filterable central findings database, explainable mathematical scores & triage review actions',
     },
     domains: {
       title: 'Domain & Lookalike Watch (Planned)',
-      subtitle: 'Phase 2 detection module for typosquatting, IDN homoglyphs, and phishing portals',
-    },
-    apps: {
-      title: 'Mobile App Guard (Planned)',
-      subtitle: 'Phase 2 detection module for fraudulent stores, rogue APKs, and repackaged packages',
+      subtitle: 'Certificate transparency stream ingestion and typosquatting domain permutations',
     },
     campaigns: {
       title: 'Threat Campaigns (Planned)',
-      subtitle: 'Phase 2 correlation engine tracking cross-vector adversary networks',
+      subtitle: 'Cross-platform adversary clustering and shared infrastructure attribution',
     },
     diagnostics: {
       title: 'System & Database Telemetry',

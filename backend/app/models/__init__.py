@@ -5,6 +5,11 @@ from backend.app.models.brand import (
     BrandAppIdentifier,
     BrandPublisher,
 )
+from backend.app.models.threat import (
+    Finding,
+    DetectionSignalRecord,
+    EvidenceRecord,
+)
 
 __all__ = [
     "Brand",
@@ -12,4 +17,7 @@ __all__ = [
     "BrandSocialHandle",
     "BrandAppIdentifier",
     "BrandPublisher",
+    "Finding",
+    "DetectionSignalRecord",
+    "EvidenceRecord",
 ]

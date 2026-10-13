@@ -6,7 +6,7 @@ def test_health_check_returns_healthy(client):
     data = response.get_json()
     assert data["success"] is True
     assert data["status"] == "healthy"
-    assert data["service"] == "SentinelShield API"
+    assert data["service"] == "SURAKSHA API"
     assert "version" in data
     assert "timestamp" in data
     assert data["database"]["connected"] is True

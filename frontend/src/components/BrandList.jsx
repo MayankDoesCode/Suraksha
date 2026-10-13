@@ -23,6 +23,7 @@ export default function BrandList({
   error,
   search,
   setSearch,
+  metrics,
   onRefresh,
   onOpenCreate,
   onSelectBrand,
@@ -30,7 +31,10 @@ export default function BrandList({
   onDeleteBrand
 }) {
   // Aggregate stats across real registered brands
-  const totalBrands = brands.length;
+  const totalBrands = metrics?.total_brands ?? brands.length;
+  const totalFindings = metrics?.total_findings ?? 0;
+  const criticalAndHigh = (metrics?.critical_findings || 0) + (metrics?.high_findings || 0);
+  const underInvestigation = metrics?.under_investigation ?? 0;
   const totalDomains = brands.reduce((acc, b) => acc + (b.domains?.length || 0), 0);
   const totalSocial = brands.reduce((acc, b) => acc + (b.social_handles?.length || 0), 0);
   const totalApps = brands.reduce((acc, b) => acc + (b.app_identifiers?.length || 0), 0);
@@ -56,12 +60,12 @@ export default function BrandList({
 
   return (
     <div className="space-y-6">
-      {/* Metrics Row */}
+      {/* Metrics Row Calculated from Stored Database Records */}
       <div className="grid grid-cols-1 md:grid-cols-4 gap-4">
         <div className="cyber-panel p-4 rounded-xl border border-cyber-border flex items-center justify-between">
           <div>
             <div className="text-[11px] font-mono uppercase tracking-wider text-cyber-textMuted">
-              Registered Brands
+              Monitored Brands
             </div>
             <div className="text-2xl font-bold font-mono text-white mt-1">
               {totalBrands}
@@ -69,6 +73,48 @@ export default function BrandList({
           </div>
           <div className="w-10 h-10 rounded-lg bg-cyber-accent/10 border border-cyber-accent/30 flex items-center justify-center text-cyber-accent">
             <Building2 className="w-5 h-5" />
+          </div>
+        </div>
+
+        <div className="cyber-panel p-4 rounded-xl border border-cyber-border flex items-center justify-between">
+          <div>
+            <div className="text-[11px] font-mono uppercase tracking-wider text-cyber-textMuted">
+              Active Findings
+            </div>
+            <div className="text-2xl font-bold font-mono text-cyber-accent mt-1">
+              {totalFindings}
+            </div>
+          </div>
+          <div className="w-10 h-10 rounded-lg bg-cyber-accent/10 border border-cyber-accent/30 flex items-center justify-center text-cyber-accent">
+            <AlertTriangle className="w-5 h-5" />
+          </div>
+        </div>
+
+        <div className="cyber-panel p-4 rounded-xl border border-cyber-border flex items-center justify-between">
+          <div>
+            <div className="text-[11px] font-mono uppercase tracking-wider text-cyber-textMuted">
+              Critical & High Risks
+            </div>
+            <div className="text-2xl font-bold font-mono text-rose-400 mt-1">
+              {criticalAndHigh}
+            </div>
+          </div>
+          <div className="w-10 h-10 rounded-lg bg-rose-500/10 border border-rose-500/30 flex items-center justify-center text-rose-400">
+            <Shield className="w-5 h-5" />
+          </div>
+        </div>
+
+        <div className="cyber-panel p-4 rounded-xl border border-cyber-border flex items-center justify-between">
+          <div>
+            <div className="text-[11px] font-mono uppercase tracking-wider text-cyber-textMuted">
+              Under Active Review
+            </div>
+            <div className="text-2xl font-bold font-mono text-amber-400 mt-1">
+              {underInvestigation}
+            </div>
+          </div>
+          <div className="w-10 h-10 rounded-lg bg-amber-500/10 border border-amber-500/30 flex items-center justify-center text-amber-400">
+            <CheckCircle2 className="w-5 h-5" />
           </div>
         </div>
 
@@ -179,7 +225,7 @@ export default function BrandList({
               No Brand Profiles Registered
             </h3>
             <p className="text-xs text-cyber-textMuted mt-1.5 leading-relaxed max-w-md mx-auto">
-              SentinelShield requires at least one organization profile to establish the baseline identity for impersonation detection, lookalike domain tracking, and mobile package protection.
+              SURAKSHA requires at least one organization profile to establish the baseline identity for impersonation detection, lookalike domain tracking, and mobile package protection.
             </p>
           </div>
           <button

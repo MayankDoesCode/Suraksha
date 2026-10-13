@@ -113,7 +113,7 @@ export default function PlannedModuleView({ moduleId, brandCount, onSwitchToBran
             <span>ARCHITECTURE INTEGRITY & ZERO-FABRICATION POLICY</span>
           </div>
           <p className="text-xs text-cyber-textMuted leading-relaxed">
-            In compliance with SentinelShield cybersecurity engineering standards, this module displays zero fabricated threat findings. Detection signals and automated candidate ingestion are scheduled for Phase 2. The underlying interface boundaries (<code>connectors/base.py</code>, <code>detection/base.py</code>, <code>monitoring/base.py</code>) have already been engineered into the backend foundation.
+            In compliance with SURAKSHA cybersecurity engineering standards, this module displays zero fabricated threat findings. Detection signals and automated candidate ingestion are scheduled for Phase 2. The underlying interface boundaries (<code>connectors/base.py</code>, <code>detection/base.py</code>, <code>monitoring/base.py</code>) have already been engineered into the backend foundation.
           </p>
         </div>
 
