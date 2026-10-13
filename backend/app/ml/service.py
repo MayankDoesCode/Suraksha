@@ -221,13 +221,20 @@ class MLService:
 
         # Mobile Component Metadata
         if self.is_mobile_model_available():
+            dataset_meta = self.mobile_manifest.get("dataset_metadata", {})
             mobile_meta = {
                 "available": True,
                 "status": "operational",
                 "model_version": self.mobile_manifest.get("model_version", "1.0.0"),
                 "architecture": self.mobile_manifest.get("architecture"),
+                "dataset_source": dataset_meta.get("source"),
+                "license": dataset_meta.get("licence"),
+                "total_samples": dataset_meta.get("total_samples"),
+                "train_samples": dataset_meta.get("train_samples"),
+                "test_samples": dataset_meta.get("test_samples"),
                 "metrics": self.mobile_manifest.get("metrics"),
                 "scope_boundary": self.mobile_manifest.get("scope_boundary"),
+                "research_investigation": dataset_meta.get("research_investigation"),
             }
         else:
             mobile_meta = {
@@ -481,7 +488,9 @@ class MLService:
                 "available": True,
                 "task": "mobile_app_brand_impersonation",
                 "indicator": title or package_id,
+                "is_official_asset": False,
                 "is_ml_prediction": True,
+                "ml_status": "operational",
                 "engine": "TF-IDF + LogisticRegression Mobile Impersonation Model",
                 "risk_probability": round(prob, 4),
                 "risk_score": score_val,
