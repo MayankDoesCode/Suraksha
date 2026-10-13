@@ -80,9 +80,11 @@ def delete_brand(brand_id: str):
 
 @brands_bp.route("/brands/<string:brand_id>/scan", methods=["POST"])
 def scan_candidate(brand_id: str):
-    """Evaluate candidate asset against brand profile and derive explainable risk score."""
-    from backend.app.services.detection_service import DetectionService
-    detection_service = DetectionService()
+    """
+    Evaluate candidate asset against brand profile or run provider-based scan.
+    If 'provider_id' is supplied, retrieves live external candidates.
+    Otherwise evaluates the submitted single candidate payload.
+    """
     payload = request.get_json(silent=True)
     if payload is None:
         return jsonify({
@@ -94,9 +96,41 @@ def scan_candidate(brand_id: str):
             }
         }), 400
 
+    provider_id = payload.get("provider_id") or payload.get("provider")
+    if provider_id:
+        from backend.app.services.scan_service import ScanService
+        scan_service = ScanService()
+        limit = payload.get("limit", 25)
+        result = scan_service.run_provider_scan(brand_id, provider_id=provider_id, limit=limit)
+        return jsonify({
+            "success": True,
+            "data": result
+        }), 200
+
+    from backend.app.services.detection_service import DetectionService
+    detection_service = DetectionService()
     result = detection_service.evaluate_candidate(brand_id, payload)
     return jsonify({
         "success": True,
         "data": result
     }), 200
+
+@brands_bp.route("/brands/<string:brand_id>/scan-provider", methods=["POST"])
+def scan_brand_provider(brand_id: str):
+    """
+    Retrieve genuine candidates from configured external provider,
+    exclude official brand assets, run detection engine, and persist findings.
+    """
+    from backend.app.services.scan_service import ScanService
+    scan_service = ScanService()
+    payload = request.get_json(silent=True) or {}
+    provider_id = payload.get("provider_id", "itunes_app_store")
+    limit = payload.get("limit", 25)
+
+    result = scan_service.run_provider_scan(brand_id, provider_id=provider_id, limit=limit)
+    return jsonify({
+        "success": True,
+        "data": result
+    }), 200
+
 

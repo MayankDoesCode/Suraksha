@@ -1,0 +1,28 @@
+services:
+  - type: web
+    name: suraksha-platform
+    env: docker
+    dockerfilePath: ./Dockerfile
+    plan: free
+    healthCheckPath: /api/v1/health
+    envVars:
+      - key: FLASK_ENV
+        value: production
+      - key: SECRET_KEY
+        generateValue: true
+      - key: DATABASE_URL
+        fromDatabase:
+          name: suraksha-db
+          property: connectionString
+      - key: ITUNES_STORE_COUNTRY
+        value: US
+      - key: ITUNES_API_TIMEOUT
+        value: "10"
+      - key: X_BEARER_TOKEN
+        sync: false
+
+databases:
+  - name: suraksha-db
+    databaseName: suraksha_db
+    user: suraksha
+    plan: free

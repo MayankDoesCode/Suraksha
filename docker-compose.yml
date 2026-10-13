@@ -1,0 +1,44 @@
+version: '3.8'
+
+services:
+  postgres:
+    image: postgres:15-alpine
+    container_name: suraksha-postgres
+    restart: always
+    environment:
+      POSTGRES_USER: suraksha
+      POSTGRES_PASSWORD: suraksha_secure_password
+      POSTGRES_DB: suraksha_db
+    ports:
+      - "5432:5432"
+    volumes:
+      - postgres_data:/var/lib/postgresql/data
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U suraksha -d suraksha_db"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+
+  web:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    container_name: suraksha-app
+    restart: always
+    depends_on:
+      postgres:
+        condition: service_healthy
+    environment:
+      PORT: 5000
+      FLASK_ENV: production
+      DATABASE_URL: postgresql://suraksha:suraksha_secure_password@postgres:5432/suraksha_db
+      SECRET_KEY: ${SECRET_KEY:-change-me-production-secret-key-32-chars}
+      CORS_ORIGINS: "*"
+      ITUNES_STORE_COUNTRY: US
+      ITUNES_API_TIMEOUT: 10
+      X_BEARER_TOKEN: ${X_BEARER_TOKEN:-}
+    ports:
+      - "5000:5000"
+
+volumes:
+  postgres_data:

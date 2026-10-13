@@ -31,6 +31,7 @@ export default function ThreatExplorerView({ brands, onRefreshMetrics }) {
   const [selectedAssetType, setSelectedAssetType] = useState('');
   const [selectedSeverity, setSelectedSeverity] = useState('');
   const [selectedStatus, setSelectedStatus] = useState('');
+  const [provenanceFilter, setProvenanceFilter] = useState('all');
 
   // Drawer
   const [activeFinding, setActiveFinding] = useState(null);
@@ -111,6 +112,8 @@ export default function ThreatExplorerView({ brands, onRefreshMetrics }) {
         return 'bg-slate-700/50 text-slate-300 border-slate-600';
       case 'RESOLVED':
         return 'bg-emerald-500/20 text-emerald-300 border-emerald-500/40';
+      case 'NEW':
+        return 'bg-amber-500/20 text-amber-300 border-amber-500/40';
       default:
         return 'bg-blue-500/20 text-blue-300 border-blue-500/40';
     }
@@ -233,6 +236,42 @@ export default function ThreatExplorerView({ brands, onRefreshMetrics }) {
             </select>
           </div>
         </div>
+
+        {/* Provenance Filter Tabs */}
+        <div className="flex items-center gap-2 pt-2 border-t border-cyber-border/40 text-xs font-mono">
+          <span className="text-cyber-textMuted text-[11px]">Provenance:</span>
+          <button
+            onClick={() => setProvenanceFilter('all')}
+            className={`px-2.5 py-1 rounded text-[11px] transition-all ${
+              provenanceFilter === 'all'
+                ? 'bg-cyber-accent/20 text-cyber-accent border border-cyber-accent/40 font-semibold'
+                : 'text-slate-400 hover:text-white'
+            }`}
+          >
+            All Feeds ({findings.length})
+          </button>
+          <button
+            onClick={() => setProvenanceFilter('live')}
+            className={`px-2.5 py-1 rounded text-[11px] transition-all flex items-center gap-1.5 ${
+              provenanceFilter === 'live'
+                ? 'bg-cyber-emerald/20 text-cyber-emerald border border-cyber-emerald/40 font-semibold'
+                : 'text-slate-400 hover:text-white'
+            }`}
+          >
+            <span className="w-1.5 h-1.5 rounded-full bg-cyber-emerald" />
+            Live External Providers ({findings.filter((f) => !f.is_sample).length})
+          </button>
+          <button
+            onClick={() => setProvenanceFilter('sample')}
+            className={`px-2.5 py-1 rounded text-[11px] transition-all ${
+              provenanceFilter === 'sample'
+                ? 'bg-slate-700 text-slate-200 border border-slate-600 font-semibold'
+                : 'text-slate-400 hover:text-white'
+            }`}
+          >
+            Sample / Manual Feeds ({findings.filter((f) => f.is_sample).length})
+          </button>
+        </div>
       </div>
 
       {/* Main Table */}
@@ -265,7 +304,13 @@ export default function ThreatExplorerView({ brands, onRefreshMetrics }) {
                 </tr>
               </thead>
               <tbody className="divide-y divide-cyber-border/60 text-xs">
-                {findings.map((f) => (
+                {findings
+                  .filter((f) => {
+                    if (provenanceFilter === 'live') return !f.is_sample;
+                    if (provenanceFilter === 'sample') return Boolean(f.is_sample);
+                    return true;
+                  })
+                  .map((f) => (
                   <tr
                     key={f.id}
                     onClick={() => setActiveFinding(f)}
@@ -316,9 +361,15 @@ export default function ThreatExplorerView({ brands, onRefreshMetrics }) {
 
                     {/* Designation */}
                     <td className="py-3.5 px-4 whitespace-nowrap">
-                      <span className="text-[10px] font-mono px-2 py-0.5 rounded bg-cyber-darkest border border-cyber-border text-slate-400">
-                        {f.is_sample ? 'Sample' : 'Analyst'}
-                      </span>
+                      {!f.is_sample ? (
+                        <span className="text-[10px] font-mono px-2 py-0.5 rounded bg-cyber-emerald/15 border border-cyber-emerald/30 text-cyber-emerald font-semibold">
+                          {f.detection_source === 'itunes_app_store' ? 'Apple Store' : f.detection_source || 'Live Feed'}
+                        </span>
+                      ) : (
+                        <span className="text-[10px] font-mono px-2 py-0.5 rounded bg-cyber-darkest border border-cyber-border text-slate-400">
+                          Sample
+                        </span>
+                      )}
                     </td>
 
                     {/* Status */}
@@ -328,7 +379,7 @@ export default function ThreatExplorerView({ brands, onRefreshMetrics }) {
                           f.review_status
                         )}`}
                       >
-                        {f.review_status.replace('_', ' ')}
+                        {f.review_status === 'NEW' ? 'Needs Review' : f.review_status.replace('_', ' ')}
                       </span>
                     </td>
 
@@ -373,11 +424,17 @@ export default function ThreatExplorerView({ brands, onRefreshMetrics }) {
                         activeFinding.review_status
                       )}`}
                     >
-                      {activeFinding.review_status.replace('_', ' ')}
+                      {activeFinding.review_status === 'NEW' ? 'Needs Review (Unverified)' : activeFinding.review_status.replace('_', ' ')}
                     </span>
-                    <span className="text-[10px] font-mono px-2 py-0.5 rounded bg-cyber-surface border border-cyber-border text-slate-400">
-                      {activeFinding.is_sample ? 'Sample Feed' : 'Analyst Submission'}
-                    </span>
+                    {!activeFinding.is_sample ? (
+                      <span className="text-[10px] font-mono px-2 py-0.5 rounded bg-cyber-emerald/15 border border-cyber-emerald/30 text-cyber-emerald font-semibold">
+                        {activeFinding.detection_source === 'itunes_app_store' ? 'Apple App Store (Live)' : activeFinding.detection_source || 'Live Feed'}
+                      </span>
+                    ) : (
+                      <span className="text-[10px] font-mono px-2 py-0.5 rounded bg-cyber-surface border border-cyber-border text-slate-400">
+                        Sample Feed
+                      </span>
+                    )}
                   </div>
                   <h3 className="text-lg font-bold text-white font-mono mt-2 flex items-center gap-2">
                     {getAssetIcon(activeFinding.asset_type)}
@@ -424,6 +481,37 @@ export default function ThreatExplorerView({ brands, onRefreshMetrics }) {
                 <div className="text-right text-xs font-mono text-cyber-textMuted space-y-1">
                   <div>Observed: {activeFinding.observed_at?.split('T')[0] || 'Today'}</div>
                   <div>Source: {activeFinding.detection_source}</div>
+                </div>
+              </div>
+
+              {/* Triage Advisory Notice */}
+              <div className={`p-3 rounded-xl border text-xs font-mono flex items-start gap-2.5 ${
+                activeFinding.review_status === 'CONFIRMED_THREAT'
+                  ? 'bg-rose-500/10 border-rose-500/30 text-rose-300'
+                  : activeFinding.review_status === 'FALSE_POSITIVE'
+                  ? 'bg-slate-800 border-slate-700 text-slate-300'
+                  : activeFinding.review_status === 'RESOLVED'
+                  ? 'bg-emerald-500/10 border-emerald-500/30 text-cyber-emerald'
+                  : 'bg-amber-500/10 border-amber-500/30 text-amber-300'
+              }`}>
+                <AlertTriangle className="w-4 h-4 shrink-0 mt-0.5" />
+                <div>
+                  <div className="font-semibold uppercase tracking-wider text-[11px]">
+                    {activeFinding.review_status === 'CONFIRMED_THREAT'
+                      ? 'Analyst Confirmed Threat'
+                      : activeFinding.review_status === 'FALSE_POSITIVE'
+                      ? 'Marked as False Positive'
+                      : activeFinding.review_status === 'RESOLVED'
+                      ? 'Threat Resolved / Takedown Complete'
+                      : 'Potential Risk / Needs Review'}
+                  </div>
+                  <div className="text-[11px] text-slate-300 mt-0.5 leading-relaxed font-sans">
+                    {activeFinding.review_status === 'CONFIRMED_THREAT'
+                      ? 'This finding has been reviewed and verified as an active malicious impersonation attempt by a security analyst.'
+                      : activeFinding.review_status === 'NEW'
+                      ? 'This candidate was flagged by algorithmic heuristics and is pending human analyst review. It is NOT automatically treated as a confirmed malicious threat.'
+                      : 'Current review status designated during active analyst investigation.'}
+                  </div>
                 </div>
               </div>
 

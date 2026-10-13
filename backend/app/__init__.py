@@ -54,4 +54,21 @@ def create_app(config_name: str | None = None) -> Flask:
     # Register versioned API blueprints
     app.register_blueprint(api_v1_bp)
 
+    # Optional unified SPA serving for production deployments
+    dist_dir = os.path.abspath(
+        os.path.join(os.path.dirname(os.path.dirname(os.path.dirname(__file__))), "frontend", "dist")
+    )
+    if os.path.isdir(dist_dir):
+        from flask import send_from_directory, abort
+
+        @app.route("/", defaults={"path": ""})
+        @app.route("/<path:path>")
+        def serve_frontend(path):
+            if path.startswith("api"):
+                # Pass through to API 404 handler
+                abort(404)
+            if path and os.path.exists(os.path.join(dist_dir, path)):
+                return send_from_directory(dist_dir, path)
+            return send_from_directory(dist_dir, "index.html")
+
     return app

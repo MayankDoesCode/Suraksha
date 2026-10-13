@@ -3,7 +3,9 @@
  * Connects to versioned Flask API under /api/v1/
  */
 
-const API_BASE_URL = import.meta.env.VITE_API_BASE_URL || 'http://127.0.0.1:5000/api/v1';
+const API_BASE_URL = import.meta.env.VITE_API_BASE_URL || (
+  import.meta.env.DEV ? 'http://127.0.0.1:5000/api/v1' : '/api/v1'
+);
 
 class ApiClient {
   constructor(baseUrl) {
@@ -126,9 +128,50 @@ class ApiClient {
     });
   }
 
-  // Platform Metrics
-  async getMetrics() {
-    return this.request('/metrics');
+  // External Data Providers & Monitoring (Phase 4)
+  async getIntegrationsStatus() {
+    return this.request('/integrations/status');
+  }
+
+  async testIntegration(providerId) {
+    return this.request(`/integrations/${encodeURIComponent(providerId)}/test`, {
+      method: 'POST',
+    });
+  }
+
+  async scanBrandProvider(brandId, providerId = 'itunes_app_store', limit = 25) {
+    return this.request(`/brands/${encodeURIComponent(brandId)}/scan-provider`, {
+      method: 'POST',
+      body: JSON.stringify({ provider_id: providerId, limit }),
+    });
+  }
+
+  async listMonitoringJobs(brandId = '') {
+    const params = brandId ? `?brand_id=${encodeURIComponent(brandId)}` : '';
+    return this.request(`/monitoring/jobs${params}`);
+  }
+
+  async createMonitoringJob(brandId, providerId = 'itunes_app_store', intervalMinutes = 60) {
+    return this.request('/monitoring/jobs', {
+      method: 'POST',
+      body: JSON.stringify({
+        brand_id: brandId,
+        provider_id: providerId,
+        interval_minutes: intervalMinutes,
+      }),
+    });
+  }
+
+  async runMonitoringJob(jobId) {
+    return this.request(`/monitoring/jobs/${encodeURIComponent(jobId)}/run`, {
+      method: 'POST',
+    });
+  }
+
+  async cancelMonitoringJob(jobId) {
+    return this.request(`/monitoring/jobs/${encodeURIComponent(jobId)}`, {
+      method: 'DELETE',
+    });
   }
 }
 

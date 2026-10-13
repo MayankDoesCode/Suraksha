@@ -29,6 +29,12 @@ class BaseConfig:
     PLATFORM_NAME = "SURAKSHA"
     API_VERSION = "v1"
 
+    # External Data Providers
+    ITUNES_STORE_COUNTRY = os.getenv("ITUNES_STORE_COUNTRY", "US")
+    ITUNES_API_TIMEOUT = float(os.getenv("ITUNES_API_TIMEOUT", "10.0"))
+    X_BEARER_TOKEN = os.getenv("X_BEARER_TOKEN")
+    X_API_TIMEOUT = float(os.getenv("X_API_TIMEOUT", "10.0"))
+
 class DevelopmentConfig(BaseConfig):
     """Development environment configuration."""
     DEBUG = True

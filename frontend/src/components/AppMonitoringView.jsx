@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import {
   Smartphone,
   Search,
@@ -12,7 +12,13 @@ import {
   Send,
   Zap,
   Package,
-  UserCheck
+  UserCheck,
+  Globe,
+  Radio,
+  Layers,
+  Sparkles,
+  Check,
+  ArrowRight
 } from 'lucide-react';
 import api from '../api/client';
 
@@ -22,7 +28,14 @@ export default function AppMonitoringView({ brands, onRefreshMetrics }) {
   const [error, setError] = useState(null);
   const [scanResult, setScanResult] = useState(null);
 
-  // Form State
+  // Live Provider Scanning State (Phase 4)
+  const [providerScanning, setProviderScanning] = useState(false);
+  const [providerScanResult, setProviderScanResult] = useState(null);
+  const [providerError, setProviderError] = useState(null);
+  const [providerLimit, setProviderLimit] = useState(25);
+  const [providerStatus, setProviderStatus] = useState(null);
+
+  // Manual Form State
   const [formData, setFormData] = useState({
     candidate_name: '',
     package_id: '',
@@ -35,8 +48,45 @@ export default function AppMonitoringView({ brands, onRefreshMetrics }) {
 
   const selectedBrand = brands.find((b) => b.id === selectedBrandId) || brands[0];
 
+  useEffect(() => {
+    // Check provider connection status on mount
+    const fetchStatus = async () => {
+      try {
+        const res = await api.getIntegrationsStatus();
+        if (res?.providers?.itunes_app_store) {
+          setProviderStatus(res.providers.itunes_app_store);
+        }
+      } catch (e) {
+        // Fallback
+      }
+    };
+    fetchStatus();
+  }, []);
+
   const handleInputChange = (field, value) => {
     setFormData((prev) => ({ ...prev, [field]: value }));
+  };
+
+  // Run Real External Data Provider Scan (Apple App Store API)
+  const handleRunProviderScan = async () => {
+    if (!selectedBrandId) {
+      setProviderError('Please select a target brand to scan.');
+      return;
+    }
+
+    setProviderScanning(true);
+    setProviderError(null);
+    setProviderScanResult(null);
+
+    try {
+      const res = await api.scanBrandProvider(selectedBrandId, 'itunes_app_store', providerLimit);
+      setProviderScanResult(res.data);
+      if (onRefreshMetrics) onRefreshMetrics();
+    } catch (err) {
+      setProviderError(err.message || 'External provider scan failed.');
+    } finally {
+      setProviderScanning(false);
+    }
   };
 
   // Quick-fill presets
@@ -124,11 +174,11 @@ export default function AppMonitoringView({ brands, onRefreshMetrics }) {
             <h2 className="text-base font-bold text-white flex items-center gap-2">
               Mobile Application Guard
               <span className="text-[10px] font-mono px-2 py-0.5 rounded bg-cyber-emerald/10 text-cyber-emerald border border-cyber-emerald/30">
-                Active Engine
+                Phase 4: Live Data Active
               </span>
             </h2>
             <p className="text-xs text-cyber-textMuted mt-0.5">
-              Audits package ID signatures, unauthorized developer uploads, and trojanized store listings.
+              Live retrieval from Apple App Store, automated official asset exclusion, and explainable impersonation scoring.
             </p>
           </div>
         </div>
@@ -137,11 +187,15 @@ export default function AppMonitoringView({ brands, onRefreshMetrics }) {
         <div className="flex items-center gap-3">
           <span className="text-xs font-mono text-cyber-textMuted whitespace-nowrap">Target Brand:</span>
           {brands.length === 0 ? (
-            <span className="text-xs text-cyber-rose">No brands registered. Register a brand first.</span>
+            <span className="text-xs text-cyber-rose">No brands registered.</span>
           ) : (
             <select
               value={selectedBrandId}
-              onChange={(e) => setSelectedBrandId(e.target.value)}
+              onChange={(e) => {
+                setSelectedBrandId(e.target.value);
+                setProviderScanResult(null);
+                setScanResult(null);
+              }}
               className="bg-cyber-surface border border-cyber-border rounded-lg px-3 py-2 text-xs font-mono text-white focus:outline-none focus:border-cyber-accent"
             >
               {brands.map((b) => (
@@ -154,15 +208,181 @@ export default function AppMonitoringView({ brands, onRefreshMetrics }) {
         </div>
       </div>
 
-      {/* Main Grid */}
+      {/* PHASE 4: LIVE STORE INTELLIGENCE PROVIDER SCAN */}
+      <div className="cyber-panel p-6 rounded-2xl border border-cyber-accent/40 bg-gradient-to-r from-cyber-surface/90 via-cyber-dark/80 to-cyber-surface/90 space-y-5 shadow-glow">
+        <div className="flex flex-col md:flex-row md:items-center justify-between gap-3 pb-4 border-b border-cyber-border">
+          <div className="flex items-center gap-3">
+            <div className="w-9 h-9 rounded-lg bg-cyber-accent/15 border border-cyber-accent/40 flex items-center justify-center text-cyber-accent">
+              <Globe className="w-5 h-5 animate-pulse" />
+            </div>
+            <div>
+              <div className="text-sm font-bold font-mono text-white flex items-center gap-2">
+                Live External Provider: Apple App Store (iTunes API)
+                <span className="text-[10px] font-mono px-2 py-0.5 rounded bg-cyber-emerald/15 text-cyber-emerald border border-cyber-emerald/30 flex items-center gap-1 font-semibold">
+                  <span className="w-1.5 h-1.5 rounded-full bg-cyber-emerald animate-ping" />
+                  OPERATIONAL • LIVE
+                </span>
+              </div>
+              <div className="text-xs text-cyber-textMuted font-mono">
+                Authorized public REST search API • Country: US • Rate allowance: ~20 calls/min
+              </div>
+            </div>
+          </div>
+
+          {/* Trigger Scan Controls */}
+          <div className="flex items-center gap-3">
+            <div className="flex items-center gap-2 bg-cyber-darkest px-3 py-1.5 rounded-lg border border-cyber-border text-xs font-mono text-slate-300">
+              <span>Limit:</span>
+              <select
+                value={providerLimit}
+                onChange={(e) => setProviderLimit(Number(e.target.value))}
+                className="bg-transparent text-white focus:outline-none"
+              >
+                <option value={10}>10 apps</option>
+                <option value={25}>25 apps</option>
+                <option value={50}>50 apps</option>
+              </select>
+            </div>
+
+            <button
+              onClick={handleRunProviderScan}
+              disabled={providerScanning || !selectedBrandId}
+              className="px-4 py-2 rounded-lg bg-cyber-accent hover:bg-cyber-accentHover text-cyber-darkest font-semibold text-xs tracking-wider uppercase transition-all shadow-glow flex items-center gap-2 disabled:opacity-50"
+            >
+              {providerScanning ? (
+                <>
+                  <RefreshCw className="w-4 h-4 animate-spin" /> Querying Apple Store...
+                </>
+              ) : (
+                <>
+                  <Radio className="w-4 h-4 text-cyber-darkest" /> Run Live App Store Scan
+                </>
+              )}
+            </button>
+          </div>
+        </div>
+
+        {providerError && (
+          <div className="p-3 rounded-lg bg-cyber-rose/10 border border-cyber-rose/30 text-xs text-cyber-rose font-mono">
+            {providerError}
+          </div>
+        )}
+
+        {/* Live Provider Scan Results */}
+        {providerScanResult && (
+          <div className="space-y-4 animate-in fade-in duration-300">
+            {/* Scan Metrics Strip */}
+            <div className="grid grid-cols-2 md:grid-cols-4 gap-3">
+              <div className="p-3.5 rounded-xl bg-cyber-darkest border border-cyber-border text-center">
+                <div className="text-[10px] font-mono text-cyber-textMuted uppercase">Store Candidates</div>
+                <div className="text-xl font-bold font-mono text-white mt-0.5">
+                  {providerScanResult.total_retrieved}
+                </div>
+                <div className="text-[10px] text-cyber-accent font-mono">Live iTunes Feed</div>
+              </div>
+
+              <div className="p-3.5 rounded-xl bg-cyber-emerald/10 border border-cyber-emerald/30 text-center">
+                <div className="text-[10px] font-mono text-cyber-emerald uppercase">Official Excluded</div>
+                <div className="text-xl font-bold font-mono text-cyber-emerald mt-0.5">
+                  {providerScanResult.excluded_official_count}
+                </div>
+                <div className="text-[10px] text-cyber-textMuted font-mono">Whitelist Matches</div>
+              </div>
+
+              <div className="p-3.5 rounded-xl bg-cyber-rose/10 border border-cyber-rose/30 text-center">
+                <div className="text-[10px] font-mono text-cyber-rose uppercase">Suspicious Flagged</div>
+                <div className="text-xl font-bold font-mono text-cyber-rose mt-0.5">
+                  {providerScanResult.persisted_findings_count}
+                </div>
+                <div className="text-[10px] text-cyber-rose/80 font-mono">Persisted to Threat DB</div>
+              </div>
+
+              <div className="p-3.5 rounded-xl bg-cyber-darkest border border-cyber-border text-center">
+                <div className="text-[10px] font-mono text-cyber-textMuted uppercase">Benign Filtered</div>
+                <div className="text-xl font-bold font-mono text-slate-300 mt-0.5">
+                  {providerScanResult.benign_unrelated_count}
+                </div>
+                <div className="text-[10px] text-cyber-textMuted font-mono">Zero Risk Noise</div>
+              </div>
+            </div>
+
+            {/* Excluded Official Apps Notice */}
+            {providerScanResult.excluded_official?.length > 0 && (
+              <div className="p-4 rounded-xl bg-cyber-emerald/5 border border-cyber-emerald/30 space-y-2">
+                <div className="text-xs font-mono font-bold text-cyber-emerald flex items-center gap-2">
+                  <ShieldCheck className="w-4 h-4" /> Official Brand Asset Whitelist Exclusion Active
+                </div>
+                <div className="space-y-1.5">
+                  {providerScanResult.excluded_official.map((ex, idx) => (
+                    <div key={idx} className="p-2 rounded bg-cyber-darkest text-xs font-mono text-slate-300 flex items-center justify-between">
+                      <span className="font-semibold text-white">{ex.candidate_name} ({ex.package_id})</span>
+                      <span className="text-[11px] text-cyber-emerald">{ex.exclusion_reason}</span>
+                    </div>
+                  ))}
+                </div>
+              </div>
+            )}
+
+            {/* List of Flagged Suspicious Findings */}
+            {providerScanResult.findings?.length > 0 && (
+              <div className="space-y-2">
+                <div className="text-xs font-mono uppercase tracking-wider text-white font-semibold flex items-center justify-between">
+                  <span>Detected Candidates — Potential Risk / Needs Review ({providerScanResult.findings.length})</span>
+                  <span className="text-[11px] font-mono text-cyber-accent">Awaiting Analyst Triage</span>
+                </div>
+                <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
+                  {providerScanResult.findings.map((f, idx) => (
+                    <div key={idx} className="p-3.5 rounded-xl bg-cyber-darkest border border-cyber-border hover:border-cyber-accent/50 transition-all space-y-2">
+                      <div className="flex items-start justify-between">
+                        <div>
+                          <div className="text-xs font-bold text-white font-mono flex items-center gap-1.5">
+                            {f.candidate_name}
+                          </div>
+                          <div className="text-[11px] text-cyber-textMuted font-mono">
+                            Source: {f.detection_source} • Live External Data
+                          </div>
+                        </div>
+                        <div className="flex items-center gap-1.5">
+                          <span className="text-[9px] font-mono px-1.5 py-0.5 rounded bg-amber-500/15 border border-amber-500/40 text-amber-300 font-semibold uppercase">
+                            Needs Review
+                          </span>
+                          <span className={`text-[10px] font-mono px-2 py-0.5 rounded font-bold uppercase border ${
+                            f.severity === 'CRITICAL' ? 'bg-rose-500/15 border-rose-500/40 text-rose-400' :
+                            f.severity === 'HIGH' ? 'bg-amber-500/15 border-amber-500/40 text-amber-400' :
+                            'bg-blue-500/15 border-blue-500/40 text-blue-400'
+                          }`}>
+                            {f.severity} ({f.risk_score})
+                          </span>
+                        </div>
+                      </div>
+                      {f.source_url && (
+                        <a
+                          href={f.source_url}
+                          target="_blank"
+                          rel="noopener noreferrer"
+                          className="text-[11px] text-cyber-accent hover:underline flex items-center gap-1 font-mono truncate"
+                        >
+                          <ExternalLink className="w-3 h-3 shrink-0" /> {f.source_url}
+                        </a>
+                      )}
+                    </div>
+                  ))}
+                </div>
+              </div>
+            )}
+          </div>
+        )}
+      </div>
+
+      {/* MANUAL INGESTION & TESTING FORM (Analyst Triage) */}
       <div className="grid grid-cols-1 lg:grid-cols-12 gap-6">
         {/* Left Form */}
         <div className="lg:col-span-5 cyber-panel p-6 rounded-2xl border border-cyber-border space-y-5">
           <div className="flex items-center justify-between pb-3 border-b border-cyber-border">
             <div className="text-xs font-mono uppercase tracking-wider text-white font-semibold flex items-center gap-2">
-              <Sliders className="w-4 h-4 text-cyber-accent" /> App Candidate Ingestion
+              <Sliders className="w-4 h-4 text-cyber-accent" /> Custom App Candidate Ingestion
             </div>
-            <span className="text-[10px] font-mono text-cyber-textMuted">Listing Evaluation</span>
+            <span className="text-[10px] font-mono text-cyber-textMuted">Analyst Submission</span>
           </div>
 
           {/* Quick Presets */}
@@ -311,10 +531,10 @@ export default function AppMonitoringView({ brands, onRefreshMetrics }) {
                 <Package className="w-8 h-8" />
               </div>
               <h3 className="text-sm font-semibold text-white">
-                No Application Evaluated Yet
+                No Custom Application Evaluated Yet
               </h3>
               <p className="text-xs text-cyber-textMuted max-w-sm mx-auto leading-relaxed">
-                Provide an app listing name, package ID, and publisher to test against verified brand developer signatures and package whitelist rules.
+                Provide an app listing name, package ID, and publisher to test against verified brand developer signatures and whitelist rules. Or run a live scan above!
               </p>
             </div>
           )}

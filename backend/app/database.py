@@ -18,6 +18,10 @@ def init_db(database_url: str):
     connect_args = {}
     engine_kwargs = {"echo": False}
     
+    # Render and Heroku use postgres:// which SQLAlchemy 2.0 requires as postgresql://
+    if database_url.startswith("postgres://"):
+        database_url = database_url.replace("postgres://", "postgresql://", 1)
+
     if database_url.startswith("sqlite"):
         connect_args["check_same_thread"] = False
         if ":memory:" in database_url:
