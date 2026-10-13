@@ -27,7 +27,17 @@ interface AuthViewProps {
 }
 
 export const AuthView: React.FC<AuthViewProps> = ({ onNavigateHome, initialMode = 'login' }) => {
-  const { signIn, signUp, signInWithGoogle, resetPassword, signInAsDemoAnalyst, error, clearError } = useAuth();
+  const {
+    signIn,
+    signUp,
+    signInWithGoogle,
+    resetPassword,
+    signInAsDemoAnalyst,
+    error,
+    clearError,
+    firebaseConfigStatus,
+  } = useAuth();
+
 
   // Mode: 'login' | 'signup' | 'forgot'
   const [mode, setMode] = useState<'login' | 'signup' | 'forgot'>(initialMode);
@@ -331,6 +341,18 @@ export const AuthView: React.FC<AuthViewProps> = ({ onNavigateHome, initialMode 
           </div>
 
           {/* Feedback alerts */}
+          {!firebaseConfigStatus?.isConfigured && (
+            <div className="p-3.5 rounded-xl bg-amber-500/10 border border-amber-500/30 text-amber-200 text-xs flex items-start gap-3">
+              <AlertCircle className="w-4 h-4 text-amber-400 shrink-0 mt-0.5" />
+              <div className="space-y-1">
+                <p className="font-semibold text-amber-100">Firebase Configuration Pending</p>
+                <p className="text-[11px] text-amber-300/90 leading-relaxed">
+                  Production environment variables (<code className="bg-amber-950/40 px-1 py-0.5 rounded font-mono text-[10px]">VITE_FIREBASE_*</code>) have not yet been provided. You can continue using <span className="font-semibold text-white">Quick Access: Continue as Demo Analyst</span> below to explore the full dashboard.
+                </p>
+              </div>
+            </div>
+          )}
+
           {activeError && (
             <div className="p-3.5 rounded-xl bg-rose-500/10 border border-rose-500/30 flex items-start gap-3 text-rose-300 text-xs animate-in fade-in duration-200">
               <AlertCircle className="w-4 h-4 text-rose-400 shrink-0 mt-0.5" />
@@ -698,7 +720,11 @@ export const AuthView: React.FC<AuthViewProps> = ({ onNavigateHome, initialMode 
 
           {/* Workspace info note */}
           <div className="p-3 rounded-lg bg-[#020817]/70 border border-slate-800/80 text-[11px] text-[#94A3B8] text-center font-mono">
-            Secured by Firebase Enterprise Authentication & zero-trust Firestore token authorization.
+            {firebaseConfigStatus?.source === 'env'
+              ? 'Secured by Firebase Enterprise Authentication & zero-trust Firestore token authorization.'
+              : firebaseConfigStatus?.source === 'fallback'
+              ? 'Connected via local development fallback credentials (firebase-applet-config).'
+              : 'Firebase configuration pending — sandbox demonstration mode active.'}
           </div>
         </div>
       </div>

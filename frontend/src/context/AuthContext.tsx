@@ -10,8 +10,16 @@ import {
   updateProfile,
 } from 'firebase/auth';
 import { doc, getDoc, setDoc } from 'firebase/firestore';
-import { auth, db, googleProvider, testFirestoreConnection } from '../utils/firebase';
+import {
+  auth,
+  db,
+  googleProvider,
+  testFirestoreConnection,
+  firebaseConfigStatus,
+  type FirebaseConfigStatus,
+} from '../utils/firebase';
 import api from '../api/client';
+
 
 export interface UserProfileData {
   uid: string;
@@ -35,6 +43,7 @@ interface AuthContextType {
   signInAsDemoAnalyst: () => void;
   error: string | null;
   clearError: () => void;
+  firebaseConfigStatus: FirebaseConfigStatus;
 }
 
 const AuthContext = createContext<AuthContextType | undefined>(undefined);
@@ -67,6 +76,11 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
   };
 
   useEffect(() => {
+    if (!firebaseConfigStatus.isConfigured) {
+      setLoading(false);
+      return;
+    }
+
     testFirestoreConnection();
 
     const unsubscribe = onAuthStateChanged(auth, async user => {
@@ -131,8 +145,17 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
 
   const clearError = () => setError(null);
 
+  const ensureConfigured = () => {
+    if (!firebaseConfigStatus.isConfigured) {
+      const msg = `Firebase is not configured in this environment (missing: ${firebaseConfigStatus.missingKeys.join(', ')}). Configure VITE_FIREBASE_* in your deployment environment or continue as Demo Analyst.`;
+      setError(msg);
+      throw new Error(msg);
+    }
+  };
+
   const signIn = async (email: string, pass: string) => {
     setError(null);
+    ensureConfigured();
     try {
       await signInWithEmailAndPassword(auth, email, pass);
     } catch (err: any) {
@@ -154,6 +177,7 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
 
   const signUp = async (email: string, pass: string, name: string, org: string) => {
     setError(null);
+    ensureConfigured();
     try {
       const cred = await createUserWithEmailAndPassword(auth, email, pass);
       await updateProfile(cred.user, { displayName: name });
@@ -193,6 +217,7 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
 
   const signInWithGoogle = async () => {
     setError(null);
+    ensureConfigured();
     try {
       const result = await signInWithPopup(auth, googleProvider);
       const user = result.user;
@@ -231,6 +256,7 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
 
   const resetPassword = async (email: string) => {
     setError(null);
+    ensureConfigured();
     try {
       await sendPasswordResetEmail(auth, email);
     } catch (err: any) {
@@ -249,7 +275,10 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
 
   const logOut = async () => {
     try {
-      await signOut(auth);
+      if (firebaseConfigStatus.isConfigured) {
+        await signOut(auth);
+      }
+      setCurrentUser(null);
       setUserProfile(null);
     } catch (err: any) {
       console.error('Sign out error:', err);
@@ -270,6 +299,7 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
         signInAsDemoAnalyst,
         error,
         clearError,
+        firebaseConfigStatus,
       }}
     >
       {children}
