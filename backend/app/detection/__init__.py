@@ -13,6 +13,7 @@ from backend.app.detection.social_detector import (
     DetectionOutcome,
 )
 from backend.app.detection.app_detector import AppDetector
+from backend.app.detection.domain_detector import DomainDetector
 
 __all__ = [
     "DetectionSignal",
@@ -23,5 +24,7 @@ __all__ = [
     "SimilarityResult",
     "SocialDetector",
     "AppDetector",
+    "DomainDetector",
     "DetectionOutcome",
 ]
+

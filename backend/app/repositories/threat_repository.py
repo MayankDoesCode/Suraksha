@@ -78,6 +78,10 @@ class ThreatRepository:
         severity: Optional[str] = None,
         review_status: Optional[str] = None,
         search: Optional[str] = None,
+        is_sample: Optional[bool] = None,
+        detection_source: Optional[str] = None,
+        sort_by: str = "risk_score",
+        sort_order: str = "desc",
         offset: int = 0,
         limit: int = 50,
     ) -> Tuple[List[Finding], int]:
@@ -98,6 +102,10 @@ class ThreatRepository:
             query = query.filter(Finding.severity == severity.upper())
         if review_status:
             query = query.filter(Finding.review_status == review_status.upper())
+        if is_sample is not None:
+            query = query.filter(Finding.is_sample == is_sample)
+        if detection_source:
+            query = query.filter(Finding.detection_source == detection_source)
         if search:
             s_term = f"%{search.strip().lower()}%"
             query = query.filter(
@@ -108,13 +116,24 @@ class ThreatRepository:
             )
 
         total_count = query.count()
-        items = (
-            query.order_by(Finding.risk_score.desc(), Finding.observed_at.desc())
-            .offset(offset)
-            .limit(limit)
-            .all()
-        )
+
+        # Dynamic Sorting
+        sort_col = Finding.risk_score
+        if sort_by == "created_at":
+            sort_col = Finding.created_at
+        elif sort_by == "observed_at":
+            sort_col = Finding.observed_at
+        elif sort_by == "candidate_name":
+            sort_col = Finding.candidate_name
+
+        if sort_order.lower() == "asc":
+            query = query.order_by(sort_col.asc(), Finding.observed_at.asc())
+        else:
+            query = query.order_by(sort_col.desc(), Finding.observed_at.desc())
+
+        items = query.offset(offset).limit(limit).all()
         return items, total_count
+
 
     def save_or_update(
         self,
@@ -218,16 +237,43 @@ class ThreatRepository:
         self.session.refresh(finding)
         return finding
 
-    def update_status(self, finding_id: str, new_status: str) -> Optional[Finding]:
-        """Update review status of a finding."""
+    def update_status(
+        self,
+        finding_id: str,
+        new_status: str,
+        analyst: Optional[str] = None,
+        note: Optional[str] = None,
+    ) -> Optional[Finding]:
+        """Update review status of a finding with an audit log trail."""
         finding = self.get_by_id(finding_id)
         if not finding:
             return None
+
+        old_status = finding.review_status
+        now = datetime.now(timezone.utc)
         finding.review_status = new_status.upper()
-        finding.updated_at = datetime.now(timezone.utc)
+        finding.updated_at = now
+
+        # Record immutable audit trail in evidence records
+        analyst_label = analyst or "SecOps Analyst"
+        audit_desc = f"Status transitioned from {old_status} to {new_status.upper()} by {analyst_label}."
+        if note:
+            audit_desc += f" Note: {note.strip()}"
+
+        audit_evidence = EvidenceRecord(
+            finding_id=finding.id,
+            evidence_type="analyst_triage_audit",
+            description=audit_desc,
+            source_reference=analyst_label,
+            captured_at=now,
+            created_at=now,
+        )
+        finding.evidence.append(audit_evidence)
+
         self.session.commit()
         self.session.refresh(finding)
         return finding
+
 
     def get_metrics(self) -> Dict[str, Any]:
         """Aggregate platform metrics directly from active database records."""

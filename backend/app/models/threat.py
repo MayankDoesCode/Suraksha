@@ -85,9 +85,15 @@ class Finding(Base):
             "ml_risk_score": round(float(self.ml_risk_score), 1) if self.ml_risk_score is not None else None,
             "ml_predicted_class": self.ml_predicted_class,
             "ml_confidence": round(float(self.ml_confidence), 2) if self.ml_confidence is not None else None,
+            "confidence_score": round(
+                (sum(s.confidence for s in self.signals) / len(self.signals)) if self.signals
+                else (float(self.ml_confidence) if self.ml_confidence is not None else (0.85 if composite_score > 0 else 0.0)),
+                2
+            ),
             "ml_model_version": self.ml_model_version,
             "ml_fallback_used": bool(self.ml_fallback_used) if self.ml_fallback_used is not None else False,
             "severity": self.severity,
+
             "review_status": self.review_status,
             "detection_source": self.detection_source,
             "is_sample": bool(self.is_sample),

@@ -26,12 +26,19 @@ def init_db(database_url: str):
         connect_args["check_same_thread"] = False
         if ":memory:" in database_url:
             engine_kwargs["poolclass"] = StaticPool
+    else:
+        # PostgreSQL / cloud database resilience
+        engine_kwargs["pool_pre_ping"] = True
+        engine_kwargs["pool_recycle"] = 300
+        engine_kwargs["pool_size"] = 10
+        engine_kwargs["max_overflow"] = 20
             
     _engine = create_engine(
         database_url,
         connect_args=connect_args,
         **engine_kwargs
     )
+
     
     _session_factory = scoped_session(
         sessionmaker(autocommit=False, autoflush=False, bind=_engine)

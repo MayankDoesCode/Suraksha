@@ -5,6 +5,7 @@ from backend.app.repositories.brand_repository import BrandRepository
 from backend.app.repositories.threat_repository import ThreatRepository
 from backend.app.detection.social_detector import SocialDetector
 from backend.app.detection.app_detector import AppDetector
+from backend.app.detection.domain_detector import DomainDetector
 from backend.app.ai.risk_classifier import risk_classifier as default_risk_classifier, RiskClassifier
 from backend.app.utils.errors import NotFoundError, ValidationError
 
@@ -14,7 +15,7 @@ logger = logging.getLogger(__name__)
 class DetectionService:
     """
     Hybrid cybersecurity detection and risk scoring engine.
-    Combines deterministic rules (brand exclusions, publisher mismatch, package mimicry)
+    Combines deterministic rules (brand exclusions, publisher mismatch, package mimicry, domain typosquatting)
     with a trained Machine Learning classifier to generate explainable, calibrated threat scores.
     """
 
@@ -30,9 +31,11 @@ class DetectionService:
         self.threat_repo = threat_repo or ThreatRepository()
         self.social_detector = SocialDetector()
         self.app_detector = AppDetector()
+        self.domain_detector = DomainDetector()
         self.risk_classifier = risk_classifier or default_risk_classifier
         self.rule_weight = rule_weight
         self.ml_weight = ml_weight
+
 
     def evaluate_candidate(
         self,
@@ -73,9 +76,13 @@ class DetectionService:
         if asset_type in ("mobile_app", "app"):
             outcome = self.app_detector.evaluate_full(candidate_data, brand_dict)
             asset_type_normalized = "mobile_app"
+        elif asset_type in ("domain", "url", "dns", "web", "website"):
+            outcome = self.domain_detector.evaluate_full(candidate_data, brand_dict)
+            asset_type_normalized = "domain"
         else:
             outcome = self.social_detector.evaluate_full(candidate_data, brand_dict)
             asset_type_normalized = "social"
+
 
         # -------------------------------------------------------------
         # 1. Official Asset Exclusion Handling (Non-negotiable rule)
@@ -193,7 +200,20 @@ class DetectionService:
             })
 
         # -------------------------------------------------------------
-        # 5. Persistence & Repeat Scans Deduplication
+        # 5. Separate Detection Confidence from Potential Severity/Impact
+        # -------------------------------------------------------------
+        if signals:
+            rule_conf = sum(s.confidence for s in signals) / len(signals)
+        else:
+            rule_conf = 0.5
+
+        if ml_confidence is not None and not ml_fallback_used:
+            detection_confidence = round(self.rule_weight * rule_conf + self.ml_weight * ml_confidence, 2)
+        else:
+            detection_confidence = round(rule_conf, 2)
+
+        # -------------------------------------------------------------
+        # 6. Persistence & Repeat Scans Deduplication
         # -------------------------------------------------------------
         finding_record = None
 
@@ -238,6 +258,7 @@ class DetectionService:
             "ml_risk_score": ml_risk_score,
             "ml_predicted_class": ml_predicted_class,
             "ml_confidence": ml_confidence,
+            "detection_confidence": detection_confidence,
             "ml_model_version": ml_version,
             "ml_fallback_used": ml_fallback_used,
             "severity": final_severity,
@@ -254,3 +275,4 @@ class DetectionService:
             "persisted": persist,
             "finding": finding_record,
         }
+

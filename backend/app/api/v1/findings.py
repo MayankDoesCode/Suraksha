@@ -14,9 +14,17 @@ def list_findings():
     asset_type = request.args.get("asset_type", default=None, type=str)
     severity = request.args.get("severity", default=None, type=str)
     review_status = request.args.get("review_status", default=None, type=str)
+    detection_source = request.args.get("detection_source", default=None, type=str)
     search = request.args.get("search", default=None, type=str)
+    sort_by = request.args.get("sort_by", default="risk_score", type=str)
+    sort_order = request.args.get("sort_order", default="desc", type=str)
     page = request.args.get("page", default=1, type=int)
     per_page = request.args.get("per_page", default=20, type=int)
+
+    is_sample_raw = request.args.get("is_sample", default=None)
+    is_sample = None
+    if is_sample_raw is not None:
+        is_sample = str(is_sample_raw).strip().lower() in ("true", "1", "yes")
 
     page = max(1, page)
     per_page = min(max(1, per_page), 100)
@@ -28,6 +36,10 @@ def list_findings():
         severity=severity,
         review_status=review_status,
         search=search,
+        is_sample=is_sample,
+        detection_source=detection_source,
+        sort_by=sort_by,
+        sort_order=sort_order,
         offset=offset,
         limit=per_page,
     )
@@ -40,8 +52,11 @@ def list_findings():
             "page": page,
             "per_page": per_page,
             "total_pages": (total_count + per_page - 1) // per_page if total_count > 0 else 1,
+            "sort_by": sort_by,
+            "sort_order": sort_order,
         }
     }), 200
+
 
 @findings_bp.route("/findings/<string:finding_id>", methods=["GET"])
 def get_finding(finding_id: str):
@@ -92,7 +107,20 @@ def update_finding_status(finding_id: str):
             }
         }), 422
 
-    updated = threat_repo.update_status(finding_id, new_status)
+    # Extract analyst attribution and optional note for immutable audit log
+    analyst = None
+    if hasattr(request, "current_user") and request.current_user:
+        analyst = request.current_user.get("displayName") or request.current_user.get("email")
+    if not analyst:
+        analyst = payload.get("analyst")
+    note = payload.get("note")
+
+    updated = threat_repo.update_status(
+        finding_id=finding_id,
+        new_status=new_status,
+        analyst=analyst,
+        note=note,
+    )
     if not updated:
         return jsonify({
             "success": False,
