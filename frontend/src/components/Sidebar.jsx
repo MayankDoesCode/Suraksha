@@ -12,7 +12,7 @@ import {
   Lock
 } from 'lucide-react';
 
-export default function Sidebar({ currentView, setCurrentView, health }) {
+export default function Sidebar({ currentView, setCurrentView, health, onNavigateHome }) {
   const navItems = [
     {
       id: 'brands',
@@ -77,12 +77,16 @@ export default function Sidebar({ currentView, setCurrentView, health }) {
       <div>
         {/* Brand Header */}
         <div className="p-6 border-b border-cyber-border">
-          <div className="flex items-center gap-3">
-            <div className="w-10 h-10 rounded-lg bg-cyber-accent/10 border border-cyber-accent/40 flex items-center justify-center text-cyber-accent shadow-glow">
+          <div
+            className={`flex items-center gap-3 ${onNavigateHome ? 'cursor-pointer group' : ''}`}
+            onClick={onNavigateHome}
+            title={onNavigateHome ? 'Return to Landing Page' : undefined}
+          >
+            <div className="w-10 h-10 rounded-lg bg-cyber-accent/10 border border-cyber-accent/40 flex items-center justify-center text-cyber-accent shadow-glow group-hover:scale-105 transition-transform">
               <Shield className="w-6 h-6" />
             </div>
             <div>
-              <div className="text-base font-bold tracking-wider text-white flex items-center gap-1.5 font-mono">
+              <div className="text-base font-bold tracking-wider text-white flex items-center gap-1.5 font-mono group-hover:text-cyber-accent transition-colors">
                 SURAKSHA
               </div>
               <div className="text-[11px] text-cyber-textMuted uppercase tracking-widest font-mono">

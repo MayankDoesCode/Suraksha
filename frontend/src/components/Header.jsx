@@ -6,7 +6,8 @@ export default function Header({
   health,
   healthLoading,
   onRefresh,
-  onOpenCreateModal
+  onOpenCreateModal,
+  onNavigateHome
 }) {
   const titles = {
     brands: {
@@ -76,6 +77,17 @@ export default function Header({
             )}
           </span>
         </div>
+
+        {/* Return to Home / Landing */}
+        {onNavigateHome && (
+          <button
+            onClick={onNavigateHome}
+            title="Return to Public Landing Page"
+            className="flex items-center gap-1.5 px-3 py-1.5 rounded-lg bg-cyber-surface border border-cyber-border text-cyber-textMuted hover:text-cyber-accent hover:border-cyber-accent/40 text-xs font-mono transition-all"
+          >
+            <span>HOME</span>
+          </button>
+        )}
 
         {/* Refresh Action */}
         <button
