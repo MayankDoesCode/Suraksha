@@ -12,8 +12,23 @@ from backend.app import create_app
 app = create_app()
 
 if __name__ == "__main__":
-    port = int(os.getenv("PORT", 5000))
     host = os.getenv("HOST", "127.0.0.1")
     debug = os.getenv("FLASK_DEBUG", "1") == "1"
+
+    if "PORT" in os.environ:
+        port = int(os.environ["PORT"])
+    else:
+        import socket
+        sock = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
+        try:
+            sock.bind((host, 5000))
+            port = 5000
+        except OSError:
+            port = 5001
+            print(f"[*] Port 5000 is occupied (macOS AirPlay / ControlCenter). Automatically falling back to port {port}.")
+        finally:
+            sock.close()
+
     print(f"[*] Starting SURAKSHA API Server on http://{host}:{port}")
     app.run(host=host, port=port, debug=debug)
+

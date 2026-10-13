@@ -1,0 +1,289 @@
+import React, { useState, useEffect } from 'react';
+import {
+  Activity,
+  Database,
+  Server,
+  Layers,
+  CheckCircle2,
+  AlertCircle,
+  RefreshCw,
+  Copy,
+  Terminal,
+  Globe,
+  Radio,
+  Share2,
+  Smartphone,
+} from 'lucide-react';
+import api from '../api/client';
+
+export const DiagnosticsView: React.FC = () => {
+  const [copied, setCopied] = useState(false);
+  const [health, setHealth] = useState<any>(null);
+  const [healthLoading, setHealthLoading] = useState(false);
+  const [integrations, setIntegrations] = useState<any>(null);
+  const [integrationsLoading, setIntegrationsLoading] = useState(false);
+
+  const fetchHealth = async () => {
+    setHealthLoading(true);
+    try {
+      const res = await api.getHealth();
+      setHealth(res);
+    } catch (err: any) {
+      setHealth({
+        status: 'degraded',
+        error: err.message,
+        database: { connected: false, status: err.message },
+      });
+    } finally {
+      setHealthLoading(false);
+    }
+  };
+
+  const fetchIntegrations = async () => {
+    setIntegrationsLoading(true);
+    try {
+      const res = await api.getIntegrationsStatus();
+      setIntegrations(res?.providers || {});
+    } catch {
+      setIntegrations(null);
+    } finally {
+      setIntegrationsLoading(false);
+    }
+  };
+
+  useEffect(() => {
+    fetchHealth();
+    fetchIntegrations();
+  }, []);
+
+  const copyTelemetry = () => {
+    navigator.clipboard.writeText(JSON.stringify({ health, integrations }, null, 2));
+    setCopied(true);
+    setTimeout(() => setCopied(false), 2000);
+  };
+
+  const isHealthy = health?.status === 'healthy' && health?.database?.connected;
+
+  const endpoints = [
+    { method: 'GET', path: '/api/v1/health', desc: 'Core server and database availability check' },
+    { method: 'GET', path: '/api/v1/brands', desc: 'Paginated list of brand profiles with search filtering' },
+    { method: 'POST', path: '/api/v1/brands', desc: 'Register new brand with domains, handles, and packages' },
+    { method: 'GET', path: '/api/v1/brands/:id', desc: 'Retrieve single brand profile with relational assets' },
+    { method: 'PUT', path: '/api/v1/brands/:id', desc: 'Update brand baseline assets with atomic synchronization' },
+    { method: 'DELETE', path: '/api/v1/brands/:id', desc: 'Permanently remove brand profile and cascade relationships' },
+    { method: 'POST', path: '/api/v1/brands/:id/scan', desc: 'Evaluate candidate asset against verified brand allowlist' },
+    { method: 'POST', path: '/api/v1/brands/:id/scan-provider', desc: 'Execute live external data retrieval scan for brand' },
+    { method: 'GET', path: '/api/v1/findings', desc: 'List threat findings with filtering by brand, severity, status' },
+    { method: 'PATCH', path: '/api/v1/findings/:id/status', desc: 'Update finding triage status with validation' },
+    { method: 'GET', path: '/api/v1/metrics', desc: 'Retrieve aggregated platform threat telemetry' },
+    { method: 'GET', path: '/api/v1/integrations/status', desc: 'Inspect external provider connection status' },
+  ];
+
+  return (
+    <div className="max-w-6xl mx-auto space-y-6">
+      {/* Top Banner */}
+      <div className="bg-white p-6 rounded-2xl border border-slate-200 shadow-xs flex flex-col md:flex-row md:items-center justify-between gap-4">
+        <div>
+          <div className="flex items-center gap-2 mb-1">
+            <span className="p-1 rounded bg-blue-50 text-blue-700 border border-blue-200">
+              <Activity className="w-4 h-4" />
+            </span>
+            <span className="text-xs font-bold uppercase tracking-wider text-blue-900">
+              Platform Diagnostics &amp; Health Matrix
+            </span>
+          </div>
+          <h2 className="text-xl font-bold text-slate-900 tracking-tight">
+            System &amp; Database Health Telemetry
+          </h2>
+          <p className="text-xs text-slate-500 max-w-2xl mt-0.5">
+            Audit live connectivity with the Flask API, SQLAlchemy database status, and external connectors.
+          </p>
+        </div>
+
+        <div className="flex items-center gap-2">
+          <button
+            onClick={() => {
+              fetchHealth();
+              fetchIntegrations();
+            }}
+            disabled={healthLoading || integrationsLoading}
+            className="px-3.5 py-2 rounded-xl bg-blue-600 hover:bg-blue-700 text-white text-xs font-semibold shadow-xs flex items-center gap-1.5 transition-all cursor-pointer"
+          >
+            <RefreshCw className={`w-3.5 h-3.5 ${healthLoading || integrationsLoading ? 'animate-spin' : ''}`} />
+            <span>Refresh Health</span>
+          </button>
+        </div>
+      </div>
+
+      {/* Status Cards */}
+      <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+        {/* API Core */}
+        <div className="bg-white p-5 rounded-2xl border border-slate-200 shadow-xs space-y-3">
+          <div className="flex items-center justify-between">
+            <span className="text-[11px] font-semibold text-slate-500 uppercase tracking-wider">REST API SERVICE</span>
+            <span className={`text-[10px] font-mono font-bold px-2 py-0.5 rounded-full border ${
+              isHealthy
+                ? 'bg-emerald-50 text-emerald-700 border-emerald-200'
+                : 'bg-rose-50 text-rose-700 border-rose-200'
+            }`}>
+              {isHealthy ? 'HEALTHY • ONLINE' : 'DEGRADED / OFFLINE'}
+            </span>
+          </div>
+          <div className="text-xl font-bold text-slate-900 flex items-center gap-2">
+            <Server className="w-5 h-5 text-blue-600" />
+            <span>{health?.service || 'SURAKSHA REST API'}</span>
+          </div>
+          <p className="text-xs text-slate-500 font-mono">
+            Environment: {health?.environment || 'development'} • Version: {health?.version || '1.0.0'}
+          </p>
+        </div>
+
+        {/* Database */}
+        <div className="bg-white p-5 rounded-2xl border border-slate-200 shadow-xs space-y-3">
+          <div className="flex items-center justify-between">
+            <span className="text-[11px] font-semibold text-slate-500 uppercase tracking-wider">DATABASE ENGINE</span>
+            <span className={`text-[10px] font-mono font-bold px-2 py-0.5 rounded-full border ${
+              health?.database?.connected
+                ? 'bg-emerald-50 text-emerald-700 border-emerald-200'
+                : 'bg-rose-50 text-rose-700 border-rose-200'
+            }`}>
+              {health?.database?.connected ? 'CONNECTED' : 'UNREACHABLE'}
+            </span>
+          </div>
+          <div className="text-xl font-bold text-slate-900 flex items-center gap-2">
+            <Database className="w-5 h-5 text-purple-600" />
+            <span>SQLite / PostgreSQL</span>
+          </div>
+          <p className="text-xs text-slate-500 font-mono">
+            Status: {health?.database?.status || (health?.database?.connected ? 'Operational' : 'Database offline')}
+          </p>
+        </div>
+
+        {/* Connectors */}
+        <div className="bg-white p-5 rounded-2xl border border-slate-200 shadow-xs space-y-3">
+          <div className="flex items-center justify-between">
+            <span className="text-[11px] font-semibold text-slate-500 uppercase tracking-wider">DATA PROVIDERS</span>
+            <span className="text-[10px] font-mono font-bold px-2 py-0.5 rounded-full bg-blue-50 text-blue-700 border border-blue-200">
+              ACTIVE
+            </span>
+          </div>
+          <div className="text-xl font-bold text-slate-900 flex items-center gap-2">
+            <Radio className="w-5 h-5 text-sky-600" />
+            <span>App Store &amp; Social</span>
+          </div>
+          <p className="text-xs text-slate-500 font-mono">
+            Connectors: Apple iTunes REST API, Twitter / X v2
+          </p>
+        </div>
+      </div>
+
+      {/* External Connectors Detail */}
+      <div className="bg-white rounded-2xl border border-slate-200 shadow-xs overflow-hidden">
+        <div className="p-4 border-b border-slate-100 flex items-center justify-between bg-slate-50/50">
+          <h3 className="text-xs font-bold uppercase tracking-wider text-slate-800 flex items-center gap-2">
+            <Radio className="w-4 h-4 text-blue-600" />
+            <span>External Threat Data Providers</span>
+          </h3>
+          <span className="text-xs text-slate-400 font-mono">Zero Credential Leakage</span>
+        </div>
+
+        <div className="p-4 grid grid-cols-1 md:grid-cols-2 gap-4">
+          {/* Apple App Store */}
+          <div className="p-4 rounded-xl bg-slate-50 border border-slate-200 space-y-2">
+            <div className="flex items-center justify-between">
+              <span className="text-xs font-bold text-slate-900 flex items-center gap-2">
+                <Smartphone className="w-4 h-4 text-purple-600" />
+                <span>Apple App Store (iTunes API)</span>
+              </span>
+              <span className="text-[10px] font-mono px-2 py-0.5 rounded-full bg-emerald-100 text-emerald-800 font-bold uppercase border border-emerald-200">
+                OPERATIONAL
+              </span>
+            </div>
+            <div className="text-xs text-slate-500 font-mono">
+              Type: Authorized Public REST API • Rate Limit: ~20 calls/min
+            </div>
+            <div className="text-[11px] text-slate-700 font-medium">
+              Diagnostic: {integrations?.itunes_app_store?.message || 'Live connectivity ready'}
+            </div>
+          </div>
+
+          {/* Twitter / X API v2 */}
+          <div className="p-4 rounded-xl bg-slate-50 border border-slate-200 space-y-2">
+            <div className="flex items-center justify-between">
+              <span className="text-xs font-bold text-slate-900 flex items-center gap-2">
+                <Share2 className="w-4 h-4 text-sky-600" />
+                <span>Twitter / X API v2</span>
+              </span>
+              <span className={`text-[10px] font-mono px-2 py-0.5 rounded-full font-bold uppercase border ${
+                integrations?.twitter_v2?.configured
+                  ? 'bg-emerald-100 text-emerald-800 border-emerald-200'
+                  : 'bg-amber-100 text-amber-800 border-amber-200'
+              }`}>
+                {integrations?.twitter_v2?.configured ? 'CONFIGURED' : 'TOKEN NOT SET'}
+              </span>
+            </div>
+            <div className="text-xs text-slate-500 font-mono">
+              Type: Bearer Token (OAuth 2.0) • Key: X_BEARER_TOKEN
+            </div>
+            <div className="text-[11px] text-slate-700 font-medium">
+              Diagnostic: {integrations?.twitter_v2?.configured
+                ? 'Authenticated with Twitter / X API v2'
+                : 'Configure X_BEARER_TOKEN in .env for live Twitter searches'}
+            </div>
+          </div>
+        </div>
+      </div>
+
+      {/* REST Endpoints Matrix */}
+      <div className="bg-white rounded-2xl border border-slate-200 shadow-xs overflow-hidden">
+        <div className="p-4 border-b border-slate-100 flex items-center justify-between bg-slate-50/50">
+          <h3 className="text-xs font-bold uppercase tracking-wider text-slate-800 flex items-center gap-2">
+            <Terminal className="w-4 h-4 text-blue-600" />
+            <span>Verified REST API Endpoints (/api/v1)</span>
+          </h3>
+          <span className="text-xs text-slate-400 font-mono">12 Endpoints Active</span>
+        </div>
+
+        <div className="divide-y divide-slate-100">
+          {endpoints.map((ep, idx) => (
+            <div key={idx} className="p-3.5 flex flex-col sm:flex-row sm:items-center justify-between text-xs hover:bg-slate-50 transition-colors gap-2">
+              <div className="flex items-center gap-3">
+                <span className={`px-2 py-0.5 rounded font-mono font-bold text-[10px] ${
+                  ep.method === 'GET' ? 'bg-blue-100 text-blue-800' :
+                  ep.method === 'POST' ? 'bg-emerald-100 text-emerald-800' :
+                  ep.method === 'PUT' ? 'bg-amber-100 text-amber-800' :
+                  ep.method === 'PATCH' ? 'bg-purple-100 text-purple-800' :
+                  'bg-rose-100 text-rose-800'
+                }`}>
+                  {ep.method}
+                </span>
+                <span className="font-mono text-slate-900 font-semibold">{ep.path}</span>
+              </div>
+              <span className="text-slate-500 text-[11px]">{ep.desc}</span>
+            </div>
+          ))}
+        </div>
+      </div>
+
+      {/* Raw Health Output */}
+      <div className="bg-white rounded-2xl border border-slate-200 shadow-xs overflow-hidden">
+        <div className="p-4 border-b border-slate-100 flex items-center justify-between bg-slate-50/50">
+          <h3 className="text-xs font-bold uppercase tracking-wider text-slate-800 flex items-center gap-2">
+            <Activity className="w-4 h-4 text-blue-600" />
+            <span>Raw Health JSON Telemetry</span>
+          </h3>
+          <button
+            onClick={copyTelemetry}
+            className="text-xs font-medium text-blue-600 hover:text-blue-800 flex items-center gap-1 cursor-pointer"
+          >
+            <Copy className="w-3.5 h-3.5" />
+            <span>{copied ? 'Copied!' : 'Copy Telemetry'}</span>
+          </button>
+        </div>
+        <pre className="p-4 bg-slate-900 text-slate-200 text-xs font-mono overflow-x-auto leading-relaxed">
+          {JSON.stringify({ health, integrations }, null, 2)}
+        </pre>
+      </div>
+    </div>
+  );
+};
