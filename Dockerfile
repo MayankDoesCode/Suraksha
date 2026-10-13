@@ -25,6 +25,9 @@ RUN pip install --no-cache-dir -r backend/requirements.txt
 COPY backend/ ./backend/
 COPY alembic.ini ./alembic.ini
 
+# Verify or generate versioned ML risk classification model artifact
+RUN python backend/scripts/train_risk_model.py
+
 # Copy compiled frontend from Stage 1 into frontend/dist
 COPY --from=frontend-builder /app/frontend/dist ./frontend/dist
 

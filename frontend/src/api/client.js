@@ -8,13 +8,29 @@ const API_BASE_URL = import.meta.env.VITE_API_BASE_URL || '/api/v1';
 class ApiClient {
   constructor(baseUrl) {
     this.baseUrl = baseUrl.replace(/\/+$/, '');
+    this.tokenProvider = null;
+  }
+
+  setTokenProvider(provider) {
+    this.tokenProvider = provider;
   }
 
   async request(endpoint, options = {}) {
     const url = `${this.baseUrl}${endpoint}`;
+
+    let token = null;
+    if (this.tokenProvider) {
+      try {
+        token = await this.tokenProvider();
+      } catch (err) {
+        console.warn('Failed to retrieve authentication token for API request:', err);
+      }
+    }
+
     const headers = {
       'Content-Type': 'application/json',
       'Accept': 'application/json',
+      ...(token ? { 'Authorization': `Bearer ${token}` } : {}),
       ...(options.headers || {}),
     };
 

@@ -3,7 +3,7 @@ import { Shield, ArrowRight, ExternalLink } from 'lucide-react';
 
 export default function LandingFooter({ onLaunchDashboard }) {
   return (
-    <footer className="border-t border-cyber-border bg-cyber-darkest text-cyber-textMuted py-16">
+    <footer className="border-t border-cyan-500/20 bg-[#030612]/75 backdrop-blur-xl text-cyber-textMuted py-16">
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
         <div className="grid grid-cols-1 md:grid-cols-4 gap-10 mb-12">
           {/* Brand info */}

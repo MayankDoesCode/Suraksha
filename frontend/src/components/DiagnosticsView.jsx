@@ -63,7 +63,7 @@ export default function DiagnosticsView({ health, loading, onRefresh }) {
   return (
     <div className="space-y-6">
       {/* Top Status Overview */}
-      <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+      <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
         {/* API Core */}
         <div className="cyber-panel p-5 rounded-xl border border-cyber-border space-y-3">
           <div className="flex items-center justify-between">
@@ -102,6 +102,27 @@ export default function DiagnosticsView({ health, loading, onRefresh }) {
           </div>
         </div>
 
+        {/* ML Risk Model */}
+        <div className="cyber-panel p-5 rounded-xl border border-cyber-border space-y-3">
+          <div className="flex items-center justify-between">
+            <span className="text-[11px] font-mono text-cyber-textMuted uppercase">ML RISK MODEL</span>
+            <span className={`text-xs font-mono font-semibold px-2 py-0.5 rounded ${
+              health?.ml_service?.available
+                ? 'bg-cyber-emerald/15 text-cyber-emerald border border-cyber-emerald/30'
+                : 'bg-amber-500/15 text-amber-400 border border-amber-500/30'
+            }`}>
+              {health?.ml_service?.available ? 'OPERATIONAL' : 'FALLBACK MODE'}
+            </span>
+          </div>
+          <div className="text-xl font-bold font-mono text-white flex items-center gap-2">
+            <Cpu className="w-5 h-5 text-cyber-accent" />
+            RandomForest
+          </div>
+          <div className="text-xs text-cyber-textMuted font-mono">
+            Model: v{health?.ml_service?.model_version || '1.0.0'} • Hybrid Pipeline
+          </div>
+        </div>
+
         {/* Migrations */}
         <div className="cyber-panel p-5 rounded-xl border border-cyber-border space-y-3">
           <div className="flex items-center justify-between">
@@ -112,7 +133,7 @@ export default function DiagnosticsView({ health, loading, onRefresh }) {
           </div>
           <div className="text-xl font-bold font-mono text-white flex items-center gap-2">
             <Layers className="w-5 h-5 text-cyber-accent" />
-            Revision: 001_initial_schema
+            003_add_ml_risk_fields
           </div>
           <div className="text-xs text-cyber-textMuted font-mono">
             Target Head Applied

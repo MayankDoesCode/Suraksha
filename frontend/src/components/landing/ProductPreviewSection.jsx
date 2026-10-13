@@ -24,7 +24,7 @@ export default function ProductPreviewSection({ onLaunchDashboard }) {
   ];
 
   return (
-    <section id="preview" className="py-24 relative border-t border-cyber-border/60 bg-cyber-darkest/50">
+    <section id="preview" className="py-24 relative border-t border-cyan-500/20 bg-[#040816]/40 backdrop-blur-sm">
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
         {/* Section Header */}
         <div className="text-center max-w-3xl mx-auto mb-16">

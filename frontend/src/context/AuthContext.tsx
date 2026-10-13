@@ -11,6 +11,7 @@ import {
 } from 'firebase/auth';
 import { doc, getDoc, setDoc } from 'firebase/firestore';
 import { auth, db, googleProvider, testFirestoreConnection } from '../utils/firebase';
+import api from '../api/client';
 
 export interface UserProfileData {
   uid: string;
@@ -110,6 +111,23 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
 
     return () => unsubscribe();
   }, []);
+
+  useEffect(() => {
+    if (currentUser && typeof (currentUser as any).getIdToken === 'function') {
+      api.setTokenProvider(async () => {
+        try {
+          return await (currentUser as any).getIdToken();
+        } catch (e) {
+          console.warn('Failed retrieving Firebase ID token:', e);
+          return null;
+        }
+      });
+    } else if (currentUser && currentUser.uid === 'analyst-demo-001') {
+      api.setTokenProvider(async () => 'demo-analyst-token');
+    } else {
+      api.setTokenProvider(null);
+    }
+  }, [currentUser]);
 
   const clearError = () => setError(null);
 

@@ -2,6 +2,7 @@ from flask import Blueprint, request, jsonify
 from backend.app.repositories.threat_repository import ThreatRepository
 from backend.app.validation.threat_validator import VALID_REVIEW_STATUSES
 from backend.app.utils.errors import NotFoundError, ValidationError
+from backend.app.utils.auth import require_auth
 
 findings_bp = Blueprint("findings", __name__)
 threat_repo = ThreatRepository()
@@ -66,6 +67,7 @@ def get_finding(finding_id: str):
     }), 200
 
 @findings_bp.route("/findings/<string:finding_id>/status", methods=["PATCH", "PUT"])
+@require_auth(allowed_roles=["admin", "lead", "analyst"])
 def update_finding_status(finding_id: str):
     """Update review status of a finding (e.g., CONFIRMED_THREAT, FALSE_POSITIVE)."""
     payload = request.get_json(silent=True)

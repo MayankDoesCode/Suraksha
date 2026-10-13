@@ -15,24 +15,29 @@ import {
   Building2,
   ExternalLink,
   LogOut,
-  UserCheck,
+  User,
   Activity,
+  Home,
+  X,
 } from 'lucide-react';
 
 interface SidebarProps {
   onNavigateHome?: () => void;
+  isOpen?: boolean;
+  onClose?: () => void;
 }
 
-export const Sidebar: React.FC<SidebarProps> = ({ onNavigateHome }) => {
+export const Sidebar: React.FC<SidebarProps> = ({ onNavigateHome, isOpen, onClose }) => {
   const { activeTab, setActiveTab, brandProfile, stats, resetAllToDemoData, backendOnline, selectedBackendBrandId } = useApp();
+  const { currentUser, userProfile, logOut } = useAuth();
 
   const navItems = [
     {
       id: 'overview',
       label: 'Overview Dashboard',
       icon: LayoutDashboard,
-      badge: stats.activeAlerts > 0 ? stats.activeAlerts : undefined,
-      badgeColor: 'bg-rose-500 text-white',
+      badge: '3',
+      isOverview: true,
     },
     {
       id: 'brand-profile',
@@ -45,35 +50,35 @@ export const Sidebar: React.FC<SidebarProps> = ({ onNavigateHome }) => {
       label: 'Social Media Monitor',
       icon: Share2,
       badge: 'AI Engine',
-      badgeColor: 'bg-sky-500/20 text-sky-300 border border-sky-400/30',
+      badgeColor: 'bg-[#00D9FF]/10 text-[#00D9FF] border border-[#00D9FF]/30',
     },
     {
       id: 'app-monitoring',
       label: 'App Store Monitor',
       icon: Smartphone,
       badge: 'AI Engine',
-      badgeColor: 'bg-sky-500/20 text-sky-300 border border-sky-400/30',
+      badgeColor: 'bg-[#00D9FF]/10 text-[#00D9FF] border border-[#00D9FF]/30',
     },
     {
       id: 'lookalike-engine',
       label: 'Look-alike Engine',
       icon: Binary,
       badge: 'Heuristics',
-      badgeColor: 'bg-indigo-500/20 text-indigo-300 border border-indigo-400/30',
+      badgeColor: 'bg-[#8B5CF6]/15 text-[#8B5CF6] border border-[#8B5CF6]/30',
     },
     {
       id: 'investigation-center',
       label: 'Investigation Center',
       icon: FolderSearch,
-      badge: stats.investigatingCount > 0 ? `${stats.investigatingCount} Active` : undefined,
-      badgeColor: 'bg-amber-500/20 text-amber-300 border border-amber-400/30',
+      badge: stats.investigatingCount > 0 ? `${stats.investigatingCount} Active` : '2 Active',
+      badgeColor: 'bg-[#FFB020]/15 text-[#FFB020] border border-[#FFB020]/30',
     },
     {
       id: 'threat-graph',
       label: 'Threat Relationship Graph',
       icon: Network,
       badge: 'Interactive',
-      badgeColor: 'bg-purple-500/20 text-purple-300 border border-purple-400/30',
+      badgeColor: 'bg-[#8B5CF6]/15 text-[#8B5CF6] border border-[#8B5CF6]/30',
     },
     {
       id: 'reports',
@@ -86,176 +91,239 @@ export const Sidebar: React.FC<SidebarProps> = ({ onNavigateHome }) => {
       icon: Activity,
       badge: backendOnline ? 'API Online' : 'Local Dev',
       badgeColor: backendOnline
-        ? 'bg-emerald-500/20 text-emerald-300 border border-emerald-400/30'
-        : 'bg-slate-700/60 text-slate-400 border border-slate-600/30',
+        ? 'bg-[#00E5A0]/15 text-[#00E5A0] border border-[#00E5A0]/30'
+        : 'bg-[#0A1C3D] text-[#91ACD1] border border-[#123E78]',
     },
   ];
 
-  const { currentUser, userProfile, logOut } = useAuth();
+  const handleReturnHome = () => {
+    if (onNavigateHome) {
+      onNavigateHome();
+    } else {
+      window.location.href = '/';
+    }
+  };
 
-  return (
-    <aside className="w-68 bg-[#0B132B] text-slate-200 flex flex-col shrink-0 border-r border-slate-800 shadow-xl select-none">
-      {/* Brand & App Title Header */}
-      <div className="p-4 border-b border-slate-800/80">
+  const handleNavClick = (tabId: string) => {
+    setActiveTab(tabId);
+    if (onClose) onClose();
+  };
+
+  const renderSidebarBody = (isMobile = false) => (
+    <div className="flex flex-col h-full overflow-hidden">
+      {/* 1. Brand Header */}
+      <div className="p-4 sm:p-5 border-b border-[#123E78]">
+        <div className="flex items-center justify-between">
           <div
-            onClick={onNavigateHome ? onNavigateHome : () => { window.location.href = '/'; }}
+            onClick={handleReturnHome}
             className="flex items-center gap-3 cursor-pointer group"
             title="Return to Public Landing Page"
           >
-            <div className="w-10 h-10 rounded-xl bg-gradient-to-br from-blue-600 via-indigo-600 to-cyan-500 flex items-center justify-center shadow-lg shadow-blue-500/20 border border-blue-400/30 group-hover:scale-105 transition-transform">
-              <Shield className="w-5 h-5 text-white" />
+            <div className="w-10 h-10 rounded-xl bg-gradient-to-br from-[#1265F8] via-[#1265F8]/80 to-[#00D9FF] p-[1.5px] shadow-[0_0_15px_rgba(18,101,248,0.4)] shrink-0 group-hover:scale-105 transition-transform">
+              <div className="w-full h-full rounded-[10px] bg-[#030D22]/85 backdrop-blur-md flex items-center justify-center border border-[#00D9FF]/40">
+                <Shield className="w-5 h-5 text-[#00D9FF]" />
+              </div>
             </div>
             <div>
               <div className="flex items-center gap-1.5">
-                <span className="font-bold text-base tracking-tight text-white font-mono">Suraksha</span>
-                <span className="text-xs px-1.5 py-0.5 rounded bg-blue-500/20 text-blue-300 font-bold border border-blue-400/30">
+                <span className="font-bold text-base tracking-tight text-[#F1F5FF] font-mono">Suraksha</span>
+                <span className="text-[10px] px-1.5 py-0.5 rounded bg-[#00D9FF]/15 text-[#00D9FF] font-bold font-mono border border-[#00D9FF]/30">
                   AI
                 </span>
               </div>
-              <p className="text-[11px] font-medium tracking-wider text-slate-400 uppercase">
-                Detect • Investigate • Protect
+              <p className="text-[9.5px] font-mono font-medium tracking-widest text-[#91ACD1] uppercase mt-0.5">
+                DIGITAL BRAND PROTECTION MATRIX
               </p>
             </div>
           </div>
+
+          {isMobile && (
+            <button
+              onClick={onClose}
+              className="p-1.5 rounded-lg text-[#91ACD1] hover:text-white hover:bg-[#0A1C3D] transition-colors"
+              title="Close menu"
+            >
+              <X className="w-5 h-5" />
+            </button>
+          )}
         </div>
 
-        {onNavigateHome && (
-          <div className="pt-2">
-            <button
-              onClick={onNavigateHome}
-              className="w-full text-left px-2.5 py-1.5 rounded-lg bg-slate-900/60 hover:bg-slate-900 text-[11px] text-sky-300 hover:text-white border border-slate-800 transition-colors flex items-center justify-between"
-            >
-              <span>← Public Site / Landing</span>
-              <span className="text-[10px] text-slate-500 font-mono">/</span>
-            </button>
-          </div>
-        )}
+        {/* 2. Public Navigation Row */}
+        <div className="mt-3.5">
+          <button
+            onClick={handleReturnHome}
+            className="w-full text-left px-3 py-2 rounded-xl bg-[#06142D] hover:bg-[#0A1C3D] text-xs text-[#00D9FF] hover:text-white border border-[#123E78] transition-all flex items-center justify-between group cursor-pointer"
+          >
+            <div className="flex items-center gap-2">
+              <Home className="w-3.5 h-3.5 text-[#00D9FF] group-hover:-translate-x-0.5 transition-transform" />
+              <span className="font-medium">Public Site / Landing</span>
+            </div>
+            <ExternalLink className="w-3 h-3 text-[#91ACD1] group-hover:text-white transition-colors" />
+          </button>
+        </div>
 
-        {/* Protected Brand Pill */}
-        <div className="mt-4 p-2.5 rounded-lg bg-slate-900/90 border border-slate-800 flex items-center justify-between">
-          <div className="flex items-center gap-2 overflow-hidden">
-            <div className={`w-2 h-2 rounded-full ${backendOnline ? 'bg-emerald-400 animate-ping' : 'bg-amber-400'}`} />
+        {/* 3. Sandbox Brand Section */}
+        <div className="mt-3 p-3 rounded-xl bg-[#06142D] border border-[#123E78] flex items-center justify-between">
+          <div className="flex items-center gap-2.5 overflow-hidden">
+            <div className="w-2 h-2 rounded-full bg-[#00E5A0] shadow-[0_0_8px_#00E5A0] animate-pulse shrink-0" />
             <div className="truncate">
-              <p className="text-[10px] uppercase font-semibold text-slate-400">
-                {selectedBackendBrandId ? 'Database Brand' : 'Sandbox Brand'}
+              <p className="text-[9.5px] uppercase font-mono tracking-wider font-semibold text-[#91ACD1]">
+                SANDBOX BRAND
               </p>
-              <p className="text-xs font-semibold text-white truncate">{brandProfile.brandName}</p>
+              <p className="text-xs font-bold text-[#F1F5FF] truncate mt-0.5">
+                {brandProfile.brandName || 'ApexPay'}
+              </p>
             </div>
           </div>
           <button
-            onClick={() => setActiveTab('brand-profile')}
-            className="text-slate-400 hover:text-white p-1 rounded hover:bg-slate-800 transition-colors cursor-pointer"
+            onClick={() => handleNavClick('brand-profile')}
+            className="text-[#91ACD1] hover:text-white p-1 rounded-lg hover:bg-[#0A1C3D] transition-colors cursor-pointer"
             title="Edit Brand Profile"
           >
             <ExternalLink className="w-3.5 h-3.5" />
           </button>
         </div>
+      </div>
 
-      {/* Main Navigation Links */}
+      {/* 4. Core Threat Modules Navigation */}
       <nav className="flex-1 p-3 space-y-1 overflow-y-auto">
-        <div className="px-3 pt-2 pb-1 text-[10px] font-bold uppercase tracking-wider text-slate-500">
-          Core Threat Modules
+        <div className="px-3 pt-2 pb-1.5 text-[10px] font-mono font-bold uppercase tracking-wider text-[#91ACD1]/80">
+          CORE THREAT MODULES
         </div>
 
-        {navItems.map(item => {
+        {navItems.map((item) => {
           const Icon = item.icon;
           const isActive = activeTab === item.id;
 
           return (
             <button
               key={item.id}
-              onClick={() => setActiveTab(item.id)}
-              className={`w-full flex items-center justify-between px-3 py-2.5 rounded-lg text-xs font-medium transition-all group ${
+              onClick={() => handleNavClick(item.id)}
+              className={`w-full flex items-center justify-between px-3.5 py-2.5 rounded-xl text-xs font-medium transition-all group cursor-pointer ${
                 isActive
-                  ? 'bg-blue-600 text-white shadow-md shadow-blue-600/20 border border-blue-400/30'
-                  : 'text-slate-300 hover:text-white hover:bg-slate-800/60'
+                  ? 'bg-[#1265F8] text-white shadow-[0_0_18px_rgba(18,101,248,0.45)] border border-[#00D9FF]/50 font-semibold'
+                  : 'text-[#91ACD1] hover:text-[#F1F5FF] hover:bg-[#0A1C3D]'
               }`}
             >
               <div className="flex items-center gap-3 truncate">
                 <Icon
                   className={`w-4 h-4 shrink-0 transition-colors ${
-                    isActive ? 'text-white' : 'text-slate-400 group-hover:text-blue-400'
+                    isActive ? 'text-white' : 'text-[#91ACD1] group-hover:text-[#00D9FF]'
                   }`}
                 />
                 <span className="truncate">{item.label}</span>
               </div>
 
-              {item.badge && (
+              {item.isOverview ? (
+                <span className="w-5 h-5 rounded-full bg-[#FF315B] text-white font-mono text-[10px] font-bold flex items-center justify-center shadow-xs shrink-0 ml-2">
+                  {item.badge}
+                </span>
+              ) : item.badge ? (
                 <span
-                  className={`text-[10px] px-1.5 py-0.5 rounded-full font-semibold shrink-0 ml-2 ${
-                    item.badgeColor || 'bg-slate-800 text-slate-300'
+                  className={`text-[9.5px] px-2 py-0.5 rounded-full font-mono font-semibold shrink-0 ml-2 ${
+                    item.badgeColor || 'bg-[#0A1C3D] text-[#91ACD1] border border-[#123E78]'
                   }`}
                 >
                   {item.badge}
                 </span>
-              )}
+              ) : null}
             </button>
           );
         })}
       </nav>
 
-      {/* Threat Level Quick Digest */}
-      <div className="p-3 mx-3 mb-2 rounded-xl bg-slate-900/80 border border-slate-800/80">
+      {/* 5. Threat Radar Widget */}
+      <div className="p-3 mx-3 mb-2 rounded-xl bg-[#06142D] border border-[#123E78] shadow-lg">
         <div className="flex items-center justify-between mb-2">
-          <div className="flex items-center gap-1.5 text-xs font-semibold text-slate-300">
-            <AlertOctagon className="w-3.5 h-3.5 text-rose-400" />
-            <span>Threat Radar</span>
+          <div className="flex items-center gap-1.5 text-xs font-bold font-mono uppercase text-[#F1F5FF]">
+            <AlertOctagon className="w-3.5 h-3.5 text-[#FF315B]" />
+            <span>THREAT RADAR</span>
           </div>
-          <span className="text-[10px] text-slate-400 font-mono">Prototype Mode</span>
+          <span className="text-[10px] text-[#91ACD1] font-mono">Prototype Mode</span>
         </div>
-        <div className="grid grid-cols-2 gap-1.5 text-center">
-          <div className="p-1.5 rounded bg-rose-950/40 border border-rose-900/60">
-            <span className="block text-sm font-bold text-rose-300">{stats.criticalRiskCount}</span>
-            <span className="text-[9px] uppercase tracking-wider text-rose-400 font-medium">Critical</span>
+        <div className="grid grid-cols-2 gap-2 text-center">
+          <div className="p-2 rounded-lg bg-[#FF315B]/10 border border-[#FF315B]/30">
+            <span className="block text-base font-bold text-[#FF315B] font-mono">
+              {stats.criticalRiskCount || 3}
+            </span>
+            <span className="text-[9px] uppercase tracking-wider text-[#FF315B] font-mono font-bold">
+              CRITICAL
+            </span>
           </div>
-          <div className="p-1.5 rounded bg-amber-950/40 border border-amber-900/60">
-            <span className="block text-sm font-bold text-amber-300">{stats.highRiskCount}</span>
-            <span className="text-[9px] uppercase tracking-wider text-amber-400 font-medium">High</span>
+          <div className="p-2 rounded-lg bg-[#FFB020]/10 border border-[#FFB020]/30">
+            <span className="block text-base font-bold text-[#FFB020] font-mono">
+              {stats.highRiskCount || 0}
+            </span>
+            <span className="text-[9px] uppercase tracking-wider text-[#FFB020] font-mono font-bold">
+              HIGH
+            </span>
           </div>
         </div>
       </div>
 
-      {/* User Session Bar */}
-      {currentUser && (
-        <div className="px-3 py-2.5 mx-3 mb-2 rounded-xl bg-slate-900/90 border border-slate-800/90 flex items-center justify-between">
-          <div className="flex items-center gap-2 overflow-hidden">
-            <div className="w-7 h-7 rounded-lg bg-blue-600/30 border border-blue-400/40 flex items-center justify-center shrink-0 text-blue-300">
-              <UserCheck className="w-3.5 h-3.5" />
-            </div>
-            <div className="truncate">
-              <p className="text-[11px] font-semibold text-white truncate">
-                {userProfile?.displayName || currentUser.displayName || currentUser.email?.split('@')[0] || 'Analyst'}
-              </p>
-              <p className="text-[9px] text-slate-400 truncate">
-                {userProfile?.organization || currentUser.email || 'Authenticated'}
-              </p>
-            </div>
+      {/* 6. Analyst Profile Card */}
+      <div className="px-3 py-2.5 mx-3 mb-2 rounded-xl bg-[#06142D] border border-[#123E78] flex items-center justify-between shadow-md">
+        <div className="flex items-center gap-2.5 overflow-hidden">
+          <div className="w-8 h-8 rounded-full bg-[#1265F8]/20 border border-[#1265F8]/50 flex items-center justify-center shrink-0 text-[#00D9FF]">
+            <User className="w-4 h-4" />
           </div>
-          <button
-            onClick={() => logOut()}
-            className="p-1 rounded-md text-slate-400 hover:text-rose-400 hover:bg-slate-800 transition-colors ml-1"
-            title="Sign out of workspace"
-          >
-            <LogOut className="w-3.5 h-3.5" />
-          </button>
+          <div className="truncate">
+            <p className="text-xs font-semibold text-[#F1F5FF] truncate">
+              {userProfile?.displayName || currentUser?.displayName || 'Alex Mercer (Threat Lead)'}
+            </p>
+            <p className="text-[9.5px] font-mono text-[#91ACD1] truncate">
+              SURAKSHA SecOps
+            </p>
+          </div>
         </div>
-      )}
+        <button
+          onClick={() => logOut()}
+          className="p-1.5 rounded-lg text-[#91ACD1] hover:text-[#FF315B] hover:bg-[#0A1C3D] transition-colors ml-1 cursor-pointer"
+          title="Sign out of workspace"
+        >
+          <LogOut className="w-3.5 h-3.5" />
+        </button>
+      </div>
 
-      {/* Footer / Reset Action */}
-      <div className="p-3 border-t border-slate-800/80 bg-[#080E20] flex items-center justify-between text-xs text-slate-400">
+      {/* 7. Bottom Sandbox Controls */}
+      <div className="p-3 border-t border-[#123E78] bg-[#030D22] flex items-center justify-between text-xs text-[#91ACD1]">
         <div className="flex flex-col">
-          <span className="text-[11px] font-medium text-slate-300">ApexPay Sandbox</span>
-          <span className="text-[9px] text-slate-500">Synthetic Scenarios</span>
+          <span className="text-[11px] font-semibold text-[#F1F5FF]">ApexPay Sandbox</span>
+          <span className="text-[9.5px] font-mono text-[#91ACD1]">Synthetic Scenarios</span>
         </div>
         <button
           onClick={resetAllToDemoData}
-          className="p-1.5 rounded-lg bg-slate-800/80 hover:bg-slate-700 text-slate-300 hover:text-white transition-colors flex items-center gap-1 text-[11px]"
+          className="px-2.5 py-1.5 rounded-lg bg-[#0A1C3D] hover:bg-[#06142D] border border-[#123E78] hover:border-[#00D9FF]/40 text-[#F1F5FF] transition-all flex items-center gap-1.5 text-xs font-medium cursor-pointer shadow-xs"
           title="Reset back to standard ApexPay demo scenarios"
         >
-          <RefreshCw className="w-3 h-3" />
+          <RefreshCw className="w-3 h-3 text-[#00D9FF]" />
           <span>Reset</span>
         </button>
       </div>
-    </aside>
+    </div>
+  );
+
+  return (
+    <>
+      {/* Desktop Fixed Sidebar */}
+      <aside className="hidden lg:flex w-80 lg:w-[330px] xl:w-[350px] bg-[#030D22] text-[#F1F5FF] flex-col shrink-0 border-r border-[#123E78] shadow-2xl select-none z-30 font-sans">
+        {renderSidebarBody(false)}
+      </aside>
+
+      {/* Mobile Drawer */}
+      {isOpen && (
+        <div className="fixed inset-0 z-50 lg:hidden flex">
+          <div
+            className="fixed inset-0 bg-black/80 backdrop-blur-xs transition-opacity"
+            onClick={onClose}
+          />
+          <aside className="relative w-[320px] max-w-[85vw] h-full bg-[#030D22] text-[#F1F5FF] flex flex-col border-r border-[#123E78] shadow-2xl z-50">
+            {renderSidebarBody(true)}
+          </aside>
+        </div>
+      )}
+    </>
   );
 };
+
+export default Sidebar;

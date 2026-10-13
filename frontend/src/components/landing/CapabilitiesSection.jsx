@@ -91,7 +91,7 @@ Payload: { "review_status": "CONFIRMED_THREAT", "notes": "Spoofed publisher" }`,
   ];
 
   return (
-    <section id="capabilities" className="py-24 relative border-t border-cyber-border/60">
+    <section id="capabilities" className="py-24 relative border-t border-cyan-500/20 bg-[#040816]/30 backdrop-blur-xs">
       {/* Background radial highlight */}
       <div className="absolute top-1/4 left-1/2 -translate-x-1/2 w-3/4 h-96 bg-cyber-accent/5 rounded-full blur-[140px] pointer-events-none" />
 

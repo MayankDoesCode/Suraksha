@@ -29,6 +29,10 @@ class BaseConfig:
     PLATFORM_NAME = "SURAKSHA"
     API_VERSION = "v1"
 
+    # Authentication & Security
+    FIREBASE_PROJECT_ID = os.getenv("FIREBASE_PROJECT_ID", "pelagic-progress-z4mm2")
+    ALLOW_DEV_TOKENS = False
+
     # External Data Providers
     ITUNES_STORE_COUNTRY = os.getenv("ITUNES_STORE_COUNTRY", "US")
     ITUNES_API_TIMEOUT = float(os.getenv("ITUNES_API_TIMEOUT", "10.0"))
@@ -39,6 +43,7 @@ class DevelopmentConfig(BaseConfig):
     """Development environment configuration."""
     DEBUG = True
     LOG_LEVEL = "DEBUG"
+    ALLOW_DEV_TOKENS = True
 
 class TestingConfig(BaseConfig):
     """Testing environment configuration."""
@@ -46,6 +51,7 @@ class TestingConfig(BaseConfig):
     DEBUG = True
     DATABASE_URL = "sqlite:///:memory:"
     LOG_LEVEL = "WARNING"
+    ALLOW_DEV_TOKENS = True
 
 class ProductionConfig(BaseConfig):
     """Production environment configuration."""
@@ -53,6 +59,13 @@ class ProductionConfig(BaseConfig):
     LOG_LEVEL = "INFO"
     # In production, require an explicit SECRET_KEY
     SECRET_KEY = os.getenv("SECRET_KEY")
+    # Strict production CORS origins (no wildcards)
+    CORS_ORIGINS = [
+        origin.strip()
+        for origin in os.getenv("CORS_ORIGINS", "https://suraksha-platform.onrender.com").split(",")
+        if origin.strip()
+    ]
+    ALLOW_DEV_TOKENS = os.getenv("ALLOW_DEV_TOKENS", "false").lower() in ("true", "1")
 
 CONFIG_MAP = {
     "development": DevelopmentConfig,
@@ -60,8 +73,30 @@ CONFIG_MAP = {
     "production": ProductionConfig,
 }
 
+def validate_production_config(config_cls: Type[BaseConfig]) -> None:
+    """
+    Enforce security guardrails for production environments.
+    Raises ValueError immediately if secrets are missing or set to insecure defaults.
+    """
+    secret = getattr(config_cls, "SECRET_KEY", None)
+    if not secret or secret == "sentinelshield-dev-secret-key-change-in-prod" or len(secret) < 32:
+        raise ValueError(
+            "CRITICAL SECURITY CONFIGURATION ERROR: Production startup aborted. "
+            "SECRET_KEY must be explicitly defined and have at least 32 characters in production."
+        )
+
+    cors_origins = getattr(config_cls, "CORS_ORIGINS", [])
+    if "*" in cors_origins:
+        raise ValueError(
+            "CRITICAL SECURITY CONFIGURATION ERROR: Production startup aborted. "
+            "CORS_ORIGINS must not use wildcard '*' when credentials are supported."
+        )
+
 def get_config(env_name: str | None = None) -> Type[BaseConfig]:
     """Retrieve config class based on environment name."""
     if not env_name:
         env_name = os.getenv("FLASK_ENV", "development").lower()
-    return CONFIG_MAP.get(env_name, DevelopmentConfig)
+    config_cls = CONFIG_MAP.get(env_name, DevelopmentConfig)
+    if env_name == "production" or config_cls is ProductionConfig:
+        validate_production_config(config_cls)
+    return config_cls

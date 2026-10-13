@@ -48,8 +48,25 @@ def extract_social_features(profile_data: Dict[str, Any]) -> pd.DataFrame:
     Extract normalized feature vector for social profile risk classification.
     Accepts raw analyst inputs and extracts numerical & ratio signals.
     """
-    followers = float(profile_data.get("follower_count") or profile_data.get("userFollowerCount") or 0)
-    following = float(profile_data.get("following_count") or profile_data.get("userFollowingCount") or 0)
+    raw_followers = profile_data.get("follower_count")
+    if raw_followers is None:
+        raw_followers = profile_data.get("followers_count")
+    if raw_followers is None:
+        raw_followers = profile_data.get("userFollowerCount")
+    try:
+        followers = float(raw_followers) if raw_followers is not None and str(raw_followers).strip() != "" else 0.0
+    except (ValueError, TypeError):
+        followers = 0.0
+
+    raw_following = profile_data.get("following_count")
+    if raw_following is None:
+        raw_following = profile_data.get("followings_count")
+    if raw_following is None:
+        raw_following = profile_data.get("userFollowingCount")
+    try:
+        following = float(raw_following) if raw_following is not None and str(raw_following).strip() != "" else 0.0
+    except (ValueError, TypeError):
+        following = 0.0
     bio = str(profile_data.get("bio") or profile_data.get("biography") or "")
     bio_len = float(profile_data.get("userBiographyLength") or len(bio))
     media_count = float(profile_data.get("media_count") or profile_data.get("userMediaCount") or 0)

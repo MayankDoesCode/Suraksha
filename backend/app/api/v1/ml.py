@@ -95,8 +95,12 @@ def predict_social_account():
         }), 422
 
     brand_profile = payload.get("brand_profile")
-    if not brand_profile and payload.get("brand_name"):
-        brand_profile = {"name": payload.get("brand_name")}
+    if not brand_profile:
+        brand_name = payload.get("brand_name") or payload.get("target_brand")
+        if brand_name:
+            brand_profile = {"name": brand_name}
+    elif isinstance(brand_profile, str):
+        brand_profile = {"name": brand_profile}
 
     service = get_ml_service()
     result = service.predict_social_risk(payload, brand_profile=brand_profile)
@@ -124,8 +128,12 @@ def predict_mobile_app():
         }), 422
 
     brand_profile = payload.get("brand_profile")
-    if not brand_profile and payload.get("brand_name"):
-        brand_profile = {"name": payload.get("brand_name")}
+    if not brand_profile:
+        brand_name = payload.get("brand_name") or payload.get("target_brand")
+        if brand_name:
+            brand_profile = {"name": brand_name}
+    elif isinstance(brand_profile, str):
+        brand_profile = {"name": brand_profile}
 
     service = get_ml_service()
     result = service.predict_app_risk(payload, brand_profile=brand_profile)

@@ -277,6 +277,29 @@ def test_social_pipeline_feature_extraction():
     assert feats["userFollowerCount"].iloc[0] == 500.0
     assert feats["userFollowingCount"].iloc[0] == 100.0
 
+    # Test alias 'followers_count' (frontend key)
+    feats_frontend = extract_social_features({
+        "username": "@testuser",
+        "followers_count": 148500,
+        "following_count": 10,
+    })
+    assert feats_frontend["userFollowerCount"].iloc[0] == 148500.0
+    assert feats_frontend["follower_following_ratio"].iloc[0] == 148500.0 / 11.0
+
+    # Test alias 'followers_count' as numeric string
+    feats_str = extract_social_features({
+        "username": "@testuser",
+        "followers_count": "2500",
+    })
+    assert feats_str["userFollowerCount"].iloc[0] == 2500.0
+
+    # Test alias 'follower_count' (singular)
+    feats_singular = extract_social_features({
+        "username": "@testuser",
+        "follower_count": 42000,
+    })
+    assert feats_singular["userFollowerCount"].iloc[0] == 42000.0
+
 
 def test_social_pipeline_missing_data_blocker(tmp_path):
     from backend.app.ml.social_pipeline import train_and_evaluate_social_model
@@ -356,6 +379,36 @@ def test_api_predict_social_endpoint():
     # 2. Missing username & display_name
     res_err = client.post("/api/v1/ml/predict-social", json={"target_brand": "Acme"})
     assert res_err.status_code == 422
+
+
+def test_predict_social_frontend_payload_with_target_brand_and_followers_count():
+    app = create_app("testing")
+    client = app.test_client()
+
+    # Exact payload structure sent by frontend SocialMonitoringView.tsx
+    res = client.post("/api/v1/ml/predict-social", json={
+        "username": "@apexpay_official",
+        "display_name": "ApexPay Official",
+        "biography": "The official handle for ApexPay Global. Fast, secure enterprise payment infrastructure.",
+        "followers_count": 148500,
+        "target_brand": "ApexPay",
+    })
+    assert res.status_code == 200
+    body = res.get_json()
+    assert body["success"] is True
+    data = body["data"]
+
+    # FIX 3 verification: target_brand was correctly interpreted
+    brand_assessment = data.get("brand_impersonation_assessment", {})
+    assert brand_assessment.get("brand_target") == "apexpay"
+    assert brand_assessment.get("brand_matched") is True
+
+    # FIX 2 verification: followers_count reached the feature extractor
+    fake_ml = data.get("generic_fake_account_ml", {})
+    assert fake_ml.get("status") == "operational"
+    # When followers=148500 is supplied, model scores benign (not ~48% uninitialized)
+    assert fake_ml.get("fake_probability") is not None
+    assert fake_ml.get("fake_probability") < 0.10
 
 
 def test_api_predict_app_endpoint():

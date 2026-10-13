@@ -17,40 +17,40 @@ export const RiskBadge: React.FC<RiskBadgeProps> = ({ level, size = 'md', showIc
 
   const config = {
     Critical: {
-      bg: 'bg-rose-50 text-rose-700 border-rose-200 dark:bg-rose-950/40 dark:text-rose-300 dark:border-rose-900',
+      bg: 'bg-[#FF315B]/15 text-[#FF315B] border-[#FF315B]/40 shadow-[0_0_8px_rgba(255,49,91,0.25)]',
       icon: ShieldAlert,
       label: 'Critical Risk',
-      dot: 'bg-rose-500',
+      dot: 'bg-[#FF315B]',
     },
     High: {
-      bg: 'bg-amber-50 text-amber-800 border-amber-200 dark:bg-amber-950/40 dark:text-amber-300 dark:border-amber-900',
+      bg: 'bg-[#FFB020]/15 text-[#FFB020] border-[#FFB020]/40 shadow-[0_0_8px_rgba(255,176,32,0.25)]',
       icon: AlertTriangle,
       label: 'High Risk',
-      dot: 'bg-amber-500',
+      dot: 'bg-[#FFB020]',
     },
     Medium: {
-      bg: 'bg-yellow-50 text-yellow-800 border-yellow-200 dark:bg-yellow-950/40 dark:text-yellow-300 dark:border-yellow-900',
+      bg: 'bg-[#8B5CF6]/15 text-[#8B5CF6] border-[#8B5CF6]/40 shadow-[0_0_8px_rgba(139,92,246,0.25)]',
       icon: AlertCircle,
       label: 'Medium Risk',
-      dot: 'bg-yellow-500',
+      dot: 'bg-[#8B5CF6]',
     },
     Low: {
-      bg: 'bg-emerald-50 text-emerald-700 border-emerald-200 dark:bg-emerald-950/40 dark:text-emerald-300 dark:border-emerald-900',
+      bg: 'bg-[#00E5A0]/15 text-[#00E5A0] border-[#00E5A0]/40 shadow-[0_0_8px_rgba(0,229,160,0.25)]',
       icon: ShieldCheck,
       label: 'Low Risk',
-      dot: 'bg-emerald-500',
+      dot: 'bg-[#00E5A0]',
     },
     Safe: {
-      bg: 'bg-blue-50 text-blue-700 border-blue-200 dark:bg-blue-950/40 dark:text-blue-300 dark:border-blue-900',
+      bg: 'bg-[#00D9FF]/15 text-[#00D9FF] border-[#00D9FF]/40 shadow-[0_0_8px_rgba(0,217,255,0.25)]',
       icon: ShieldCheck,
       label: 'Protected / Safe',
-      dot: 'bg-blue-500',
+      dot: 'bg-[#00D9FF]',
     },
   }[level] || {
-    bg: 'bg-slate-100 text-slate-700 border-slate-200',
+    bg: 'bg-[#0A1C3D] text-[#91ACD1] border-[#123E78]',
     icon: AlertCircle,
     label: level,
-    dot: 'bg-slate-400',
+    dot: 'bg-[#91ACD1]',
   };
 
   const Icon = config.icon;

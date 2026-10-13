@@ -18,10 +18,19 @@ import { DiagnosticsView } from '../views/DiagnosticsView';
 
 interface WorkspaceShellProps {
   onNavigateHome?: () => void;
+  initialAuthMode?: 'login' | 'signup' | 'forgot';
+  initialTab?: string;
 }
 
-const WorkspaceContent: React.FC<WorkspaceShellProps> = ({ onNavigateHome }) => {
-  const { activeTab, selectedCandidateId, setSelectedCandidateId } = useApp();
+const WorkspaceContent: React.FC<WorkspaceShellProps> = ({ onNavigateHome, initialTab }) => {
+  const { activeTab, setActiveTab, selectedCandidateId, setSelectedCandidateId } = useApp();
+  const [mobileMenuOpen, setMobileMenuOpen] = React.useState(false);
+
+  React.useEffect(() => {
+    if (initialTab) {
+      setActiveTab(initialTab);
+    }
+  }, [initialTab, setActiveTab]);
 
   const renderActiveView = () => {
     switch (activeTab) {
@@ -49,15 +58,22 @@ const WorkspaceContent: React.FC<WorkspaceShellProps> = ({ onNavigateHome }) => 
   };
 
   return (
-    <div className="flex h-screen w-screen overflow-hidden bg-slate-100 font-sans text-slate-900">
+    <div className="flex h-screen w-screen overflow-hidden bg-[#020817] font-sans text-[#F1F5FF]">
       {/* Dark Navy Sidebar */}
-      <Sidebar onNavigateHome={onNavigateHome} />
+      <Sidebar
+        onNavigateHome={onNavigateHome}
+        isOpen={mobileMenuOpen}
+        onClose={() => setMobileMenuOpen(false)}
+      />
 
       {/* Main Content Area */}
-      <div className="flex-1 flex flex-col min-w-0 overflow-hidden">
-        <Header onNavigateHome={onNavigateHome} />
+      <div className="flex-1 flex flex-col min-w-0 overflow-hidden bg-[#020817]">
+        <Header
+          onNavigateHome={onNavigateHome}
+          onToggleMobileMenu={() => setMobileMenuOpen(!mobileMenuOpen)}
+        />
 
-        <main className="flex-1 overflow-y-auto p-4 sm:p-6 lg:p-8">
+        <main className="flex-1 overflow-y-auto p-4 sm:p-5 lg:p-6 bg-[#020817]">
           {renderActiveView()}
         </main>
       </div>
@@ -73,7 +89,11 @@ const WorkspaceContent: React.FC<WorkspaceShellProps> = ({ onNavigateHome }) => 
   );
 };
 
-const MainContent: React.FC<WorkspaceShellProps> = ({ onNavigateHome }) => {
+const MainContent: React.FC<WorkspaceShellProps> = ({
+  onNavigateHome,
+  initialAuthMode,
+  initialTab,
+}) => {
   const { currentUser, loading } = useAuth();
 
   if (loading) {
@@ -88,20 +108,28 @@ const MainContent: React.FC<WorkspaceShellProps> = ({ onNavigateHome }) => {
   }
 
   if (!currentUser) {
-    return <AuthView onNavigateHome={onNavigateHome} />;
+    return <AuthView onNavigateHome={onNavigateHome} initialMode={initialAuthMode} />;
   }
 
   return (
     <AppProvider>
-      <WorkspaceContent onNavigateHome={onNavigateHome} />
+      <WorkspaceContent onNavigateHome={onNavigateHome} initialTab={initialTab} />
     </AppProvider>
   );
 };
 
-export default function WorkspaceShell({ onNavigateHome }: WorkspaceShellProps) {
+export default function WorkspaceShell({
+  onNavigateHome,
+  initialAuthMode,
+  initialTab,
+}: WorkspaceShellProps) {
   return (
     <AuthProvider>
-      <MainContent onNavigateHome={onNavigateHome} />
+      <MainContent
+        onNavigateHome={onNavigateHome}
+        initialAuthMode={initialAuthMode}
+        initialTab={initialTab}
+      />
     </AuthProvider>
   );
 }

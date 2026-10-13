@@ -129,6 +129,12 @@ class ThreatRepository:
         signals: List[Any],
         evidence_records: List[Dict[str, Any]],
         existing_finding: Optional[Finding] = None,
+        rule_based_score: Optional[float] = None,
+        ml_risk_score: Optional[float] = None,
+        ml_predicted_class: Optional[str] = None,
+        ml_confidence: Optional[float] = None,
+        ml_model_version: Optional[str] = None,
+        ml_fallback_used: bool = False,
     ) -> Finding:
         """
         Persist finding and its relational signals and evidence.
@@ -139,6 +145,13 @@ class ThreatRepository:
         if existing_finding:
             finding = existing_finding
             finding.risk_score = risk_score
+            finding.final_risk_score = risk_score
+            finding.rule_based_score = rule_based_score if rule_based_score is not None else risk_score
+            finding.ml_risk_score = ml_risk_score
+            finding.ml_predicted_class = ml_predicted_class
+            finding.ml_confidence = ml_confidence
+            finding.ml_model_version = ml_model_version
+            finding.ml_fallback_used = ml_fallback_used
             finding.severity = severity
             finding.source_url = source_url or finding.source_url
             finding.detection_source = detection_source
@@ -156,6 +169,13 @@ class ThreatRepository:
                 candidate_name=candidate_name,
                 source_url=source_url,
                 risk_score=risk_score,
+                final_risk_score=risk_score,
+                rule_based_score=rule_based_score if rule_based_score is not None else risk_score,
+                ml_risk_score=ml_risk_score,
+                ml_predicted_class=ml_predicted_class,
+                ml_confidence=ml_confidence,
+                ml_model_version=ml_model_version,
+                ml_fallback_used=ml_fallback_used,
                 severity=severity,
                 review_status="NEW",
                 detection_source=detection_source,

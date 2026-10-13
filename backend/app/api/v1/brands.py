@@ -1,5 +1,6 @@
 from flask import Blueprint, request, jsonify
 from backend.app.services.brand_service import BrandService
+from backend.app.utils.auth import require_auth
 
 brands_bp = Blueprint("brands", __name__)
 brand_service = BrandService()
@@ -19,6 +20,7 @@ def list_brands():
     }), 200
 
 @brands_bp.route("/brands", methods=["POST"])
+@require_auth(allowed_roles=["admin", "lead", "analyst"])
 def create_brand():
     """Register a new brand profile with verified identity assets."""
     payload = request.get_json(silent=True)
@@ -49,6 +51,7 @@ def get_brand(brand_id: str):
     }), 200
 
 @brands_bp.route("/brands/<string:brand_id>", methods=["PUT"])
+@require_auth(allowed_roles=["admin", "lead", "analyst"])
 def update_brand(brand_id: str):
     """Update existing brand profile and associated verified assets."""
     payload = request.get_json(silent=True)
@@ -70,8 +73,9 @@ def update_brand(brand_id: str):
     }), 200
 
 @brands_bp.route("/brands/<string:brand_id>", methods=["DELETE"])
+@require_auth(allowed_roles=["admin", "lead"])
 def delete_brand(brand_id: str):
-    """Delete a brand profile and safely cascade delete relational records."""
+    """Delete a brand profile and safely cascade delete relational records (Lead/Admin only)."""
     brand_service.delete_brand(brand_id)
     return jsonify({
         "success": True,
@@ -79,6 +83,7 @@ def delete_brand(brand_id: str):
     }), 200
 
 @brands_bp.route("/brands/<string:brand_id>/scan", methods=["POST"])
+@require_auth(allowed_roles=["admin", "lead", "analyst"])
 def scan_candidate(brand_id: str):
     """
     Evaluate candidate asset against brand profile or run provider-based scan.
@@ -116,6 +121,7 @@ def scan_candidate(brand_id: str):
     }), 200
 
 @brands_bp.route("/brands/<string:brand_id>/scan-provider", methods=["POST"])
+@require_auth(allowed_roles=["admin", "lead", "analyst"])
 def scan_brand_provider(brand_id: str):
     """
     Retrieve genuine candidates from configured external provider,

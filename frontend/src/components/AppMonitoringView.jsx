@@ -18,7 +18,8 @@ import {
   Layers,
   Sparkles,
   Check,
-  ArrowRight
+  ArrowRight,
+  Cpu
 } from 'lucide-react';
 import api from '../api/client';
 
@@ -597,7 +598,41 @@ export default function AppMonitoringView({ brands, onRefreshMetrics }) {
                         {scanResult.risk_score}
                         <span className="text-xs text-cyber-textMuted">/100</span>
                       </div>
-                      <div className="text-[10px] font-mono text-cyber-textMuted">EXPLAINABLE SCORE</div>
+                      <div className="text-[10px] font-mono text-cyber-textMuted">HYBRID SCORE</div>
+                    </div>
+                  </div>
+
+                  {/* Hybrid Sub-scores Breakdown */}
+                  <div className="grid grid-cols-2 gap-3 p-3 rounded-xl bg-cyber-darkest border border-cyber-border/70 text-xs font-mono">
+                    <div>
+                      <span className="text-[10px] text-cyber-textMuted uppercase block">Rule-Based Score</span>
+                      <span className="text-white font-bold text-sm">
+                        {scanResult.rule_based_score ?? scanResult.risk_score} <span className="text-[10px] text-cyber-textMuted">/ 100</span>
+                      </span>
+                    </div>
+                    <div>
+                      <span className="text-[10px] text-cyber-textMuted uppercase block">ML Risk Classifier</span>
+                      <div className="flex items-center gap-1.5 mt-0.5">
+                        <span className="text-white font-bold text-sm">
+                          {scanResult.ml_risk_score !== null && scanResult.ml_risk_score !== undefined
+                            ? `${scanResult.ml_risk_score} `
+                            : 'N/A '}
+                          <span className="text-[10px] text-cyber-textMuted">/ 100</span>
+                        </span>
+                        {scanResult.ml_fallback_used ? (
+                          <span className="px-1.5 py-0.5 text-[9px] rounded bg-amber-500/15 text-amber-300 border border-amber-500/30 font-semibold">
+                            Fallback
+                          </span>
+                        ) : scanResult.ml_predicted_class ? (
+                          <span className={`px-1.5 py-0.5 text-[9px] rounded font-semibold border ${
+                            scanResult.ml_predicted_class === 'SUSPICIOUS'
+                              ? 'bg-rose-500/15 text-rose-300 border-rose-500/30'
+                              : 'bg-emerald-500/15 text-cyber-emerald border-cyber-emerald/30'
+                          }`}>
+                            {scanResult.ml_predicted_class}
+                          </span>
+                        ) : null}
+                      </div>
                     </div>
                   </div>
 

@@ -3,6 +3,7 @@ from backend.app.connectors.registry import connector_registry
 from backend.app.services.scan_service import ScanService
 from backend.app.monitoring.scheduler import scheduler
 from backend.app.utils.errors import NotFoundError, ValidationError
+from backend.app.utils.auth import require_auth
 
 integrations_bp = Blueprint("integrations", __name__)
 scan_service = ScanService()
@@ -21,6 +22,7 @@ def get_integrations_status():
     }), 200
 
 @integrations_bp.route("/integrations/<string:provider_id>/test", methods=["POST"])
+@require_auth(allowed_roles=["admin", "lead", "analyst"])
 def test_integration(provider_id: str):
     """Test live connectivity for a specific external connector."""
     connector = connector_registry.get(provider_id)
@@ -54,6 +56,7 @@ def list_monitoring_jobs():
     }), 200
 
 @integrations_bp.route("/monitoring/jobs", methods=["POST"])
+@require_auth(allowed_roles=["admin", "lead", "analyst"])
 def create_monitoring_job():
     """Schedule a recurring batch collection job for a brand."""
     payload = request.get_json(silent=True) or {}
@@ -96,6 +99,7 @@ def get_job_status(job_id: str):
         }), 404
 
 @integrations_bp.route("/monitoring/jobs/<string:job_id>/run", methods=["POST"])
+@require_auth(allowed_roles=["admin", "lead", "analyst"])
 def run_job_now(job_id: str):
     """Trigger immediate execution of a scheduled collection job."""
     try:
@@ -113,8 +117,9 @@ def run_job_now(job_id: str):
         }), 500
 
 @integrations_bp.route("/monitoring/jobs/<string:job_id>", methods=["DELETE"])
+@require_auth(allowed_roles=["admin", "lead"])
 def cancel_job(job_id: str):
-    """Cancel a monitoring schedule."""
+    """Cancel a monitoring schedule (Admin / Lead only)."""
     cancelled = scheduler.cancel_job(job_id)
     if not cancelled:
         return jsonify({

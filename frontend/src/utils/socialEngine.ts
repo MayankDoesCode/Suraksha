@@ -142,8 +142,68 @@ const PARODY_KEYWORDS = [
 ];
 
 // Helper: Normalize username (strip @, lower-case, remove trailing slashes)
-function normalizeHandle(h: string): string {
+export function normalizeHandle(h: string): string {
   return h.trim().toLowerCase().replace(/^@+/, '').replace(/\/+$/, '');
+}
+
+/**
+ * Normalizes supported social media profile URLs into canonical format for comparison.
+ * For X / Twitter, standardizes:
+ * - Protocols (http, https)
+ * - Domain aliases (twitter.com, mobile.twitter.com, mobile.x.com, www.x.com, www.twitter.com -> x.com)
+ * - Path variants (/@handle, /handle, trailing slashes)
+ * - Query strings and URL fragments
+ * - Casing
+ */
+export function normalizeSocialUrl(rawUrl: string): string {
+  if (!rawUrl || typeof rawUrl !== 'string') return '';
+  const trimmed = rawUrl.trim();
+  if (!trimmed) return '';
+
+  try {
+    const withProto = /^https?:\/\//i.test(trimmed) ? trimmed : `https://${trimmed}`;
+    const parsed = new URL(withProto);
+    const host = parsed.hostname.toLowerCase().replace(/^www\./, '');
+    const pathname = parsed.pathname.trim().replace(/\/+$/, '');
+
+    // Normalize X / Twitter domains to x.com
+    if (
+      host === 'x.com' ||
+      host === 'twitter.com' ||
+      host === 'mobile.twitter.com' ||
+      host === 'mobile.x.com'
+    ) {
+      const segments = pathname.split('/').filter(Boolean);
+      if (segments.length > 0) {
+        const handle = segments[0].replace(/^@+/, '').toLowerCase();
+        return `x.com/${handle}`;
+      }
+      return 'x.com';
+    }
+
+    // Other platforms (Instagram, LinkedIn, etc.)
+    return `${host}${pathname.toLowerCase()}`;
+  } catch {
+    const xMatch = trimmed.match(/(?:x\.com|twitter\.com)\/(?:@)?([a-zA-Z0-9_]{1,50})/i);
+    if (xMatch) {
+      return `x.com/${xMatch[1].toLowerCase()}`;
+    }
+    return trimmed.toLowerCase().replace(/^https?:\/\//, '').replace(/^www\./, '').replace(/\/+$/, '');
+  }
+}
+
+/**
+ * Extracts normalized account handle from supported platform profile URLs.
+ * Returns null if the URL is not a profile URL or handle cannot be extracted.
+ */
+export function extractHandleFromUrl(rawUrl: string): string | null {
+  if (!rawUrl || typeof rawUrl !== 'string') return null;
+  const normalized = normalizeSocialUrl(rawUrl);
+  if (normalized.startsWith('x.com/')) {
+    const handle = normalized.slice('x.com/'.length).split('/')[0];
+    return handle ? normalizeHandle(handle) : null;
+  }
+  return null;
 }
 
 // Helper: Damerau-Levenshtein distance
@@ -213,13 +273,21 @@ export function analyzeSocialCandidate(
 
   // 1. OFFICIAL ASSET CHECK (False Positive Protection)
   const officialSocials = brandProfile.officialSocialUrls || [];
+  let identityConflict: {
+    matchedOfficial: OfficialSocial;
+    candidateUrl: string;
+    extractedUrlHandle: string | null;
+    reason: string;
+  } | null = null;
+
   for (const official of officialSocials) {
     const normOfficialHandle = normalizeHandle(official.handle || '');
-    const normOfficialUrl = (official.url || '').trim().toLowerCase();
-    const candidateUrl = (candidate.url || '').trim().toLowerCase();
+    const normOfficialUrl = normalizeSocialUrl(official.url || '');
+    const candidateUrl = (candidate.url || '').trim();
+    const normCandidateUrl = normalizeSocialUrl(candidateUrl);
 
-    const handleMatches = normCandidateHandle && normOfficialHandle && normCandidateHandle === normOfficialHandle;
-    const urlMatches = candidateUrl && normOfficialUrl && candidateUrl.replace(/\/+$/, '') === normOfficialUrl.replace(/\/+$/, '');
+    const handleMatches = Boolean(normCandidateHandle && normOfficialHandle && normCandidateHandle === normOfficialHandle);
+    const urlMatches = Boolean(normCandidateUrl && normOfficialUrl && normCandidateUrl === normOfficialUrl);
 
     // Check if platform is compatible
     const platformMatch = 
@@ -228,11 +296,56 @@ export function analyzeSocialCandidate(
       official.platform.toLowerCase().includes(candidate.platform.toLowerCase()) ||
       (candidate.platform === 'X' && official.platform.toLowerCase().includes('twitter'));
 
-    if ((handleMatches && platformMatch) || urlMatches) {
+    if (handleMatches && platformMatch) {
+      // Candidate handle matches official registry.
+      // If a candidate URL was provided, verify whether it conflicts with the registered identity.
+      if (candidateUrl) {
+        const candidateUrlHandle = extractHandleFromUrl(candidateUrl);
+
+        // Check 1: Does candidate URL resolve to a different account? (e.g. @microsoft vs @apexpay_official)
+        const resolvesToDifferentAccount = Boolean(candidateUrlHandle && candidateUrlHandle !== normCandidateHandle);
+        // Check 2: If official registered URL exists, does candidate URL conflict with it?
+        const urlConflictsWithRegistry = Boolean(normOfficialUrl && !urlMatches && resolvesToDifferentAccount);
+
+        if (resolvesToDifferentAccount || urlConflictsWithRegistry) {
+          identityConflict = {
+            matchedOfficial: official,
+            candidateUrl,
+            extractedUrlHandle: candidateUrlHandle,
+            reason: candidateUrlHandle
+              ? `Supplied profile URL resolves to account "@${candidateUrlHandle}", conflicting with candidate handle "@${normCandidateHandle}" and official registered URL "${official.url}".`
+              : `Supplied profile URL "${candidateUrl}" does not match registered official URL "${official.url}".`
+          };
+          // Do not grant official allowlist exemption when identity evidence conflicts
+          continue;
+        }
+      }
+
+      // Handle matches and supplied URL (if any) is consistent with official registration
+      isExactOfficialMatch = true;
+      matchedOfficialAsset = official;
+      break;
+    } else if (urlMatches && !normCandidateHandle) {
+      // Fallback: only URL was provided and it matches official registry
       isExactOfficialMatch = true;
       matchedOfficialAsset = official;
       break;
     }
+  }
+
+  // If candidate handle matched an official record but the supplied profile URL pointed elsewhere:
+  if (identityConflict) {
+    signals.push({
+      id: 'sig-official-identity-url-mismatch',
+      category: 'Identity & Handle',
+      type: 'OFFICIAL_IDENTITY_URL_MISMATCH',
+      title: 'Official Identity & Profile URL Conflict',
+      detail: identityConflict.reason,
+      severity: 'high',
+    });
+    evidenceSupporting.push(
+      `Identity Conflict Detected: Candidate handle matches registered official channel (@${normalizeHandle(identityConflict.matchedOfficial.handle || '')}), but supplied profile URL "${identityConflict.candidateUrl}" resolves to a conflicting asset.`
+    );
   }
 
   if (isExactOfficialMatch && matchedOfficialAsset) {
@@ -672,7 +785,9 @@ export function analyzeSocialCandidate(
   if (riskCategory === 'Critical') {
     executiveSummary = `Critical threat detected. Profile "${candidate.name}" (${candidate.username.startsWith('@') ? candidate.username : '@' + candidate.username}) on ${candidate.platform} actively misrepresents protected brand "${brandProfile.brandName}" with high-risk credential harvesting lures or deceptive Unicode homoglyphs. Immediate takedown recommended.`;
   } else if (riskCategory === 'High') {
-    executiveSummary = `High probability of unauthorized brand impersonation. Profile combines protected brand identity with unverified customer support lures and unregistered external links.`;
+    executiveSummary = identityConflict
+      ? `High-risk identity conflict. Profile claims official handle "${candidate.username.startsWith('@') ? candidate.username : '@' + candidate.username}" on ${candidate.platform}, but provided profile URL "${candidate.url}" resolves to a conflicting account or domain. Investigation required.`
+      : `High probability of unauthorized brand impersonation. Profile combines protected brand identity with unverified customer support lures and unregistered external links.`;
   } else if (riskCategory === 'Medium') {
     executiveSummary = isAuthorizedPartner
       ? `Medium risk: Matches authorized partner directory for "${matchedPartner?.name}". Co-branding observed; requires compliance review.`

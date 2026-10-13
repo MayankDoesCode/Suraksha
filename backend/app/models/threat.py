@@ -27,8 +27,17 @@ class Finding(Base):
     # Target URL or store listing
     source_url = Column(String(1024), nullable=True)
     
-    # Risk score: 0.0 to 100.0
+    # Risk score: 0.0 to 100.0 (composite/final risk score)
     risk_score = Column(Float, nullable=False, default=0.0)
+    
+    # Hybrid ML and Heuristic Component Scores
+    rule_based_score = Column(Float, nullable=True)
+    ml_risk_score = Column(Float, nullable=True)
+    ml_predicted_class = Column(String(32), nullable=True)
+    ml_confidence = Column(Float, nullable=True)
+    ml_model_version = Column(String(64), nullable=True)
+    final_risk_score = Column(Float, nullable=True)
+    ml_fallback_used = Column(Boolean, nullable=False, default=False)
     
     # Severity: 'LOW', 'MEDIUM', 'HIGH', 'CRITICAL'
     severity = Column(String(32), nullable=False, default="LOW", index=True)
@@ -63,13 +72,21 @@ class Finding(Base):
     )
 
     def to_dict(self, include_relations: bool = True) -> dict:
+        composite_score = round(float(self.final_risk_score if self.final_risk_score is not None else self.risk_score), 1) if (self.risk_score is not None or self.final_risk_score is not None) else 0.0
         data = {
             "id": self.id,
             "brand_id": self.brand_id,
             "asset_type": self.asset_type,
             "candidate_name": self.candidate_name,
             "source_url": self.source_url,
-            "risk_score": round(float(self.risk_score), 1) if self.risk_score is not None else 0.0,
+            "risk_score": composite_score,
+            "final_risk_score": composite_score,
+            "rule_based_score": round(float(self.rule_based_score), 1) if self.rule_based_score is not None else composite_score,
+            "ml_risk_score": round(float(self.ml_risk_score), 1) if self.ml_risk_score is not None else None,
+            "ml_predicted_class": self.ml_predicted_class,
+            "ml_confidence": round(float(self.ml_confidence), 2) if self.ml_confidence is not None else None,
+            "ml_model_version": self.ml_model_version,
+            "ml_fallback_used": bool(self.ml_fallback_used) if self.ml_fallback_used is not None else False,
             "severity": self.severity,
             "review_status": self.review_status,
             "detection_source": self.detection_source,

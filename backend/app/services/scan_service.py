@@ -132,6 +132,13 @@ class ScanService:
                 finding_dict = {
                     "finding": persisted_eval.get("finding"),
                     "risk_score": persisted_eval.get("risk_score"),
+                    "final_risk_score": persisted_eval.get("final_risk_score"),
+                    "rule_based_score": persisted_eval.get("rule_based_score"),
+                    "ml_risk_score": persisted_eval.get("ml_risk_score"),
+                    "ml_predicted_class": persisted_eval.get("ml_predicted_class"),
+                    "ml_confidence": persisted_eval.get("ml_confidence"),
+                    "ml_model_version": persisted_eval.get("ml_model_version"),
+                    "ml_fallback_used": persisted_eval.get("ml_fallback_used"),
                     "severity": persisted_eval.get("severity"),
                     "candidate_name": persisted_eval.get("candidate_name"),
                     "source_url": normalized.get("source_url"),

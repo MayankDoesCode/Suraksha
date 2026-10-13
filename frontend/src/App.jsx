@@ -12,6 +12,7 @@ export default function App() {
   const [route, setRoute] = useState(() => {
     return window.location.pathname.startsWith('/dashboard') ? '/dashboard' : '/';
   });
+  const [navOptions, setNavOptions] = useState(null);
 
   useEffect(() => {
     const handlePopState = () => {
@@ -23,18 +24,29 @@ export default function App() {
     return () => window.removeEventListener('popstate', handlePopState);
   }, []);
 
-  const navigate = (targetPath) => {
+  const navigate = (targetPath, options = null) => {
     const normalized = targetPath.startsWith('/dashboard') ? '/dashboard' : '/';
     if (window.location.pathname !== normalized) {
       window.history.pushState({}, '', normalized);
     }
     setRoute(normalized);
+    setNavOptions(options);
     window.scrollTo({ top: 0, behavior: 'smooth' });
   };
 
   if (route === '/dashboard') {
-    return <WorkspaceShell onNavigateHome={() => navigate('/')} />;
+    return (
+      <WorkspaceShell
+        onNavigateHome={() => navigate('/')}
+        initialAuthMode={navOptions?.mode}
+        initialTab={navOptions?.tab}
+      />
+    );
   }
 
-  return <LandingPage onLaunchDashboard={() => navigate('/dashboard')} />;
+  return (
+    <LandingPage
+      onLaunchDashboard={(options) => navigate('/dashboard', options)}
+    />
+  );
 }

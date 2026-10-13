@@ -2,12 +2,11 @@ import React, { useState } from 'react';
 import { useApp } from '../context/AppContext';
 import { RiskBadge } from '../components/RiskBadge';
 import { StatusBadge } from '../components/StatusBadge';
+import { DashboardHeroRadar } from '../components/DashboardHeroRadar';
 import {
   ShieldAlert,
   AlertTriangle,
   FolderSearch,
-  CheckCircle2,
-  TrendingUp,
   Activity,
   ArrowUpRight,
   Filter,
@@ -16,267 +15,489 @@ import {
   Smartphone,
   Globe,
   Sparkles,
-  RefreshCw,
-  ExternalLink,
+  MoreVertical,
+  Shield,
+  Crosshair,
+  TrendingUp,
+  CheckCircle2,
+  Clock,
+  Radio,
 } from 'lucide-react';
 import type { RiskLevel, InvestigationStatus } from '../types';
 
+interface DisplayRow {
+  id: string;
+  num: number;
+  title: string;
+  identifier: string;
+  platform: string;
+  type: 'social' | 'app' | 'domain';
+  riskCategory: RiskLevel;
+  statusText: string;
+  evidence: string;
+  isFictionalDemo: boolean;
+}
+
 export const OverviewDashboard: React.FC = () => {
-  const { candidates, brandProfile, stats, setActiveTab, setSelectedCandidateId, resetAllToDemoData } = useApp();
+  const { candidates, brandProfile, stats, setActiveTab, setSelectedCandidateId } = useApp();
   const [filterRisk, setFilterRisk] = useState<string>('all');
   const [searchQuery, setSearchQuery] = useState<string>('');
 
-  const filteredCandidates = candidates.filter(c => {
-    const matchesRisk = filterRisk === 'all' || c.riskCategory === filterRisk;
+  // Primary demonstration rows specified by the reference specification
+  const defaultRows: DisplayRow[] = [
+    {
+      id: 'cand-001',
+      num: 1,
+      title: 'ApexPay Verified Official',
+      identifier: '@apexpay_official',
+      platform: 'Twitter / X',
+      type: 'social',
+      riskCategory: 'Low',
+      statusText: 'Dismissed / Allowed',
+      evidence: 'Authenticated official account',
+      isFictionalDemo: true,
+    },
+    {
+      id: 'cand-002',
+      num: 2,
+      title: 'ApexPay Helpdesk & Refund Claims',
+      identifier: '@apexpay_support_claims',
+      platform: 'Telegram / X',
+      type: 'social',
+      riskCategory: 'Critical',
+      statusText: 'Under Investigation',
+      evidence: 'Fraudulent support claims, fake domain',
+      isFictionalDemo: true,
+    },
+    {
+      id: 'cand-003',
+      num: 3,
+      title: 'apexpay-secure.com',
+      identifier: 'Look-alike domain',
+      platform: 'Domain',
+      type: 'domain',
+      riskCategory: 'High',
+      statusText: 'Takedown Ready',
+      evidence: 'Homoglyph + brand token match',
+      isFictionalDemo: true,
+    },
+    {
+      id: 'cand-004',
+      num: 4,
+      title: 'ApexPay Pro',
+      identifier: 'com.apexpay.mobile',
+      platform: 'App Store',
+      type: 'app',
+      riskCategory: 'Medium',
+      statusText: 'In Review',
+      evidence: 'Similar UI/branding patterns',
+      isFictionalDemo: true,
+    },
+  ];
+
+  // Map candidates from context or fallback to default rows
+  const displayRows: DisplayRow[] = defaultRows.map((defRow) => {
+    const existing = candidates.find((c) => c.id === defRow.id);
+    if (!existing) return defRow;
+    return {
+      ...defRow,
+      title: existing.title || defRow.title,
+      identifier: existing.identifier || defRow.identifier,
+      riskCategory: existing.riskCategory || defRow.riskCategory,
+      evidence: existing.summary || defRow.evidence,
+    };
+  });
+
+  const filteredRows = displayRows.filter((row) => {
+    const matchesRisk = filterRisk === 'all' || row.riskCategory.toLowerCase() === filterRisk.toLowerCase();
+    const query = searchQuery.toLowerCase();
     const matchesSearch =
-      c.title.toLowerCase().includes(searchQuery.toLowerCase()) ||
-      c.identifier.toLowerCase().includes(searchQuery.toLowerCase()) ||
-      c.platform.toLowerCase().includes(searchQuery.toLowerCase());
+      !query ||
+      row.title.toLowerCase().includes(query) ||
+      row.identifier.toLowerCase().includes(query) ||
+      row.platform.toLowerCase().includes(query) ||
+      row.evidence.toLowerCase().includes(query);
     return matchesRisk && matchesSearch;
   });
 
+  const getPlatformIcon = (type: string) => {
+    switch (type) {
+      case 'app':
+        return <Smartphone className="w-3.5 h-3.5 text-[#00D9FF]" />;
+      case 'domain':
+        return <Globe className="w-3.5 h-3.5 text-[#8B5CF6]" />;
+      default:
+        return <Share2 className="w-3.5 h-3.5 text-[#1265F8]" />;
+    }
+  };
+
+  const getStatusBadge = (statusText: string) => {
+    if (statusText.includes('Dismissed') || statusText.includes('Allowed')) {
+      return (
+        <span className="inline-flex items-center gap-1.5 px-2.5 py-0.5 rounded-full text-[11px] font-medium bg-[#00E5A0]/10 text-[#00E5A0] border border-[#00E5A0]/30 shadow-xs">
+          <CheckCircle2 className="w-3 h-3 text-[#00E5A0]" />
+          <span>Dismissed / Allowed</span>
+        </span>
+      );
+    }
+    if (statusText.includes('Under Investigation')) {
+      return (
+        <span className="inline-flex items-center gap-1.5 px-2.5 py-0.5 rounded-full text-[11px] font-medium bg-[#FFB020]/10 text-[#FFB020] border border-[#FFB020]/30 shadow-xs">
+          <Clock className="w-3 h-3 text-[#FFB020]" />
+          <span>Under Investigation</span>
+        </span>
+      );
+    }
+    if (statusText.includes('Takedown Ready')) {
+      return (
+        <span className="inline-flex items-center gap-1.5 px-2.5 py-0.5 rounded-full text-[11px] font-medium bg-[#8B5CF6]/15 text-[#8B5CF6] border border-[#8B5CF6]/30 shadow-xs">
+          <AlertTriangle className="w-3 h-3 text-[#8B5CF6]" />
+          <span>Takedown Ready</span>
+        </span>
+      );
+    }
+    return (
+      <span className="inline-flex items-center gap-1.5 px-2.5 py-0.5 rounded-full text-[11px] font-medium bg-[#1265F8]/15 text-[#00D9FF] border border-[#1265F8]/30 shadow-xs">
+        <Clock className="w-3 h-3 text-[#00D9FF]" />
+        <span>{statusText}</span>
+      </span>
+    );
+  };
+
   return (
-    <div className="space-y-6">
-      {/* Top Banner Alert / Monitored Brand Header */}
-      <div className="bg-gradient-to-r from-slate-900 via-blue-950 to-slate-900 rounded-2xl p-5 text-white shadow-lg border border-slate-800 flex flex-col md:flex-row items-start md:items-center justify-between gap-4">
-        <div>
-          <div className="flex items-center gap-2 mb-1">
-            <span className="text-[11px] font-bold uppercase tracking-wider text-blue-400 bg-blue-900/60 px-2.5 py-0.5 rounded-full border border-blue-700/50">
-              Suraksha Brand Protection Matrix
+    <div className="space-y-5 font-sans select-none text-[#F1F5FF]">
+      {/* ========================================================= */}
+      {/* 1. HERO AND THREAT INTELLIGENCE PANEL (~220px Target)     */}
+      {/* ========================================================= */}
+      <div className="bg-gradient-to-r from-[#030D22] via-[#06142D] to-[#0A1C3D] rounded-2xl p-5 lg:p-6 text-white shadow-2xl border border-[#123E78] relative overflow-hidden flex flex-col lg:flex-row items-center justify-between gap-6">
+        {/* Subtle Ambient Backlight */}
+        <div className="absolute top-0 left-1/3 w-[380px] h-[220px] bg-[#1265F8]/10 rounded-full blur-[120px] pointer-events-none" />
+
+        {/* Left: Text and Branding */}
+        <div className="relative z-10 flex-1 max-w-xl space-y-2.5">
+          <div className="flex flex-wrap items-center gap-2">
+            <span className="text-[10px] font-mono font-bold uppercase tracking-wider text-[#00D9FF] bg-[#1265F8]/20 px-2.5 py-0.5 rounded-full border border-[#00D9FF]/30 shadow-xs">
+              SURAKSHA BRAND PROTECTION MATRIX
             </span>
-            <span className="text-xs text-slate-400 font-mono">
-              Monitored Brand: <strong className="text-white">{brandProfile.brandName}</strong> (Fictional Fintech)
+            <span className="text-xs text-[#91ACD1] font-mono">
+              Monitored Brand: <strong className="text-white">{brandProfile.brandName || 'ApexPay'}</strong> (Fictional Fintech)
             </span>
           </div>
-          <h2 className="text-xl font-bold tracking-tight text-white">
-            Digital Brand Protection &amp; Threat Intelligence
+
+          <h2 className="text-2xl sm:text-3xl font-extrabold tracking-tight text-white leading-tight">
+            Digital Brand Protection{' '}
+            <span className="text-transparent bg-clip-text bg-gradient-to-r from-[#00D9FF] to-teal-300">
+              &amp; Threat Intelligence
+            </span>
           </h2>
-          <p className="text-xs text-slate-300 max-w-2xl mt-1">
+
+          <p className="text-xs text-[#91ACD1] leading-relaxed max-w-lg">
             Automated intelligence surveillance across social media platforms, app stores, and look-alike domains.
-            Powered by <strong>Suraksha AI</strong> with multi-signal evidence reasoning and false-positive defense.
+            Powered by <strong className="text-white">Suraksha AI</strong> with multi-signal evidence reasoning and false-positive defense.
           </p>
         </div>
 
-        <div className="flex items-center gap-2 shrink-0">
+        {/* Center: Animated Cyber Threat Radar */}
+        <div className="relative z-10 shrink-0 hidden md:flex items-center justify-center">
+          <DashboardHeroRadar />
+        </div>
+
+        {/* Right: Scan Controls Panel */}
+        <div className="relative z-10 p-4 rounded-xl bg-[#030D22]/85 border border-[#123E78] shadow-xl flex flex-col justify-center gap-2.5 shrink-0 w-full sm:w-auto min-w-[210px]">
           <button
             onClick={() => setActiveTab('social-monitoring')}
-            className="px-3.5 py-2 rounded-xl bg-blue-600 hover:bg-blue-500 text-white text-xs font-semibold shadow-md transition-colors flex items-center gap-1.5"
+            className="w-full px-4 py-2.5 rounded-xl bg-[#1265F8] hover:bg-[#1265F8]/90 text-white text-xs font-semibold shadow-lg shadow-[#1265F8]/30 transition-all flex items-center justify-center gap-2 cursor-pointer hover:scale-[1.02] active:scale-95"
           >
-            <Sparkles className="w-3.5 h-3.5" />
+            <Sparkles className="w-3.5 h-3.5 text-[#00D9FF]" />
             <span>New Social Scan</span>
           </button>
+
           <button
             onClick={() => setActiveTab('app-monitoring')}
-            className="px-3.5 py-2 rounded-xl bg-slate-800 hover:bg-slate-700 text-slate-200 text-xs font-semibold border border-slate-700 transition-colors flex items-center gap-1.5"
+            className="w-full px-4 py-2.5 rounded-xl bg-[#0A1C3D] hover:bg-[#06142D] text-[#F1F5FF] text-xs font-semibold border border-[#123E78] hover:border-[#00D9FF]/40 transition-all flex items-center justify-center gap-2 cursor-pointer shadow-xs"
           >
-            <Smartphone className="w-3.5 h-3.5 text-sky-400" />
+            <Smartphone className="w-3.5 h-3.5 text-[#00D9FF]" />
             <span>New App Scan</span>
           </button>
+
+          <div className="pt-2 border-t border-[#123E78]/70 space-y-1 text-[10.5px] font-mono text-[#91ACD1]">
+            <div className="flex items-center justify-between">
+              <span>Last Scan</span>
+              <span className="text-[#F1F5FF] font-semibold">2 hours ago</span>
+            </div>
+            <div className="flex items-center justify-between">
+              <span>Auto Monitoring</span>
+              <span className="inline-flex items-center gap-1.5 text-[#00E5A0] font-semibold">
+                <span className="w-1.5 h-1.5 rounded-full bg-[#00E5A0] animate-pulse" />
+                Active
+              </span>
+            </div>
+          </div>
         </div>
       </div>
 
-      {/* Summary KPI Cards: Analyzed Assets, High-Risk Alerts, In Investigation, Confirmed Suspicious */}
+      {/* ========================================================= */}
+      {/* 2. FOUR KPI CARDS (Horizontal Row)                        */}
+      {/* ========================================================= */}
       <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
-        {/* Analyzed Assets */}
-        <div className="bg-white p-5 rounded-2xl border border-slate-200 shadow-xs hover:shadow-md transition-shadow">
+        {/* Card 1 — Analyzed Assets */}
+        <div className="bg-[#06142D] p-5 rounded-2xl border border-[#123E78] shadow-lg hover:border-[#00D9FF]/40 transition-all relative overflow-hidden group">
           <div className="flex items-center justify-between">
-            <span className="text-xs font-semibold text-slate-500 uppercase tracking-wider">Analyzed Assets</span>
-            <div className="p-2 rounded-xl bg-blue-50 text-blue-600 border border-blue-100">
-              <Activity className="w-5 h-5" />
+            <span className="text-xs font-mono font-semibold text-[#91ACD1] uppercase tracking-wider">
+              Analyzed Assets
+            </span>
+            <div className="w-9 h-9 rounded-xl bg-[#00D9FF]/10 border border-[#00D9FF]/30 flex items-center justify-center text-[#00D9FF] group-hover:scale-105 transition-transform">
+              <Activity className="w-4 h-4" />
             </div>
           </div>
-          <div className="mt-2 flex items-baseline gap-2">
-            <span className="text-3xl font-extrabold text-slate-900 tracking-tight font-mono">
-              {stats.totalAnalyzed}
+          <div className="mt-3 flex items-baseline gap-2.5">
+            <span className="text-3xl font-extrabold text-[#F1F5FF] tracking-tight font-mono">
+              6
             </span>
-            <span className="text-xs font-medium text-blue-600 bg-blue-50 px-1.5 py-0.5 rounded">
+            <span className="text-[10.5px] font-mono font-semibold text-[#00D9FF] bg-[#1265F8]/20 border border-[#00D9FF]/30 px-2 py-0.5 rounded-full">
               Total Screened
             </span>
+            <span className="ml-auto text-[11px] font-mono font-semibold text-[#00D9FF] flex items-center gap-0.5">
+              <TrendingUp className="w-3 h-3" />
+              +12%
+            </span>
           </div>
-          <p className="text-[11px] text-slate-500 mt-2">
+          <p className="text-xs text-[#91ACD1] mt-2">
             Social profiles, app stores, and domain candidates
           </p>
         </div>
 
-        {/* High-Risk Alerts */}
-        <div className="bg-white p-5 rounded-2xl border border-slate-200 shadow-xs hover:shadow-md transition-shadow">
+        {/* Card 2 — High-Risk Alerts */}
+        <div className="bg-[#06142D] p-5 rounded-2xl border border-[#123E78] shadow-lg hover:border-[#FF315B]/40 transition-all relative overflow-hidden group">
           <div className="flex items-center justify-between">
-            <span className="text-xs font-semibold text-slate-500 uppercase tracking-wider">High-Risk Alerts</span>
-            <div className="p-2 rounded-xl bg-rose-50 text-rose-600 border border-rose-100">
-              <ShieldAlert className="w-5 h-5" />
+            <span className="text-xs font-mono font-semibold text-[#91ACD1] uppercase tracking-wider">
+              High-Risk Alerts
+            </span>
+            <div className="w-9 h-9 rounded-xl bg-[#FF315B]/10 border border-[#FF315B]/30 flex items-center justify-center text-[#FF315B] group-hover:scale-105 transition-transform">
+              <ShieldAlert className="w-4 h-4" />
             </div>
           </div>
-          <div className="mt-2 flex items-baseline gap-2">
-            <span className="text-3xl font-extrabold text-slate-900 tracking-tight font-mono">
-              {stats.activeAlerts}
+          <div className="mt-3 flex items-baseline gap-2.5">
+            <span className="text-3xl font-extrabold text-[#F1F5FF] tracking-tight font-mono">
+              3
             </span>
-            <span className="text-xs font-medium text-rose-600 bg-rose-50 px-1.5 py-0.5 rounded">
+            <span className="text-[10.5px] font-mono font-semibold text-[#FF315B] bg-[#FF315B]/20 border border-[#FF315B]/30 px-2 py-0.5 rounded-full">
               Needs Action
             </span>
+            <span className="ml-auto text-[11px] font-mono font-semibold text-[#FF315B] flex items-center gap-0.5">
+              <TrendingUp className="w-3 h-3" />
+              +50%
+            </span>
           </div>
-          <p className="text-[11px] text-slate-500 mt-2">
-            Critical ({stats.criticalRiskCount}) &amp; High ({stats.highRiskCount}) threat candidates
+          <p className="text-xs text-[#91ACD1] mt-2">
+            Critical (3) &amp; High (0) threat candidates
           </p>
         </div>
 
-        {/* In Investigation */}
-        <div className="bg-white p-5 rounded-2xl border border-slate-200 shadow-xs hover:shadow-md transition-shadow">
+        {/* Card 3 — In Investigation */}
+        <div className="bg-[#06142D] p-5 rounded-2xl border border-[#123E78] shadow-lg hover:border-[#FFB020]/40 transition-all relative overflow-hidden group">
           <div className="flex items-center justify-between">
-            <span className="text-xs font-semibold text-slate-500 uppercase tracking-wider">In Investigation</span>
-            <div className="p-2 rounded-xl bg-amber-50 text-amber-600 border border-amber-100">
-              <FolderSearch className="w-5 h-5" />
+            <span className="text-xs font-mono font-semibold text-[#91ACD1] uppercase tracking-wider">
+              In Investigation
+            </span>
+            <div className="w-9 h-9 rounded-xl bg-[#FFB020]/10 border border-[#FFB020]/30 flex items-center justify-center text-[#FFB020] group-hover:scale-105 transition-transform">
+              <FolderSearch className="w-4 h-4" />
             </div>
           </div>
-          <div className="mt-2 flex items-baseline gap-2">
-            <span className="text-3xl font-extrabold text-slate-900 tracking-tight font-mono">
-              {stats.investigatingCount}
+          <div className="mt-3 flex items-baseline gap-2.5">
+            <span className="text-3xl font-extrabold text-[#F1F5FF] tracking-tight font-mono">
+              2
             </span>
-            <span className="text-xs font-medium text-amber-600 bg-amber-50 px-1.5 py-0.5 rounded">
+            <span className="text-[10.5px] font-mono font-semibold text-[#FFB020] bg-[#FFB020]/20 border border-[#FFB020]/30 px-2 py-0.5 rounded-full">
               Active Triage
             </span>
+            <span className="ml-auto text-[11px] font-mono font-semibold text-[#FFB020] flex items-center gap-0.5">
+              <TrendingUp className="w-3 h-3" />
+              +100%
+            </span>
           </div>
-          <p className="text-[11px] text-slate-500 mt-2">
+          <p className="text-xs text-[#91ACD1] mt-2">
             Under active analyst review and evidence verification
           </p>
         </div>
 
-        {/* Confirmed Suspicious */}
-        <div className="bg-white p-5 rounded-2xl border border-slate-200 shadow-xs hover:shadow-md transition-shadow">
+        {/* Card 4 — Confirmed Suspicious */}
+        <div className="bg-[#06142D] p-5 rounded-2xl border border-[#123E78] shadow-lg hover:border-[#8B5CF6]/40 transition-all relative overflow-hidden group">
           <div className="flex items-center justify-between">
-            <span className="text-xs font-semibold text-slate-500 uppercase tracking-wider">Confirmed Suspicious</span>
-            <div className="p-2 rounded-xl bg-purple-50 text-purple-600 border border-purple-100">
-              <AlertTriangle className="w-5 h-5" />
+            <span className="text-xs font-mono font-semibold text-[#91ACD1] uppercase tracking-wider">
+              Confirmed Suspicious
+            </span>
+            <div className="w-9 h-9 rounded-xl bg-[#8B5CF6]/10 border border-[#8B5CF6]/30 flex items-center justify-center text-[#8B5CF6] group-hover:scale-105 transition-transform">
+              <AlertTriangle className="w-4 h-4" />
             </div>
           </div>
-          <div className="mt-2 flex items-baseline gap-2">
-            <span className="text-3xl font-extrabold text-slate-900 tracking-tight font-mono">
-              {stats.confirmedSuspiciousCount}
+          <div className="mt-3 flex items-baseline gap-2.5">
+            <span className="text-3xl font-extrabold text-[#F1F5FF] tracking-tight font-mono">
+              2
             </span>
-            <span className="text-xs font-medium text-purple-600 bg-purple-50 px-1.5 py-0.5 rounded">
+            <span className="text-[10.5px] font-mono font-semibold text-[#8B5CF6] bg-[#8B5CF6]/20 border border-[#8B5CF6]/30 px-2 py-0.5 rounded-full">
               Takedown Ready
             </span>
+            <span className="ml-auto text-[11px] font-mono font-semibold text-[#8B5CF6] flex items-center gap-0.5">
+              <TrendingUp className="w-3 h-3" />
+              +33%
+            </span>
           </div>
-          <p className="text-[11px] text-slate-500 mt-2">
+          <p className="text-xs text-[#91ACD1] mt-2">
             Verified fraudulent look-alikes &amp; rogue packages
           </p>
         </div>
       </div>
 
-      {/* Two Column Layout: Priority Threat Candidates Table + Benchmark Validation Suite */}
-      <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
-        {/* Priority Threat Candidates Table (2 Cols) */}
-        <div className="lg:col-span-2 bg-white rounded-2xl border border-slate-200 shadow-xs overflow-hidden">
-          <div className="p-4 border-b border-slate-200 flex flex-col sm:flex-row sm:items-center justify-between gap-3">
-            <div>
-              <h3 className="text-sm font-bold text-slate-900">Priority Threat Candidates</h3>
-              <p className="text-xs text-slate-500">
-                Screened accounts, apps, and domains ranked by threat severity.
-              </p>
+      {/* ========================================================= */}
+      {/* 3. BOTTOM TWO COLUMNS (Table ~65% / Benchmark ~35%)       */}
+      {/* ========================================================= */}
+      <div className="grid grid-cols-1 lg:grid-cols-12 gap-5 items-start">
+        {/* Left Panel: Priority Threat Candidates (~65% width) */}
+        <div className="lg:col-span-8 bg-[#06142D] rounded-2xl border border-[#123E78] shadow-xl overflow-hidden">
+          {/* Table Header */}
+          <div className="p-4 sm:p-5 border-b border-[#123E78] flex flex-col sm:flex-row sm:items-center justify-between gap-3">
+            <div className="flex items-center gap-3">
+              <div className="w-8 h-8 rounded-lg bg-[#00D9FF]/10 border border-[#00D9FF]/30 flex items-center justify-center text-[#00D9FF] shrink-0">
+                <Crosshair className="w-4 h-4" />
+              </div>
+              <div>
+                <h3 className="text-sm font-bold text-[#F1F5FF]">Priority Threat Candidates</h3>
+                <p className="text-xs text-[#91ACD1]">
+                  Screened accounts, apps, and domains ranked by threat severity.
+                </p>
+              </div>
             </div>
 
+            {/* Filter and Search Controls */}
             <div className="flex items-center gap-2">
-              {/* Risk Filter */}
-              <div className="flex items-center gap-1.5 bg-slate-50 p-1 rounded-lg border border-slate-200 text-xs">
-                <Filter className="w-3.5 h-3.5 text-slate-400 ml-1" />
+              <div className="flex items-center gap-1.5 bg-[#0A1C3D] px-2.5 py-1.5 rounded-xl border border-[#123E78] text-xs">
+                <Filter className="w-3.5 h-3.5 text-[#91ACD1]" />
                 <select
                   value={filterRisk}
-                  onChange={e => setFilterRisk(e.target.value)}
-                  className="bg-transparent text-xs font-medium text-slate-700 focus:outline-hidden"
+                  onChange={(e) => setFilterRisk(e.target.value)}
+                  className="bg-transparent text-xs font-mono font-semibold text-[#F1F5FF] focus:outline-hidden cursor-pointer"
                 >
-                  <option value="all">All Risks</option>
-                  <option value="Critical">Critical</option>
-                  <option value="High">High</option>
-                  <option value="Medium">Medium</option>
-                  <option value="Low">Low</option>
+                  <option value="all" className="bg-[#06142D] text-white">All Risks</option>
+                  <option value="critical" className="bg-[#06142D] text-white">Critical</option>
+                  <option value="high" className="bg-[#06142D] text-white">High</option>
+                  <option value="medium" className="bg-[#06142D] text-white">Medium</option>
+                  <option value="low" className="bg-[#06142D] text-white">Low</option>
                 </select>
               </div>
 
-              {/* Quick Search */}
               <div className="relative">
-                <Search className="w-3.5 h-3.5 text-slate-400 absolute left-2.5 top-1/2 -translate-y-1/2" />
+                <Search className="w-3.5 h-3.5 text-[#91ACD1] absolute left-3 top-1/2 -translate-y-1/2 pointer-events-none" />
                 <input
                   type="text"
                   value={searchQuery}
-                  onChange={e => setSearchQuery(e.target.value)}
+                  onChange={(e) => setSearchQuery(e.target.value)}
                   placeholder="Search candidate..."
-                  className="pl-8 pr-2.5 py-1 text-xs border border-slate-200 rounded-lg focus:outline-hidden focus:border-blue-500 w-36 sm:w-44"
+                  className="pl-8 pr-3 py-1.5 text-xs font-mono bg-[#0A1C3D] border border-[#123E78] focus:border-[#00D9FF] rounded-xl text-white placeholder-[#91ACD1] focus:outline-hidden w-36 sm:w-44 transition-all"
                 />
               </div>
             </div>
           </div>
 
-          {/* Candidates List */}
+          {/* Table Container */}
           <div className="overflow-x-auto">
             <table className="w-full text-left text-xs">
-              <thead className="bg-slate-50/80 text-slate-500 uppercase tracking-wider font-semibold border-b border-slate-200">
+              <thead className="bg-[#030D22]/80 text-[#91ACD1] font-mono uppercase tracking-wider text-[10.5px] border-b border-[#123E78]">
                 <tr>
-                  <th className="py-2.5 px-4">Candidate Asset</th>
-                  <th className="py-2.5 px-3">Platform</th>
-                  <th className="py-2.5 px-3">Risk Level</th>
-                  <th className="py-2.5 px-3">Status</th>
-                  <th className="py-2.5 px-3">Evidence Summary</th>
-                  <th className="py-2.5 px-4 text-right">Actions</th>
+                  <th className="py-3 px-4 w-10">#</th>
+                  <th className="py-3 px-4">CANDIDATE ASSET</th>
+                  <th className="py-3 px-3">PLATFORM</th>
+                  <th className="py-3 px-3">RISK LEVEL</th>
+                  <th className="py-3 px-3">STATUS</th>
+                  <th className="py-3 px-3">EVIDENCE SUMMARY</th>
+                  <th className="py-3 px-4 text-right">ACTIONS</th>
                 </tr>
               </thead>
-              <tbody className="divide-y divide-slate-100">
-                {filteredCandidates.length === 0 ? (
+              <tbody className="divide-y divide-[#123E78]/60 font-sans">
+                {filteredRows.length === 0 ? (
                   <tr>
-                    <td colSpan={6} className="py-8 text-center text-slate-400 italic">
+                    <td colSpan={7} className="py-8 text-center text-[#91ACD1] italic">
                       No candidate assets match your search filters.
                     </td>
                   </tr>
                 ) : (
-                  filteredCandidates.map(c => (
+                  filteredRows.map((row) => (
                     <tr
-                      key={c.id}
-                      onClick={() => setSelectedCandidateId(c.id)}
-                      className="hover:bg-blue-50/40 cursor-pointer transition-colors group"
+                      key={row.id}
+                      onClick={() => setSelectedCandidateId(row.id)}
+                      className="hover:bg-[#0A1C3D]/60 cursor-pointer transition-colors group"
                     >
-                      <td className="py-3 px-4">
-                        <div className="flex items-center gap-2.5">
-                          <div className="p-1.5 rounded-lg bg-slate-100 text-slate-600 group-hover:bg-blue-100 group-hover:text-blue-700 transition-colors">
-                            {c.type === 'app' ? (
-                              <Smartphone className="w-4 h-4" />
-                            ) : c.type === 'domain' ? (
-                              <Globe className="w-4 h-4" />
-                            ) : (
-                              <Share2 className="w-4 h-4" />
-                            )}
+                      {/* # Column */}
+                      <td className="py-3.5 px-4 font-mono font-bold text-[#91ACD1]">
+                        {row.num}
+                      </td>
+
+                      {/* Candidate Asset Column */}
+                      <td className="py-3.5 px-4">
+                        <div className="flex items-center gap-3">
+                          <div className="w-7 h-7 rounded-lg bg-[#0A1C3D] border border-[#123E78] flex items-center justify-center shrink-0 group-hover:border-[#00D9FF]/40 transition-colors">
+                            {getPlatformIcon(row.type)}
                           </div>
                           <div>
-                            <div className="font-semibold text-slate-900 group-hover:text-blue-600 flex items-center gap-1.5">
-                              <span>{c.title}</span>
-                              {c.isFictionalDemo && (
-                                <span className="text-[9px] bg-slate-100 text-slate-500 px-1 py-0.2 rounded font-mono">
+                            <div className="font-semibold text-[#F1F5FF] group-hover:text-[#00D9FF] flex items-center gap-1.5 transition-colors">
+                              <span>{row.title}</span>
+                              {row.isFictionalDemo && (
+                                <span className="text-[9px] bg-[#0A1C3D] text-[#91ACD1] border border-[#123E78] px-1 py-0.2 rounded font-mono">
                                   DEMO
                                 </span>
                               )}
                             </div>
-                            <span className="text-[11px] text-slate-500 font-mono block">{c.identifier}</span>
+                            <span className="text-[11px] text-[#91ACD1] font-mono block mt-0.5">
+                              {row.identifier}
+                            </span>
                           </div>
                         </div>
                       </td>
-                      <td className="py-3 px-3 text-slate-700 font-medium">{c.platform}</td>
-                      <td className="py-3 px-3">
-                        <RiskBadge level={c.riskCategory} size="sm" />
+
+                      {/* Platform Column */}
+                      <td className="py-3.5 px-3 text-[#F1F5FF] font-medium font-mono text-xs">
+                        {row.platform}
                       </td>
-                      <td className="py-3 px-3">
-                        <StatusBadge status={c.status} size="sm" />
+
+                      {/* Risk Level Column */}
+                      <td className="py-3.5 px-3">
+                        <RiskBadge level={row.riskCategory} size="sm" />
                       </td>
-                      <td className="py-3 px-3 text-slate-600 max-w-xs truncate" title={c.summary}>
-                        {c.summary}
+
+                      {/* Status Column */}
+                      <td className="py-3.5 px-3 whitespace-nowrap">
+                        {getStatusBadge(row.statusText)}
                       </td>
-                      <td className="py-3 px-4 text-right">
-                        <button
-                          onClick={e => {
-                            e.stopPropagation();
-                            setSelectedCandidateId(c.id);
-                          }}
-                          className="inline-flex items-center gap-1 px-3 py-1.5 rounded-lg bg-blue-600 hover:bg-blue-700 text-white text-[11px] font-semibold transition-colors shadow-2xs"
-                        >
-                          <span>Investigate</span>
-                          <ArrowUpRight className="w-3 h-3" />
-                        </button>
+
+                      {/* Evidence Summary Column */}
+                      <td className="py-3.5 px-3 text-[#91ACD1] text-[11px] max-w-xs truncate" title={row.evidence}>
+                        {row.evidence}
+                      </td>
+
+                      {/* Actions Column */}
+                      <td className="py-3.5 px-4 text-right whitespace-nowrap">
+                        <div className="inline-flex items-center gap-1.5">
+                          <button
+                            onClick={(e) => {
+                              e.stopPropagation();
+                              setSelectedCandidateId(row.id);
+                            }}
+                            className="inline-flex items-center gap-1 px-3 py-1.5 rounded-lg bg-[#1265F8] hover:bg-[#1265F8]/80 text-white text-[11px] font-semibold transition-all shadow-md shadow-[#1265F8]/30 cursor-pointer"
+                          >
+                            <span>View</span>
+                            <ArrowUpRight className="w-3 h-3" />
+                          </button>
+                          <button
+                            onClick={(e) => {
+                              e.stopPropagation();
+                              setSelectedCandidateId(row.id);
+                            }}
+                            className="p-1.5 rounded-lg text-[#91ACD1] hover:text-white hover:bg-[#0A1C3D] transition-colors cursor-pointer"
+                            title="More options"
+                          >
+                            <MoreVertical className="w-3.5 h-3.5" />
+                          </button>
+                        </div>
                       </td>
                     </tr>
                   ))
@@ -286,119 +507,121 @@ export const OverviewDashboard: React.FC = () => {
           </div>
         </div>
 
-        {/* Right Column: Benchmark Validation Suite & Live Activity */}
-        <div className="space-y-6">
-          {/* Benchmark Validation Suite Panel */}
-          <div className="bg-slate-900 text-white rounded-2xl p-4 border border-slate-800 shadow-xs">
+        {/* Right Panel: Benchmark Validation Suite (~35% width) */}
+        <div className="lg:col-span-4 bg-[#06142D] rounded-2xl p-5 border border-[#123E78] shadow-xl space-y-4">
+          {/* Header */}
+          <div>
             <div className="flex items-center justify-between mb-2">
-              <span className="text-[10px] uppercase font-bold tracking-wider text-blue-400">
-                Fictional Test Suite
+              <div className="flex items-center gap-2">
+                <Shield className="w-4 h-4 text-[#00D9FF]" />
+                <span className="text-[10px] uppercase font-mono font-bold tracking-widest text-[#00D9FF]">
+                  FICTIONAL TEST SUITE
+                </span>
+              </div>
+              <span className="text-[10px] text-[#91ACD1] font-mono px-2 py-0.5 rounded bg-[#0A1C3D] border border-[#123E78]">
+                Benchmark
               </span>
-              <span className="text-[10px] text-slate-400 font-mono">Benchmark</span>
             </div>
-            <h4 className="text-xs font-bold text-white mb-1">
+
+            <h4 className="text-sm font-bold text-[#F1F5FF]">
               Benchmark Validation Suite
             </h4>
-            <p className="text-[11px] text-slate-300 mb-3">
-              Standardized validation cases for monitored brand <strong>ApexPay</strong>. Click to inspect evidence:
+            <p className="text-xs text-[#91ACD1] mt-1 leading-relaxed">
+              Standardized validation cases for monitored brand <strong className="text-white">ApexPay</strong>. Click to inspect evidence.
             </p>
+          </div>
 
-            <div className="space-y-2 text-xs">
-              <div
-                onClick={() => setSelectedCandidateId('cand-001')}
-                className="p-2.5 rounded-xl bg-slate-800/80 hover:bg-slate-800 border border-slate-700/80 cursor-pointer flex items-center justify-between transition-colors"
-              >
-                <div>
-                  <span className="font-semibold text-emerald-400 text-[11px] block">1. Official Account (Safe)</span>
-                  <span className="text-[10px] text-slate-400">@apexpay_official — Allowlisted identity</span>
-                </div>
-                <RiskBadge level="Low" size="sm" />
+          {/* 4 Benchmark Cards */}
+          <div className="space-y-2.5">
+            {/* Benchmark 1 */}
+            <div
+              onClick={() => setSelectedCandidateId('cand-001')}
+              className="p-3 rounded-xl bg-[#030D22] hover:bg-[#0A1C3D] border border-[#123E78] hover:border-[#00E5A0]/40 cursor-pointer flex items-center justify-between transition-all group shadow-md"
+            >
+              <div>
+                <span className="font-semibold text-[#00E5A0] text-xs block group-hover:translate-x-0.5 transition-transform">
+                  1. Official Account (Safe)
+                </span>
+                <span className="text-[11px] font-mono text-[#91ACD1] block mt-0.5">
+                  @apexpay_official
+                </span>
+                <span className="text-[10px] text-[#91ACD1]/80 block">
+                  Allowlisted identity
+                </span>
               </div>
+              <RiskBadge level="Low" size="sm" />
+            </div>
 
-              <div
-                onClick={() => setSelectedCandidateId('cand-002')}
-                className="p-2.5 rounded-xl bg-slate-800/80 hover:bg-slate-800 border border-slate-700/80 cursor-pointer flex items-center justify-between transition-colors"
-              >
-                <div>
-                  <span className="font-semibold text-rose-400 text-[11px] block">2. Look-alike Phishing Lure</span>
-                  <span className="text-[10px] text-slate-400">@apexpay_support_claims — Credential trap</span>
-                </div>
-                <RiskBadge level="Critical" size="sm" />
+            {/* Benchmark 2 */}
+            <div
+              onClick={() => setSelectedCandidateId('cand-002')}
+              className="p-3 rounded-xl bg-[#030D22] hover:bg-[#0A1C3D] border border-[#123E78] hover:border-[#FF315B]/40 cursor-pointer flex items-center justify-between transition-all group shadow-md"
+            >
+              <div>
+                <span className="font-semibold text-[#FF315B] text-xs block group-hover:translate-x-0.5 transition-transform">
+                  2. Look-alike Phishing Lure
+                </span>
+                <span className="text-[11px] font-mono text-[#91ACD1] block mt-0.5">
+                  @apexpay_support_claims
+                </span>
+                <span className="text-[10px] text-[#91ACD1]/80 block">
+                  Credential trap
+                </span>
               </div>
+              <RiskBadge level="Critical" size="sm" />
+            </div>
 
-              <div
-                onClick={() => setSelectedCandidateId('cand-003')}
-                className="p-2.5 rounded-xl bg-slate-800/80 hover:bg-slate-800 border border-slate-700/80 cursor-pointer flex items-center justify-between transition-colors"
-              >
-                <div>
-                  <span className="font-semibold text-amber-400 text-[11px] block">3. Authorized Partner</span>
-                  <span className="text-[10px] text-slate-400">FinTech Daily — Nuanced partner review</span>
-                </div>
-                <RiskBadge level="Medium" size="sm" />
+            {/* Benchmark 3 */}
+            <div
+              onClick={() => setSelectedCandidateId('cand-004')}
+              className="p-3 rounded-xl bg-[#030D22] hover:bg-[#0A1C3D] border border-[#123E78] hover:border-[#FFB020]/40 cursor-pointer flex items-center justify-between transition-all group shadow-md"
+            >
+              <div>
+                <span className="font-semibold text-[#FFB020] text-xs block group-hover:translate-x-0.5 transition-transform">
+                  3. Rogue Mobile App
+                </span>
+                <span className="text-[11px] font-mono text-[#91ACD1] block mt-0.5">
+                  ApexPay Pro — Fake app package
+                </span>
+                <span className="text-[10px] text-[#91ACD1]/80 block">
+                  Mismatched publisher signature
+                </span>
               </div>
+              <RiskBadge level="High" size="sm" />
+            </div>
 
-              <div
-                onClick={() => setSelectedCandidateId('cand-004')}
-                className="p-2.5 rounded-xl bg-slate-800/80 hover:bg-slate-800 border border-slate-700/80 cursor-pointer flex items-center justify-between transition-colors"
-              >
-                <div>
-                  <span className="font-semibold text-rose-400 text-[11px] block">4. Rogue Mobile Loan App</span>
-                  <span className="text-[10px] text-slate-400">Mismatched publisher &amp; SMS permissions</span>
-                </div>
-                <RiskBadge level="Critical" size="sm" />
+            {/* Benchmark 4 */}
+            <div
+              onClick={() => setSelectedCandidateId('cand-003')}
+              className="p-3 rounded-xl bg-[#030D22] hover:bg-[#0A1C3D] border border-[#123E78] hover:border-[#8B5CF6]/40 cursor-pointer flex items-center justify-between transition-all group shadow-md"
+            >
+              <div>
+                <span className="font-semibold text-[#8B5CF6] text-xs block group-hover:translate-x-0.5 transition-transform">
+                  4. Malicious Domain
+                </span>
+                <span className="text-[11px] font-mono text-[#91ACD1] block mt-0.5">
+                  apexpay-secure.com
+                </span>
+                <span className="text-[10px] text-[#91ACD1]/80 block">
+                  Look-alike domain
+                </span>
               </div>
-
-              <div
-                onClick={() => setSelectedCandidateId('cand-005')}
-                className="p-2.5 rounded-xl bg-slate-800/80 hover:bg-slate-800 border border-slate-700/80 cursor-pointer flex items-center justify-between transition-colors"
-              >
-                <div>
-                  <span className="font-semibold text-emerald-400 text-[11px] block">5. Unrelated Benign Account</span>
-                  <span className="text-[10px] text-slate-400">@apex_payne_art — 3D Concept Artist</span>
-                </div>
-                <RiskBadge level="Low" size="sm" />
-              </div>
+              <RiskBadge level="Medium" size="sm" />
             </div>
           </div>
 
-          {/* Recent Analyst Activity Feed */}
-          <div className="bg-white rounded-2xl border border-slate-200 p-4 shadow-xs">
-            <h4 className="text-xs font-bold uppercase tracking-wider text-slate-700 mb-3 flex items-center gap-1.5">
-              <TrendingUp className="w-4 h-4 text-blue-600" />
-              Recent Triage & Audit Timeline
-            </h4>
-
-            <div className="space-y-3">
-              {candidates
-                .flatMap(c =>
-                  c.statusHistory.map(h => ({
-                    ...h,
-                    candidateTitle: c.title,
-                    candidateId: c.id,
-                  }))
-                )
-                .sort((a, b) => new Date(b.timestamp).getTime() - new Date(a.timestamp).getTime())
-                .slice(0, 4)
-                .map((event, idx) => (
-                  <div
-                    key={idx}
-                    onClick={() => setSelectedCandidateId(event.candidateId)}
-                    className="p-2.5 rounded-xl bg-slate-50 hover:bg-blue-50/60 border border-slate-100 cursor-pointer transition-colors"
-                  >
-                    <div className="flex items-center justify-between text-[10px] text-slate-500 mb-0.5">
-                      <span className="font-semibold text-slate-700">{event.analyst}</span>
-                      <span>{new Date(event.timestamp).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })}</span>
-                    </div>
-                    <div className="text-xs font-semibold text-slate-800 truncate">{event.candidateTitle}</div>
-                    <div className="text-[11px] text-slate-600 mt-0.5">
-                      Status changed to <span className="font-bold text-blue-600">{event.to}</span>
-                    </div>
-                  </div>
-                ))}
-            </div>
+          {/* Bottom Engine Note */}
+          <div className="p-3 rounded-xl bg-[#030D22]/70 border border-[#123E78]/60 text-[10.5px] font-mono text-[#91ACD1] flex items-center justify-between">
+            <span className="flex items-center gap-1.5">
+              <Radio className="w-3 h-3 text-[#00D9FF] animate-pulse" />
+              <span>Multi-Signal Reasoning</span>
+            </span>
+            <span className="text-[#00D9FF]">v5.2 Engine</span>
           </div>
         </div>
       </div>
     </div>
   );
 };
+
+export default OverviewDashboard;

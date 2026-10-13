@@ -15,27 +15,27 @@ export const StatusBadge: React.FC<StatusBadgeProps> = ({ status, size = 'md' })
 
   const config = {
     New: {
-      bg: 'bg-indigo-50 text-indigo-700 border-indigo-200',
+      bg: 'bg-[#1265F8]/15 text-[#00D9FF] border-[#1265F8]/40 shadow-[0_0_8px_rgba(18,101,248,0.2)]',
       icon: Clock,
       label: 'New Intake',
     },
     Investigating: {
-      bg: 'bg-amber-50 text-amber-800 border-amber-200',
+      bg: 'bg-[#FFB020]/15 text-[#FFB020] border-[#FFB020]/40 shadow-[0_0_8px_rgba(255,176,32,0.2)]',
       icon: Search,
       label: 'Under Investigation',
     },
     'Confirmed Suspicious': {
-      bg: 'bg-rose-50 text-rose-800 border-rose-200',
+      bg: 'bg-[#FF315B]/15 text-[#FF315B] border-[#FF315B]/40 shadow-[0_0_8px_rgba(255,49,91,0.2)]',
       icon: ShieldX,
       label: 'Confirmed Suspicious',
     },
     Dismissed: {
-      bg: 'bg-slate-100 text-slate-700 border-slate-200',
+      bg: 'bg-[#00E5A0]/15 text-[#00E5A0] border-[#00E5A0]/40 shadow-[0_0_8px_rgba(0,229,160,0.2)]',
       icon: CheckCircle2,
       label: 'Dismissed / Allowlisted',
     },
   }[status] || {
-    bg: 'bg-gray-100 text-gray-700 border-gray-200',
+    bg: 'bg-[#0A1C3D] text-[#91ACD1] border-[#123E78]',
     icon: Clock,
     label: status,
   };

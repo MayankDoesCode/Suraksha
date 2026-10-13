@@ -14,18 +14,29 @@ import {
   ArrowLeft,
   KeyRound,
   ShieldCheck,
-  Sparkles,
+  Crosshair,
+  Database,
+  ChevronRight,
+  Radio,
 } from 'lucide-react';
+import ThreatRadarVisualization from '../components/ThreatRadarVisualization';
 
 interface AuthViewProps {
   onNavigateHome?: () => void;
+  initialMode?: 'login' | 'signup' | 'forgot';
 }
 
-export const AuthView: React.FC<AuthViewProps> = ({ onNavigateHome }) => {
+export const AuthView: React.FC<AuthViewProps> = ({ onNavigateHome, initialMode = 'login' }) => {
   const { signIn, signUp, signInWithGoogle, resetPassword, signInAsDemoAnalyst, error, clearError } = useAuth();
 
   // Mode: 'login' | 'signup' | 'forgot'
-  const [mode, setMode] = useState<'login' | 'signup' | 'forgot'>('login');
+  const [mode, setMode] = useState<'login' | 'signup' | 'forgot'>(initialMode);
+
+  React.useEffect(() => {
+    if (initialMode) {
+      setMode(initialMode);
+    }
+  }, [initialMode]);
 
   // Form states
   const [email, setEmail] = useState('');
@@ -34,6 +45,7 @@ export const AuthView: React.FC<AuthViewProps> = ({ onNavigateHome }) => {
   const [fullName, setFullName] = useState('');
   const [organization, setOrganization] = useState('');
   const [acceptTerms, setAcceptTerms] = useState(false);
+  const [rememberSession, setRememberSession] = useState(true);
   const [showPassword, setShowPassword] = useState(false);
   const [showConfirmPassword, setShowConfirmPassword] = useState(false);
 
@@ -147,107 +159,154 @@ export const AuthView: React.FC<AuthViewProps> = ({ onNavigateHome }) => {
   const activeError = localError || error;
 
   return (
-    <div className="min-h-screen w-full flex bg-[#060B19] text-slate-100 font-sans">
-      {/* Left Column: Brand & Security Mission Banner */}
-      <div className="hidden lg:flex lg:w-1/2 relative bg-gradient-to-br from-[#0B132B] via-[#091536] to-[#040817] p-12 flex-col justify-between border-r border-slate-800/80 overflow-hidden">
-        {/* Glow Effects */}
-        <div className="absolute -top-32 -left-32 w-96 h-96 bg-blue-600/20 rounded-full blur-3xl pointer-events-none" />
-        <div className="absolute bottom-10 right-10 w-96 h-96 bg-cyan-500/10 rounded-full blur-3xl pointer-events-none" />
+    <div className="min-h-screen w-full flex flex-col lg:flex-row bg-[#020817] text-[#F8FAFC] font-sans overflow-x-hidden selection:bg-cyan-500/20 selection:text-cyan-300">
+      {/* ========================================================= */}
+      {/* LEFT PANEL: SURAKSHA BRAND EXPERIENCE (~56% Desktop Width) */}
+      {/* ========================================================= */}
+      <div className="w-full lg:w-[56%] relative bg-gradient-to-br from-[#020817] via-[#071632] to-[#020817] p-6 sm:p-8 lg:p-8 xl:p-12 flex flex-col justify-between border-b lg:border-b-0 lg:border-r border-blue-500/15 overflow-hidden">
+        {/* Ambient Subtle Background Lighting */}
+        <div className="absolute top-0 left-1/4 w-[420px] h-[320px] bg-[#2563EB]/10 rounded-full blur-[140px] pointer-events-none" />
+        <div className="absolute bottom-10 right-10 w-[380px] h-[340px] bg-[#06D6F5]/8 rounded-full blur-[160px] pointer-events-none" />
+        <div className="absolute top-1/2 -left-20 w-[300px] h-[300px] bg-[#7C3AED]/8 rounded-full blur-[140px] pointer-events-none" />
 
-        {/* Brand Header */}
-        <div className="relative z-10 flex items-center gap-3">
-          <div className="w-12 h-12 rounded-2xl bg-gradient-to-br from-blue-600 via-indigo-600 to-cyan-500 flex items-center justify-center shadow-xl shadow-blue-500/25 border border-blue-400/40">
-            <Shield className="w-6 h-6 text-white" />
+        {/* 1. Brand Header */}
+        <div className="relative z-10 flex items-center gap-3.5">
+          <div className="w-10 h-10 sm:w-11 sm:h-11 rounded-xl bg-gradient-to-br from-[#2563EB] via-indigo-600 to-[#06D6F5] p-[1.5px] shadow-lg shadow-blue-500/20 shrink-0">
+            <div className="w-full h-full rounded-[10px] bg-[#020817]/85 backdrop-blur-md flex items-center justify-center border border-cyan-400/40">
+              <Shield className="w-5 h-5 text-[#06D6F5]" />
+            </div>
           </div>
           <div>
             <div className="flex items-center gap-2">
-              <span className="font-bold text-2xl tracking-tight text-white font-mono">Suraksha</span>
-              <span className="text-xs px-2 py-0.5 rounded-md bg-blue-500/20 text-blue-300 font-bold border border-blue-400/30">
+              <span className="font-bold text-xl sm:text-2xl tracking-tight text-white font-mono">
+                Suraksha
+              </span>
+              <span className="text-[10px] font-mono font-bold px-1.5 py-0.5 rounded bg-cyan-950/70 text-[#06D6F5] border border-cyan-500/30">
                 AI
               </span>
             </div>
-            <p className="text-xs font-semibold tracking-wider text-slate-400 uppercase">
-              Digital Brand Protection Matrix
+            <p className="text-[10px] font-mono tracking-widest text-[#94A3B8] uppercase mt-0.5">
+              DIGITAL BRAND PROTECTION MATRIX
             </p>
           </div>
         </div>
 
-        {/* Feature Highlights Showcase */}
-        <div className="relative z-10 my-auto py-12 max-w-lg space-y-6">
-          <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-blue-500/10 border border-blue-400/20 text-xs font-medium text-sky-300">
-            <Sparkles className="w-3.5 h-3.5" />
-            <span>Next-Gen Enterprise Cyber Defense</span>
+        {/* 2. Hero Section */}
+        <div className="relative z-10 my-auto py-5 sm:py-6 lg:py-4 xl:py-7 max-w-xl space-y-3.5 sm:space-y-4">
+          {/* Eyebrow Label */}
+          <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-[#071632]/80 border border-blue-500/25 text-[10px] font-mono tracking-widest text-[#06D6F5] shadow-xs">
+            <span className="w-1.5 h-1.5 rounded-full bg-[#06D6F5] shadow-[0_0_8px_#06D6F5] animate-pulse" />
+            <span className="font-semibold uppercase">INTELLIGENCE / MONITOR / PROTECT</span>
           </div>
 
-          <h2 className="text-3xl sm:text-4xl font-extrabold text-white tracking-tight leading-tight">
-            Safeguard your trademarks, apps, and domains across cyberspace.
-          </h2>
+          {/* Headline */}
+          <h1 className="text-2xl sm:text-3xl lg:text-3xl xl:text-[40px] font-extrabold text-white tracking-tight leading-[1.15]">
+            Protect what makes{' '}
+            <span className="bg-clip-text text-transparent bg-gradient-to-r from-blue-400 via-[#06D6F5] to-teal-200">
+              your brand yours.
+            </span>
+          </h1>
 
-          <p className="text-sm text-slate-300 leading-relaxed">
-            Suraksha autonomously discovers look-alike domains, rogue app binaries, and unauthorized social handles targeting your customers. Powered by algorithmic heuristics and zero-trust telemetry.
+          {/* Supporting Description */}
+          <p className="text-xs sm:text-sm text-[#94A3B8] leading-relaxed max-w-lg font-normal">
+            Discover look-alike domains, rogue apps, and unauthorized social handles before they impact your brand, customers and revenue.
           </p>
 
-          <div className="grid grid-cols-2 gap-4 pt-4">
-            <div className="p-4 rounded-xl bg-slate-900/60 border border-slate-800 backdrop-blur-sm">
-              <ShieldCheck className="w-5 h-5 text-emerald-400 mb-2" />
-              <h4 className="text-xs font-bold text-white uppercase tracking-wider">Look-alike Engine</h4>
-              <p className="text-xs text-slate-400 mt-1">Homoglyphs, Levenshtein distance, & brand token analysis.</p>
+          {/* Central Threat-Intelligence Radar Visualization */}
+          <div className="py-1 flex justify-center lg:justify-start">
+            <ThreatRadarVisualization />
+          </div>
+
+          {/* Two Feature Cards */}
+          <div className="grid grid-cols-1 sm:grid-cols-2 gap-3 pt-1">
+            {/* Card 1: Look-alike Engine */}
+            <div className="p-3 sm:p-3.5 xl:p-4 rounded-xl bg-[#071632]/50 hover:bg-[#071632]/80 border border-blue-500/20 hover:border-[#06D6F5]/40 backdrop-blur-md transition-all group shadow-md shadow-black/40">
+              <div className="flex items-center justify-between mb-1.5 sm:mb-2">
+                <div className="w-6 h-6 sm:w-7 sm:h-7 rounded-lg bg-cyan-500/10 border border-cyan-500/30 flex items-center justify-center shrink-0">
+                  <Crosshair className="w-3.5 h-3.5 text-[#06D6F5] group-hover:scale-110 transition-transform" />
+                </div>
+                <ChevronRight className="w-3.5 h-3.5 text-slate-500 group-hover:text-cyan-400 group-hover:translate-x-0.5 transition-all" />
+              </div>
+              <h4 className="text-[11px] sm:text-xs font-mono font-bold text-white uppercase tracking-wider group-hover:text-[#06D6F5] transition-colors">
+                LOOK-ALIKE ENGINE
+              </h4>
+              <p className="text-[10.5px] sm:text-[11px] text-[#94A3B8] mt-1 leading-snug">
+                Homoglyphs, Levenshtein distance, and brand token analysis.
+              </p>
             </div>
-            <div className="p-4 rounded-xl bg-slate-900/60 border border-slate-800 backdrop-blur-sm">
-              <Building className="w-5 h-5 text-sky-400 mb-2" />
-              <h4 className="text-xs font-bold text-white uppercase tracking-wider">Asset Directory</h4>
-              <p className="text-xs text-slate-400 mt-1">Single source of truth for verified domains, handles & stores.</p>
+
+            {/* Card 2: Asset Directory */}
+            <div className="p-3 sm:p-3.5 xl:p-4 rounded-xl bg-[#071632]/50 hover:bg-[#071632]/80 border border-blue-500/20 hover:border-[#06D6F5]/40 backdrop-blur-md transition-all group shadow-md shadow-black/40">
+              <div className="flex items-center justify-between mb-1.5 sm:mb-2">
+                <div className="w-6 h-6 sm:w-7 sm:h-7 rounded-lg bg-blue-500/10 border border-blue-500/30 flex items-center justify-center shrink-0">
+                  <Database className="w-3.5 h-3.5 text-blue-400 group-hover:scale-110 transition-transform" />
+                </div>
+                <ChevronRight className="w-3.5 h-3.5 text-slate-500 group-hover:text-cyan-400 group-hover:translate-x-0.5 transition-all" />
+              </div>
+              <h4 className="text-[11px] sm:text-xs font-mono font-bold text-white uppercase tracking-wider group-hover:text-[#06D6F5] transition-colors">
+                ASSET DIRECTORY
+              </h4>
+              <p className="text-[10.5px] sm:text-[11px] text-[#94A3B8] mt-1 leading-snug">
+                Single source of truth for verified domains, handles, and stores.
+              </p>
             </div>
           </div>
         </div>
 
-        {/* Bottom Trust Badge */}
-        <div className="relative z-10 pt-6 border-t border-slate-800/80 flex items-center justify-between text-xs text-slate-400">
-          <span>Enterprise Grade • ISO/SOC2 Ready</span>
-          <span className="font-mono text-slate-500">v5.2 Auth Engine</span>
+        {/* 3. Bottom Trust Badge */}
+        <div className="relative z-10 pt-4 border-t border-slate-800/80 flex items-center justify-between text-[11px] font-mono text-slate-400">
+          <div className="flex items-center gap-2">
+            <span className="w-1.5 h-1.5 rounded-full bg-emerald-400" />
+            <span>Enterprise Grade • ISO/SOC2 Ready</span>
+          </div>
+          <span className="text-slate-500">v5.2 Threat Matrix Engine</span>
         </div>
       </div>
 
-      {/* Right Column: Authentication Card Forms */}
-      <div className="w-full lg:w-1/2 flex items-center justify-center p-6 sm:p-12 overflow-y-auto">
-        <div className="w-full max-w-md space-y-8">
-          {/* Mobile Top Branding */}
-          <div className="lg:hidden flex items-center gap-3 justify-center mb-4">
-            <div className="w-10 h-10 rounded-xl bg-gradient-to-br from-blue-600 via-indigo-600 to-cyan-500 flex items-center justify-center shadow-lg">
-              <Shield className="w-5 h-5 text-white" />
-            </div>
-            <span className="font-bold text-xl text-white font-mono">Suraksha AI</span>
-          </div>
+      {/* ========================================================= */}
+      {/* RIGHT PANEL: AUTHENTICATION (~44% Desktop Width)          */}
+      {/* ========================================================= */}
+      <div className="w-full lg:w-[44%] relative flex items-center justify-center p-5 sm:p-8 lg:p-6 xl:p-10 overflow-y-auto">
+        {/* Subtle Dark Blue Radial Glow */}
+        <div className="absolute inset-0 bg-[radial-gradient(ellipse_at_center,rgba(37,99,235,0.08)_0%,transparent_70%)] pointer-events-none" />
 
-          {/* Top navigation back link */}
+        {/* Centered Authentication Card Container */}
+        <div className="w-full max-w-[440px] rounded-2xl bg-[#071632]/40 backdrop-blur-xl border border-blue-500/20 p-6 sm:p-7 xl:p-8 shadow-2xl shadow-black/80 space-y-4 sm:space-y-5 relative z-10">
+          {/* Navigation: Return to SURAKSHA Public Site */}
           {onNavigateHome && (
             <div>
               <button
                 type="button"
                 onClick={onNavigateHome}
-                className="inline-flex items-center gap-1.5 text-xs text-sky-400 hover:text-white transition-colors cursor-pointer"
+                className="inline-flex items-center gap-2 text-xs font-mono text-[#06D6F5] hover:text-white transition-colors cursor-pointer group"
+                aria-label="Return to SURAKSHA Public Site"
               >
-                <ArrowLeft className="w-3.5 h-3.5" /> Return to SURAKSHA Public Site
+                <ArrowLeft className="w-3.5 h-3.5 group-hover:-translate-x-1 transition-transform" />
+                <span>Return to SURAKSHA Public Site</span>
               </button>
             </div>
           )}
 
-          {/* Header Title Section */}
+          {/* Heading */}
           <div>
             {mode === 'login' && (
               <>
-                <h1 className="text-2xl sm:text-3xl font-bold tracking-tight text-white">Welcome back</h1>
-                <p className="text-sm text-slate-400 mt-1.5">
-                  Sign in to your brand protection workspace
+                <h2 className="text-2xl sm:text-3xl font-bold tracking-tight text-[#F8FAFC]">
+                  Welcome back
+                </h2>
+                <p className="text-xs sm:text-sm text-[#94A3B8] mt-1.5">
+                  Sign in to your brand protection workspace.
                 </p>
               </>
             )}
 
             {mode === 'signup' && (
               <>
-                <h1 className="text-2xl sm:text-3xl font-bold tracking-tight text-white">Create your workspace</h1>
-                <p className="text-sm text-slate-400 mt-1.5">
-                  Register your enterprise identity to begin monitoring
+                <h2 className="text-2xl sm:text-3xl font-bold tracking-tight text-[#F8FAFC]">
+                  Create your workspace
+                </h2>
+                <p className="text-xs sm:text-sm text-[#94A3B8] mt-1.5">
+                  Register your enterprise identity to begin monitoring.
                 </p>
               </>
             )}
@@ -257,13 +316,15 @@ export const AuthView: React.FC<AuthViewProps> = ({ onNavigateHome }) => {
                 <button
                   type="button"
                   onClick={() => switchMode('login')}
-                  className="inline-flex items-center gap-1.5 text-xs text-slate-400 hover:text-white mb-3 transition-colors"
+                  className="inline-flex items-center gap-1.5 text-xs text-[#94A3B8] hover:text-white mb-2 transition-colors cursor-pointer"
                 >
                   <ArrowLeft className="w-3.5 h-3.5" /> Back to Sign In
                 </button>
-                <h1 className="text-2xl sm:text-3xl font-bold tracking-tight text-white">Reset credentials</h1>
-                <p className="text-sm text-slate-400 mt-1.5">
-                  We'll send a secure password reset link to your email
+                <h2 className="text-2xl sm:text-3xl font-bold tracking-tight text-[#F8FAFC]">
+                  Reset credentials
+                </h2>
+                <p className="text-xs sm:text-sm text-[#94A3B8] mt-1.5">
+                  We'll send a secure password reset link to your email.
                 </p>
               </>
             )}
@@ -271,14 +332,14 @@ export const AuthView: React.FC<AuthViewProps> = ({ onNavigateHome }) => {
 
           {/* Feedback alerts */}
           {activeError && (
-            <div className="p-3.5 rounded-xl bg-rose-500/10 border border-rose-500/30 flex items-start gap-3 text-rose-300 text-xs">
+            <div className="p-3.5 rounded-xl bg-rose-500/10 border border-rose-500/30 flex items-start gap-3 text-rose-300 text-xs animate-in fade-in duration-200">
               <AlertCircle className="w-4 h-4 text-rose-400 shrink-0 mt-0.5" />
               <div className="flex-1 font-medium">{activeError}</div>
             </div>
           )}
 
           {successMessage && (
-            <div className="p-3.5 rounded-xl bg-emerald-500/10 border border-emerald-500/30 flex items-start gap-3 text-emerald-300 text-xs">
+            <div className="p-3.5 rounded-xl bg-emerald-500/10 border border-emerald-500/30 flex items-start gap-3 text-emerald-300 text-xs animate-in fade-in duration-200">
               <CheckCircle2 className="w-4 h-4 text-emerald-400 shrink-0 mt-0.5" />
               <div className="flex-1 font-medium">{successMessage}</div>
             </div>
@@ -291,7 +352,7 @@ export const AuthView: React.FC<AuthViewProps> = ({ onNavigateHome }) => {
                 type="button"
                 onClick={handleGoogleSignIn}
                 disabled={isSubmitting}
-                className="w-full flex items-center justify-center gap-3 px-4 py-2.5 rounded-xl bg-slate-900 hover:bg-slate-800 border border-slate-700/80 text-white text-xs font-semibold shadow-xs transition-all hover:border-slate-600 disabled:opacity-60 cursor-pointer"
+                className="w-full flex items-center justify-center gap-3 px-4 py-2.5 rounded-xl bg-[#020817]/90 hover:bg-[#071632] border border-slate-700/80 hover:border-cyan-500/40 text-white text-xs font-semibold shadow-xs transition-all disabled:opacity-60 cursor-pointer"
               >
                 <svg className="w-4 h-4" viewBox="0 0 24 24">
                   <path
@@ -316,8 +377,8 @@ export const AuthView: React.FC<AuthViewProps> = ({ onNavigateHome }) => {
 
               <div className="relative flex items-center justify-center">
                 <div className="border-t border-slate-800 w-full" />
-                <span className="bg-[#060B19] px-3 text-[11px] font-medium uppercase tracking-wider text-slate-500 shrink-0">
-                  Or continue with email
+                <span className="bg-[#050e20] px-3 text-[10px] font-mono uppercase tracking-widest text-slate-500 shrink-0">
+                  OR CONTINUE WITH EMAIL
                 </span>
                 <div className="border-t border-slate-800 w-full" />
               </div>
@@ -328,27 +389,31 @@ export const AuthView: React.FC<AuthViewProps> = ({ onNavigateHome }) => {
           {mode === 'login' && (
             <form onSubmit={handleLoginSubmit} className="space-y-4">
               <div>
-                <label className="block text-xs font-semibold text-slate-300 mb-1.5">Work Email</label>
+                <label className="block text-xs font-semibold text-slate-300 mb-1.5">
+                  Work Email
+                </label>
                 <div className="relative">
                   <Mail className="w-4 h-4 text-slate-500 absolute left-3.5 top-1/2 -translate-y-1/2 pointer-events-none" />
                   <input
                     type="email"
                     required
                     value={email}
-                    onChange={e => setEmail(e.target.value)}
+                    onChange={(e) => setEmail(e.target.value)}
                     placeholder="analyst@enterprise.com"
-                    className="w-full bg-slate-900/90 border border-slate-800 focus:border-blue-500 focus:ring-1 focus:ring-blue-500 rounded-xl pl-10 pr-4 py-2.5 text-xs text-white placeholder-slate-500 transition-colors"
+                    className="w-full bg-[#020817]/90 border border-slate-800 focus:border-[#2563EB] focus:ring-1 focus:ring-[#06D6F5]/50 rounded-xl pl-10 pr-4 py-2.5 text-xs text-white placeholder-slate-500 transition-colors outline-hidden"
                   />
                 </div>
               </div>
 
               <div>
                 <div className="flex items-center justify-between mb-1.5">
-                  <label className="block text-xs font-semibold text-slate-300">Password</label>
+                  <label className="block text-xs font-semibold text-slate-300">
+                    Password
+                  </label>
                   <button
                     type="button"
                     onClick={() => switchMode('forgot')}
-                    className="text-[11px] text-blue-400 hover:text-blue-300 font-medium transition-colors"
+                    className="text-[11px] text-[#06D6F5] hover:text-cyan-300 font-medium transition-colors cursor-pointer"
                   >
                     Forgot password?
                   </button>
@@ -359,26 +424,28 @@ export const AuthView: React.FC<AuthViewProps> = ({ onNavigateHome }) => {
                     type={showPassword ? 'text' : 'password'}
                     required
                     value={password}
-                    onChange={e => setPassword(e.target.value)}
+                    onChange={(e) => setPassword(e.target.value)}
                     placeholder="••••••••••••"
-                    className="w-full bg-slate-900/90 border border-slate-800 focus:border-blue-500 focus:ring-1 focus:ring-blue-500 rounded-xl pl-10 pr-10 py-2.5 text-xs text-white placeholder-slate-500 transition-colors"
+                    className="w-full bg-[#020817]/90 border border-slate-800 focus:border-[#2563EB] focus:ring-1 focus:ring-[#06D6F5]/50 rounded-xl pl-10 pr-10 py-2.5 text-xs text-white placeholder-slate-500 transition-colors outline-hidden"
                   />
                   <button
                     type="button"
                     onClick={() => setShowPassword(!showPassword)}
-                    className="absolute right-3.5 top-1/2 -translate-y-1/2 text-slate-500 hover:text-slate-300"
+                    className="absolute right-3.5 top-1/2 -translate-y-1/2 text-slate-500 hover:text-slate-300 cursor-pointer"
+                    aria-label={showPassword ? 'Hide password' : 'Show password'}
                   >
                     {showPassword ? <EyeOff className="w-4 h-4" /> : <Eye className="w-4 h-4" />}
                   </button>
                 </div>
               </div>
 
-              <div className="flex items-center justify-between text-xs text-slate-400 pt-1">
+              <div className="flex items-center justify-between text-xs text-[#94A3B8] pt-0.5">
                 <label className="flex items-center gap-2 cursor-pointer select-none">
                   <input
                     type="checkbox"
-                    defaultChecked
-                    className="rounded bg-slate-900 border-slate-700 text-blue-600 focus:ring-blue-500 focus:ring-offset-0"
+                    checked={rememberSession}
+                    onChange={(e) => setRememberSession(e.target.checked)}
+                    className="rounded bg-[#020817] border-slate-700 text-[#2563EB] focus:ring-[#06D6F5] focus:ring-offset-0 cursor-pointer"
                   />
                   <span>Remember session</span>
                 </label>
@@ -387,7 +454,7 @@ export const AuthView: React.FC<AuthViewProps> = ({ onNavigateHome }) => {
               <button
                 type="submit"
                 disabled={isSubmitting}
-                className="w-full flex items-center justify-center gap-2 px-4 py-2.5 rounded-xl bg-blue-600 hover:bg-blue-500 text-white text-xs font-semibold shadow-md shadow-blue-600/30 transition-all disabled:opacity-60 cursor-pointer"
+                className="w-full flex items-center justify-center gap-2 px-4 py-3 rounded-xl bg-gradient-to-r from-[#2563EB] to-blue-600 hover:from-blue-600 hover:to-[#06D6F5] text-white text-xs font-semibold shadow-lg shadow-blue-600/30 transition-all disabled:opacity-60 cursor-pointer hover:scale-[1.01] active:scale-95"
               >
                 {isSubmitting ? (
                   <span className="flex items-center gap-2">
@@ -406,7 +473,7 @@ export const AuthView: React.FC<AuthViewProps> = ({ onNavigateHome }) => {
                 <button
                   type="button"
                   onClick={signInAsDemoAnalyst}
-                  className="w-full flex items-center justify-center gap-2 px-4 py-2 rounded-xl bg-slate-800/80 hover:bg-slate-800 border border-slate-700/60 text-slate-300 hover:text-white text-xs font-medium transition-all cursor-pointer"
+                  className="w-full flex items-center justify-center gap-2 px-4 py-2.5 rounded-xl bg-[#071632]/80 hover:bg-[#071632] border border-slate-700/60 hover:border-emerald-500/40 text-slate-300 hover:text-white text-xs font-mono transition-all cursor-pointer"
                   title="Bypass login for offline/local demonstration testing"
                 >
                   <ShieldCheck className="w-3.5 h-3.5 text-emerald-400" />
@@ -414,12 +481,12 @@ export const AuthView: React.FC<AuthViewProps> = ({ onNavigateHome }) => {
                 </button>
               </div>
 
-              <div className="pt-2 text-center text-xs text-slate-400">
+              <div className="pt-2 text-center text-xs text-[#94A3B8]">
                 Don't have an enterprise workspace?{' '}
                 <button
                   type="button"
                   onClick={() => switchMode('signup')}
-                  className="text-blue-400 hover:text-blue-300 font-semibold transition-colors"
+                  className="text-[#06D6F5] hover:text-cyan-300 font-semibold transition-colors cursor-pointer"
                 >
                   Create an account
                 </button>
@@ -431,66 +498,74 @@ export const AuthView: React.FC<AuthViewProps> = ({ onNavigateHome }) => {
           {mode === 'signup' && (
             <form onSubmit={handleSignUpSubmit} className="space-y-3.5">
               <div>
-                <label className="block text-xs font-semibold text-slate-300 mb-1.5">Full Name</label>
+                <label className="block text-xs font-semibold text-slate-300 mb-1.5">
+                  Full Name
+                </label>
                 <div className="relative">
                   <User className="w-4 h-4 text-slate-500 absolute left-3.5 top-1/2 -translate-y-1/2 pointer-events-none" />
                   <input
                     type="text"
                     required
                     value={fullName}
-                    onChange={e => setFullName(e.target.value)}
+                    onChange={(e) => setFullName(e.target.value)}
                     placeholder="Ananya Pattnayak"
-                    className="w-full bg-slate-900/90 border border-slate-800 focus:border-blue-500 focus:ring-1 focus:ring-blue-500 rounded-xl pl-10 pr-4 py-2 text-xs text-white placeholder-slate-500 transition-colors"
+                    className="w-full bg-[#020817]/90 border border-slate-800 focus:border-[#2563EB] focus:ring-1 focus:ring-[#06D6F5]/50 rounded-xl pl-10 pr-4 py-2 text-xs text-white placeholder-slate-500 transition-colors outline-hidden"
                   />
                 </div>
               </div>
 
               <div>
-                <label className="block text-xs font-semibold text-slate-300 mb-1.5">Work Email</label>
+                <label className="block text-xs font-semibold text-slate-300 mb-1.5">
+                  Work Email
+                </label>
                 <div className="relative">
                   <Mail className="w-4 h-4 text-slate-500 absolute left-3.5 top-1/2 -translate-y-1/2 pointer-events-none" />
                   <input
                     type="email"
                     required
                     value={email}
-                    onChange={e => setEmail(e.target.value)}
+                    onChange={(e) => setEmail(e.target.value)}
                     placeholder="security@apexpay.io"
-                    className="w-full bg-slate-900/90 border border-slate-800 focus:border-blue-500 focus:ring-1 focus:ring-blue-500 rounded-xl pl-10 pr-4 py-2 text-xs text-white placeholder-slate-500 transition-colors"
+                    className="w-full bg-[#020817]/90 border border-slate-800 focus:border-[#2563EB] focus:ring-1 focus:ring-[#06D6F5]/50 rounded-xl pl-10 pr-4 py-2 text-xs text-white placeholder-slate-500 transition-colors outline-hidden"
                   />
                 </div>
               </div>
 
               <div>
-                <label className="block text-xs font-semibold text-slate-300 mb-1.5">Organization / Company</label>
+                <label className="block text-xs font-semibold text-slate-300 mb-1.5">
+                  Organization / Company
+                </label>
                 <div className="relative">
                   <Building className="w-4 h-4 text-slate-500 absolute left-3.5 top-1/2 -translate-y-1/2 pointer-events-none" />
                   <input
                     type="text"
                     value={organization}
-                    onChange={e => setOrganization(e.target.value)}
+                    onChange={(e) => setOrganization(e.target.value)}
                     placeholder="ApexPay Technologies, Inc."
-                    className="w-full bg-slate-900/90 border border-slate-800 focus:border-blue-500 focus:ring-1 focus:ring-blue-500 rounded-xl pl-10 pr-4 py-2 text-xs text-white placeholder-slate-500 transition-colors"
+                    className="w-full bg-[#020817]/90 border border-slate-800 focus:border-[#2563EB] focus:ring-1 focus:ring-[#06D6F5]/50 rounded-xl pl-10 pr-4 py-2 text-xs text-white placeholder-slate-500 transition-colors outline-hidden"
                   />
                 </div>
               </div>
 
               <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
                 <div>
-                  <label className="block text-xs font-semibold text-slate-300 mb-1.5">Password</label>
+                  <label className="block text-xs font-semibold text-slate-300 mb-1.5">
+                    Password
+                  </label>
                   <div className="relative">
                     <Lock className="w-4 h-4 text-slate-500 absolute left-3.5 top-1/2 -translate-y-1/2 pointer-events-none" />
                     <input
                       type={showPassword ? 'text' : 'password'}
                       required
                       value={password}
-                      onChange={e => setPassword(e.target.value)}
+                      onChange={(e) => setPassword(e.target.value)}
                       placeholder="Min. 6 chars"
-                      className="w-full bg-slate-900/90 border border-slate-800 focus:border-blue-500 focus:ring-1 focus:ring-blue-500 rounded-xl pl-10 pr-8 py-2 text-xs text-white placeholder-slate-500 transition-colors"
+                      className="w-full bg-[#020817]/90 border border-slate-800 focus:border-[#2563EB] focus:ring-1 focus:ring-[#06D6F5]/50 rounded-xl pl-10 pr-8 py-2 text-xs text-white placeholder-slate-500 transition-colors outline-hidden"
                     />
                     <button
                       type="button"
                       onClick={() => setShowPassword(!showPassword)}
-                      className="absolute right-2.5 top-1/2 -translate-y-1/2 text-slate-500 hover:text-slate-300"
+                      className="absolute right-2.5 top-1/2 -translate-y-1/2 text-slate-500 hover:text-slate-300 cursor-pointer"
                     >
                       {showPassword ? <EyeOff className="w-3.5 h-3.5" /> : <Eye className="w-3.5 h-3.5" />}
                     </button>
@@ -498,21 +573,23 @@ export const AuthView: React.FC<AuthViewProps> = ({ onNavigateHome }) => {
                 </div>
 
                 <div>
-                  <label className="block text-xs font-semibold text-slate-300 mb-1.5">Confirm Password</label>
+                  <label className="block text-xs font-semibold text-slate-300 mb-1.5">
+                    Confirm Password
+                  </label>
                   <div className="relative">
                     <Lock className="w-4 h-4 text-slate-500 absolute left-3.5 top-1/2 -translate-y-1/2 pointer-events-none" />
                     <input
                       type={showConfirmPassword ? 'text' : 'password'}
                       required
                       value={confirmPassword}
-                      onChange={e => setConfirmPassword(e.target.value)}
+                      onChange={(e) => setConfirmPassword(e.target.value)}
                       placeholder="Repeat password"
-                      className="w-full bg-slate-900/90 border border-slate-800 focus:border-blue-500 focus:ring-1 focus:ring-blue-500 rounded-xl pl-10 pr-8 py-2 text-xs text-white placeholder-slate-500 transition-colors"
+                      className="w-full bg-[#020817]/90 border border-slate-800 focus:border-[#2563EB] focus:ring-1 focus:ring-[#06D6F5]/50 rounded-xl pl-10 pr-8 py-2 text-xs text-white placeholder-slate-500 transition-colors outline-hidden"
                     />
                     <button
                       type="button"
                       onClick={() => setShowConfirmPassword(!showConfirmPassword)}
-                      className="absolute right-2.5 top-1/2 -translate-y-1/2 text-slate-500 hover:text-slate-300"
+                      className="absolute right-2.5 top-1/2 -translate-y-1/2 text-slate-500 hover:text-slate-300 cursor-pointer"
                     >
                       {showConfirmPassword ? <EyeOff className="w-3.5 h-3.5" /> : <Eye className="w-3.5 h-3.5" />}
                     </button>
@@ -521,12 +598,12 @@ export const AuthView: React.FC<AuthViewProps> = ({ onNavigateHome }) => {
               </div>
 
               <div className="pt-1">
-                <label className="flex items-start gap-2.5 text-xs text-slate-400 cursor-pointer select-none">
+                <label className="flex items-start gap-2.5 text-xs text-[#94A3B8] cursor-pointer select-none">
                   <input
                     type="checkbox"
                     checked={acceptTerms}
-                    onChange={e => setAcceptTerms(e.target.checked)}
-                    className="mt-0.5 rounded bg-slate-900 border-slate-700 text-blue-600 focus:ring-blue-500"
+                    onChange={(e) => setAcceptTerms(e.target.checked)}
+                    className="mt-0.5 rounded bg-[#020817] border-slate-700 text-[#2563EB] focus:ring-[#06D6F5] cursor-pointer"
                   />
                   <span>
                     I accept the{' '}
@@ -539,7 +616,7 @@ export const AuthView: React.FC<AuthViewProps> = ({ onNavigateHome }) => {
               <button
                 type="submit"
                 disabled={isSubmitting}
-                className="w-full flex items-center justify-center gap-2 px-4 py-2.5 rounded-xl bg-blue-600 hover:bg-blue-500 text-white text-xs font-semibold shadow-md shadow-blue-600/30 transition-all disabled:opacity-60 cursor-pointer"
+                className="w-full flex items-center justify-center gap-2 px-4 py-2.5 rounded-xl bg-gradient-to-r from-[#2563EB] to-blue-600 hover:from-blue-600 hover:to-[#06D6F5] text-white text-xs font-semibold shadow-md shadow-blue-600/30 transition-all disabled:opacity-60 cursor-pointer"
               >
                 {isSubmitting ? (
                   <span className="flex items-center gap-2">
@@ -558,7 +635,7 @@ export const AuthView: React.FC<AuthViewProps> = ({ onNavigateHome }) => {
                 <button
                   type="button"
                   onClick={signInAsDemoAnalyst}
-                  className="w-full flex items-center justify-center gap-2 px-4 py-2 rounded-xl bg-slate-800/80 hover:bg-slate-800 border border-slate-700/60 text-slate-300 hover:text-white text-xs font-medium transition-all cursor-pointer"
+                  className="w-full flex items-center justify-center gap-2 px-4 py-2 rounded-xl bg-[#071632]/80 hover:bg-[#071632] border border-slate-700/60 hover:border-emerald-500/40 text-slate-300 hover:text-white text-xs font-mono transition-all cursor-pointer"
                   title="Bypass login for offline/local demonstration testing"
                 >
                   <ShieldCheck className="w-3.5 h-3.5 text-emerald-400" />
@@ -566,12 +643,12 @@ export const AuthView: React.FC<AuthViewProps> = ({ onNavigateHome }) => {
                 </button>
               </div>
 
-              <div className="pt-2 text-center text-xs text-slate-400">
+              <div className="pt-2 text-center text-xs text-[#94A3B8]">
                 Already registered?{' '}
                 <button
                   type="button"
                   onClick={() => switchMode('login')}
-                  className="text-blue-400 hover:text-blue-300 font-semibold transition-colors"
+                  className="text-[#06D6F5] hover:text-cyan-300 font-semibold transition-colors cursor-pointer"
                 >
                   Sign in instead
                 </button>
@@ -583,16 +660,18 @@ export const AuthView: React.FC<AuthViewProps> = ({ onNavigateHome }) => {
           {mode === 'forgot' && (
             <form onSubmit={handleForgotSubmit} className="space-y-4">
               <div>
-                <label className="block text-xs font-semibold text-slate-300 mb-1.5">Registered Email</label>
+                <label className="block text-xs font-semibold text-slate-300 mb-1.5">
+                  Registered Email
+                </label>
                 <div className="relative">
                   <Mail className="w-4 h-4 text-slate-500 absolute left-3.5 top-1/2 -translate-y-1/2 pointer-events-none" />
                   <input
                     type="email"
                     required
                     value={email}
-                    onChange={e => setEmail(e.target.value)}
+                    onChange={(e) => setEmail(e.target.value)}
                     placeholder="analyst@enterprise.com"
-                    className="w-full bg-slate-900/90 border border-slate-800 focus:border-blue-500 focus:ring-1 focus:ring-blue-500 rounded-xl pl-10 pr-4 py-2.5 text-xs text-white placeholder-slate-500 transition-colors"
+                    className="w-full bg-[#020817]/90 border border-slate-800 focus:border-[#2563EB] focus:ring-1 focus:ring-[#06D6F5]/50 rounded-xl pl-10 pr-4 py-2.5 text-xs text-white placeholder-slate-500 transition-colors outline-hidden"
                   />
                 </div>
               </div>
@@ -600,7 +679,7 @@ export const AuthView: React.FC<AuthViewProps> = ({ onNavigateHome }) => {
               <button
                 type="submit"
                 disabled={isSubmitting}
-                className="w-full flex items-center justify-center gap-2 px-4 py-2.5 rounded-xl bg-blue-600 hover:bg-blue-500 text-white text-xs font-semibold shadow-md shadow-blue-600/30 transition-all disabled:opacity-60 cursor-pointer"
+                className="w-full flex items-center justify-center gap-2 px-4 py-2.5 rounded-xl bg-gradient-to-r from-[#2563EB] to-blue-600 hover:from-blue-600 hover:to-[#06D6F5] text-white text-xs font-semibold shadow-md shadow-blue-600/30 transition-all disabled:opacity-60 cursor-pointer"
               >
                 {isSubmitting ? (
                   <span className="flex items-center gap-2">
@@ -618,7 +697,7 @@ export const AuthView: React.FC<AuthViewProps> = ({ onNavigateHome }) => {
           )}
 
           {/* Workspace info note */}
-          <div className="p-3 rounded-lg bg-slate-900/50 border border-slate-800/80 text-[11px] text-slate-400 text-center">
+          <div className="p-3 rounded-lg bg-[#020817]/70 border border-slate-800/80 text-[11px] text-[#94A3B8] text-center font-mono">
             Secured by Firebase Enterprise Authentication & zero-trust Firestore token authorization.
           </div>
         </div>
@@ -626,3 +705,5 @@ export const AuthView: React.FC<AuthViewProps> = ({ onNavigateHome }) => {
     </div>
   );
 };
+
+export default AuthView;

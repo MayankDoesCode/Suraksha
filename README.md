@@ -3,16 +3,17 @@
 > **Detect. Verify. Protect.**  
 > An enterprise-grade Digital Risk Protection (DRP) platform designed to discover, assess, and mitigate brand impersonation, fraudulent social profiles, lookalike domains, and rogue mobile applications.
 
-[![Tests](https://img.shields.io/badge/backend%20tests-38%20passed-emerald)](file:///c:/Users/MAYANK/OneDrive/Desktop/Suraksha/backend/tests)
-[![Vite Build](https://img.shields.io/badge/frontend%20build-passing-emerald)](file:///c:/Users/MAYANK/OneDrive/Desktop/Suraksha/frontend)
+[![Tests](https://img.shields.io/badge/backend%20tests-54%20passed-emerald)](backend/tests)
+[![Vite Build](https://img.shields.io/badge/frontend%20build-passing-emerald)](frontend)
 [![Python](https://img.shields.io/badge/python-3.11%20%7C%203.14-blue)](https://www.python.org/)
+[![Scikit-Learn](https://img.shields.io/badge/scikit--learn-1.9.1-orange)](https://scikit-learn.org/)
 [![License](https://img.shields.io/badge/license-MIT-blue)](#license)
 
 ---
 
 ## 1. Executive Overview & Architecture
 
-SURAKSHA provides real-time brand abuse detection by ingesting external ecosystem signals, comparing them deterministically against verified organizational assets (ground truth), excluding authorized corporate identities, and scoring residual threats with explainable mathematical models.
+SURAKSHA provides real-time brand abuse detection by ingesting external ecosystem signals, comparing them deterministically against verified organizational assets (ground truth), excluding authorized corporate identities, scoring residual threats with a **hybrid Machine Learning and deterministic heuristic engine**, and providing analyst triage workflows.
 
 ### System Architecture Diagram
 
@@ -27,7 +28,7 @@ flowchart TD
     end
 
     subgraph API ["REST API Layer (Flask 3.1 WSGI)"]
-        HealthEndpoint["/api/v1/health"]
+        HealthEndpoint["/api/v1/health (DB + ML Status)"]
         BrandEndpoints["/api/v1/brands"]
         FindingEndpoints["/api/v1/findings"]
         ProviderEndpoints["/api/v1/brands/:id/scan-provider"]
@@ -39,6 +40,7 @@ flowchart TD
         ScanOrchestrator["Scan Service"]
         DetectionEngine["Detection Engine (App & Social)"]
         SimilaritySvc["Name Similarity (Levenshtein + Token)"]
+        MLClassifier["ML Risk Classifier\n(RandomForest + FeatureUnion TF-IDF)"]
         Scheduler["Monitoring Scheduler (Locks + Jobs)"]
     end
 
@@ -61,6 +63,7 @@ flowchart TD
     Registry --> RedditAPI
     ScanOrchestrator --> DetectionEngine
     DetectionEngine --> SimilaritySvc
+    DetectionEngine --> MLClassifier
     ScanOrchestrator --> Repo
     Repo --> DB
 ```
@@ -164,7 +167,51 @@ Frontend development dashboard will open at `http://127.0.0.1:5173`.
 
 ---
 
-## 5. Production Deployment
+## 5. Machine Learning Risk Classification Engine
+
+SURAKSHA integrates a genuinely trained Machine Learning risk classifier that works alongside deterministic detectors to provide calibrated, explainable cyber-threat scoring.
+
+For complete in-depth documentation, see: [ML Integration Guide](docs/ML_INTEGRATION_GUIDE.md).
+
+### Architecture & Pipeline
+- **Library**: `scikit-learn>=1.4.0` with `joblib` serialization.
+- **Unified Pipeline**: Uses a `FeatureUnion` combining:
+  1. **Text Branch**: `TfidfVectorizer` (sublinear TF, n-grams 1-2, max 80 features) processing candidate names, titles, descriptions, and destination URLs.
+  2. **Dense Features Branch**: `StandardScaler` standardizing 20 numeric/categorical features including Levenshtein edit distance, character leetspeak matching, token similarity, publisher mismatch, domain diversion, and suspicious TLD indicators.
+- **Classifier**: `RandomForestClassifier(n_estimators=100, max_depth=6, class_weight='balanced', random_state=42)`.
+
+### Bootstrap Dataset & Honest Limitations
+- **Source**: `backend/app/ai/data/threat_bootstrap_dataset.json` (60 versioned, documented records; 30 Legitimate / 30 Suspicious).
+- **Categories**: Official assets, third-party benign utilities, customer support impersonation, unauthorized app publishers, typosquatting domains, and credential harvesting lures.
+- **Limitations Notice**: The bootstrap dataset is version-controlled and synthetic. It reflects real attack vectors without mining unauthorized user feeds. Ongoing retraining with real analyst reviews is required in production.
+
+### Local Training Commands
+Train or retrain the model locally using PowerShell / Bash:
+```powershell
+python backend/scripts/train_risk_model.py
+```
+
+### Generated Artifacts
+- **Model Pipeline**: `backend/app/ai/models/risk_classifier_v1.joblib` (154 KB, lightweight and fast)
+- **Metadata**: `backend/app/ai/models/model_metadata_v1.json`
+- **Evaluation Report**: `backend/app/ai/models/evaluation_report.json`
+
+### Test Evaluation Metrics
+- **Accuracy**: `80.0%`
+- **Precision (SUSPICIOUS)**: `100.0%`
+- **Recall (SUSPICIOUS)**: `57.1%`
+- **F1 Score**: `72.7%`
+- **Baseline Majority Classifier**: `46.7% Accuracy / 63.6% F1`
+
+### Hybrid Scoring & Resilient Fallback
+- **Hybrid Score**: $\min(100.0, \; 0.60 \times \text{rule\_score} + 0.40 \times \text{ml\_risk\_score})$
+- **Severity Tiers**: `CRITICAL` (>=80), `HIGH` (50–79), `MEDIUM` (25–49), `LOW` (<25).
+- **Benign Screening**: Assets with zero trademark resemblance and 0 detector signals receive `0.0` score with no threat created.
+- **Deterministic Fallback**: If the model artifact is missing or invalid, the platform gracefully switches to deterministic heuristic scoring with `ml_fallback_used: True` without throwing errors.
+
+---
+
+## 6. Production Deployment
 
 ### Option A: Docker Compose with PostgreSQL (Recommended)
 SURAKSHA includes a production `docker-compose.yml` that provisions a persistent PostgreSQL database and the unified Gunicorn application:
@@ -188,7 +235,7 @@ Access the application at `http://localhost:5000`. Data is persisted across rest
 
 ---
 
-## 6. Environment Variables Reference
+## 7. Environment Variables Reference
 
 | Variable Name | Required | Default | Description |
 | :--- | :--- | :--- | :--- |
@@ -205,15 +252,15 @@ Access the application at `http://localhost:5000`. Data is persisted across rest
 
 ---
 
-## 7. Automated Test Suite & Build Verification
+## 8. Automated Test Suite & Build Verification
 
 ### Backend Tests
 ```bash
 python -m pytest -v
 ```
 **Results**:
-- **38 passed in 1.57s**
-- Covers brand CRUD, Apple iTunes API retrieval, network timeouts, rate limit responses (`429`), malformed payloads, Twitter v2 authentication checks, official asset exclusions, mathematical score limits, and repeat scan deduplication.
+- **54 passed in 3.88s** (100% pass rate)
+- Covers brand CRUD, Apple iTunes API retrieval, network timeouts, rate limit responses (`429`), malformed payloads, Twitter v2 authentication checks, official asset exclusions, mathematical score limits, repeat scan deduplication, ML feature extraction across 3 asset types, ML model pipeline training and serialization, probability calibration, deterministic fallback mode, and API telemetry.
 
 ### Frontend Production Build
 ```bash
@@ -221,11 +268,11 @@ cd frontend
 npm run build
 ```
 **Results**:
-- Vite v6 production bundle built cleanly in ~2.0s with zero lint or bundling errors.
+- Vite production bundle built cleanly in < 1.0s with zero lint or bundling errors.
 
 ---
 
-## 8. Hackathon Demo Walkthrough
+## 9. Hackathon Demo Walkthrough
 
 1. **Step 1: Brand Ground Truth Setup**
    - Navigate to **Brand Profiles**.
@@ -258,7 +305,7 @@ npm run build
 
 ---
 
-## 9. Data Provenance & Limitations
+## 10. Data Provenance & Limitations
 
 1. **Live Provider vs Sample Data**:
    - Every finding carries an immutable `is_sample` flag and `detection_source` tag.
@@ -272,7 +319,7 @@ npm run build
 
 ---
 
-## 10. Production Deployment Guide (Render)
+## 11. Production Deployment Guide (Render)
 
 SURAKSHA is packaged for zero-downtime, single-origin production deployment on Render using multi-stage Docker or native WSGI with PostgreSQL.
 

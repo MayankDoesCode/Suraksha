@@ -16,7 +16,8 @@ import {
   Globe,
   SlidersHorizontal,
   ChevronRight,
-  ShieldAlert
+  ShieldAlert,
+  Cpu
 } from 'lucide-react';
 import api from '../api/client';
 
@@ -338,17 +339,34 @@ export default function ThreatExplorerView({ brands, onRefreshMetrics }) {
 
                     {/* Score & Severity */}
                     <td className="py-3.5 px-4 whitespace-nowrap">
-                      <div className="flex items-center gap-2">
-                        <span className="font-mono font-bold text-white text-sm">
-                          {f.risk_score}
-                        </span>
-                        <span
-                          className={`text-[9px] font-mono font-bold px-1.5 py-0.5 rounded uppercase border ${getSeverityBadge(
-                            f.severity
-                          )}`}
-                        >
-                          {f.severity}
-                        </span>
+                      <div className="space-y-1">
+                        <div className="flex items-center gap-2">
+                          <span className="font-mono font-bold text-white text-sm">
+                            {f.final_risk_score ?? f.risk_score}
+                          </span>
+                          <span
+                            className={`text-[9px] font-mono font-bold px-1.5 py-0.5 rounded uppercase border ${getSeverityBadge(
+                              f.severity
+                            )}`}
+                          >
+                            {f.severity}
+                          </span>
+                        </div>
+                        <div className="flex items-center gap-1.5 text-[10px] font-mono">
+                          {f.ml_fallback_used ? (
+                            <span className="px-1.5 py-0.5 rounded bg-amber-500/10 text-amber-400 border border-amber-500/30 text-[9px]">
+                              Rule Fallback
+                            </span>
+                          ) : f.ml_predicted_class ? (
+                            <span className={`px-1.5 py-0.5 rounded text-[9px] font-semibold border ${
+                              f.ml_predicted_class === 'SUSPICIOUS'
+                                ? 'bg-rose-500/10 text-rose-400 border-rose-500/30'
+                                : 'bg-emerald-500/10 text-cyber-emerald border-cyber-emerald/30'
+                            }`}>
+                              ML: {f.ml_predicted_class} ({f.ml_risk_score ?? 0})
+                            </span>
+                          ) : null}
+                        </div>
                       </div>
                     </td>
 
@@ -467,20 +485,79 @@ export default function ThreatExplorerView({ brands, onRefreshMetrics }) {
                 </div>
               )}
 
-              {/* Mathematical Score Metric */}
-              <div className="cyber-panel p-4 rounded-xl border border-cyber-border flex items-center justify-between">
-                <div>
-                  <div className="text-[10px] font-mono uppercase text-cyber-textMuted">
-                    Aggregate Explainable Risk Score
+              {/* Hybrid Risk Scoring Metric */}
+              <div className="cyber-panel p-4 rounded-xl border border-cyber-border space-y-3">
+                <div className="flex items-center justify-between pb-3 border-b border-cyber-border/60">
+                  <div>
+                    <div className="text-[10px] font-mono uppercase text-cyber-textMuted flex items-center gap-1.5">
+                      <Cpu className="w-3.5 h-3.5 text-cyber-accent" />
+                      Composite Hybrid Risk Score
+                    </div>
+                    <div className="text-2xl font-bold font-mono text-white mt-1">
+                      {activeFinding.final_risk_score ?? activeFinding.risk_score}{' '}
+                      <span className="text-xs text-cyber-textMuted">/ 100</span>
+                    </div>
                   </div>
-                  <div className="text-2xl font-bold font-mono text-white mt-1">
-                    {activeFinding.risk_score} <span className="text-xs text-cyber-textMuted">/ 100</span>
+
+                  <div className="text-right text-xs font-mono text-cyber-textMuted space-y-1">
+                    <div>Observed: {activeFinding.observed_at?.split('T')[0] || 'Today'}</div>
+                    <div>Source: {activeFinding.detection_source}</div>
                   </div>
                 </div>
 
-                <div className="text-right text-xs font-mono text-cyber-textMuted space-y-1">
-                  <div>Observed: {activeFinding.observed_at?.split('T')[0] || 'Today'}</div>
-                  <div>Source: {activeFinding.detection_source}</div>
+                {/* Sub-component metrics */}
+                <div className="grid grid-cols-2 gap-3 pt-1">
+                  <div className="p-2.5 rounded-lg bg-cyber-darkest border border-cyber-border/70">
+                    <div className="text-[10px] font-mono uppercase text-cyber-textMuted">
+                      Rule-Based Engine
+                    </div>
+                    <div className="text-lg font-bold font-mono text-white mt-0.5">
+                      {activeFinding.rule_based_score ?? activeFinding.risk_score}{' '}
+                      <span className="text-[10px] text-cyber-textMuted">/ 100</span>
+                    </div>
+                    <div className="text-[9px] font-mono text-slate-400 mt-0.5">
+                      Deterministic Signals
+                    </div>
+                  </div>
+
+                  <div className="p-2.5 rounded-lg bg-cyber-darkest border border-cyber-border/70">
+                    <div className="text-[10px] font-mono uppercase text-cyber-textMuted">
+                      ML Risk Classifier
+                    </div>
+                    <div className="text-lg font-bold font-mono text-white mt-0.5">
+                      {activeFinding.ml_risk_score !== null && activeFinding.ml_risk_score !== undefined
+                        ? `${activeFinding.ml_risk_score} `
+                        : 'N/A '}
+                      <span className="text-[10px] text-cyber-textMuted">/ 100</span>
+                    </div>
+                    <div className="text-[9px] font-mono text-slate-400 mt-0.5">
+                      RandomForest v{activeFinding.ml_model_version || '1.0.0'}
+                    </div>
+                  </div>
+                </div>
+
+                {/* ML Status and Class Details */}
+                <div className="flex flex-wrap items-center gap-2 pt-1 text-[11px] font-mono">
+                  {activeFinding.ml_fallback_used ? (
+                    <span className="px-2 py-0.5 rounded bg-amber-500/15 text-amber-300 border border-amber-500/30 flex items-center gap-1">
+                      <AlertTriangle className="w-3 h-3" /> Deterministic Fallback Active
+                    </span>
+                  ) : activeFinding.ml_predicted_class ? (
+                    <>
+                      <span className={`px-2 py-0.5 rounded font-semibold border ${
+                        activeFinding.ml_predicted_class === 'SUSPICIOUS'
+                          ? 'bg-rose-500/15 text-rose-300 border-rose-500/30'
+                          : 'bg-emerald-500/15 text-cyber-emerald border-cyber-emerald/30'
+                      }`}>
+                        Prediction: {activeFinding.ml_predicted_class}
+                      </span>
+                      {activeFinding.ml_confidence !== null && activeFinding.ml_confidence !== undefined && (
+                        <span className="text-slate-400">
+                          Confidence: {(activeFinding.ml_confidence * 100).toFixed(0)}%
+                        </span>
+                      )}
+                    </>
+                  ) : null}
                 </div>
               </div>
 

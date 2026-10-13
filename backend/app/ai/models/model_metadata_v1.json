@@ -1,0 +1,92 @@
+{
+  "model_version": "1.0.0",
+  "model_name": "suraksha_rf_risk_classifier",
+  "algorithm": "RandomForestClassifier + FeatureUnion (TF-IDF & Dense Scaler)",
+  "training_timestamp": "2026-10-13T22:53:45.642704+00:00",
+  "dataset_version": "bootstrap-v1.0",
+  "dataset_path": "backend\\app\\ai\\data\\threat_bootstrap_dataset.json",
+  "dataset_records_count": 60,
+  "train_samples_count": 45,
+  "test_samples_count": 15,
+  "classes": [
+    "LEGITIMATE",
+    "SUSPICIOUS"
+  ],
+  "class_distribution": {
+    "LEGITIMATE": 30,
+    "SUSPICIOUS": 30
+  },
+  "feature_schema": [
+    "name_similarity",
+    "exact_name_match",
+    "contains_brand_name",
+    "is_leet_match",
+    "candidate_name_length",
+    "length_diff",
+    "suspicious_keyword_count",
+    "has_suspicious_keyword",
+    "has_publisher",
+    "publisher_match",
+    "publisher_similarity",
+    "has_url",
+    "url_length",
+    "has_suspicious_tld",
+    "domain_matches_official",
+    "is_social",
+    "is_mobile_app",
+    "is_domain",
+    "has_description",
+    "description_length"
+  ],
+  "random_state": 42,
+  "evaluation_metrics": {
+    "accuracy": 0.8,
+    "precision": 1.0,
+    "recall": 0.5714,
+    "f1_score": 0.7273,
+    "confusion_matrix": [
+      [
+        8,
+        0
+      ],
+      [
+        3,
+        4
+      ]
+    ],
+    "classes_order": [
+      "LEGITIMATE",
+      "SUSPICIOUS"
+    ],
+    "per_class_metrics": {
+      "LEGITIMATE": {
+        "precision": 0.7272727272727273,
+        "recall": 1.0,
+        "f1-score": 0.8421052631578947,
+        "support": 8.0
+      },
+      "SUSPICIOUS": {
+        "precision": 1.0,
+        "recall": 0.5714285714285714,
+        "f1-score": 0.7272727272727273,
+        "support": 7.0
+      },
+      "accuracy": 0.8,
+      "macro avg": {
+        "precision": 0.8636363636363636,
+        "recall": 0.7857142857142857,
+        "f1-score": 0.784688995215311,
+        "support": 15.0
+      },
+      "weighted avg": {
+        "precision": 0.8545454545454546,
+        "recall": 0.8,
+        "f1-score": 0.7885167464114832,
+        "support": 15.0
+      }
+    },
+    "baseline_majority_accuracy": 0.4667,
+    "baseline_majority_f1": 0.6364
+  },
+  "dataset_limitations": "The initial development model was trained on a version-controlled, curated bootstrap dataset representing key digital-risk scenarios (official brand assets, copycat mobile applications, typo-squatting domains, unauthorized publishers, and social-support impersonations). While structurally diverse and rigorously split, bootstrap data is not a substitute for continuous real-world incident observations. Production deployments should periodically incorporate human-triaged findings using the documented dataset update procedure."
+}
