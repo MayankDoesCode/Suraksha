@@ -173,6 +173,24 @@ class ApiClient {
       method: 'DELETE',
     });
   }
+
+  async getMLStatus() {
+    return this.request('/ml/status');
+  }
+
+  async predictMLRisk(candidateData) {
+    return this.request('/ml/predict', {
+      method: 'POST',
+      body: JSON.stringify(candidateData),
+    });
+  }
+
+  async predictURLRisk(url) {
+    return this.request('/ml/predict-url', {
+      method: 'POST',
+      body: JSON.stringify({ url }),
+    });
+  }
 }
 
 export const api = new ApiClient(API_BASE_URL);

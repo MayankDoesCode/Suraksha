@@ -36,6 +36,11 @@ class ScanService:
             threat_repo=self.threat_repo
         )
         self.connector_registry = registry or connector_registry
+        try:
+            from backend.app.ml import get_ml_service
+            self.ml_service = get_ml_service()
+        except Exception:
+            self.ml_service = None
 
     def run_provider_scan(
         self,
@@ -124,14 +129,17 @@ class ScanService:
                     candidate_data=normalized,
                     persist=True,
                 )
-                suspicious_findings.append({
+                finding_dict = {
                     "finding": persisted_eval.get("finding"),
                     "risk_score": persisted_eval.get("risk_score"),
                     "severity": persisted_eval.get("severity"),
                     "candidate_name": persisted_eval.get("candidate_name"),
                     "source_url": normalized.get("source_url"),
                     "signals": persisted_eval.get("signals"),
-                })
+                }
+                if self.ml_service and self.ml_service.is_available():
+                    finding_dict["ml_assist"] = self.ml_service.predict_candidate(normalized)
+                suspicious_findings.append(finding_dict)
             else:
                 benign_unrelated.append({
                     "candidate_name": normalized.get("candidate_name"),

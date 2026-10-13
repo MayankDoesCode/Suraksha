@@ -1,0 +1,45 @@
+{
+  "trained": true,
+  "status": "operational",
+  "task": "url_phishing_detection",
+  "model_version": "1.0.0",
+  "model_artifact": "url_phishing_pipeline.joblib",
+  "timestamp": "2026-10-13T16:30:23.263941+00:00",
+  "random_state": 42,
+  "dataset_metadata": {
+    "source": "HuggingFace Olaroti/phishing-dataset (AlienVault OTX & Tranco Top Domains)",
+    "license": "MIT",
+    "total_samples": 10000,
+    "train_samples": 7790,
+    "test_samples": 2210,
+    "train_class_distribution": {
+      "0": 3980,
+      "1": 3810
+    },
+    "test_class_distribution": {
+      "1": 1190,
+      "0": 1020
+    },
+    "unique_root_domains": 8012,
+    "domain_overlap": 0
+  },
+  "metrics": {
+    "accuracy": 0.9005,
+    "precision": 0.9736,
+    "recall": 0.8378,
+    "f1": 0.9006,
+    "roc_auc": 0.9563,
+    "confusion_matrix": [
+      [
+        993,
+        27
+      ],
+      [
+        193,
+        997
+      ]
+    ]
+  },
+  "architecture": "TfidfVectorizer(char_wb, (3,5)) + LogisticRegression(balanced)",
+  "scope_boundary": "Model is trained and evaluated strictly for URL and lookalike domain detection. It does NOT claim validation for mobile application package IDs or social media profile mimicry."
+}
