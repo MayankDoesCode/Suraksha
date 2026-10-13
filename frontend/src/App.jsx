@@ -1,11 +1,11 @@
 import React, { useState, useEffect } from 'react';
 import LandingPage from './components/landing/LandingPage';
-import Dashboard from './components/Dashboard';
+import WorkspaceShell from './components/WorkspaceShell';
 
 /**
  * SURAKSHA Master Application Router
  * Provides seamless client-side routing between the public Landing Page (/)
- * and the full Cyber Risk Protection Dashboard (/dashboard), supporting
+ * and the full Cyber Risk Protection Workspace (/dashboard), supporting
  * direct URL navigation, browser refresh, and the browser History API.
  */
 export default function App() {
@@ -33,7 +33,7 @@ export default function App() {
   };
 
   if (route === '/dashboard') {
-    return <Dashboard onNavigateHome={() => navigate('/')} />;
+    return <WorkspaceShell onNavigateHome={() => navigate('/')} />;
   }
 
   return <LandingPage onLaunchDashboard={() => navigate('/dashboard')} />;
