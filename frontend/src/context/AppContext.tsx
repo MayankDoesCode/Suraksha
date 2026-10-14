@@ -22,6 +22,21 @@ export interface BackendBrandOption {
   description: string;
 }
 
+export const EMPTY_BRAND_PROFILE: BrandProfile = {
+  id: '',
+  brandName: '',
+  officialWebsite: '',
+  officialDomains: [],
+  officialSocialUrls: [],
+  officialApps: [],
+  authorizedPartners: [],
+  brandDescription: '',
+  logoUrl: '',
+  protectedKeywords: [],
+  lastUpdated: new Date().toISOString(),
+  isCustomBrand: false,
+};
+
 interface AppContextType {
   brandProfile: BrandProfile;
   setBrandProfile: React.Dispatch<React.SetStateAction<BrandProfile>>;
@@ -63,6 +78,11 @@ interface AppContextType {
   refreshBackendData: () => Promise<void>;
   isBackendLoading: boolean;
 
+  // Isolated Demo Mode
+  isDemoMode: boolean;
+  enterDemoMode: () => void;
+  exitDemoMode: () => void;
+
   // Derived metrics
   stats: {
     totalAnalyzed: number;
@@ -78,10 +98,6 @@ interface AppContextType {
 
 const AppContext = createContext<AppContextType | undefined>(undefined);
 
-const STORAGE_KEY_PROFILE = 'brandshield_profile_v1';
-const STORAGE_KEY_CANDIDATES = 'brandshield_candidates_v1';
-const STORAGE_KEY_NODES = 'brandshield_nodes_v1';
-const STORAGE_KEY_EDGES = 'brandshield_edges_v1';
 
 function mapFindingToCandidate(finding: any): CandidateAsset {
   const riskMap: Record<string, RiskLevel> = {
@@ -181,39 +197,62 @@ export const AppProvider: React.FC<{ children: React.ReactNode }> = ({ children 
   const { currentUser, userProfile } = useAuth();
   const analystName = userProfile?.displayName || currentUser?.displayName || currentUser?.email || 'SecOps Analyst';
 
+  // Demo mode is explicitly active only for demo accounts or when user clicks "Try Demo"
+  const [isDemoMode, setIsDemoMode] = useState<boolean>(() => {
+    return currentUser?.uid === 'analyst-demo-001';
+  });
+
+  const getStorageKey = (key: string) => {
+    return isDemoMode
+      ? `suraksha_demo_${key}`
+      : `suraksha_user_${currentUser?.uid || 'guest'}_${key}`;
+  };
+
   const [brandProfile, setBrandProfile] = useState<BrandProfile>(() => {
-    try {
-      const saved = sessionStorage.getItem(STORAGE_KEY_PROFILE);
-      return saved ? JSON.parse(saved) : INITIAL_BRAND_PROFILE;
-    } catch {
+    if (currentUser?.uid === 'analyst-demo-001') {
       return INITIAL_BRAND_PROFILE;
+    }
+    try {
+      const saved = sessionStorage.getItem(`suraksha_user_${currentUser?.uid || 'guest'}_profile`);
+      return saved ? JSON.parse(saved) : EMPTY_BRAND_PROFILE;
+    } catch {
+      return EMPTY_BRAND_PROFILE;
     }
   });
 
   const [candidates, setCandidates] = useState<CandidateAsset[]>(() => {
-    try {
-      const saved = sessionStorage.getItem(STORAGE_KEY_CANDIDATES);
-      return saved ? JSON.parse(saved) : DEMO_CANDIDATES;
-    } catch {
+    if (currentUser?.uid === 'analyst-demo-001') {
       return DEMO_CANDIDATES;
+    }
+    try {
+      const saved = sessionStorage.getItem(`suraksha_user_${currentUser?.uid || 'guest'}_candidates`);
+      return saved ? JSON.parse(saved) : [];
+    } catch {
+      return [];
     }
   });
 
   const [threatNodes, setThreatNodes] = useState<ThreatNode[]>(() => {
-    try {
-      const saved = sessionStorage.getItem(STORAGE_KEY_NODES);
-      return saved ? JSON.parse(saved) : INITIAL_THREAT_NODES;
-    } catch {
+    if (currentUser?.uid === 'analyst-demo-001') {
       return INITIAL_THREAT_NODES;
+    }
+    try {
+      const saved = sessionStorage.getItem(`suraksha_user_${currentUser?.uid || 'guest'}_nodes`);
+      return saved ? JSON.parse(saved) : [];
+    } catch {
+      return [];
     }
   });
 
   const [threatEdges, setThreatEdges] = useState<ThreatEdge[]>(() => {
-    try {
-      const saved = sessionStorage.getItem(STORAGE_KEY_EDGES);
-      return saved ? JSON.parse(saved) : INITIAL_THREAT_EDGES;
-    } catch {
+    if (currentUser?.uid === 'analyst-demo-001') {
       return INITIAL_THREAT_EDGES;
+    }
+    try {
+      const saved = sessionStorage.getItem(`suraksha_user_${currentUser?.uid || 'guest'}_edges`);
+      return saved ? JSON.parse(saved) : [];
+    } catch {
+      return [];
     }
   });
 
@@ -227,75 +266,128 @@ export const AppProvider: React.FC<{ children: React.ReactNode }> = ({ children 
   const [selectedBackendBrandId, setSelectedBackendBrandId] = useState<string | null>(null);
   const [isBackendLoading, setIsBackendLoading] = useState<boolean>(false);
 
-  // Sync state to sessionStorage
+  // Sync state to scoped sessionStorage
   useEffect(() => {
+    if (isDemoMode) return;
     try {
-      sessionStorage.setItem(STORAGE_KEY_PROFILE, JSON.stringify(brandProfile));
+      const uid = currentUser?.uid || 'guest';
+      sessionStorage.setItem(`suraksha_user_${uid}_profile`, JSON.stringify(brandProfile));
     } catch (e) {
       console.warn('Failed saving profile to session storage', e);
     }
-  }, [brandProfile]);
+  }, [brandProfile, isDemoMode, currentUser?.uid]);
 
   useEffect(() => {
+    if (isDemoMode) return;
     try {
-      sessionStorage.setItem(STORAGE_KEY_CANDIDATES, JSON.stringify(candidates));
+      const uid = currentUser?.uid || 'guest';
+      sessionStorage.setItem(`suraksha_user_${uid}_candidates`, JSON.stringify(candidates));
     } catch (e) {
       console.warn('Failed saving candidates to session storage', e);
     }
-  }, [candidates]);
+  }, [candidates, isDemoMode, currentUser?.uid]);
 
   useEffect(() => {
+    if (isDemoMode) return;
     try {
-      sessionStorage.setItem(STORAGE_KEY_NODES, JSON.stringify(threatNodes));
-      sessionStorage.setItem(STORAGE_KEY_EDGES, JSON.stringify(threatEdges));
+      const uid = currentUser?.uid || 'guest';
+      sessionStorage.setItem(`suraksha_user_${uid}_nodes`, JSON.stringify(threatNodes));
+      sessionStorage.setItem(`suraksha_user_${uid}_edges`, JSON.stringify(threatEdges));
     } catch (e) {
       console.warn('Failed saving threat graph', e);
     }
-  }, [threatNodes, threatEdges]);
+  }, [threatNodes, threatEdges, isDemoMode, currentUser?.uid]);
 
-  // Initial backend health and brand synchronization
+  // Demo mode toggles
+  const enterDemoMode = useCallback(() => {
+    setIsDemoMode(true);
+    setSelectedBackendBrandId('demo-apexpay');
+    setBrandProfile(INITIAL_BRAND_PROFILE);
+    setCandidates(DEMO_CANDIDATES);
+    setThreatNodes(INITIAL_THREAT_NODES);
+    setThreatEdges(INITIAL_THREAT_EDGES);
+  }, []);
+
+  const exitDemoMode = useCallback(() => {
+    setIsDemoMode(false);
+    setSelectedBackendBrandId(null);
+    setBrandProfile(EMPTY_BRAND_PROFILE);
+    setCandidates([]);
+    setThreatNodes([]);
+    setThreatEdges([]);
+  }, []);
+
+  // Backend brand and telemetry synchronization
   const refreshBackendData = useCallback(async () => {
     setIsBackendLoading(true);
     try {
       const health = await api.getHealth();
       setBackendOnline(Boolean(health?.success && health?.database?.connected));
 
-      const brandRes = await api.listBrands();
-      if (brandRes?.success && Array.isArray(brandRes.data)) {
-        setBackendBrands(
-          brandRes.data.map((b: any) => ({
-            id: b.id,
-            name: b.name,
-            description: b.description || '',
-          }))
-        );
+      if (isDemoMode) {
+        // Query sample demo brands
+        const brandRes = await api.listBrands({ isSample: true });
+        if (brandRes?.success && Array.isArray(brandRes.data) && brandRes.data.length > 0) {
+          setBackendBrands(
+            brandRes.data.map((b: any) => ({
+              id: b.id,
+              name: b.name,
+              description: b.description || '',
+            }))
+          );
+        } else {
+          setBackendBrands([
+            { id: 'demo-apexpay', name: 'ApexPay Global (Demo)', description: 'Simulated Fintech Platform' }
+          ]);
+        }
+        return;
+      }
 
-        // If user hasn't selected a brand or active brand matches backend
-        if (brandRes.data.length > 0) {
-          const currentMatchesBackend = brandRes.data.find((b: any) => b.id === brandProfile.id);
-          if (currentMatchesBackend) {
-            setSelectedBackendBrandId(currentMatchesBackend.id);
+      // Real user workspace: strictly query genuine user records (is_sample=False)
+      const brandRes = await api.listBrands({ isSample: false });
+      if (brandRes?.success && Array.isArray(brandRes.data)) {
+        const userBrands = brandRes.data.map((b: any) => ({
+          id: b.id,
+          name: b.name,
+          description: b.description || '',
+        }));
+        setBackendBrands(userBrands);
+
+        if (userBrands.length === 0) {
+          // Accurate, pristine empty workspace for new real user
+          setBrandProfile(EMPTY_BRAND_PROFILE);
+          setCandidates([]);
+          setThreatNodes([]);
+          setThreatEdges([]);
+          setSelectedBackendBrandId(null);
+        } else {
+          // Select existing active brand or first owned brand
+          const currentId =
+            selectedBackendBrandId && userBrands.some((b: any) => b.id === selectedBackendBrandId)
+              ? selectedBackendBrandId
+              : userBrands[0].id;
+
+          setSelectedBackendBrandId(currentId);
+          const brandDetail = await api.getBrand(currentId);
+          if (brandDetail?.success && brandDetail.data) {
+            setBrandProfile(mapBackendBrandToProfile(brandDetail.data));
+          }
+
+          const findingsRes = await api.listFindings({ brandId: currentId, isSample: false, perPage: 100 });
+          if (findingsRes?.success && Array.isArray(findingsRes.data)) {
+            setCandidates(findingsRes.data.map(mapFindingToCandidate));
+          } else {
+            setCandidates([]);
           }
         }
       }
-
-      // Fetch real findings if brand id matches
-      const findingsRes = await api.listFindings({ brandId: brandProfile.id, perPage: 100 });
-      if (findingsRes?.success && Array.isArray(findingsRes.data) && findingsRes.data.length > 0) {
-        const backendCandidates = findingsRes.data.map(mapFindingToCandidate);
-        // Combine backend findings with non-persisted custom ones
-        setCandidates(prev => {
-          const nonBackend = prev.filter(c => !findingsRes.data.some((f: any) => f.id === c.id));
-          return [...backendCandidates, ...nonBackend];
-        });
-      }
     } catch (err) {
-      // Backend may be offline during standalone dev; fall back gracefully to demo context
+      console.warn('[SURAKSHA] Backend sync notice:', err);
       setBackendOnline(false);
     } finally {
       setIsBackendLoading(false);
     }
-  }, [brandProfile.id]);
+  }, [isDemoMode, selectedBackendBrandId]);
 
   useEffect(() => {
     refreshBackendData();
@@ -303,28 +395,27 @@ export const AppProvider: React.FC<{ children: React.ReactNode }> = ({ children 
 
   const selectBrandById = async (brandId: string) => {
     if (brandId === 'demo-apexpay') {
-      setSelectedBackendBrandId(null);
-      setBrandProfile(INITIAL_BRAND_PROFILE);
-      setCandidates(DEMO_CANDIDATES);
+      enterDemoMode();
       return;
     }
 
     try {
       setIsBackendLoading(true);
+      if (isDemoMode) {
+        setIsDemoMode(false);
+      }
       const res = await api.getBrand(brandId);
       if (res?.success && res.data) {
         const mapped = mapBackendBrandToProfile(res.data);
         setBrandProfile(mapped);
         setSelectedBackendBrandId(brandId);
 
-        // Fetch brand-specific findings
-        const findingsRes = await api.listFindings({ brandId, perPage: 100 });
+        // Fetch brand-specific findings without demo data leakage
+        const findingsRes = await api.listFindings({ brandId, isSample: false, perPage: 100 });
         if (findingsRes?.success && Array.isArray(findingsRes.data)) {
-          if (findingsRes.data.length > 0) {
-            setCandidates(findingsRes.data.map(mapFindingToCandidate));
-          } else {
-            setCandidates([]);
-          }
+          setCandidates(findingsRes.data.map(mapFindingToCandidate));
+        } else {
+          setCandidates([]);
         }
       }
     } catch (err) {
@@ -359,24 +450,20 @@ export const AppProvider: React.FC<{ children: React.ReactNode }> = ({ children 
   };
 
   const resetBrandProfileToDefault = () => {
-    setBrandProfile(INITIAL_BRAND_PROFILE);
+    setBrandProfile(isDemoMode ? INITIAL_BRAND_PROFILE : EMPTY_BRAND_PROFILE);
   };
 
   const resetAllToDemoData = () => {
+    if (!isDemoMode) {
+      console.warn('[SURAKSHA Security] resetAllToDemoData rejected: not in demo mode.');
+      return;
+    }
     setBrandProfile(INITIAL_BRAND_PROFILE);
     setCandidates(DEMO_CANDIDATES);
     setThreatNodes(INITIAL_THREAT_NODES);
     setThreatEdges(INITIAL_THREAT_EDGES);
     setSelectedCandidateId(null);
-    setSelectedBackendBrandId(null);
-    try {
-      sessionStorage.removeItem(STORAGE_KEY_PROFILE);
-      sessionStorage.removeItem(STORAGE_KEY_CANDIDATES);
-      sessionStorage.removeItem(STORAGE_KEY_NODES);
-      sessionStorage.removeItem(STORAGE_KEY_EDGES);
-    } catch (e) {
-      console.warn(e);
-    }
+    setSelectedBackendBrandId('demo-apexpay');
   };
 
   const addCandidate = (candidateData: Partial<CandidateAsset>): CandidateAsset => {
@@ -597,6 +684,9 @@ export const AppProvider: React.FC<{ children: React.ReactNode }> = ({ children 
         selectBrandById,
         refreshBackendData,
         isBackendLoading,
+        isDemoMode,
+        enterDemoMode,
+        exitDemoMode,
         stats,
       }}
     >

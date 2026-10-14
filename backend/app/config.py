@@ -30,7 +30,11 @@ class BaseConfig:
     API_VERSION = "v1"
 
     # Authentication & Security
-    FIREBASE_PROJECT_ID = os.getenv("FIREBASE_PROJECT_ID", "pelagic-progress-z4mm2")
+    FIREBASE_PROJECT_ID = (
+        os.getenv("FIREBASE_PROJECT_ID")
+        or os.getenv("VITE_FIREBASE_PROJECT_ID")
+        or "suraksha-a5dd7"
+    )
     ALLOW_DEV_TOKENS = False
 
     # External Data Providers
@@ -38,6 +42,18 @@ class BaseConfig:
     ITUNES_API_TIMEOUT = float(os.getenv("ITUNES_API_TIMEOUT", "10.0"))
     X_BEARER_TOKEN = os.getenv("X_BEARER_TOKEN")
     X_API_TIMEOUT = float(os.getenv("X_API_TIMEOUT", "10.0"))
+
+    # Groq AI Investigation Provider
+    GROQ_API_KEY = os.getenv("GROQ_API_KEY")
+    GROQ_MODEL = os.getenv("GROQ_MODEL", "llama-3.3-70b-versatile")
+    GROQ_TIMEOUT_SECONDS = float(os.getenv("GROQ_TIMEOUT_SECONDS", "15.0"))
+    GROQ_MAX_RETRIES = int(os.getenv("GROQ_MAX_RETRIES", "2"))
+
+    # LangSmith Tracing & Observability
+    LANGSMITH_TRACING = os.getenv("LANGSMITH_TRACING", "false").lower() in ("true", "1")
+    LANGSMITH_API_KEY = os.getenv("LANGSMITH_API_KEY")
+    LANGSMITH_PROJECT = os.getenv("LANGSMITH_PROJECT", "suraksha-investigations")
+    LANGSMITH_ENDPOINT = os.getenv("LANGSMITH_ENDPOINT", "https://api.smith.langchain.com")
 
 class DevelopmentConfig(BaseConfig):
     """Development environment configuration."""

@@ -73,12 +73,18 @@ class ApiClient {
     return this.request('/health');
   }
 
+  // Public Runtime Authentication Configuration
+  async getAuthConfig() {
+    return this.request('/auth/config');
+  }
+
   // Brand Profile Management
-  async listBrands({ search = '', page = 1, perPage = 20 } = {}) {
+  async listBrands({ search = '', page = 1, perPage = 20, isSample = false } = {}) {
     const params = new URLSearchParams();
     if (search) params.append('search', search);
     if (page) params.append('page', page);
     if (perPage) params.append('per_page', perPage);
+    if (isSample) params.append('is_sample', 'true');
 
     const queryString = params.toString() ? `?${params.toString()}` : '';
     return this.request(`/brands${queryString}`);
@@ -109,7 +115,7 @@ class ApiClient {
   }
 
   // Threat Intelligence & Findings
-  async listFindings({ brandId = '', assetType = '', severity = '', reviewStatus = '', search = '', page = 1, perPage = 50 } = {}) {
+  async listFindings({ brandId = '', assetType = '', severity = '', reviewStatus = '', search = '', page = 1, perPage = 50, isSample = false } = {}) {
     const params = new URLSearchParams();
     if (brandId) params.append('brand_id', brandId);
     if (assetType) params.append('asset_type', assetType);
@@ -118,6 +124,7 @@ class ApiClient {
     if (search) params.append('search', search);
     if (page) params.append('page', page);
     if (perPage) params.append('per_page', perPage);
+    if (isSample) params.append('is_sample', 'true');
 
     const queryString = params.toString() ? `?${params.toString()}` : '';
     return this.request(`/findings${queryString}`);
@@ -132,6 +139,11 @@ class ApiClient {
       method: 'PATCH',
       body: JSON.stringify({ review_status: reviewStatus }),
     });
+  }
+
+  async getMetrics({ isSample = false } = {}) {
+    const params = isSample ? '?is_sample=true' : '';
+    return this.request(`/metrics${params}`);
   }
 
   // Brand Asset Scanning & Detection
@@ -233,12 +245,26 @@ class ApiClient {
   }
 
   // Feature 2: Explainable AI Investigation Assistant
-  async getFindingExplanation(findingId) {
-    return this.request(`/findings/${encodeURIComponent(findingId)}/explain`);
+  async getFindingExplanation(findingId, { ai = false } = {}) {
+    const query = ai ? '?ai=true' : '';
+    return this.request(`/findings/${encodeURIComponent(findingId)}/explain${query}`);
+  }
+
+  async aiInvestigateFinding(findingId) {
+    return this.request(`/findings/${encodeURIComponent(findingId)}/ai-investigate`, {
+      method: 'POST',
+    });
   }
 
   async explainCandidate(payload) {
     return this.request('/findings/explain', {
+      method: 'POST',
+      body: JSON.stringify(payload),
+    });
+  }
+
+  async aiInvestigateCandidate(payload) {
+    return this.request('/findings/ai-investigate-candidate', {
       method: 'POST',
       body: JSON.stringify(payload),
     });

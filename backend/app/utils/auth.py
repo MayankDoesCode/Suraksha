@@ -102,7 +102,7 @@ def verify_token(token: str) -> Dict[str, Any]:
     2. Validates genuine RS256 Firebase ID tokens issued for FIREBASE_PROJECT_ID against Google public certs.
     """
     allow_dev = current_app.config.get("ALLOW_DEV_TOKENS", False)
-    firebase_project_id = current_app.config.get("FIREBASE_PROJECT_ID", "pelagic-progress-z4mm2")
+    firebase_project_id = current_app.config.get("FIREBASE_PROJECT_ID", "suraksha-a5dd7")
 
     # 1. Handle development / demo token if allowed
     if allow_dev:
@@ -252,3 +252,21 @@ def require_auth(allowed_roles: Optional[List[str]] = None):
 def get_current_user() -> Optional[Dict[str, Any]]:
     """Retrieve the currently authenticated user from Flask request context."""
     return getattr(g, "current_user", None)
+
+
+def get_authenticated_user_optional() -> Optional[Dict[str, Any]]:
+    """
+    Attempt to extract and verify Bearer token if provided in request headers.
+    Returns user info dictionary if valid; returns None if header is absent.
+    Raises ValueError if token is provided but malformed or invalid.
+    """
+    auth_header = request.headers.get("Authorization", "")
+    if not auth_header or not auth_header.startswith("Bearer "):
+        return None
+    token = auth_header[7:].strip()
+    if not token:
+        return None
+    user_info = verify_token(token)
+    g.current_user = user_info
+    return user_info
+

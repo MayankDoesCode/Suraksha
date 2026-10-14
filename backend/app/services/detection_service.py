@@ -68,7 +68,7 @@ class DetectionService:
         ).strip()
         source_url = candidate_data.get("source_url") or candidate_data.get("profile_url")
         detection_source = candidate_data.get("detection_source", "similarity_engine")
-        is_sample = candidate_data.get("is_sample", True)
+        is_sample = candidate_data.get("is_sample", brand_dict.get("is_sample", False))
 
         if not candidate_name:
             raise ValidationError("Candidate name or identifier is required for evaluation.")

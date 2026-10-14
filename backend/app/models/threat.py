@@ -48,8 +48,8 @@ class Finding(Base):
     # Detection source: e.g. 'similarity_engine', 'sample_feed', 'app_store_monitor'
     detection_source = Column(String(128), nullable=False, default="similarity_engine")
     
-    # Sample/live data designation
-    is_sample = Column(Boolean, nullable=False, default=True)
+    # Sample/live data designation (defaults to False for real findings)
+    is_sample = Column(Boolean, nullable=False, default=False)
     
     # Timestamps
     observed_at = Column(DateTime(timezone=True), default=utcnow, nullable=False)

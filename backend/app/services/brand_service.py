@@ -11,7 +11,7 @@ from backend.app.models.brand import (
 )
 from backend.app.repositories.brand_repository import BrandRepository
 from backend.app.validation.brand_validator import BrandValidator
-from backend.app.utils.errors import ValidationError, NotFoundError, ConflictError
+from backend.app.utils.errors import ValidationError, NotFoundError, ConflictError, ForbiddenError, UnauthorizedError
 
 logger = logging.getLogger(__name__)
 
@@ -24,16 +24,20 @@ class BrandService:
     def list_brands(
         self,
         search: Optional[str] = None,
+        owner_id: Optional[str] = None,
+        is_sample: Optional[bool] = None,
         page: int = 1,
         per_page: int = 20
     ) -> Dict[str, Any]:
-        """Retrieve paginated brands with search support."""
+        """Retrieve paginated brands with search, ownership, and sample filtering."""
         page = max(1, page)
         per_page = min(max(1, per_page), 100)
         offset = (page - 1) * per_page
 
         brands, total_count = self.repository.get_all(
             search=search,
+            owner_id=owner_id,
+            is_sample=is_sample,
             offset=offset,
             limit=per_page
         )
@@ -48,14 +52,33 @@ class BrandService:
             }
         }
 
-    def get_brand(self, brand_id: str) -> Dict[str, Any]:
-        """Retrieve a specific brand profile by ID."""
+    def get_brand(
+        self,
+        brand_id: str,
+        requesting_user_id: Optional[str] = None,
+        is_admin: bool = False
+    ) -> Dict[str, Any]:
+        """Retrieve a specific brand profile by ID, verifying tenant ownership."""
         brand = self.repository.get_by_id(brand_id)
         if not brand:
             raise NotFoundError(f"Brand profile with ID '{brand_id}' was not found.")
+
+        # Authorization check: real brands can only be accessed by their owner or platform admin
+        if not brand.is_sample and brand.owner_id:
+            if not requesting_user_id:
+                raise UnauthorizedError("Authentication required to view this brand profile.")
+            if brand.owner_id != requesting_user_id and not is_admin:
+                raise ForbiddenError("You are not authorized to view this brand profile.")
+
         return brand.to_dict()
 
-    def create_brand(self, payload: Dict[str, Any]) -> Dict[str, Any]:
+    def create_brand(
+        self,
+        payload: Dict[str, Any],
+        owner_id: Optional[str] = None,
+        organization_id: Optional[str] = None,
+        is_sample: bool = False
+    ) -> Dict[str, Any]:
         """Validate and create a new brand profile."""
         cleaned_data, errors = BrandValidator.validate(payload, is_update=False)
         if errors:
@@ -73,7 +96,10 @@ class BrandService:
         brand = Brand(
             name=cleaned_data["name"],
             description=cleaned_data.get("description", ""),
-            logo_url=cleaned_data.get("logo_url")
+            logo_url=cleaned_data.get("logo_url"),
+            owner_id=owner_id,
+            organization_id=organization_id,
+            is_sample=is_sample
         )
 
         # Attach domains
@@ -115,11 +141,24 @@ class BrandService:
         logger.info("Created brand profile: %s (ID: %s)", created.name, created.id)
         return created.to_dict()
 
-    def update_brand(self, brand_id: str, payload: Dict[str, Any]) -> Dict[str, Any]:
-        """Validate and update an existing brand profile."""
+    def update_brand(
+        self,
+        brand_id: str,
+        payload: Dict[str, Any],
+        requesting_user_id: Optional[str] = None,
+        is_admin: bool = False
+    ) -> Dict[str, Any]:
+        """Validate and update an existing brand profile, enforcing tenant ownership."""
         brand = self.repository.get_by_id(brand_id)
         if not brand:
             raise NotFoundError(f"Brand profile with ID '{brand_id}' was not found.")
+
+        # Authorization check: real brands can only be updated by their owner or platform admin
+        if not brand.is_sample and brand.owner_id:
+            if not requesting_user_id:
+                raise UnauthorizedError("Authentication required to update this brand profile.")
+            if brand.owner_id != requesting_user_id and not is_admin:
+                raise ForbiddenError("You are not authorized to update this brand profile.")
 
         cleaned_data, errors = BrandValidator.validate(payload, is_update=True)
         if errors:
@@ -189,12 +228,25 @@ class BrandService:
         logger.info("Updated brand profile: %s (ID: %s)", updated.name, updated.id)
         return updated.to_dict()
 
-    def delete_brand(self, brand_id: str) -> None:
-        """Safely delete a brand profile and all cascading relational records."""
+    def delete_brand(
+        self,
+        brand_id: str,
+        requesting_user_id: Optional[str] = None,
+        is_admin: bool = False
+    ) -> None:
+        """Safely delete a brand profile and all cascading relational records, enforcing ownership."""
         brand = self.repository.get_by_id(brand_id)
         if not brand:
             raise NotFoundError(f"Brand profile with ID '{brand_id}' was not found.")
 
+        # Authorization check: real brands can only be deleted by their owner or platform admin
+        if not brand.is_sample and brand.owner_id:
+            if not requesting_user_id:
+                raise UnauthorizedError("Authentication required to delete this brand profile.")
+            if brand.owner_id != requesting_user_id and not is_admin:
+                raise ForbiddenError("You are not authorized to delete this brand profile.")
+
         brand_name = brand.name
         self.repository.delete(brand)
         logger.info("Deleted brand profile: %s (ID: %s)", brand_name, brand_id)
+

@@ -175,3 +175,24 @@ def test_production_fails_safe_on_insecure_secrets():
     # Wildcard CORS with credentials rejected
     with pytest.raises(ValueError, match="CORS_ORIGINS must not use wildcard"):
         validate_production_config(WildcardCorsConfig)
+
+
+def test_auth_config_endpoint_returns_public_parameters_without_leaking_secrets(unauth_client):
+    """
+    Verify /api/v1/auth/config provides public Firebase configuration to the SPA
+    without exposing any private secrets, tokens, or credentials.
+    """
+    res = unauth_client.get("/api/v1/auth/config")
+    assert res.status_code == 200
+    data = res.get_json()
+    assert data["success"] is True
+    assert "is_configured" in data
+    config = data["config"]
+    assert "projectId" in config
+    assert "apiKey" in config
+    assert "authDomain" in config
+    assert "appId" in config
+
+    # Security check: ensure no private keys or service account fields are leaked
+    for private_key_name in ["private_key", "client_secret", "SECRET_KEY", "GROQ_API_KEY", "LANGSMITH_API_KEY"]:
+        assert private_key_name not in config

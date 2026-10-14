@@ -34,13 +34,13 @@ import {
 } from 'lucide-react';
 
 export const LookalikeEngineView: React.FC = () => {
-  const { brandProfile, addCandidate, setActiveTab, setSelectedCandidateId } = useApp();
+  const { brandProfile, addCandidate, setActiveTab, setSelectedCandidateId, isDemoMode } = useApp();
 
-  // Inputs
-  const [candidateName, setCandidateName] = useState('ApexPay Support Team');
-  const [candidateDomain, setCandidateDomain] = useState('apexpay-support.claims');
-  const [candidateDescription, setCandidateDescription] = useState(
-    'Assisting users with transaction refunds, account unlock, and wallet recovery.'
+  // Inputs: start clean for real users, populated for demo mode
+  const [candidateName, setCandidateName] = useState(() => isDemoMode ? 'ApexPay Support Team' : '');
+  const [candidateDomain, setCandidateDomain] = useState(() => isDemoMode ? 'apexpay-support.claims' : '');
+  const [candidateDescription, setCandidateDescription] = useState(() =>
+    isDemoMode ? 'Assisting users with transaction refunds, account unlock, and wallet recovery.' : ''
   );
 
   // Validation & Error State
@@ -52,6 +52,7 @@ export const LookalikeEngineView: React.FC = () => {
   const [analysisProgress, setAnalysisProgress] = useState(100);
   const [analysisStageText, setAnalysisStageText] = useState('Analysis Ready');
   const [analysisResult, setAnalysisResult] = useState<LookalikeAnalysisResult | null>(() => {
+    if (!isDemoMode) return null;
     try {
       return runFullLookalikeAnalysis(
         'ApexPay Support Team',
@@ -991,14 +992,16 @@ ${analysisResult.recommendedNextSteps.map((s, i) => `${i + 1}. ${s}`).join('\n')
               Enter a candidate brand name and domain above and click <strong>Analyze Similarity</strong>, or pick a scenario from the Benchmark Validation Suite below to run deterministic heuristics.
             </p>
           </div>
-          <button
-            type="button"
-            onClick={handleReset}
-            className="inline-flex items-center gap-1.5 px-4 py-2 bg-[#0A1C3D] hover:bg-[#06142D] text-[#00D9FF] border border-[#123E78] hover:border-[#00D9FF]/40 text-xs font-semibold rounded-xl transition-colors cursor-pointer shadow-xs"
-          >
-            <RotateCcw className="w-3.5 h-3.5" />
-            <span>Load Demo Candidate</span>
-          </button>
+          {isDemoMode && (
+            <button
+              type="button"
+              onClick={handleReset}
+              className="inline-flex items-center gap-1.5 px-4 py-2 bg-[#0A1C3D] hover:bg-[#06142D] text-[#00D9FF] border border-[#123E78] hover:border-[#00D9FF]/40 text-xs font-semibold rounded-xl transition-colors cursor-pointer shadow-xs"
+            >
+              <RotateCcw className="w-3.5 h-3.5" />
+              <span>Load Demo Candidate</span>
+            </button>
+          )}
         </div>
       )}
 

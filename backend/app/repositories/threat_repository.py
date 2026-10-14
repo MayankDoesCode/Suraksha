@@ -74,6 +74,7 @@ class ThreatRepository:
     def list_findings(
         self,
         brand_id: Optional[str] = None,
+        brand_ids: Optional[List[str]] = None,
         asset_type: Optional[str] = None,
         severity: Optional[str] = None,
         review_status: Optional[str] = None,
@@ -85,7 +86,10 @@ class ThreatRepository:
         offset: int = 0,
         limit: int = 50,
     ) -> Tuple[List[Finding], int]:
-        """Query findings with comprehensive filtering, search, and pagination."""
+        """Query findings with comprehensive filtering, tenant isolation, search, and pagination."""
+        if brand_ids is not None and len(brand_ids) == 0:
+            return [], 0
+
         query = (
             self.session.query(Finding)
             .options(
@@ -94,6 +98,8 @@ class ThreatRepository:
             )
         )
 
+        if brand_ids is not None:
+            query = query.filter(Finding.brand_id.in_(brand_ids))
         if brand_id:
             query = query.filter(Finding.brand_id == brand_id)
         if asset_type:
@@ -275,22 +281,61 @@ class ThreatRepository:
         return finding
 
 
-    def get_metrics(self) -> Dict[str, Any]:
-        """Aggregate platform metrics directly from active database records."""
+    def get_metrics(
+        self,
+        brand_ids: Optional[List[str]] = None,
+        is_sample: Optional[bool] = None
+    ) -> Dict[str, Any]:
+        """Aggregate platform metrics directly from active database records with tenant scoping."""
         from backend.app.models.brand import Brand
-        total_brands = self.session.query(Brand).count()
-        total_findings = self.session.query(Finding).count()
-        critical_count = self.session.query(Finding).filter(Finding.severity == "CRITICAL").count()
-        high_count = self.session.query(Finding).filter(Finding.severity == "HIGH").count()
-        under_inv = self.session.query(Finding).filter(Finding.review_status == "UNDER_INVESTIGATION").count()
-        confirmed = self.session.query(Finding).filter(Finding.review_status == "CONFIRMED_THREAT").count()
-        false_pos = self.session.query(Finding).filter(Finding.review_status == "FALSE_POSITIVE").count()
-        resolved = self.session.query(Finding).filter(Finding.review_status == "RESOLVED").count()
-        new_count = self.session.query(Finding).filter(Finding.review_status == "NEW").count()
 
-        social_count = self.session.query(Finding).filter(Finding.asset_type == "social").count()
-        app_count = self.session.query(Finding).filter(Finding.asset_type == "mobile_app").count()
-        domain_count = self.session.query(Finding).filter(Finding.asset_type == "domain").count()
+        # If user has zero brands, immediately return authentic zero metrics
+        if brand_ids is not None and len(brand_ids) == 0:
+            return {
+                "total_brands": 0,
+                "total_findings": 0,
+                "critical_findings": 0,
+                "high_findings": 0,
+                "under_investigation": 0,
+                "confirmed_threats": 0,
+                "false_positives": 0,
+                "resolved_findings": 0,
+                "new_findings": 0,
+                "by_asset_type": {"social": 0, "mobile_app": 0, "domain": 0},
+                "by_severity": {"CRITICAL": 0, "HIGH": 0, "MEDIUM": 0, "LOW": 0},
+                "by_status": {
+                    "NEW": 0,
+                    "UNDER_INVESTIGATION": 0,
+                    "CONFIRMED_THREAT": 0,
+                    "FALSE_POSITIVE": 0,
+                    "RESOLVED": 0,
+                }
+            }
+
+        brand_query = self.session.query(Brand)
+        finding_query = self.session.query(Finding)
+
+        if brand_ids is not None:
+            brand_query = brand_query.filter(Brand.id.in_(brand_ids))
+            finding_query = finding_query.filter(Finding.brand_id.in_(brand_ids))
+
+        if is_sample is not None:
+            brand_query = brand_query.filter(Brand.is_sample == is_sample)
+            finding_query = finding_query.filter(Finding.is_sample == is_sample)
+
+        total_brands = brand_query.count()
+        total_findings = finding_query.count()
+        critical_count = finding_query.filter(Finding.severity == "CRITICAL").count()
+        high_count = finding_query.filter(Finding.severity == "HIGH").count()
+        under_inv = finding_query.filter(Finding.review_status == "UNDER_INVESTIGATION").count()
+        confirmed = finding_query.filter(Finding.review_status == "CONFIRMED_THREAT").count()
+        false_pos = finding_query.filter(Finding.review_status == "FALSE_POSITIVE").count()
+        resolved = finding_query.filter(Finding.review_status == "RESOLVED").count()
+        new_count = finding_query.filter(Finding.review_status == "NEW").count()
+
+        social_count = finding_query.filter(Finding.asset_type == "social").count()
+        app_count = finding_query.filter(Finding.asset_type == "mobile_app").count()
+        domain_count = finding_query.filter(Finding.asset_type == "domain").count()
 
         return {
             "total_brands": total_brands,
@@ -310,8 +355,8 @@ class ThreatRepository:
             "by_severity": {
                 "CRITICAL": critical_count,
                 "HIGH": high_count,
-                "MEDIUM": self.session.query(Finding).filter(Finding.severity == "MEDIUM").count(),
-                "LOW": self.session.query(Finding).filter(Finding.severity == "LOW").count(),
+                "MEDIUM": finding_query.filter(Finding.severity == "MEDIUM").count(),
+                "LOW": finding_query.filter(Finding.severity == "LOW").count(),
             },
             "by_status": {
                 "NEW": new_count,

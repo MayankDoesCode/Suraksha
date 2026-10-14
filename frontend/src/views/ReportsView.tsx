@@ -21,7 +21,7 @@ import {
 } from 'lucide-react';
 
 export const ReportsView: React.FC = () => {
-  const { candidates, brandProfile, stats, setSelectedCandidateId } = useApp();
+  const { candidates, brandProfile, stats, setSelectedCandidateId, isDemoMode } = useApp();
 
   const [searchQuery, setSearchQuery] = useState('');
   const [riskFilter, setRiskFilter] = useState('all');
@@ -40,7 +40,7 @@ export const ReportsView: React.FC = () => {
   });
 
   const handleExport = () => {
-    exportCandidatesToCSV(filtered, brandProfile.brandName);
+    exportCandidatesToCSV(filtered, brandProfile.brandName, isDemoMode);
   };
 
   return (

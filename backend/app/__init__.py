@@ -69,6 +69,48 @@ def create_app(config_name: str | None = None) -> Flask:
                 abort(404)
             if path and os.path.exists(os.path.join(dist_dir, path)):
                 return send_from_directory(dist_dir, path)
-            return send_from_directory(dist_dir, "index.html")
+
+            # Serve index.html with runtime public configuration injected
+            index_path = os.path.join(dist_dir, "index.html")
+            try:
+                with open(index_path, "r", encoding="utf-8") as f:
+                    html_content = f.read()
+
+                project_id = (
+                    app.config.get("FIREBASE_PROJECT_ID")
+                    or os.getenv("VITE_FIREBASE_PROJECT_ID")
+                    or os.getenv("FIREBASE_PROJECT_ID")
+                    or "suraksha-a5dd7"
+                )
+                api_key = os.getenv("VITE_FIREBASE_API_KEY", "")
+                auth_domain = os.getenv("VITE_FIREBASE_AUTH_DOMAIN") or (f"{project_id}.firebaseapp.com" if project_id else "")
+                storage_bucket = os.getenv("VITE_FIREBASE_STORAGE_BUCKET") or (f"{project_id}.firebasestorage.app" if project_id else "")
+                app_id = os.getenv("VITE_FIREBASE_APP_ID", "")
+                sender_id = os.getenv("VITE_FIREBASE_MESSAGING_SENDER_ID", "")
+                measurement_id = os.getenv("VITE_FIREBASE_MEASUREMENT_ID", "")
+                firestore_db = os.getenv("VITE_FIREBASE_FIRESTORE_DATABASE_ID", "(default)")
+
+                import json
+                client_config = {
+                    "apiKey": api_key,
+                    "authDomain": auth_domain,
+                    "projectId": project_id,
+                    "storageBucket": storage_bucket,
+                    "messagingSenderId": sender_id,
+                    "appId": app_id,
+                    "measurementId": measurement_id,
+                    "firestoreDatabaseId": firestore_db,
+                }
+                config_script = f'<script id="__suraksha_config_tag">window.__SURAKSHA_CONFIG__ = {json.dumps(client_config)};</script>'
+
+                if "</head>" in html_content:
+                    html_content = html_content.replace("</head>", f"{config_script}\n</head>", 1)
+                else:
+                    html_content = config_script + html_content
+
+                from flask import Response
+                return Response(html_content, mimetype="text/html")
+            except Exception:
+                return send_from_directory(dist_dir, "index.html")
 
     return app

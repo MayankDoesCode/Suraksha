@@ -42,6 +42,7 @@ export const BrandProfileView: React.FC = () => {
     selectedBackendBrandId,
     selectBrandById,
     refreshBackendData,
+    isDemoMode,
   } = useApp();
 
   // Mode: View/Audit vs Edit
@@ -395,7 +396,7 @@ export const BrandProfileView: React.FC = () => {
     }
   };
 
-  const isApexPayDemo = brandName.toLowerCase() === 'apexpay';
+  const isApexPayDemo = isDemoMode && brandName.toLowerCase() === 'apexpay';
 
   return (
     <div className="max-w-6xl mx-auto space-y-6 font-sans text-[#F1F5FF]">
@@ -432,11 +433,11 @@ export const BrandProfileView: React.FC = () => {
             <div className="flex items-center gap-1.5 bg-[#06142D] px-2.5 py-1.5 rounded-xl border border-[#123E78]">
               <span className="text-[11px] font-semibold text-[#91ACD1]">Active:</span>
               <select
-                value={selectedBackendBrandId || 'demo-apexpay'}
+                value={selectedBackendBrandId || (isDemoMode ? 'demo-apexpay' : backendBrands[0]?.id || '')}
                 onChange={(e) => selectBrandById(e.target.value)}
                 className="bg-[#0A1C3D] border border-[#123E78] rounded-lg px-2 py-0.5 text-xs font-semibold text-[#F1F5FF] focus:outline-hidden cursor-pointer"
               >
-                <option value="demo-apexpay">ApexPay (Demo Sandbox)</option>
+                {isDemoMode && <option value="demo-apexpay">ApexPay (Demo Sandbox)</option>}
                 {backendBrands.map((b) => (
                   <option key={b.id} value={b.id}>
                     {b.name} (DB Record)
@@ -469,15 +470,17 @@ export const BrandProfileView: React.FC = () => {
             <span>New Blank Brand</span>
           </button>
 
-          <button
-            type="button"
-            onClick={() => setShowResetModal(true)}
-            className="px-3.5 py-2 rounded-xl bg-[#0A1C3D] hover:bg-[#06142D] text-[#F1F5FF] text-xs font-semibold border border-[#123E78] hover:border-[#FF315B]/40 transition-all flex items-center gap-1.5 cursor-pointer shadow-xs"
-            title="Reset to ApexPay demo profile"
-          >
-            <RotateCcw className="w-3.5 h-3.5 text-[#FFB020]" />
-            <span>Reset Demo</span>
-          </button>
+          {isDemoMode && (
+            <button
+              type="button"
+              onClick={() => setShowResetModal(true)}
+              className="px-3.5 py-2 rounded-xl bg-[#0A1C3D] hover:bg-[#06142D] text-[#F1F5FF] text-xs font-semibold border border-[#123E78] hover:border-[#FF315B]/40 transition-all flex items-center gap-1.5 cursor-pointer shadow-xs"
+              title="Reset to ApexPay demo profile"
+            >
+              <RotateCcw className="w-3.5 h-3.5 text-[#FFB020]" />
+              <span>Reset Demo</span>
+            </button>
+          )}
         </div>
       </div>
 

@@ -1,15 +1,21 @@
-from flask import Blueprint, request, jsonify
+from flask import Blueprint, request, jsonify, g
 from backend.app.repositories.threat_repository import ThreatRepository
+from backend.app.models.brand import Brand
 from backend.app.validation.threat_validator import VALID_REVIEW_STATUSES
-from backend.app.utils.errors import NotFoundError, ValidationError
-from backend.app.utils.auth import require_auth
+from backend.app.utils.errors import NotFoundError, ValidationError, ForbiddenError, UnauthorizedError
+from backend.app.utils.auth import require_auth, get_authenticated_user_optional, get_current_user
 
 findings_bp = Blueprint("findings", __name__)
 threat_repo = ThreatRepository()
 
 @findings_bp.route("/findings", methods=["GET"])
 def list_findings():
-    """List threat findings with comprehensive filtering, search, and pagination."""
+    """
+    List threat findings with tenant workspace isolation.
+    - Real users only see findings for brands they own (is_sample=False).
+    - If is_sample=true or demo=true is specified, returns isolated sample findings.
+    - If unauthenticated without demo flag, returns empty list.
+    """
     brand_id = request.args.get("brand_id", default=None, type=str)
     asset_type = request.args.get("asset_type", default=None, type=str)
     severity = request.args.get("severity", default=None, type=str)
@@ -21,28 +27,91 @@ def list_findings():
     page = request.args.get("page", default=1, type=int)
     per_page = request.args.get("per_page", default=20, type=int)
 
-    is_sample_raw = request.args.get("is_sample", default=None)
-    is_sample = None
-    if is_sample_raw is not None:
-        is_sample = str(is_sample_raw).strip().lower() in ("true", "1", "yes")
+    is_demo = (
+        request.args.get("is_sample", "").lower() in ("true", "1", "yes")
+        or request.args.get("demo", "").lower() in ("true", "1", "yes")
+    )
 
     page = max(1, page)
     per_page = min(max(1, per_page), 100)
     offset = (page - 1) * per_page
 
-    items, total_count = threat_repo.list_findings(
-        brand_id=brand_id,
-        asset_type=asset_type,
-        severity=severity,
-        review_status=review_status,
-        search=search,
-        is_sample=is_sample,
-        detection_source=detection_source,
-        sort_by=sort_by,
-        sort_order=sort_order,
-        offset=offset,
-        limit=per_page,
-    )
+    user_info = get_authenticated_user_optional()
+
+    if is_demo:
+        # Isolated demo findings feed
+        items, total_count = threat_repo.list_findings(
+            brand_id=brand_id,
+            asset_type=asset_type,
+            severity=severity,
+            review_status=review_status,
+            search=search,
+            is_sample=True,
+            detection_source=detection_source,
+            sort_by=sort_by,
+            sort_order=sort_order,
+            offset=offset,
+            limit=per_page,
+        )
+    elif user_info:
+        user_id = user_info.get("uid")
+        user_role = user_info.get("role")
+
+        if user_role == "admin":
+            user_brands = threat_repo.session.query(Brand).filter(Brand.is_sample == False).all()
+        else:
+            user_brands = threat_repo.session.query(Brand).filter(
+                Brand.owner_id == user_id,
+                Brand.is_sample == False
+            ).all()
+
+        authorized_brand_ids = [b.id for b in user_brands]
+
+        if not authorized_brand_ids:
+            return jsonify({
+                "success": True,
+                "data": [],
+                "pagination": {
+                    "total": 0,
+                    "page": page,
+                    "per_page": per_page,
+                    "total_pages": 1,
+                    "sort_by": sort_by,
+                    "sort_order": sort_order,
+                }
+            }), 200
+
+        if brand_id and brand_id not in authorized_brand_ids:
+            return jsonify({
+                "success": True,
+                "data": [],
+                "pagination": {
+                    "total": 0,
+                    "page": page,
+                    "per_page": per_page,
+                    "total_pages": 1,
+                    "sort_by": sort_by,
+                    "sort_order": sort_order,
+                }
+            }), 200
+
+        target_brand_ids = [brand_id] if brand_id else authorized_brand_ids
+        items, total_count = threat_repo.list_findings(
+            brand_ids=target_brand_ids,
+            asset_type=asset_type,
+            severity=severity,
+            review_status=review_status,
+            search=search,
+            is_sample=False,
+            detection_source=detection_source,
+            sort_by=sort_by,
+            sort_order=sort_order,
+            offset=offset,
+            limit=per_page,
+        )
+    else:
+        # Unauthenticated real query: return empty results
+        items, total_count = [], 0
 
     return jsonify({
         "success": True,
@@ -60,7 +129,7 @@ def list_findings():
 
 @findings_bp.route("/findings/<string:finding_id>", methods=["GET"])
 def get_finding(finding_id: str):
-    """Retrieve full details of a single finding with signals and evidence."""
+    """Retrieve full details of a single finding with signals and evidence, enforcing tenant authorization."""
     finding = threat_repo.get_by_id(finding_id)
     if not finding:
         return jsonify({
@@ -71,6 +140,31 @@ def get_finding(finding_id: str):
                 "details": []
             }
         }), 404
+
+    # Real workspace findings must belong to caller
+    if not finding.is_sample:
+        user_info = get_authenticated_user_optional()
+        if not user_info:
+            return jsonify({
+                "success": False,
+                "error": {
+                    "code": "UNAUTHORIZED",
+                    "message": "Authentication required to access real threat finding.",
+                    "details": []
+                }
+            }), 401
+
+        user_id = user_info.get("uid")
+        is_admin = (user_info.get("role") == "admin")
+        if finding.brand and finding.brand.owner_id and finding.brand.owner_id != user_id and not is_admin:
+            return jsonify({
+                "success": False,
+                "error": {
+                    "code": "FORBIDDEN",
+                    "message": "You are not authorized to view this finding.",
+                    "details": []
+                }
+            }), 403
 
     data = finding.to_dict(include_relations=True)
     if finding.brand:
@@ -84,7 +178,32 @@ def get_finding(finding_id: str):
 @findings_bp.route("/findings/<string:finding_id>/status", methods=["PATCH", "PUT"])
 @require_auth(allowed_roles=["admin", "lead", "analyst"])
 def update_finding_status(finding_id: str):
-    """Update review status of a finding (e.g., CONFIRMED_THREAT, FALSE_POSITIVE)."""
+    """Update review status of a finding (e.g., CONFIRMED_THREAT, FALSE_POSITIVE), enforcing ownership."""
+    finding = threat_repo.get_by_id(finding_id)
+    if not finding:
+        return jsonify({
+            "success": False,
+            "error": {
+                "code": "NOT_FOUND",
+                "message": f"Finding with ID '{finding_id}' not found.",
+                "details": []
+            }
+        }), 404
+
+    user_info = get_current_user() or {}
+    user_id = user_info.get("uid")
+    is_admin = (user_info.get("role") == "admin")
+
+    if not finding.is_sample and finding.brand and finding.brand.owner_id and finding.brand.owner_id != user_id and not is_admin:
+        return jsonify({
+            "success": False,
+            "error": {
+                "code": "FORBIDDEN",
+                "message": "You are not authorized to modify this finding.",
+                "details": []
+            }
+        }), 403
+
     payload = request.get_json(silent=True)
     if not payload or "review_status" not in payload:
         return jsonify({
@@ -108,11 +227,7 @@ def update_finding_status(finding_id: str):
         }), 422
 
     # Extract analyst attribution and optional note for immutable audit log
-    analyst = None
-    if hasattr(request, "current_user") and request.current_user:
-        analyst = request.current_user.get("displayName") or request.current_user.get("email")
-    if not analyst:
-        analyst = payload.get("analyst")
+    analyst = payload.get("analyst") or user_info.get("displayName") or user_info.get("email")
     note = payload.get("note")
 
     updated = threat_repo.update_status(
@@ -121,15 +236,6 @@ def update_finding_status(finding_id: str):
         analyst=analyst,
         note=note,
     )
-    if not updated:
-        return jsonify({
-            "success": False,
-            "error": {
-                "code": "NOT_FOUND",
-                "message": f"Finding with ID '{finding_id}' not found.",
-                "details": []
-            }
-        }), 404
 
     return jsonify({
         "success": True,
@@ -139,8 +245,32 @@ def update_finding_status(finding_id: str):
 
 @findings_bp.route("/metrics", methods=["GET"])
 def get_metrics():
-    """Retrieve aggregated platform metrics calculated from active database records."""
-    metrics = threat_repo.get_metrics()
+    """Retrieve aggregated platform metrics scoped strictly to authorized tenant records."""
+    is_demo = (
+        request.args.get("is_sample", "").lower() in ("true", "1", "yes")
+        or request.args.get("demo", "").lower() in ("true", "1", "yes")
+    )
+    user_info = get_authenticated_user_optional()
+
+    if is_demo:
+        metrics = threat_repo.get_metrics(is_sample=True)
+    elif user_info:
+        user_id = user_info.get("uid")
+        user_role = user_info.get("role")
+        if user_role == "admin":
+            user_brands = threat_repo.session.query(Brand).filter(Brand.is_sample == False).all()
+        else:
+            user_brands = threat_repo.session.query(Brand).filter(
+                Brand.owner_id == user_id,
+                Brand.is_sample == False
+            ).all()
+
+        authorized_brand_ids = [b.id for b in user_brands]
+        metrics = threat_repo.get_metrics(brand_ids=authorized_brand_ids, is_sample=False)
+    else:
+        # Unauthenticated: zero metrics
+        metrics = threat_repo.get_metrics(brand_ids=[], is_sample=False)
+
     return jsonify({
         "success": True,
         "data": metrics
@@ -158,11 +288,134 @@ def explain_finding(finding_id: str):
     - Validated statistical confidence score
     - Evidence-based next steps with zero auto-confirmation guarantee.
     """
+    finding = threat_repo.get_by_id(finding_id)
+    if not finding:
+        return jsonify({
+            "success": False,
+            "error": {
+                "code": "NOT_FOUND",
+                "message": f"Finding with ID '{finding_id}' not found.",
+                "details": []
+            }
+        }), 404
+
+    if not finding.is_sample:
+        user_info = get_authenticated_user_optional()
+        if not user_info:
+            return jsonify({
+                "success": False,
+                "error": {
+                    "code": "UNAUTHORIZED",
+                    "message": "Authentication required to access finding explanation.",
+                    "details": []
+                }
+            }), 401
+        user_id = user_info.get("uid")
+        is_admin = (user_info.get("role") == "admin")
+        if finding.brand and finding.brand.owner_id and finding.brand.owner_id != user_id and not is_admin:
+            return jsonify({
+                "success": False,
+                "error": {
+                    "code": "FORBIDDEN",
+                    "message": "You are not authorized to access this finding.",
+                    "details": []
+                }
+            }), 403
+
     from backend.app.services.watchtower_service import watchtower_service
     result = watchtower_service.explain_finding_by_id(finding_id)
+
+    # Optional AI copilot synthesis parameter
+    include_ai = request.args.get("ai", "").lower() in ("true", "1", "yes")
+    if include_ai:
+        from backend.app.ai.groq_service import groq_service
+        brand_dict = finding.brand.to_dict(include_relations=True) if finding.brand else {}
+        signals_dict = [s.to_dict() for s in finding.signals]
+        evidence_dict = [e.to_dict() for e in finding.evidence]
+        ai_brief = groq_service.generate_investigation_brief(
+            brand_profile=brand_dict,
+            finding=finding.to_dict(),
+            signals=signals_dict,
+            evidence=evidence_dict,
+            comparison=result.get("comparison", {}),
+        )
+        result["ai_investigation"] = ai_brief
+
     return jsonify({
         "success": True,
         "data": result
+    }), 200
+
+
+@findings_bp.route("/findings/<string:finding_id>/ai-investigate", methods=["POST"])
+def ai_investigate_finding(finding_id: str):
+    """
+    Dedicated Groq + LangSmith AI Investigation Pipeline:
+    Performs evidence-grounded epistemic synthesis of detector telemetry.
+    Strictly enforces workspace tenant authorization.
+    """
+    finding = threat_repo.get_by_id(finding_id)
+    if not finding:
+        return jsonify({
+            "success": False,
+            "error": {
+                "code": "NOT_FOUND",
+                "message": f"Finding with ID '{finding_id}' not found.",
+                "details": []
+            }
+        }), 404
+
+    if not finding.is_sample:
+        user_info = get_authenticated_user_optional()
+        if not user_info:
+            return jsonify({
+                "success": False,
+                "error": {
+                    "code": "UNAUTHORIZED",
+                    "message": "Authentication required to access finding investigation.",
+                    "details": []
+                }
+            }), 401
+        user_id = user_info.get("uid")
+        is_admin = (user_info.get("role") == "admin")
+        if finding.brand and finding.brand.owner_id and finding.brand.owner_id != user_id and not is_admin:
+            return jsonify({
+                "success": False,
+                "error": {
+                    "code": "FORBIDDEN",
+                    "message": "You are not authorized to investigate this finding.",
+                    "details": []
+                }
+            }), 403
+
+    from backend.app.services.watchtower_service import watchtower_service
+    from backend.app.ai.groq_service import groq_service
+
+    dossier = watchtower_service.explain_finding_by_id(finding_id)
+    brand_dict = finding.brand.to_dict(include_relations=True) if finding.brand else {}
+    signals_dict = [s.to_dict() for s in finding.signals]
+    evidence_dict = [e.to_dict() for e in finding.evidence]
+
+    ai_result = groq_service.generate_investigation_brief(
+        brand_profile=brand_dict,
+        finding=finding.to_dict(),
+        signals=signals_dict,
+        evidence=evidence_dict,
+        comparison=dossier.get("comparison", {}),
+    )
+
+    return jsonify({
+        "success": True,
+        "data": {
+            "finding_id": finding.id,
+            "brand_id": finding.brand_id,
+            "candidate_name": finding.candidate_name,
+            "asset_type": finding.asset_type,
+            "detector_risk_score": float(finding.risk_score),
+            "severity": finding.severity,
+            "is_sample": bool(finding.is_sample),
+            "investigation": ai_result,
+        }
     }), 200
 
 
@@ -195,4 +448,101 @@ def explain_candidate():
     return jsonify({
         "success": True,
         "data": result
+    }), 200
+
+
+@findings_bp.route("/findings/ai-investigate-candidate", methods=["POST"])
+def ai_investigate_candidate():
+    """
+    On-demand candidate Groq + LangSmith investigation:
+    Evaluates candidate against brand assets and generates an evidence-grounded AI brief.
+    """
+    from backend.app.services.watchtower_service import watchtower_service
+    from backend.app.ai.groq_service import groq_service
+    from backend.app.repositories.brand_repository import BrandRepository
+
+    payload = request.get_json(silent=True) or {}
+    brand_id = payload.get("brand_id")
+    if not brand_id:
+        return jsonify({
+            "success": False,
+            "error": {
+                "code": "VALIDATION_ERROR",
+                "message": "Field 'brand_id' is required for AI candidate investigation.",
+                "details": []
+            }
+        }), 422
+
+    brand_repo = BrandRepository()
+    brand = brand_repo.get_by_id(brand_id)
+    if not brand:
+        return jsonify({
+            "success": False,
+            "error": {
+                "code": "NOT_FOUND",
+                "message": f"Brand with ID '{brand_id}' not found.",
+                "details": []
+            }
+        }), 404
+
+    # Authorization verification
+    if not brand.is_sample:
+        user_info = get_authenticated_user_optional()
+        if not user_info:
+            return jsonify({
+                "success": False,
+                "error": {
+                    "code": "UNAUTHORIZED",
+                    "message": "Authentication required to run AI candidate investigation.",
+                    "details": []
+                }
+            }), 401
+        user_id = user_info.get("uid")
+        is_admin = (user_info.get("role") == "admin")
+        if brand.owner_id and brand.owner_id != user_id and not is_admin:
+            return jsonify({
+                "success": False,
+                "error": {
+                    "code": "FORBIDDEN",
+                    "message": "You are not authorized to investigate against this brand.",
+                    "details": []
+                }
+            }), 403
+
+    eval_result = watchtower_service.evaluate_watchtower(
+        brand_id=brand_id,
+        candidate_data=payload,
+        scan_mode=payload.get("scan_mode", "scan_on_demand"),
+        persist_to_investigation=False,
+    )
+
+    brand_dict = brand.to_dict(include_relations=True)
+    sim_result = eval_result.get("similarity_result", {})
+    signals = sim_result.get("signals", [])
+    candidate_finding = {
+        "candidate_name": payload.get("candidate_name") or payload.get("identifier"),
+        "asset_type": payload.get("asset_type", "domain"),
+        "source_url": payload.get("url"),
+        "risk_score": eval_result.get("risk_score", 0.0),
+        "severity": eval_result.get("severity", "low"),
+        "detection_source": "Watchtower Candidate Scanner",
+        "observed_at": "Active",
+    }
+
+    ai_result = groq_service.generate_investigation_brief(
+        brand_profile=brand_dict,
+        finding=candidate_finding,
+        signals=signals,
+        evidence=[],
+        comparison=eval_result.get("comparison", {}),
+    )
+
+    return jsonify({
+        "success": True,
+        "data": {
+            "brand_id": brand_id,
+            "candidate_name": candidate_finding["candidate_name"],
+            "eval_result": eval_result,
+            "investigation": ai_result,
+        }
     }), 200

@@ -23,16 +23,24 @@ class BrandRepository:
     def get_all(
         self,
         search: Optional[str] = None,
+        owner_id: Optional[str] = None,
+        is_sample: Optional[bool] = None,
         offset: int = 0,
         limit: int = 50
     ) -> Tuple[List[Brand], int]:
-        """List brands with optional search filtering and pagination."""
+        """List brands with optional owner_id, is_sample, and search filtering and pagination."""
         query = self.session.query(Brand).options(
             selectinload(Brand.domains),
             selectinload(Brand.social_handles),
             selectinload(Brand.app_identifiers),
             selectinload(Brand.publishers),
         )
+
+        if owner_id is not None:
+            query = query.filter(Brand.owner_id == owner_id)
+
+        if is_sample is not None:
+            query = query.filter(Brand.is_sample == is_sample)
 
         if search:
             search_term = f"%{search.strip().lower()}%"

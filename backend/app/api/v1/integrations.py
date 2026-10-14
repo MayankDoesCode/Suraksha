@@ -3,10 +3,12 @@ from backend.app.connectors.registry import connector_registry
 from backend.app.services.scan_service import ScanService
 from backend.app.monitoring.scheduler import scheduler
 from backend.app.utils.errors import NotFoundError, ValidationError
-from backend.app.utils.auth import require_auth
+from backend.app.services.brand_service import BrandService
+from backend.app.utils.auth import require_auth, get_authenticated_user_optional, get_current_user
 
 integrations_bp = Blueprint("integrations", __name__)
 scan_service = ScanService()
+brand_service = BrandService()
 
 @integrations_bp.route("/integrations/status", methods=["GET"])
 def get_integrations_status():
@@ -46,8 +48,14 @@ def test_integration(provider_id: str):
 
 @integrations_bp.route("/monitoring/jobs", methods=["GET"])
 def list_monitoring_jobs():
-    """List all registered monitoring jobs."""
+    """List registered monitoring jobs, verifying brand authorization if brand_id specified."""
     brand_id = request.args.get("brand_id", default=None, type=str)
+    if brand_id:
+        user_info = get_authenticated_user_optional() or {}
+        user_id = user_info.get("uid")
+        is_admin = (user_info.get("role") == "admin")
+        brand_service.get_brand(brand_id, requesting_user_id=user_id, is_admin=is_admin)
+
     jobs = scheduler.list_jobs(brand_id=brand_id)
     return jsonify({
         "success": True,
@@ -58,7 +66,7 @@ def list_monitoring_jobs():
 @integrations_bp.route("/monitoring/jobs", methods=["POST"])
 @require_auth(allowed_roles=["admin", "lead", "analyst"])
 def create_monitoring_job():
-    """Schedule a recurring batch collection job for a brand."""
+    """Schedule a recurring batch collection job for an authorized brand."""
     payload = request.get_json(silent=True) or {}
     brand_id = payload.get("brand_id")
     provider_id = payload.get("provider_id", "itunes_app_store")
@@ -73,6 +81,12 @@ def create_monitoring_job():
                 "details": []
             }
         }), 400
+
+    user_info = get_current_user() or {}
+    user_id = user_info.get("uid")
+    is_admin = (user_info.get("role") == "admin")
+    brand_service.get_brand(brand_id, requesting_user_id=user_id, is_admin=is_admin)
+
 
     job_id = scheduler.schedule_collection(
         brand_id=brand_id,

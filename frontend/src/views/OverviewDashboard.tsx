@@ -31,6 +31,7 @@ import {
   SlidersHorizontal,
   ChevronRight,
   RotateCcw,
+  Plus,
 } from 'lucide-react';
 import type { RiskLevel, InvestigationStatus, AssetType } from '../types';
 
@@ -43,8 +44,11 @@ export const OverviewDashboard: React.FC = () => {
     setSelectedCandidateId,
     backendOnline,
     selectedBackendBrandId,
+    backendBrands,
     threatNodes,
     threatEdges,
+    isDemoMode,
+    enterDemoMode,
   } = useApp();
 
   // Multi-dimensional filters and search
@@ -276,6 +280,81 @@ export const OverviewDashboard: React.FC = () => {
 
   const PostureIcon = postureMeta.icon;
 
+  // Real Workspace Empty State for new accounts with no registered brands
+  const isWorkspaceEmpty = !isDemoMode && (!brandProfile.id || backendBrands.length === 0) && candidates.length === 0;
+
+  if (isWorkspaceEmpty) {
+    return (
+      <div className="space-y-6 font-sans select-none text-[#F8FAFC]">
+        {/* Empty Workspace Hero Card */}
+        <section className="relative rounded-2xl border border-[#1E314F] bg-gradient-to-b from-[#0F1E36] to-[#0A1526] p-8 lg:p-12 shadow-2xl overflow-hidden text-center">
+          <div className="absolute inset-0 bg-radial-at-c from-[#45C8E8]/5 via-transparent to-transparent pointer-events-none" />
+
+          <div className="relative z-10 max-w-2xl mx-auto space-y-6">
+            <div className="w-16 h-16 mx-auto rounded-2xl bg-[#111D30] border border-[#1E314F] flex items-center justify-center shadow-lg">
+              <ShieldCheck className="w-8 h-8 text-[#45C8E8]" />
+            </div>
+
+            <div className="space-y-2">
+              <span className="text-[10px] font-mono uppercase tracking-widest text-[#45C8E8] font-bold px-3 py-1 rounded-full bg-[#45C8E8]/10 border border-[#45C8E8]/30">
+                Pristine Security Workspace
+              </span>
+              <h1 className="text-2xl lg:text-3xl font-bold text-white tracking-tight pt-2">
+                Your Workspace Is Empty &amp; Secure
+              </h1>
+              <p className="text-sm text-[#8EA2C6] leading-relaxed max-w-lg mx-auto">
+                No monitored brands or threat detections are currently active in your account. To begin autonomous brand protection and surveillance, register your verified organization assets.
+              </p>
+            </div>
+
+            {/* Accurate Zero Metrics */}
+            <div className="grid grid-cols-2 sm:grid-cols-4 gap-3 py-4">
+              <div className="p-4 rounded-xl bg-[#080F1D]/60 border border-[#1E314F]">
+                <p className="text-2xl font-mono font-bold text-white">0</p>
+                <p className="text-xs text-[#8EA2C6] mt-1">Registered Brands</p>
+              </div>
+              <div className="p-4 rounded-xl bg-[#080F1D]/60 border border-[#1E314F]">
+                <p className="text-2xl font-mono font-bold text-white">0</p>
+                <p className="text-xs text-[#8EA2C6] mt-1">Monitored Assets</p>
+              </div>
+              <div className="p-4 rounded-xl bg-[#080F1D]/60 border border-[#1E314F]">
+                <p className="text-2xl font-mono font-bold text-white">0</p>
+                <p className="text-xs text-[#8EA2C6] mt-1">Active Findings</p>
+              </div>
+              <div className="p-4 rounded-xl bg-[#080F1D]/60 border border-[#1E314F]">
+                <p className="text-2xl font-mono font-bold text-[#10B981]">0 / 100</p>
+                <p className="text-xs text-[#8EA2C6] mt-1">Risk Posture (Clear)</p>
+              </div>
+            </div>
+
+            {/* Actions */}
+            <div className="flex flex-col sm:flex-row items-center justify-center gap-3 pt-2">
+              <button
+                onClick={() => setActiveTab('brand-profile')}
+                className="w-full sm:w-auto px-6 py-3 rounded-xl bg-[#45C8E8] hover:bg-[#38b5d4] text-[#080F1D] font-bold text-sm transition-all shadow-lg hover:shadow-[#45C8E8]/20 flex items-center justify-center gap-2 cursor-pointer"
+              >
+                <Plus className="w-4 h-4" />
+                Add Your First Brand
+              </button>
+
+              <button
+                onClick={enterDemoMode}
+                className="w-full sm:w-auto px-6 py-3 rounded-xl bg-[#1A2942] hover:bg-[#223656] text-[#DCE7F6] border border-[#2A3E60] font-semibold text-sm transition-all flex items-center justify-center gap-2 cursor-pointer"
+              >
+                <Sparkles className="w-4 h-4 text-[#9B8AFB]" />
+                Try Demo Mode (Sandbox)
+              </button>
+            </div>
+
+            <p className="text-[11px] text-[#64748B] font-mono">
+              Zero synthetic incidents are fabricated in real accounts.
+            </p>
+          </div>
+        </section>
+      </div>
+    );
+  }
+
   return (
     <div className="space-y-5 font-sans select-none text-[#F8FAFC]">
       {/* ========================================================= */}
@@ -293,14 +372,22 @@ export const OverviewDashboard: React.FC = () => {
 
               <span className="text-xs text-[#8EA2C6] font-mono">
                 Target Entity:{' '}
-                <strong className="text-[#F8FAFC]">{brandProfile.brandName || 'ApexPay'}</strong>
+                <strong className="text-[#F8FAFC]">
+                  {brandProfile.brandName && brandProfile.brandName !== 'No Brand Registered'
+                    ? brandProfile.brandName
+                    : (isDemoMode ? 'ApexPay Global (Demo)' : 'No Brand Configured')}
+                </strong>
                 {selectedBackendBrandId ? (
                   <span className="ml-1.5 text-[10px] text-[#10B981] bg-[#10B981]/10 px-1.5 py-0.2 rounded border border-[#10B981]/25">
-                    Live DB
+                    Live Protected
                   </span>
-                ) : (
+                ) : isDemoMode ? (
                   <span className="ml-1.5 text-[10px] text-[#F59E0B] bg-[#F59E0B]/10 px-1.5 py-0.2 rounded border border-[#F59E0B]/25">
                     Sandbox Demo
+                  </span>
+                ) : (
+                  <span className="ml-1.5 text-[10px] text-[#45C8E8] bg-[#45C8E8]/10 px-1.5 py-0.2 rounded border border-[#45C8E8]/25">
+                    Pristine Workspace
                   </span>
                 )}
               </span>

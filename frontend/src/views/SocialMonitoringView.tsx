@@ -37,7 +37,7 @@ import {
 } from '../utils/socialEngine';
 
 export const SocialMonitoringView: React.FC = () => {
-  const { brandProfile, addCandidate, setSelectedCandidateId, setActiveTab } = useApp();
+  const { brandProfile, addCandidate, setSelectedCandidateId, setActiveTab, isDemoMode } = useApp();
 
   // Form State
   const [name, setName] = useState('');
@@ -394,38 +394,40 @@ export const SocialMonitoringView: React.FC = () => {
         </div>
       </div>
 
-      {/* 2. Pre-configured Benchmark Scenarios Bar */}
-      <div className="bg-[#06142D] p-4 rounded-xl border border-[#123E78] shadow-lg space-y-2.5">
-        <div className="flex items-center justify-between">
-          <span className="text-xs font-bold text-[#F1F5FF] flex items-center gap-1.5 uppercase tracking-wider font-mono">
-            <Activity className="w-3.5 h-3.5 text-[#00D9FF]" />
-            Quick-Load Benchmark Scenarios:
-          </span>
-          <span className="text-[11px] text-[#91ACD1] hidden sm:inline">
-            Click any scenario to populate the test bench with verified test cases
-          </span>
-        </div>
+      {/* 2. Pre-configured Benchmark Scenarios Bar (Demo Mode Only) */}
+      {isDemoMode && (
+        <div className="bg-[#06142D] p-4 rounded-xl border border-[#123E78] shadow-lg space-y-2.5">
+          <div className="flex items-center justify-between">
+            <span className="text-xs font-bold text-[#F1F5FF] flex items-center gap-1.5 uppercase tracking-wider font-mono">
+              <Activity className="w-3.5 h-3.5 text-[#00D9FF]" />
+              Quick-Load Benchmark Scenarios (Demo Sandbox):
+            </span>
+            <span className="text-[11px] text-[#91ACD1] hidden sm:inline">
+              Click any scenario to populate the test bench with verified test cases
+            </span>
+          </div>
 
-        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-5 gap-2">
-          {scenarios.map(sc => (
-            <button
-              key={sc.id}
-              type="button"
-              onClick={() => loadScenario(sc.data)}
-              className="text-left p-3 rounded-xl border border-[#123E78] bg-[#0A1C3D] hover:border-[#00D9FF]/50 hover:bg-[#06142D] transition-all text-xs group cursor-pointer shadow-xs"
-            >
-              <div className="flex items-center justify-between mb-1">
-                <span className="font-bold text-[#F1F5FF] text-[11px] group-hover:text-[#00D9FF] transition-colors">
-                  {sc.label}
-                </span>
-              </div>
-              <p className="text-[10px] text-[#91ACD1] leading-tight line-clamp-2">
-                {sc.description}
-              </p>
-            </button>
-          ))}
+          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-5 gap-2">
+            {scenarios.map(sc => (
+              <button
+                key={sc.id}
+                type="button"
+                onClick={() => loadScenario(sc.data)}
+                className="text-left p-3 rounded-xl border border-[#123E78] bg-[#0A1C3D] hover:border-[#00D9FF]/50 hover:bg-[#06142D] transition-all text-xs group cursor-pointer shadow-xs"
+              >
+                <div className="flex items-center justify-between mb-1">
+                  <span className="font-bold text-[#F1F5FF] text-[11px] group-hover:text-[#00D9FF] transition-colors">
+                    {sc.label}
+                  </span>
+                </div>
+                <p className="text-[10px] text-[#91ACD1] leading-tight line-clamp-2">
+                  {sc.description}
+                </p>
+              </button>
+            ))}
+          </div>
         </div>
-      </div>
+      )}
 
       {/* 3. Main Workspace: 2-Column Split */}
       <div className="grid grid-cols-1 lg:grid-cols-12 gap-6 items-start">

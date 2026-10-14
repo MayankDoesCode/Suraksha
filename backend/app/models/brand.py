@@ -16,6 +16,9 @@ class Brand(Base):
     name = Column(String(255), unique=True, nullable=False, index=True)
     description = Column(Text, nullable=True)
     logo_url = Column(String(1024), nullable=True)
+    owner_id = Column(String(128), nullable=True, index=True)
+    organization_id = Column(String(128), nullable=True, index=True)
+    is_sample = Column(Boolean, default=False, nullable=False, index=True)
     created_at = Column(DateTime(timezone=True), default=utcnow, nullable=False)
     updated_at = Column(DateTime(timezone=True), default=utcnow, onupdate=utcnow, nullable=False)
 
@@ -57,6 +60,9 @@ class Brand(Base):
             "name": self.name,
             "description": self.description or "",
             "logo_url": self.logo_url,
+            "owner_id": self.owner_id,
+            "organization_id": self.organization_id,
+            "is_sample": bool(self.is_sample),
             "created_at": self.created_at.isoformat() if self.created_at else None,
             "updated_at": self.updated_at.isoformat() if self.updated_at else None,
         }

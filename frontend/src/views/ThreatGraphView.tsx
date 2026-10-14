@@ -363,6 +363,16 @@ export const ThreatGraphView: React.FC = () => {
                 );
               })}
             </svg>
+
+            {threatNodes.length === 0 && (
+              <div className="absolute inset-0 flex flex-col items-center justify-center p-6 text-center bg-[#030D22]/85 backdrop-blur-xs z-20">
+                <Network className="w-12 h-12 text-[#91ACD1]/40 mb-3" />
+                <h4 className="text-sm font-bold text-white">No Threat Graph Nodes Recorded</h4>
+                <p className="text-xs text-[#91ACD1] max-w-sm mt-1 leading-relaxed">
+                  Your workspace does not have any active threat relationships yet. As candidates are detected and analyzed, relational clusters will map here automatically.
+                </p>
+              </div>
+            )}
           </div>
 
           {/* Bottom helper bar */}

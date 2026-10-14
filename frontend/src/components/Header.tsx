@@ -32,6 +32,9 @@ export const Header: React.FC<HeaderProps> = ({ onNavigateHome, onToggleMobileMe
     backendBrands,
     selectedBackendBrandId,
     selectBrandById,
+    isDemoMode,
+    enterDemoMode,
+    exitDemoMode,
   } = useApp();
 
   const { currentUser, userProfile, logOut } = useAuth();
@@ -124,20 +127,39 @@ export const Header: React.FC<HeaderProps> = ({ onNavigateHome, onToggleMobileMe
 
             <div className="relative">
               <select
-                value={selectedBackendBrandId || 'demo-apexpay'}
-                onChange={(e) => selectBrandById(e.target.value)}
+                value={isDemoMode ? 'demo-apexpay' : (selectedBackendBrandId || '')}
+                onChange={(e) => {
+                  if (e.target.value === 'demo-apexpay') {
+                    enterDemoMode();
+                  } else if (e.target.value) {
+                    selectBrandById(e.target.value);
+                  }
+                }}
                 aria-label="Select Monitored Brand"
                 className="appearance-none bg-[#111D30] hover:bg-[#16253D] border border-[#1E314F] focus:border-[#45C8E8] rounded-lg pl-3 pr-8 py-1 text-xs font-semibold text-[#F8FAFC] focus:outline-hidden transition-all cursor-pointer shadow-xs"
               >
-                <option value="demo-apexpay">ApexPay (Demo Sandbox)</option>
+                {backendBrands.length === 0 && !isDemoMode && (
+                  <option value="">No Brands Registered</option>
+                )}
                 {backendBrands.map((b) => (
                   <option key={b.id} value={b.id}>
-                    {b.name} (Live Database)
+                    {b.name} (Live Protected)
                   </option>
                 ))}
+                {isDemoMode && (
+                  <option value="demo-apexpay">
+                    ApexPay Global (DEMO DATA)
+                  </option>
+                )}
               </select>
               <ChevronDown className="w-3.5 h-3.5 text-[#8EA2C6] absolute right-2.5 top-1/2 -translate-y-1/2 pointer-events-none" />
             </div>
+
+            {isDemoMode && (
+              <span className="hidden sm:inline-flex items-center gap-1.5 px-2 py-0.5 rounded bg-[#EF4444]/15 border border-[#EF4444]/40 text-[#EF4444] text-[10px] font-mono font-bold uppercase tracking-wider">
+                DEMO DATA — NOT REAL THREATS
+              </span>
+            )}
           </div>
         </div>
 

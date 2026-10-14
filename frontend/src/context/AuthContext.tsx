@@ -86,36 +86,39 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
     const unsubscribe = onAuthStateChanged(auth, async user => {
       setCurrentUser(user);
       if (user) {
+        // Immediate fallback profile derived from token so UI is instantly responsive
+        const baseProfile: UserProfileData = {
+          uid: user.uid,
+          email: user.email,
+          displayName: user.displayName || user.email?.split('@')[0] || 'Analyst',
+          organization: 'Suraksha Security Ops',
+          role: 'Security Analyst',
+          createdAt: new Date().toISOString(),
+          emailVerified: user.emailVerified,
+        };
+        setUserProfile(baseProfile);
+
         try {
           const userDocRef = doc(db, 'users', user.uid);
-          const snap = await getDoc(userDocRef);
-          if (snap.exists()) {
+          // Enforce 2.5s maximum timeout on Firestore query to prevent infinite hanging
+          const snap = await Promise.race([
+            getDoc(userDocRef),
+            new Promise<never>((_, reject) =>
+              setTimeout(() => reject(new Error('Firestore profile fetch timed out')), 2500)
+            ),
+          ]);
+
+          if (snap && snap.exists()) {
             setUserProfile(snap.data() as UserProfileData);
           } else {
-            // Document does not exist yet (e.g. first Google Sign-in)
-            const newProfile: UserProfileData = {
-              uid: user.uid,
-              email: user.email,
-              displayName: user.displayName || user.email?.split('@')[0] || 'Analyst',
-              organization: 'Suraksha Security Ops',
-              role: 'Security Analyst',
-              createdAt: new Date().toISOString(),
-              emailVerified: user.emailVerified,
-            };
-            await setDoc(userDocRef, newProfile);
-            setUserProfile(newProfile);
+            // First time sign-in: attempt background provisioning without blocking
+            Promise.race([
+              setDoc(userDocRef, baseProfile),
+              new Promise((_, r) => setTimeout(() => r(new Error('Firestore write timeout')), 2000)),
+            ]).catch(e => console.warn('[SURAKSHA] Non-blocking Firestore provisioning notice:', e));
           }
         } catch (err) {
-          console.warn('Error reading or provisioning user profile:', err);
-          // Fallback profile from auth token
-          setUserProfile({
-            uid: user.uid,
-            email: user.email,
-            displayName: user.displayName || 'Analyst',
-            organization: 'Security Operations',
-            role: 'Security Analyst',
-            emailVerified: user.emailVerified,
-          });
+          console.warn('[SURAKSHA] Using token-authenticated profile (Firestore read deferred):', err);
         }
       } else {
         setUserProfile(null);
@@ -123,7 +126,20 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
       setLoading(false);
     });
 
-    return () => unsubscribe();
+    // Safety watchdog: ensure loading is NEVER stuck true for more than 4 seconds
+    const safetyTimer = setTimeout(() => {
+      setLoading(prev => {
+        if (prev) {
+          console.info('[SURAKSHA Auth] Safety watchdog released loading state.');
+        }
+        return false;
+      });
+    }, 4000);
+
+    return () => {
+      clearTimeout(safetyTimer);
+      unsubscribe();
+    };
   }, []);
 
   useEffect(() => {

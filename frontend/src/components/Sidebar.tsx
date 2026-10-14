@@ -30,7 +30,16 @@ interface SidebarProps {
 }
 
 export const Sidebar: React.FC<SidebarProps> = ({ onNavigateHome, isOpen, onClose }) => {
-  const { activeTab, setActiveTab, brandProfile, stats, resetAllToDemoData, backendOnline, selectedBackendBrandId } = useApp();
+  const {
+    activeTab,
+    setActiveTab,
+    brandProfile,
+    stats,
+    resetAllToDemoData,
+    backendOnline,
+    selectedBackendBrandId,
+    isDemoMode,
+  } = useApp();
   const { currentUser, userProfile, logOut } = useAuth();
 
   const navItems = [
@@ -118,8 +127,6 @@ export const Sidebar: React.FC<SidebarProps> = ({ onNavigateHome, isOpen, onClos
     if (onClose) onClose();
   };
 
-  const isDemoMode = !selectedBackendBrandId;
-
   const renderSidebarBody = (isMobile = false) => (
     <div className="flex flex-col h-full overflow-hidden bg-[#080F1D] text-[#F8FAFC]">
       {/* 1. Brand Header */}
@@ -184,7 +191,9 @@ export const Sidebar: React.FC<SidebarProps> = ({ onNavigateHome, isOpen, onClos
                 {isDemoMode ? 'DEMO SANDBOX SCOPE' : 'PRODUCTION WORKSPACE'}
               </p>
               <p className="text-xs font-semibold text-[#F8FAFC] truncate">
-                {brandProfile.brandName || 'ApexPay'}
+                {brandProfile.brandName && brandProfile.brandName !== 'No Brand Registered'
+                  ? brandProfile.brandName
+                  : (isDemoMode ? 'ApexPay Global (Demo)' : 'No Brand Selected')}
               </p>
             </div>
           </div>
@@ -298,27 +307,42 @@ export const Sidebar: React.FC<SidebarProps> = ({ onNavigateHome, isOpen, onClos
         </button>
       </div>
 
-      {/* 7. Bottom Sandbox Controls (Optional Demo Isolation) */}
-      <div className="p-2.5 border-t border-[#1E314F] bg-[#080F1D] flex items-center justify-between text-xs text-[#8EA2C6]">
-        <div className="flex flex-col">
-          <span className="text-[10.5px] font-medium text-[#F8FAFC]">
-            {isDemoMode ? 'Demo Sandbox' : 'Live Workspace'}
-          </span>
-          <span className="text-[9px] font-mono text-[#8EA2C6]">
-            {isDemoMode ? 'Synthetic Scenarios' : 'Active Database'}
-          </span>
-        </div>
-        {isDemoMode && (
+      {/* 7. Bottom Workspace Status Controls */}
+      {isDemoMode ? (
+        <div className="p-2.5 border-t border-[#1E314F] bg-[#080F1D] flex items-center justify-between text-xs text-[#8EA2C6]">
+          <div className="flex flex-col">
+            <span className="text-[10.5px] font-medium text-[#F8FAFC]">
+              Demo Sandbox
+            </span>
+            <span className="text-[9px] font-mono text-[#8EA2C6]">
+              Synthetic Scenarios
+            </span>
+          </div>
           <button
             onClick={resetAllToDemoData}
             className="px-2 py-1 rounded bg-[#111D30] hover:bg-[#16253D] border border-[#1E314F] hover:border-[#45C8E8]/30 text-[#F8FAFC] transition-all flex items-center gap-1.5 text-[11px] font-mono font-medium cursor-pointer"
             title="Reset sandbox demo scenarios"
           >
             <RefreshCw className="w-3 h-3 text-[#45C8E8]" />
-            <span>Reset</span>
+            <span>Reset Demo</span>
           </button>
-        )}
-      </div>
+        </div>
+      ) : (
+        <div className="p-2.5 border-t border-[#1E314F] bg-[#080F1D] flex items-center justify-between text-xs text-[#8EA2C6]">
+          <div className="flex flex-col">
+            <span className="text-[10.5px] font-medium text-[#F8FAFC]">
+              Production Workspace
+            </span>
+            <span className="text-[9px] font-mono text-[#8EA2C6]">
+              {selectedBackendBrandId ? 'Active Protected Asset' : 'Clean Slate (0 Alerts)'}
+            </span>
+          </div>
+          <div className="flex items-center gap-1.5 px-2 py-0.5 rounded bg-[#10B981]/10 border border-[#10B981]/25">
+            <span className="w-1.5 h-1.5 rounded-full bg-[#10B981]" />
+            <span className="text-[10px] font-mono text-[#10B981]">Encrypted</span>
+          </div>
+        </div>
+      )}
     </div>
   );
 

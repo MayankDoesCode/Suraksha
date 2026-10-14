@@ -88,7 +88,7 @@ export const WatchtowerView: React.FC = () => {
   useEffect(() => {
     let isMounted = true;
     const fetchSummary = async () => {
-      const brandId = selectedBackendBrandId || (brandProfile.id ? parseInt(String(brandProfile.id)) : 1);
+      const brandId = selectedBackendBrandId || (brandProfile.id ? brandProfile.id : null);
       if (brandId) {
         try {
           const res = await apiClient.getWatchtowerSummary(brandId);
@@ -98,6 +98,8 @@ export const WatchtowerView: React.FC = () => {
         } catch {
           // Graceful fallback to client-side perimeter count
         }
+      } else {
+        setSummary(null);
       }
     };
     fetchSummary();
@@ -113,11 +115,15 @@ export const WatchtowerView: React.FC = () => {
       return;
     }
 
+    const brandId = selectedBackendBrandId || (brandProfile.id ? brandProfile.id : null);
+    if (!brandId) {
+      setErrorMessage('No protected brand selected. Please register a brand in Brand Profile before running Watchtower scans.');
+      return;
+    }
+
     setErrorMessage(null);
     setRoutedSuccess(null);
     setIsEvaluating(true);
-
-    const brandId = selectedBackendBrandId || (brandProfile.id ? parseInt(String(brandProfile.id)) : 1);
 
     try {
       const response = await apiClient.evaluateWatchtower(brandId, {

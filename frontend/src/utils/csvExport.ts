@@ -1,6 +1,15 @@
 import type { CandidateAsset } from '../types';
 
-export function exportCandidatesToCSV(candidates: CandidateAsset[], brandName: string) {
+export function exportCandidatesToCSV(
+  candidates: CandidateAsset[],
+  brandName: string,
+  isDemoMode: boolean = false
+) {
+  // Enforce zero demo data leakage: if exporting real workspace, drop any synthetic candidate
+  const exportableCandidates = isDemoMode
+    ? candidates
+    : candidates.filter(c => !c.isFictionalDemo);
+
   const headers = [
     'Candidate ID',
     'Asset Title',
@@ -16,6 +25,7 @@ export function exportCandidatesToCSV(candidates: CandidateAsset[], brandName: s
     'Recommended Next Steps',
     'Analyst Notes Count',
     'Created Date',
+    'Data Classification',
   ];
 
   const escapeCSV = (value: string | number | null | undefined): string => {
@@ -24,7 +34,7 @@ export function exportCandidatesToCSV(candidates: CandidateAsset[], brandName: s
     return `"${str}"`;
   };
 
-  const rows = candidates.map(c => [
+  const rows = exportableCandidates.map(c => [
     escapeCSV(c.id),
     escapeCSV(c.title),
     escapeCSV(c.identifier),
@@ -39,12 +49,18 @@ export function exportCandidatesToCSV(candidates: CandidateAsset[], brandName: s
     escapeCSV(c.recommendedNextSteps.join('; ')),
     escapeCSV(c.analystNotes.length),
     escapeCSV(c.createdDate),
+    escapeCSV(isDemoMode || c.isFictionalDemo ? 'DEMO DATA — NOT REAL THREATS' : 'PRODUCTION AUDITED THREAT'),
   ]);
+
+  const classificationHeader = isDemoMode
+    ? '# CLASSIFICATION: DEMO DATA — NOT REAL THREATS (SIMULATED TELEMETRY)'
+    : '# CLASSIFICATION: CONFIDENTIAL PRODUCTION WORKSPACE SECURITY REPORT';
 
   const csvContent = [
     `# Suraksha — AI-Powered Digital Brand Protection Report - Monitored Brand: ${brandName}`,
     `# Exported: ${new Date().toISOString()}`,
-    `# Note: Digital Risk Protection Finding Archive - Confidential Security Report`,
+    classificationHeader,
+    `# Total Exported Records: ${exportableCandidates.length}`,
     headers.join(','),
     ...rows.map(row => row.join(',')),
   ].join('\r\n');
@@ -53,10 +69,14 @@ export function exportCandidatesToCSV(candidates: CandidateAsset[], brandName: s
   const url = URL.createObjectURL(blob);
   const link = document.createElement('a');
   link.setAttribute('href', url);
-  const filename = `suraksha-${brandName.toLowerCase().replace(/[^a-z0-9]/g, '_')}-threat-findings-${new Date().toISOString().slice(0, 10)}.csv`;
+  const cleanBrand = (brandName || 'workspace').toLowerCase().replace(/[^a-z0-9]/g, '_');
+  const filename = isDemoMode
+    ? `suraksha-DEMO-DATA-${cleanBrand}-findings-${new Date().toISOString().slice(0, 10)}.csv`
+    : `suraksha-${cleanBrand}-threat-findings-${new Date().toISOString().slice(0, 10)}.csv`;
   link.setAttribute('download', filename);
   document.body.appendChild(link);
   link.click();
   document.body.removeChild(link);
   URL.revokeObjectURL(url);
 }
+

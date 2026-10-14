@@ -37,6 +37,17 @@ class ConflictError(AppException):
     def __init__(self, message: str = "Resource conflict detected", details: list = None):
         super().__init__(message, status_code=409, code="CONFLICT_ERROR", details=details)
 
+class UnauthorizedError(AppException):
+    """Raised when authentication credentials are required or invalid."""
+    def __init__(self, message: str = "Authentication required", details: list = None):
+        super().__init__(message, status_code=401, code="UNAUTHORIZED", details=details)
+
+class ForbiddenError(AppException):
+    """Raised when authenticated user has insufficient permissions to access a resource."""
+    def __init__(self, message: str = "Access forbidden", details: list = None):
+        super().__init__(message, status_code=403, code="FORBIDDEN", details=details)
+
+
 def register_error_handlers(app):
     """Attach centralized JSON error handlers to Flask app."""
 
