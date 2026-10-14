@@ -219,7 +219,32 @@ class ApiClient {
       body: JSON.stringify(appData),
     });
   }
+
+  // Feature 1: Brand Impersonation Watchtower
+  async evaluateWatchtower(brandId, payload) {
+    return this.request(`/brands/${encodeURIComponent(brandId)}/watchtower/evaluate`, {
+      method: 'POST',
+      body: JSON.stringify(payload),
+    });
+  }
+
+  async getWatchtowerSummary(brandId) {
+    return this.request(`/brands/${encodeURIComponent(brandId)}/watchtower/summary`);
+  }
+
+  // Feature 2: Explainable AI Investigation Assistant
+  async getFindingExplanation(findingId) {
+    return this.request(`/findings/${encodeURIComponent(findingId)}/explain`);
+  }
+
+  async explainCandidate(payload) {
+    return this.request('/findings/explain', {
+      method: 'POST',
+      body: JSON.stringify(payload),
+    });
+  }
 }
 
 export const api = new ApiClient(API_BASE_URL);
+export const apiClient = api;
 export default api;

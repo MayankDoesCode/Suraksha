@@ -10,57 +10,57 @@ interface RiskBadgeProps {
 
 export const RiskBadge: React.FC<RiskBadgeProps> = ({ level, size = 'md', showIcon = true }) => {
   const sizeClasses = {
-    sm: 'text-xs px-2 py-0.5 gap-1',
-    md: 'text-xs px-2.5 py-1 gap-1.5 font-medium',
-    lg: 'text-sm px-3 py-1.5 gap-2 font-semibold',
+    sm: 'text-[11px] px-2 py-0.5 gap-1 font-mono font-medium',
+    md: 'text-xs px-2.5 py-0.5 gap-1.5 font-mono font-medium',
+    lg: 'text-xs px-3 py-1 gap-2 font-mono font-semibold',
   };
 
   const config = {
     Critical: {
-      bg: 'bg-[#FF315B]/15 text-[#FF315B] border-[#FF315B]/40 shadow-[0_0_8px_rgba(255,49,91,0.25)]',
+      bg: 'bg-[#EF4444]/10 text-[#EF4444] border-[#EF4444]/30',
       icon: ShieldAlert,
       label: 'Critical Risk',
-      dot: 'bg-[#FF315B]',
+      dot: 'bg-[#EF4444]',
     },
     High: {
-      bg: 'bg-[#FFB020]/15 text-[#FFB020] border-[#FFB020]/40 shadow-[0_0_8px_rgba(255,176,32,0.25)]',
+      bg: 'bg-[#F97316]/10 text-[#F97316] border-[#F97316]/30',
       icon: AlertTriangle,
       label: 'High Risk',
-      dot: 'bg-[#FFB020]',
+      dot: 'bg-[#F97316]',
     },
     Medium: {
-      bg: 'bg-[#8B5CF6]/15 text-[#8B5CF6] border-[#8B5CF6]/40 shadow-[0_0_8px_rgba(139,92,246,0.25)]',
+      bg: 'bg-[#F59E0B]/10 text-[#F59E0B] border-[#F59E0B]/30',
       icon: AlertCircle,
       label: 'Medium Risk',
-      dot: 'bg-[#8B5CF6]',
+      dot: 'bg-[#F59E0B]',
     },
     Low: {
-      bg: 'bg-[#00E5A0]/15 text-[#00E5A0] border-[#00E5A0]/40 shadow-[0_0_8px_rgba(0,229,160,0.25)]',
+      bg: 'bg-[#10B981]/10 text-[#10B981] border-[#10B981]/30',
       icon: ShieldCheck,
       label: 'Low Risk',
-      dot: 'bg-[#00E5A0]',
+      dot: 'bg-[#10B981]',
     },
     Safe: {
-      bg: 'bg-[#00D9FF]/15 text-[#00D9FF] border-[#00D9FF]/40 shadow-[0_0_8px_rgba(0,217,255,0.25)]',
+      bg: 'bg-[#45C8E8]/10 text-[#45C8E8] border-[#45C8E8]/30',
       icon: ShieldCheck,
-      label: 'Protected / Safe',
-      dot: 'bg-[#00D9FF]',
+      label: 'Verified Official',
+      dot: 'bg-[#45C8E8]',
     },
   }[level] || {
-    bg: 'bg-[#0A1C3D] text-[#91ACD1] border-[#123E78]',
+    bg: 'bg-[#16253D] text-[#8EA2C6] border-[#1E314F]',
     icon: AlertCircle,
     label: level,
-    dot: 'bg-[#91ACD1]',
+    dot: 'bg-[#8EA2C6]',
   };
 
   const Icon = config.icon;
 
   return (
     <span
-      className={`inline-flex items-center rounded-full border shadow-xs tracking-wide transition-colors ${sizeClasses[size]} ${config.bg}`}
+      className={`inline-flex items-center rounded-md border tracking-tight transition-colors ${sizeClasses[size]} ${config.bg}`}
     >
-      <span className={`w-1.5 h-1.5 rounded-full ${config.dot} animate-pulse`} />
-      {showIcon && <Icon className={size === 'lg' ? 'w-4 h-4' : 'w-3.5 h-3.5'} />}
+      <span className={`w-1.5 h-1.5 rounded-full shrink-0 ${config.dot}`} />
+      {showIcon && <Icon className="w-3.5 h-3.5 shrink-0 opacity-90" />}
       <span>{config.label}</span>
     </span>
   );

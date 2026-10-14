@@ -54,10 +54,10 @@ Response: { bundleId, sellerName, trackViewUrl, version }`,
     {
       id: 'risk-engine',
       icon: Cpu,
-      badge: 'ZERO-HALLUCINATION',
+      badge: 'BOUNDED SCORING',
       badgeColor: 'border-cyber-amber/40 text-cyber-amber bg-cyber-amber/10',
       title: 'Explainable Risk Scoring Engine',
-      tagline: 'Mathematical bounding replacing opaque black-box AI hallucinations',
+      tagline: 'Deterministic mathematical factors replacing opaque black-box opacity',
       description:
         'Computes threat scores on a bounded 0.0 – 100.0 scale using deterministic mathematical factors: normalized Levenshtein string distances, token set similarity ratios, package ID entropy, and developer signature deviations. Every score includes a clear audit breakdown.',
       points: [

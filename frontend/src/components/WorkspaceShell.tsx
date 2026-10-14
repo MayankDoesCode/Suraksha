@@ -15,6 +15,7 @@ import { InvestigationCenterView } from '../views/InvestigationCenterView';
 import { ThreatGraphView } from '../views/ThreatGraphView';
 import { ReportsView } from '../views/ReportsView';
 import { DiagnosticsView } from '../views/DiagnosticsView';
+import { WatchtowerView } from '../views/WatchtowerView';
 
 interface WorkspaceShellProps {
   onNavigateHome?: () => void;
@@ -36,6 +37,8 @@ const WorkspaceContent: React.FC<WorkspaceShellProps> = ({ onNavigateHome, initi
     switch (activeTab) {
       case 'overview':
         return <OverviewDashboard />;
+      case 'watchtower':
+        return <WatchtowerView />;
       case 'brand-profile':
         return <BrandProfileView />;
       case 'social-monitoring':
@@ -58,7 +61,7 @@ const WorkspaceContent: React.FC<WorkspaceShellProps> = ({ onNavigateHome, initi
   };
 
   return (
-    <div className="flex h-screen w-screen overflow-hidden bg-[#020817] font-sans text-[#F1F5FF]">
+    <div className="flex h-screen w-screen overflow-hidden bg-[#080F1D] font-sans text-[#F8FAFC]">
       {/* Dark Navy Sidebar */}
       <Sidebar
         onNavigateHome={onNavigateHome}
@@ -67,13 +70,13 @@ const WorkspaceContent: React.FC<WorkspaceShellProps> = ({ onNavigateHome, initi
       />
 
       {/* Main Content Area */}
-      <div className="flex-1 flex flex-col min-w-0 overflow-hidden bg-[#020817]">
+      <div className="flex-1 flex flex-col min-w-0 overflow-hidden bg-[#080F1D]">
         <Header
           onNavigateHome={onNavigateHome}
           onToggleMobileMenu={() => setMobileMenuOpen(!mobileMenuOpen)}
         />
 
-        <main className="flex-1 overflow-y-auto p-4 sm:p-5 lg:p-6 bg-[#020817]">
+        <main className="flex-1 overflow-y-auto p-4 sm:p-5 lg:p-6 bg-[#080F1D]">
           {renderActiveView()}
         </main>
       </div>
@@ -98,10 +101,10 @@ const MainContent: React.FC<WorkspaceShellProps> = ({
 
   if (loading) {
     return (
-      <div className="min-h-screen w-full flex items-center justify-center bg-[#060B19] text-white">
+      <div className="min-h-screen w-full flex items-center justify-center bg-[#080F1D] text-white">
         <div className="flex flex-col items-center gap-3">
-          <div className="w-8 h-8 border-3 border-blue-500/20 border-t-blue-500 rounded-full animate-spin" />
-          <p className="text-xs font-mono text-slate-400">Verifying Suraksha workspace credentials...</p>
+          <div className="w-8 h-8 border-3 border-[#45C8E8]/20 border-t-[#45C8E8] rounded-full animate-spin" />
+          <p className="text-xs font-mono text-[#8EA2C6]">Verifying Suraksha workspace credentials...</p>
         </div>
       </div>
     );

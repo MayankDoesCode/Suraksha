@@ -407,7 +407,7 @@ export const AppProvider: React.FC<{ children: React.ReactNode }> = ({ children 
       stringSignals: candidateData.stringSignals,
       stringSimilarity: candidateData.stringSimilarity,
       levenshteinDistance: candidateData.levenshteinDistance,
-      analysisEngine: candidateData.analysisEngine || 'Gemini 3.8 Flash',
+      analysisEngine: candidateData.analysisEngine || 'SURAKSHA Detection Engine',
       status: 'New',
       statusHistory: [
         {

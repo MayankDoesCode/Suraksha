@@ -140,3 +140,87 @@ def scan_brand_provider(brand_id: str):
     }), 200
 
 
+@brands_bp.route("/brands/<string:brand_id>/watchtower/evaluate", methods=["POST"])
+@require_auth(allowed_roles=["admin", "lead", "analyst"])
+def evaluate_brand_watchtower(brand_id: str):
+    """
+    Brand Impersonation Watchtower:
+    Compare candidate domains, URLs, or social handles directly against registered brand assets,
+    generate explainable similarity signals and risk indicators, and optionally route to investigation.
+    """
+    from backend.app.services.watchtower_service import watchtower_service
+    payload = request.get_json(silent=True)
+    if payload is None:
+        return jsonify({
+            "success": False,
+            "error": {
+                "code": "BAD_REQUEST",
+                "message": "Malformed JSON payload or empty request body",
+                "details": []
+            }
+        }), 400
+
+    scan_mode = payload.get("scan_mode", "scan_on_demand")
+    persist = bool(payload.get("persist_to_investigation", False))
+
+    result = watchtower_service.evaluate_watchtower(
+        brand_id=brand_id,
+        candidate_data=payload,
+        scan_mode=scan_mode,
+        persist_to_investigation=persist,
+    )
+    return jsonify({
+        "success": True,
+        "data": result
+    }), 200
+
+
+@brands_bp.route("/brands/<string:brand_id>/watchtower/summary", methods=["GET"])
+def get_brand_watchtower_summary(brand_id: str):
+    """
+    Retrieve Watchtower surveillance summary for a brand, including registered assets scope,
+    active threat findings count, and scheduled monitoring status.
+    """
+    from backend.app.repositories.brand_repository import BrandRepository
+    from backend.app.repositories.threat_repository import ThreatRepository
+    from backend.app.monitoring.scheduler import scheduler
+    from backend.app.utils.errors import NotFoundError
+
+    brand_repo = BrandRepository()
+    threat_repo = ThreatRepository()
+
+    brand = brand_repo.get_by_id(brand_id)
+    if not brand:
+        return jsonify({
+            "success": False,
+            "error": {
+                "code": "NOT_FOUND",
+                "message": f"Brand with ID '{brand_id}' not found.",
+                "details": []
+            }
+        }), 404
+
+    bdict = brand.to_dict(include_relations=True)
+    findings, total_findings = threat_repo.list_findings(brand_id=brand_id, limit=100)
+    scheduled_jobs = scheduler.list_jobs(brand_id=brand_id)
+
+    return jsonify({
+        "success": True,
+        "data": {
+            "brand_id": brand_id,
+            "brand_name": brand.name,
+            "monitored_domains_count": len(bdict.get("domains", [])),
+            "monitored_socials_count": len(bdict.get("social_handles", [])),
+            "monitored_apps_count": len(bdict.get("app_identifiers", [])),
+            "total_screened_findings": total_findings,
+            "active_unresolved_threats": sum(
+                1 for f in findings if f.review_status not in ("FALSE_POSITIVE", "RESOLVED")
+            ),
+            "scheduled_monitoring_jobs_count": len(scheduled_jobs),
+            "scheduled_jobs": scheduled_jobs,
+            "watchtower_status": "ACTIVE_SURVEILLANCE",
+            "clarification": "Watchtower compares on-demand queries and scheduled batch cycles against registered brand assets.",
+        }
+    }), 200
+
+

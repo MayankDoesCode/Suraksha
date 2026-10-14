@@ -99,7 +99,7 @@ export default function LandingNav({ onLaunchDashboard }) {
   };
 
   return (
-    <header className="sticky top-0 z-50 w-full border-b border-cyan-500/10 bg-[#030712]/50 backdrop-blur-md transition-all duration-300">
+    <header className="sticky top-0 z-50 w-full border-b border-[#1E314F] bg-[#080F1D]/85 backdrop-blur-md transition-all duration-300">
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-4 xl:px-8 h-20 flex items-center justify-between gap-3 xl:gap-6">
         {/* Brand identity */}
         <div
@@ -110,30 +110,30 @@ export default function LandingNav({ onLaunchDashboard }) {
           onKeyDown={(e) => e.key === 'Enter' && scrollToSection('home')}
           aria-label="Suraksha Home"
         >
-          <div className="w-10 h-10 rounded-xl bg-gradient-to-br from-cyber-accent/20 to-purple-600/20 border border-cyber-accent/40 flex items-center justify-center text-cyber-accent shadow-glow transition-all group-hover:scale-105 group-hover:border-cyan-400 shrink-0">
-            <Shield className="w-5 h-5 text-cyan-400" />
+          <div className="w-10 h-10 rounded-xl bg-[#111D30] border border-[#1E314F] flex items-center justify-center text-[#45C8E8] transition-all group-hover:border-[#45C8E8] shrink-0">
+            <Shield className="w-5 h-5 text-[#45C8E8]" />
           </div>
           <div className="shrink-0 flex flex-col justify-center">
             <div className="text-lg font-bold tracking-wider text-white font-mono flex items-center gap-2 whitespace-nowrap leading-none">
               <span>SURAKSHA</span>
-              <span className="hidden sm:inline-flex items-center px-2 py-0.5 text-[10px] font-mono tracking-widest text-cyan-400 bg-cyan-950/60 border border-cyan-500/40 rounded shadow-xs leading-none whitespace-nowrap shrink-0">
+              <span className="hidden sm:inline-flex items-center px-2 py-0.5 text-[10px] font-mono tracking-widest text-[#45C8E8] bg-[#111D30] border border-[#1E314F] rounded leading-none whitespace-nowrap shrink-0">
                 ENTERPRISE DRP
               </span>
             </div>
-            <div className="text-[10px] text-cyber-textMuted uppercase tracking-widest font-mono whitespace-nowrap mt-1">
+            <div className="text-[10px] text-[#8EA2C6] uppercase tracking-widest font-mono whitespace-nowrap mt-1">
               Detect. Verify. Protect.
             </div>
           </div>
         </div>
 
         {/* Desktop Nav Links */}
-        <nav className="hidden lg:flex items-center gap-3 xl:gap-5 2xl:gap-7 text-xs font-medium text-cyber-textMuted shrink-0">
+        <nav className="hidden lg:flex items-center gap-3 xl:gap-5 2xl:gap-7 text-xs font-medium text-[#8EA2C6] shrink-0">
           <button
             onClick={() => scrollToSection('home')}
             className={`transition-colors tracking-wide py-1 border-b-2 font-mono whitespace-nowrap shrink-0 ${
               activeSection === 'home'
-                ? 'text-cyan-400 border-cyan-400 font-semibold'
-                : 'text-cyber-textMuted border-transparent hover:text-white'
+                ? 'text-[#45C8E8] border-[#45C8E8] font-semibold'
+                : 'text-[#8EA2C6] border-transparent hover:text-white'
             }`}
           >
             Home
@@ -145,8 +145,8 @@ export default function LandingNav({ onLaunchDashboard }) {
               onClick={() => setSolutionsDropdownOpen(!solutionsDropdownOpen)}
               className={`flex items-center gap-1.5 transition-colors tracking-wide py-1 border-b-2 font-mono whitespace-nowrap shrink-0 ${
                 solutionsDropdownOpen || activeSection === 'capabilities' || activeSection === 'preview' || activeSection === 'scoring'
-                  ? 'text-cyan-400 border-cyan-400 font-semibold'
-                  : 'text-cyber-textMuted border-transparent hover:text-white'
+                  ? 'text-[#45C8E8] border-[#45C8E8] font-semibold'
+                  : 'text-[#8EA2C6] border-transparent hover:text-white'
               }`}
               aria-haspopup="true"
               aria-expanded={solutionsDropdownOpen}
@@ -154,13 +154,13 @@ export default function LandingNav({ onLaunchDashboard }) {
               <span>Solutions</span>
               <ChevronDown
                 className={`w-3.5 h-3.5 transition-transform duration-200 ${
-                  solutionsDropdownOpen ? 'rotate-180 text-cyan-400' : ''
+                  solutionsDropdownOpen ? 'rotate-180 text-[#45C8E8]' : ''
                 }`}
               />
             </button>
 
             {solutionsDropdownOpen && (
-              <div className="absolute top-full left-0 mt-2 w-72 rounded-2xl bg-cyber-dark/95 backdrop-blur-2xl border border-cyber-border shadow-2xl shadow-black/80 py-2.5 z-50 animate-in fade-in slide-in-from-top-2 duration-150">
+              <div className="absolute top-full left-0 mt-2 w-72 rounded-xl bg-[#111D30] backdrop-blur-2xl border border-[#1E314F] shadow-panel py-2.5 z-50">
                 <div className="px-3.5 py-1.5 text-[10px] font-mono uppercase tracking-widest text-cyber-textMuted border-b border-cyber-border/60">
                   Platform Modules
                 </div>
@@ -259,15 +259,15 @@ export default function LandingNav({ onLaunchDashboard }) {
         {/* Right Action Area */}
         <div className="hidden sm:flex items-center gap-2 xl:gap-3 shrink-0">
           {/* Live Telemetry Status Pill */}
-          <div className="hidden xl:flex items-center gap-2 px-3 py-1.5 rounded-full bg-cyber-surface/70 border border-cyber-border text-[11px] font-mono shrink-0">
+          <div className="hidden xl:flex items-center gap-2 px-3 py-1.5 rounded-full bg-[#111D30] border border-[#1E314F] text-[11px] font-mono shrink-0">
             <span
               className={`w-2 h-2 rounded-full shrink-0 ${
                 systemStatus === 'operational'
-                  ? 'bg-cyber-emerald shadow-[0_0_8px_rgba(16,185,129,0.8)] animate-pulse'
-                  : 'bg-cyber-accent shadow-[0_0_8px_rgba(0,240,255,0.8)]'
+                  ? 'bg-[#10B981]'
+                  : 'bg-[#45C8E8]'
               }`}
             />
-            <span className="text-cyber-textMuted font-medium whitespace-nowrap">
+            <span className="text-[#8EA2C6] font-medium whitespace-nowrap">
               {systemStatus === 'operational' ? 'SYSTEM ONLINE' : 'ENGINE READY'}
             </span>
           </div>
@@ -275,17 +275,17 @@ export default function LandingNav({ onLaunchDashboard }) {
           {/* Sign In CTA */}
           <button
             onClick={() => handleLaunch('login')}
-            className="px-3 xl:px-4 py-2 rounded-xl text-cyber-textMuted hover:text-white hover:bg-cyber-surface/60 border border-transparent hover:border-cyber-border transition-all text-xs font-mono font-semibold tracking-wider flex items-center gap-1.5 whitespace-nowrap shrink-0"
+            className="px-3 xl:px-4 py-2 rounded-xl text-[#8EA2C6] hover:text-white hover:bg-[#111D30] border border-transparent hover:border-[#1E314F] transition-all text-xs font-mono font-semibold tracking-wider flex items-center gap-1.5 whitespace-nowrap shrink-0"
             aria-label="Sign In to Platform"
           >
-            <LogIn className="w-3.5 h-3.5 text-cyan-400 shrink-0" />
+            <LogIn className="w-3.5 h-3.5 text-[#45C8E8] shrink-0" />
             <span>Sign In</span>
           </button>
 
           {/* Get Started CTA */}
           <button
             onClick={() => handleLaunch('signup')}
-            className="px-3.5 xl:px-5 py-2.5 rounded-xl bg-gradient-to-r from-cyan-500 via-cyan-400 to-blue-500 text-cyber-darkest font-bold text-xs tracking-wider uppercase font-mono shadow-[0_0_20px_rgba(0,240,255,0.35)] hover:shadow-[0_0_25px_rgba(0,240,255,0.55)] transition-all flex items-center gap-2 hover:scale-[1.02] active:scale-95 whitespace-nowrap shrink-0"
+            className="px-3.5 xl:px-5 py-2.5 rounded-xl bg-[#45C8E8] text-[#080F1D] font-bold text-xs tracking-wider uppercase font-mono hover:bg-[#38B2D0] transition-all flex items-center gap-2 active:scale-95 whitespace-nowrap shrink-0 shadow-card"
             aria-label="Get Started with Suraksha"
           >
             <span>Get Started</span>
@@ -298,28 +298,28 @@ export default function LandingNav({ onLaunchDashboard }) {
         <div className="flex lg:hidden items-center gap-2">
           <button
             onClick={() => setMobileMenuOpen(!mobileMenuOpen)}
-            className="p-2.5 rounded-xl bg-cyber-surface/80 border border-cyber-border text-cyber-textMuted hover:text-white transition-colors"
+            className="p-2.5 rounded-xl bg-[#111D30] border border-[#1E314F] text-[#8EA2C6] hover:text-white transition-colors"
             aria-label="Toggle Navigation"
           >
-            {mobileMenuOpen ? <X className="w-5 h-5 text-cyan-400" /> : <Menu className="w-5 h-5" />}
+            {mobileMenuOpen ? <X className="w-5 h-5 text-[#45C8E8]" /> : <Menu className="w-5 h-5" />}
           </button>
         </div>
       </div>
 
       {/* Mobile Drawer */}
       {mobileMenuOpen && (
-        <div className="lg:hidden border-b border-cyber-border bg-cyber-darkest/98 backdrop-blur-2xl px-6 py-6 space-y-4 animate-in fade-in slide-in-from-top-4 duration-200">
-          <div className="flex items-center justify-between pb-3 border-b border-cyber-border/60">
-            <span className="text-[11px] font-mono text-cyber-textMuted uppercase tracking-wider">
+        <div className="lg:hidden border-b border-[#1E314F] bg-[#080F1D]/98 backdrop-blur-2xl px-6 py-6 space-y-4">
+          <div className="flex items-center justify-between pb-3 border-b border-[#1E314F]">
+            <span className="text-[11px] font-mono text-[#8EA2C6] uppercase tracking-wider">
               Navigation Menu
             </span>
-            <div className="flex items-center gap-2 px-2.5 py-1 rounded-full bg-cyber-surface border border-cyber-border text-[10px] font-mono">
+            <div className="flex items-center gap-2 px-2.5 py-1 rounded-full bg-[#111D30] border border-[#1E314F] text-[10px] font-mono">
               <span
                 className={`w-1.5 h-1.5 rounded-full ${
-                  systemStatus === 'operational' ? 'bg-cyber-emerald animate-pulse' : 'bg-cyber-accent'
+                  systemStatus === 'operational' ? 'bg-[#10B981]' : 'bg-[#45C8E8]'
                 }`}
               />
-              <span className="text-cyber-textMuted">
+              <span className="text-[#8EA2C6]">
                 {systemStatus === 'operational' ? 'ONLINE' : 'READY'}
               </span>
             </div>
@@ -330,8 +330,8 @@ export default function LandingNav({ onLaunchDashboard }) {
               onClick={() => scrollToSection('home')}
               className={`block w-full text-left py-2 px-3 rounded-lg transition-colors ${
                 activeSection === 'home'
-                  ? 'text-cyan-400 bg-cyber-accent/10 border border-cyber-accent/30 font-semibold'
-                  : 'text-cyber-textMuted hover:text-white'
+                  ? 'text-[#45C8E8] bg-[#45C8E8]/10 border border-[#45C8E8]/30 font-semibold'
+                  : 'text-[#8EA2C6] hover:text-white'
               }`}
             >
               Home
@@ -340,8 +340,8 @@ export default function LandingNav({ onLaunchDashboard }) {
               onClick={() => scrollToSection('capabilities')}
               className={`block w-full text-left py-2 px-3 rounded-lg transition-colors ${
                 activeSection === 'capabilities'
-                  ? 'text-cyan-400 bg-cyber-accent/10 border border-cyber-accent/30 font-semibold'
-                  : 'text-cyber-textMuted hover:text-white'
+                  ? 'text-[#45C8E8] bg-[#45C8E8]/10 border border-[#45C8E8]/30 font-semibold'
+                  : 'text-[#8EA2C6] hover:text-white'
               }`}
             >
               Capabilities
@@ -350,8 +350,8 @@ export default function LandingNav({ onLaunchDashboard }) {
               onClick={() => scrollToSection('architecture')}
               className={`block w-full text-left py-2 px-3 rounded-lg transition-colors ${
                 activeSection === 'architecture'
-                  ? 'text-cyan-400 bg-cyber-accent/10 border border-cyber-accent/30 font-semibold'
-                  : 'text-cyber-textMuted hover:text-white'
+                  ? 'text-[#45C8E8] bg-[#45C8E8]/10 border border-[#45C8E8]/30 font-semibold'
+                  : 'text-[#8EA2C6] hover:text-white'
               }`}
             >
               Architecture
@@ -360,8 +360,8 @@ export default function LandingNav({ onLaunchDashboard }) {
               onClick={() => scrollToSection('preview')}
               className={`block w-full text-left py-2 px-3 rounded-lg transition-colors ${
                 activeSection === 'preview'
-                  ? 'text-cyan-400 bg-cyber-accent/10 border border-cyber-accent/30 font-semibold'
-                  : 'text-cyber-textMuted hover:text-white'
+                  ? 'text-[#45C8E8] bg-[#45C8E8]/10 border border-[#45C8E8]/30 font-semibold'
+                  : 'text-[#8EA2C6] hover:text-white'
               }`}
             >
               Product Preview
@@ -370,25 +370,25 @@ export default function LandingNav({ onLaunchDashboard }) {
               onClick={() => scrollToSection('scoring')}
               className={`block w-full text-left py-2 px-3 rounded-lg transition-colors ${
                 activeSection === 'scoring'
-                  ? 'text-cyan-400 bg-cyber-accent/10 border border-cyber-accent/30 font-semibold'
-                  : 'text-cyber-textMuted hover:text-white'
+                  ? 'text-[#45C8E8] bg-[#45C8E8]/10 border border-[#45C8E8]/30 font-semibold'
+                  : 'text-[#8EA2C6] hover:text-white'
               }`}
             >
               Deterministic Scoring
             </button>
           </div>
 
-          <div className="pt-4 border-t border-cyber-border space-y-2.5">
+          <div className="pt-4 border-t border-[#1E314F] space-y-2.5">
             <button
               onClick={() => handleLaunch('login')}
-              className="w-full py-2.5 rounded-xl border border-cyber-border bg-cyber-surface/60 text-white font-semibold text-xs tracking-wider uppercase font-mono hover:border-cyber-accent/40 flex items-center justify-center gap-2"
+              className="w-full py-2.5 rounded-xl border border-[#1E314F] bg-[#111D30] text-white font-semibold text-xs tracking-wider uppercase font-mono hover:border-[#45C8E8]/40 flex items-center justify-center gap-2"
             >
-              <LogIn className="w-3.5 h-3.5 text-cyan-400" />
+              <LogIn className="w-3.5 h-3.5 text-[#45C8E8]" />
               <span>Sign In to Platform</span>
             </button>
             <button
               onClick={() => handleLaunch('signup')}
-              className="w-full py-3 rounded-xl bg-gradient-to-r from-cyan-500 to-blue-500 text-cyber-darkest font-bold text-xs tracking-wider uppercase font-mono shadow-glow flex items-center justify-center gap-2"
+              className="w-full py-3 rounded-xl bg-[#45C8E8] text-[#080F1D] font-bold text-xs tracking-wider uppercase font-mono hover:bg-[#38B2D0] flex items-center justify-center gap-2"
             >
               <span>Get Started</span>
               <ArrowRight className="w-4 h-4" />

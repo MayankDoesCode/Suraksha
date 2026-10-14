@@ -44,7 +44,7 @@ export function exportCandidatesToCSV(candidates: CandidateAsset[], brandName: s
   const csvContent = [
     `# Suraksha — AI-Powered Digital Brand Protection Report - Monitored Brand: ${brandName}`,
     `# Exported: ${new Date().toISOString()}`,
-    `# Note: Non-Production Hackathon Demonstration Prototype`,
+    `# Note: Digital Risk Protection Finding Archive - Confidential Security Report`,
     headers.join(','),
     ...rows.map(row => row.join(',')),
   ].join('\r\n');

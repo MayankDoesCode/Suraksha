@@ -24,18 +24,18 @@ export default function ProductPreviewSection({ onLaunchDashboard }) {
   ];
 
   return (
-    <section id="preview" className="py-24 relative border-t border-cyan-500/20 bg-[#040816]/40 backdrop-blur-sm">
+    <section id="preview" className="py-24 relative border-t border-[#1E314F] bg-[#080F1D]">
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
         {/* Section Header */}
         <div className="text-center max-w-3xl mx-auto mb-16">
-          <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full border border-cyber-accent/30 bg-cyber-accent/5 text-cyber-accent font-mono text-[11px] uppercase tracking-wider mb-4">
+          <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full border border-[#1E314F] bg-[#111D30] text-[#45C8E8] font-mono text-[11px] uppercase tracking-wider mb-4">
             <Search className="w-3.5 h-3.5" />
             Interactive Platform Preview
           </div>
           <h2 className="text-3xl sm:text-4xl lg:text-5xl font-bold tracking-tight text-white font-mono">
-            Designed for <span className="text-cyber-accent">Cybersecurity</span> Analysts
+            Designed for <span className="text-[#45C8E8]">Cybersecurity</span> Analysts
           </h2>
-          <p className="mt-4 text-base text-cyber-textMuted leading-relaxed">
+          <p className="mt-4 text-base text-[#8EA2C6] leading-relaxed">
             Preview the actual interface built to manage brand assets, trigger external ecosystem scans, inspect mathematically scored evidence, and execute triage workflows.
           </p>
         </div>
@@ -51,8 +51,8 @@ export default function ProductPreviewSection({ onLaunchDashboard }) {
                 onClick={() => setActiveTab(tab.id)}
                 className={`flex items-center gap-2.5 px-4 py-2.5 rounded-xl text-xs font-mono tracking-wide transition-all ${
                   isActive
-                    ? 'bg-cyber-surface border border-cyber-accent text-white shadow-glow'
-                    : 'bg-cyber-dark/60 border border-cyber-border text-cyber-textMuted hover:text-white hover:border-cyber-border/80'
+                    ? 'bg-[#111D30] border border-[#45C8E8] text-white shadow-card'
+                    : 'bg-[#0E1726] border border-[#1E314F] text-[#8EA2C6] hover:text-white hover:border-[#45C8E8]/40'
                 }`}
               >
                 <Icon className={`w-4 h-4 ${isActive ? 'text-cyber-accent' : 'text-cyber-textMuted'}`} />

@@ -145,3 +145,54 @@ def get_metrics():
         "success": True,
         "data": metrics
     }), 200
+
+
+@findings_bp.route("/findings/<string:finding_id>/explain", methods=["GET"])
+def explain_finding(finding_id: str):
+    """
+    Explainable AI Investigation Assistant:
+    Provides deep explainability dossier for an existing finding, decomposing into:
+    - Observed Facts
+    - Model Inferences & Detection Rules
+    - Unverified Claims & Intelligence Gaps
+    - Validated statistical confidence score
+    - Evidence-based next steps with zero auto-confirmation guarantee.
+    """
+    from backend.app.services.watchtower_service import watchtower_service
+    result = watchtower_service.explain_finding_by_id(finding_id)
+    return jsonify({
+        "success": True,
+        "data": result
+    }), 200
+
+
+@findings_bp.route("/findings/explain", methods=["POST"])
+def explain_candidate():
+    """
+    On-demand candidate explainability:
+    Evaluates a candidate payload against target brand assets and decomposes into
+    Observed Facts, Model Inferences, and Unverified Claims.
+    """
+    from backend.app.services.watchtower_service import watchtower_service
+    payload = request.get_json(silent=True) or {}
+    brand_id = payload.get("brand_id")
+    if not brand_id:
+        return jsonify({
+            "success": False,
+            "error": {
+                "code": "VALIDATION_ERROR",
+                "message": "Field 'brand_id' is required for explainability evaluation.",
+                "details": []
+            }
+        }), 422
+
+    result = watchtower_service.evaluate_watchtower(
+        brand_id=brand_id,
+        candidate_data=payload,
+        scan_mode=payload.get("scan_mode", "scan_on_demand"),
+        persist_to_investigation=False,
+    )
+    return jsonify({
+        "success": True,
+        "data": result
+    }), 200

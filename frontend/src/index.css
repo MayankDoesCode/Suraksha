@@ -9,54 +9,101 @@
 body {
   margin: 0;
   min-height: 100vh;
-  background-color: #080c14;
+  background-color: #080F1D;
   background-image: 
-    radial-gradient(circle at 50% 0%, rgba(0, 240, 255, 0.05) 0%, transparent 60%),
-    linear-gradient(rgba(21, 29, 48, 0.4) 1px, transparent 1px),
-    linear-gradient(90deg, rgba(21, 29, 48, 0.4) 1px, transparent 1px);
-  background-size: 100% 100%, 40px 40px, 40px 40px;
+    radial-gradient(circle at 50% 0%, rgba(69, 200, 232, 0.03) 0%, transparent 65%),
+    linear-gradient(rgba(30, 49, 79, 0.15) 1px, transparent 1px),
+    linear-gradient(90deg, rgba(30, 49, 79, 0.15) 1px, transparent 1px);
+  background-size: 100% 100%, 32px 32px, 32px 32px;
   background-position: 0 0, -1px -1px, -1px -1px;
+  color: #F8FAFC;
+  font-feature-settings: 'cv02', 'cv03', 'cv04', 'cv11';
 }
 
-/* Custom scrollbars */
+/* Accessible focus styling */
+:focus-visible {
+  outline: 2px solid #45C8E8;
+  outline-offset: 2px;
+}
+
+/* Custom crisp enterprise scrollbars */
 ::-webkit-scrollbar {
   width: 6px;
   height: 6px;
 }
 ::-webkit-scrollbar-track {
-  background: #080c14;
+  background: #080F1D;
 }
 ::-webkit-scrollbar-thumb {
-  background: #222f4c;
+  background: #1E314F;
   border-radius: 3px;
 }
 ::-webkit-scrollbar-thumb:hover {
-  background: #00f0ff;
+  background: #2D466D;
 }
 
-/* Glassmorphism panel */
+/* Enterprise Slate Blue panels */
 .cyber-panel {
-  background: rgba(14, 20, 34, 0.75);
-  backdrop-filter: blur(12px);
-  border: 1px solid #222f4c;
+  background: #111D30;
+  border: 1px solid #1E314F;
+  border-radius: 0.75rem;
+  box-shadow: 0 4px 20px -2px rgba(0, 0, 0, 0.35);
+}
+
+.cyber-panel-elevated {
+  background: #16253D;
+  border: 1px solid #1E314F;
+  border-radius: 0.75rem;
+  box-shadow: 0 6px 24px -2px rgba(0, 0, 0, 0.45);
 }
 
 .cyber-panel-hover {
-  transition: all 0.2s cubic-bezier(0.16, 1, 0.3, 1);
+  transition: border-color 0.15s ease, box-shadow 0.15s ease, transform 0.15s ease;
 }
 .cyber-panel-hover:hover {
-  border-color: rgba(0, 240, 255, 0.4);
-  box-shadow: 0 4px 20px -2px rgba(0, 240, 255, 0.08);
+  border-color: rgba(69, 200, 232, 0.35);
+  box-shadow: 0 4px 16px -2px rgba(0, 0, 0, 0.4);
 }
 
-/* Glowing text */
-.text-cyber-glow {
-  text-shadow: 0 0 12px rgba(0, 240, 255, 0.5);
-}
-
-/* Cyber badges */
+/* Clean status pills */
 .badge-planned {
-  background: rgba(34, 47, 76, 0.6);
-  border: 1px dashed rgba(130, 149, 179, 0.5);
-  color: #8295b3;
+  background: rgba(30, 49, 79, 0.5);
+  border: 1px dashed rgba(142, 162, 198, 0.4);
+  color: #8EA2C6;
+}
+
+/* Enterprise Color Harmonization (maps legacy arbitrary classes to Obsidian Navy / Slate Blue / Ice Cyan) */
+.border-\[\#123E78\], [class*="border-[#123E78]"] {
+  border-color: #1E314F !important;
+}
+.bg-\[\#06142D\], [class*="bg-[#06142D]"] {
+  background-color: #111D30 !important;
+}
+.bg-\[\#0A1C3D\], [class*="bg-[#0A1C3D]"] {
+  background-color: #0E1726 !important;
+}
+.bg-\[\#030D22\], [class*="bg-[#030D22]"] {
+  background-color: #080F1D !important;
+}
+.bg-\[\#081B3B\], [class*="bg-[#081B3B]"] {
+  background-color: #16253D !important;
+}
+.text-\[\#00D9FF\], [class*="text-[#00D9FF]"] {
+  color: #45C8E8 !important;
+}
+.text-\[\#91ACD1\], [class*="text-[#91ACD1]"] {
+  color: #8EA2C6 !important;
+}
+.text-\[\#F1F5FF\], [class*="text-[#F1F5FF]"] {
+  color: #F8FAFC !important;
+}
+
+/* Reduced-motion accessibility */
+@media (prefers-reduced-motion: reduce) {
+  *, ::before, ::after {
+    animation-duration: 0.01ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.01ms !important;
+    scroll-behavior: auto !important;
+  }
 }

@@ -1,6 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import LandingPage from './components/landing/LandingPage';
 import WorkspaceShell from './components/WorkspaceShell';
+import SurakshaVaultIntro from './components/intro/SurakshaVaultIntro';
 
 /**
  * SURAKSHA Master Application Router
@@ -13,6 +14,26 @@ export default function App() {
     return window.location.pathname.startsWith('/dashboard') ? '/dashboard' : '/';
   });
   const [navOptions, setNavOptions] = useState(null);
+
+  // Manage cinematic vault intro on first eligible session visit to landing page
+  const [showIntro, setShowIntro] = useState(() => {
+    if (typeof window === 'undefined') return false;
+    // Do not show on direct dashboard navigation
+    if (window.location.pathname.startsWith('/dashboard')) return false;
+
+    // Force display if explicitly requested via query parameter (?intro=1)
+    const urlParams = new URLSearchParams(window.location.search);
+    if (urlParams.get('intro') === '1' || urlParams.get('intro') === 'true') {
+      return true;
+    }
+
+    try {
+      const hasSeen = sessionStorage.getItem('suraksha_vault_intro_seen');
+      return !hasSeen;
+    } catch {
+      return false;
+    }
+  });
 
   useEffect(() => {
     const handlePopState = () => {
@@ -34,6 +55,24 @@ export default function App() {
     window.scrollTo({ top: 0, behavior: 'smooth' });
   };
 
+  const handleIntroComplete = () => {
+    try {
+      sessionStorage.setItem('suraksha_vault_intro_seen', 'true');
+    } catch {
+      // safe fallback if storage unavailable
+    }
+    setShowIntro(false);
+  };
+
+  const handleReplayIntro = () => {
+    try {
+      sessionStorage.removeItem('suraksha_vault_intro_seen');
+    } catch {
+      // safe fallback
+    }
+    setShowIntro(true);
+  };
+
   if (route === '/dashboard') {
     return (
       <WorkspaceShell
@@ -45,8 +84,12 @@ export default function App() {
   }
 
   return (
-    <LandingPage
-      onLaunchDashboard={(options) => navigate('/dashboard', options)}
-    />
+    <>
+      {showIntro && <SurakshaVaultIntro onComplete={handleIntroComplete} />}
+      <LandingPage
+        onLaunchDashboard={(options) => navigate('/dashboard', options)}
+        onReplayIntro={handleReplayIntro}
+      />
+    </>
   );
 }

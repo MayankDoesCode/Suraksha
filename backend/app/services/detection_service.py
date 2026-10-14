@@ -60,6 +60,9 @@ class DetectionService:
         asset_type = (candidate_data.get("asset_type") or "social").lower()
         candidate_name = (
             candidate_data.get("candidate_name") or
+            candidate_data.get("candidate_identifier") or
+            candidate_data.get("identifier") or
+            candidate_data.get("domain") or
             candidate_data.get("handle") or
             candidate_data.get("app_name") or ""
         ).strip()

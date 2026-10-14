@@ -210,7 +210,7 @@ export const DEMO_CANDIDATES: CandidateAsset[] = [
     ],
     stringSimilarity: 55,
     levenshteinDistance: 15,
-    analysisEngine: 'Gemini 3.8 Flash + Threat Heuristics',
+    analysisEngine: 'SURAKSHA ML Classifier + Threat Heuristics',
     tags: ['Phishing', 'Credential Lure', 'Impersonator', 'High Priority'],
   },
 
@@ -289,7 +289,7 @@ export const DEMO_CANDIDATES: CandidateAsset[] = [
     ],
     stringSimilarity: 42,
     levenshteinDistance: 19,
-    analysisEngine: 'Gemini 3.8 Flash + Brand Policy Engine',
+    analysisEngine: 'SURAKSHA Policy Engine + Brand Verifier',
     tags: ['Partner', 'Compliance Review', 'False Positive Risk'],
   },
 
@@ -375,7 +375,7 @@ export const DEMO_CANDIDATES: CandidateAsset[] = [
     ],
     stringSimilarity: 68,
     levenshteinDistance: 8,
-    analysisEngine: 'Gemini 3.8 Flash + Mobile Defense Sandbox',
+    analysisEngine: 'SURAKSHA App Detector + Mobile Sandbox',
     tags: ['Rogue App', 'SMS Stealer', 'Predatory Loan', 'Critical'],
   },
 
@@ -441,7 +441,7 @@ export const DEMO_CANDIDATES: CandidateAsset[] = [
     ],
     stringSimilarity: 48,
     levenshteinDistance: 8,
-    analysisEngine: 'Gemini 3.8 Flash + Contextual Semantic Engine',
+    analysisEngine: 'SURAKSHA Heuristic Analysis + Noise Filter',
     tags: ['Benign', 'False Positive Avoidance', 'Dismissed'],
   },
 
