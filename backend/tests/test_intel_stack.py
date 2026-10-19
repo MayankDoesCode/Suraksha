@@ -116,3 +116,54 @@ def test_report_rejects_wrong_audience_for_asset():
         build_report(_finding("a"), "Acme", "app_store")
     with pytest.raises(ValidationError):
         build_report(_finding("a"), "Acme", "nope")
+
+
+# ---- endpoint integration (no network: DNS/RDAP/TLS are faked) ----
+def _brand(client):
+    r = client.post("/api/v1/brands", json={"name": "Acme", "domains": [{"domain": "acme.com", "is_primary": True}]})
+    assert r.status_code in (200, 201), r.get_json()
+    return r.get_json()["data"]["id"]
+
+
+def test_discover_graph_enrich_report_end_to_end(client, monkeypatch):
+    from backend.app.intel import dns_probe
+    from backend.app.services import enrichment_service as es
+    from backend.app.intel.rdap import RdapRecord
+    from backend.app.intel.tls_cert import CertObservation
+
+    def fake_probe_many(self, domains, **kw):
+        out = []
+        for d in domains:
+            o = dns_probe.DnsObservation(domain=d, observed_at=0.0, resolves=(d == "acmee.com"))
+            if o.resolves:
+                o.a = ["93.184.216.34"]
+                o.ns = ["ns1.shady.test"]
+            out.append(o)
+        return out
+    monkeypatch.setattr(dns_probe.DnsProbe, "probe_many", fake_probe_many)
+    bid = _brand(client)
+
+    r = client.post(f"/api/v1/brands/{bid}/discover", json={"limit": 50})
+    assert r.status_code == 200, r.get_json()
+    data = r.get_json()["data"]
+    assert data["resolved"] == 1 and data["results"][0]["domain"] == "acmee.com"
+    fid = data["results"][0]["finding_id"]
+
+    monkeypatch.setattr(es.EnrichmentService, "collect", lambda self, d, observation=None: es.DomainIntel(
+        d, "2026-10-19T00:00:00+00:00", {"resolves": True, "a": ["93.184.216.34"]},
+        RdapRecord(domain=d, found=True, observed_at=0, age_days=2, registrar="Reg Inc").to_dict(),
+        CertObservation(host=d, ip=None, observed_at=0.0, error="x").to_dict()))
+    first = client.post(f"/api/v1/findings/{fid}/enrich").get_json()["data"]["finding"]
+    second = client.post(f"/api/v1/findings/{fid}/enrich").get_json()["data"]["finding"]
+    assert first["final_risk_score"] == second["final_risk_score"]  # idempotent
+    assert sum(s["signal_type"] == "NEWLY_REGISTERED_DOMAIN" for s in second["signals"]) == 1
+
+    rep = client.get(f"/api/v1/findings/{fid}/report?audience=registrar").get_json()["data"]
+    assert rep["sent"] is False and "Reg Inc" in rep["body_markdown"]
+    assert client.get(f"/api/v1/findings/{fid}/report?audience=app_store").status_code == 422
+    assert client.get(f"/api/v1/brands/{bid}/graph").status_code == 200
+
+
+def test_intel_endpoints_require_auth(unauth_client):
+    assert unauth_client.post("/api/v1/brands/x/discover").status_code in (401, 403)
+    assert unauth_client.post("/api/v1/findings/x/enrich").status_code in (401, 403)

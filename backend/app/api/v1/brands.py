@@ -318,7 +318,7 @@ def get_brand_watchtower_summary(brand_id: str):
             ),
             "scheduled_monitoring_jobs_count": len(scheduled_jobs),
             "scheduled_jobs": scheduled_jobs,
-            "watchtower_status": "ACTIVE_SURVEILLANCE",
+            "watchtower_status": "SCHEDULED_ACTIVE" if scheduled_jobs else "ON_DEMAND_ONLY",
             "clarification": "Watchtower compares on-demand queries and scheduled batch cycles against registered brand assets.",
         }
     }), 200
