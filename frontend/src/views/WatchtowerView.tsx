@@ -41,16 +41,20 @@ interface Summary {
 }
 
 const TONE: Record<string, string> = {
-  CRITICAL: 'bg-danger/15 text-danger', HIGH: 'bg-high/15 text-high', MEDIUM: 'bg-warn/15 text-warn', LOW: 'bg-ok/15 text-ok', BENIGN: 'bg-ok/15 text-ok',
+  CRITICAL: 'bg-danger/10 text-danger border-danger/30',
+  HIGH: 'bg-high/10 text-high border-high/30',
+  MEDIUM: 'bg-warn/10 text-warn border-warn/30',
+  LOW: 'bg-ok/10 text-ok border-ok/30',
+  BENIGN: 'bg-ok/10 text-ok border-ok/30',
 };
 
 const Block: React.FC<{ title: string; items?: string[]; empty?: string }> = ({ title, items, empty }) => (
   <div>
-    <p className="text-xs font-medium uppercase tracking-wider text-fgSubtle">{title}</p>
+    <p className="text-xs font-medium text-fgSubtle">{title}</p>
     {items && items.length > 0 ? (
-      <ul className="mt-1.5 list-disc space-y-1 pl-4 text-sm text-fgMuted">{items.map((x, i) => <li key={i}>{x}</li>)}</ul>
+      <ul className="mt-1.5 list-disc space-y-1 pl-4 text-xs text-fgMuted">{items.map((x, i) => <li key={i}>{x}</li>)}</ul>
     ) : (
-      <p className="mt-1.5 text-sm text-fgSubtle">{empty ?? 'None.'}</p>
+      <p className="mt-1 text-xs text-fgSubtle">{empty ?? 'None.'}</p>
     )}
   </div>
 );
@@ -125,19 +129,29 @@ export const WatchtowerView: React.FC = () => {
   // ---- States where the check cannot run at all
   if (isDemoMode || !brandId) {
     return (
-      <div className="mx-auto max-w-lg rounded-2xl border border-line bg-surface p-8 text-center">
-        <h2 className="text-lg font-semibold">{isDemoMode ? 'Watchtower runs on the backend' : 'Select a saved brand first'}</h2>
-        <p className="mt-2 text-sm text-fgMuted">
-          {isDemoMode
-            ? 'Demo data is not sent to the server, so there is nothing for Watchtower to check. The Lookalike engine runs the same style of analysis in your browser on demo data.'
-            : 'Watchtower compares a suspected asset with the verified assets of a saved brand. Save your brand first.'}
+      <div className="mx-auto max-w-lg rounded-xl border border-line bg-surface p-8 text-center shadow-panel">
+        <div className="mx-auto mb-4 inline-flex h-12 w-12 items-center justify-center rounded-xl border border-line bg-surface2 text-accent">
+          <Activity className="h-6 w-6" />
+        </div>
+        <h2 className="text-base font-semibold text-fg">Watchtower Continuous Perimeter Monitoring</h2>
+        <p className="mt-2 text-xs text-fgMuted leading-relaxed">
+          Watchtower continuously audits corporate digital touchpoints, lookalike domains, and rogue store packages against verified allowlists. You can launch real-time similarity checks or sync live endpoints.
         </p>
-        <button
-          onClick={() => setActiveTab(isDemoMode ? 'lookalike-engine' : 'brand-profile')}
-          className="mt-5 inline-flex items-center gap-2 rounded-full bg-accent px-5 py-2 text-sm font-medium text-onAccent hover:bg-accentHover"
-        >
-          {isDemoMode ? 'Open the Lookalike engine' : 'Set up a brand'} <ArrowRight className="h-4 w-4" />
-        </button>
+        <div className="mt-5 flex flex-wrap items-center justify-center gap-3">
+          <button
+            onClick={() => setActiveTab('lookalike-engine')}
+            className="inline-flex items-center gap-1.5 rounded-md bg-accent px-4 py-2 text-xs font-medium text-onAccent hover:bg-accentHover transition-colors cursor-pointer focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-accent"
+          >
+            <span>Launch Lookalike Engine</span>
+            <ArrowRight className="h-3.5 w-3.5" />
+          </button>
+          <button
+            onClick={() => setActiveTab('brand-profile')}
+            className="inline-flex items-center gap-1.5 rounded-md border border-line bg-surface px-4 py-2 text-xs font-medium text-fg hover:bg-surface2 transition-colors cursor-pointer"
+          >
+            <span>Configure Protected Assets</span>
+          </button>
+        </div>
       </div>
     );
   }
@@ -147,20 +161,25 @@ export const WatchtowerView: React.FC = () => {
   const jobs = summary?.scheduled_monitoring_jobs_count;
 
   return (
-    <div className="space-y-5">
+    <div className="space-y-6">
       {!backendOnline && (
-        <div role="alert" className="flex items-center gap-2 rounded-lg border border-warn/30 bg-warn/10 px-3 py-2 text-sm text-warn">
+        <div role="alert" className="flex items-center gap-2 rounded-lg border border-warn/30 bg-warn/10 px-3 py-2 text-xs text-warn">
           <AlertCircle className="h-4 w-4 shrink-0" /> Backend unreachable. Checks cannot run until it reconnects.
         </div>
       )}
 
-      <p className="max-w-3xl text-sm text-fgMuted">
-        Check one suspected asset against the verified assets of <span className="text-fg">{brandProfile.brandName}</span>. Each check is a single, on-demand
-        evaluation by the backend rules engine. It is not continuous monitoring.
-      </p>
+      {/* 1. Header */}
+      <div className="flex flex-col gap-3 md:flex-row md:items-start md:justify-between">
+        <div>
+          <h1 className="text-xl font-semibold tracking-tight text-fg">Watchtower</h1>
+          <p className="max-w-3xl text-xs text-fgMuted mt-1 leading-relaxed">
+            Check one suspected asset against the verified assets of <span className="text-fg font-medium">{brandProfile.brandName}</span>. Each check is a single, on-demand evaluation by the backend rules engine. It is not continuous monitoring.
+          </p>
+        </div>
+      </div>
 
       {/* Scope: real counts from the backend, no status lights */}
-      <div className="grid grid-cols-2 gap-3 lg:grid-cols-5">
+      <div className="grid grid-cols-2 gap-2.5 sm:grid-cols-3 lg:grid-cols-5">
         {[
           ['Verified domains', summary?.monitored_domains_count],
           ['Verified profiles', summary?.monitored_socials_count],
@@ -168,9 +187,9 @@ export const WatchtowerView: React.FC = () => {
           ['Findings so far', summary?.total_screened_findings],
           ['Scheduled monitoring jobs', jobs],
         ].map(([label, value]) => (
-          <div key={label as string} className="rounded-xl border border-line bg-surface px-4 py-3">
-            <p className="text-xs text-fgMuted">{label}</p>
-            <p className="text-2xl font-semibold tabular-nums">{summaryError ? '—' : value ?? '…'}</p>
+          <div key={label as string} className="rounded-lg border border-line bg-surface px-3.5 py-2.5">
+            <p className="text-[11px] font-medium text-fgSubtle">{label}</p>
+            <p className="text-xl font-semibold font-mono text-fg mt-0.5 tabular-nums">{summaryError ? '—' : value ?? '…'}</p>
           </div>
         ))}
       </div>
@@ -179,9 +198,9 @@ export const WatchtowerView: React.FC = () => {
 
       <form
         onSubmit={(e) => { e.preventDefault(); run(false); }}
-        className="space-y-4 rounded-2xl border border-line bg-surface p-5"
+        className="space-y-4 rounded-xl border border-line bg-surface p-5"
       >
-        <div role="tablist" aria-label="Asset type" className="inline-flex gap-1 rounded-full border border-line bg-surface2 p-1">
+        <div role="tablist" aria-label="Asset type" className="inline-flex gap-1 rounded-lg border border-line bg-surface2 p-0.5">
           {KINDS.map((k) => (
             <button
               key={k.id}
@@ -189,63 +208,65 @@ export const WatchtowerView: React.FC = () => {
               role="tab"
               aria-selected={kind === k.id}
               onClick={() => setKind(k.id)}
-              className={`rounded-full px-3 py-1 text-sm ${kind === k.id ? 'bg-surface3 font-medium text-fg' : 'text-fgMuted hover:text-fg'}`}
+              className={`rounded-md px-3 py-1 text-xs transition-colors cursor-pointer focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-accent ${
+                kind === k.id ? 'bg-surface font-medium text-fg shadow-xs' : 'text-fgMuted hover:text-fg'
+              }`}
             >
               {k.label}
             </button>
           ))}
         </div>
         <div className="grid gap-3 md:grid-cols-2">
-          <label className="block text-sm font-medium">
+          <label className="block text-xs font-medium text-fgSubtle">
             Suspected asset
             <input
               value={identifier}
               onChange={(e) => setIdentifier(e.target.value)}
               placeholder={KINDS.find((k) => k.id === kind)!.placeholder}
-              className="mt-1.5 w-full rounded-xl border border-line bg-surface2 px-3.5 py-2.5 font-mono text-sm font-normal placeholder:font-sans placeholder:text-fgSubtle focus:border-accent"
+              className="mt-1 w-full rounded-md border border-line bg-surface2 px-3 py-2 font-mono text-xs font-normal text-fg placeholder:font-sans placeholder:text-fgSubtle focus:outline-none focus:ring-1 focus:ring-accent transition-colors"
             />
           </label>
-          <label className="block text-sm font-medium">
-            Where did you find it? <span className="font-normal text-fgSubtle">(optional, recorded as provenance)</span>
+          <label className="block text-xs font-medium text-fgSubtle">
+            Where did you find it? <span className="font-normal text-fgSubtle/80">(optional provenance)</span>
             <input
               value={provenance}
               onChange={(e) => setProvenance(e.target.value)}
               placeholder="e.g. customer report, phishing email"
-              className="mt-1.5 w-full rounded-xl border border-line bg-surface2 px-3.5 py-2.5 text-sm font-normal placeholder:text-fgSubtle focus:border-accent"
+              className="mt-1 w-full rounded-md border border-line bg-surface2 px-3 py-2 text-xs font-normal text-fg placeholder:text-fgSubtle focus:outline-none focus:ring-1 focus:ring-accent transition-colors"
             />
           </label>
         </div>
         <button
           type="submit"
           disabled={busy !== null || !backendOnline}
-          className="rounded-full bg-accent px-5 py-2 text-sm font-medium text-onAccent hover:bg-accentHover disabled:opacity-50"
+          className="rounded-md bg-accent px-4 py-2 text-xs font-medium text-onAccent hover:bg-accent/90 disabled:opacity-50 transition-colors cursor-pointer focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-accent"
         >
           {busy === 'evaluate' ? 'Checking…' : 'Run check'}
         </button>
       </form>
 
       {error && (
-        <div role="alert" className="flex items-start gap-2 rounded-lg border border-danger/30 bg-danger/10 px-3 py-2 text-sm text-danger">
+        <div role="alert" className="flex items-start gap-2 rounded-lg border border-danger/30 bg-danger/10 px-3 py-2 text-xs text-danger">
           <AlertCircle className="mt-0.5 h-4 w-4 shrink-0" /> <span>{error}</span>
         </div>
       )}
 
       {result && (
-        <section className="space-y-5 rounded-2xl border border-line bg-surface p-5" aria-label="Check result">
-          <div className="flex flex-wrap items-start justify-between gap-3">
+        <section className="space-y-4 rounded-xl border border-line bg-surface p-5" aria-label="Check result">
+          <div className="flex flex-wrap items-start justify-between gap-3 border-b border-line pb-3.5">
             <div className="min-w-0">
-              <p className="break-all font-mono text-base text-fg">{result.candidate_identifier || identifier}</p>
-              <p className="mt-1 text-xs text-fgSubtle">
+              <p className="break-all font-mono text-sm font-medium text-fg">{result.candidate_identifier || identifier}</p>
+              <p className="mt-0.5 text-[11px] text-fgSubtle">
                 {result.detection_method || 'Rules engine'}
                 {result.observation_timestamp && ` · checked ${new Date(result.observation_timestamp).toLocaleString()}`}
               </p>
             </div>
             {result.is_official_asset ? (
-              <span className="inline-flex items-center gap-1.5 rounded-full bg-ok/15 px-3 py-1 text-sm font-medium text-ok">
-                <ShieldCheck className="h-4 w-4" /> Verified official asset
+              <span className="inline-flex items-center gap-1.5 rounded-md border border-ok/30 bg-ok/10 px-2.5 py-1 text-xs font-medium text-ok">
+                <ShieldCheck className="h-3.5 w-3.5" /> Verified official asset
               </span>
             ) : (
-              <span className={`rounded-full px-3 py-1 text-sm font-medium ${TONE[(level || '').toUpperCase()] || 'bg-surface3 text-fgMuted'}`}>
+              <span className={`rounded-md border px-2.5 py-1 text-xs font-medium ${TONE[(level || '').toUpperCase()] || 'border-line bg-surface2 text-fgMuted'}`}>
                 {level ? `${level[0]}${level.slice(1).toLowerCase()} severity` : 'No severity returned'}
                 {typeof result.risk_indicators?.risk_score === 'number' && ` · rule score ${result.risk_indicators.risk_score}`}
               </span>
@@ -253,15 +274,15 @@ export const WatchtowerView: React.FC = () => {
           </div>
 
           {result.is_official_asset ? (
-            <p className="text-sm text-fgMuted">{result.exclusion_reason || 'This matches a verified asset, so it is excluded from findings.'}</p>
+            <p className="text-xs text-fgMuted">{result.exclusion_reason || 'This matches a verified asset, so it is excluded from findings.'}</p>
           ) : (
             <>
-              <div className="grid gap-5 md:grid-cols-2">
-                <div className="space-y-4">
+              <div className="grid gap-4 md:grid-cols-2">
+                <div className="space-y-3">
                   <Block title="Why (rules that fired)" items={result.risk_indicators?.reasons} empty="No rule fired." />
                   <Block title="Observed facts" items={result.explanation?.observed_facts} />
                 </div>
-                <div className="space-y-4">
+                <div className="space-y-3">
                   <Block title="Model inferences (not verified)" items={result.explanation?.model_inferences} empty="None reported." />
                   <Block title="Not established" items={result.explanation?.unverified_claims} empty="None reported." />
                   <Block title="Suggested next steps" items={result.explanation?.recommended_next_steps} />
@@ -269,7 +290,7 @@ export const WatchtowerView: React.FC = () => {
               </div>
 
               {sim && (
-                <dl className="grid grid-cols-2 gap-x-6 gap-y-2 border-t border-line pt-4 text-sm sm:grid-cols-3">
+                <dl className="grid grid-cols-2 gap-x-6 gap-y-2 border-t border-line pt-3.5 text-xs sm:grid-cols-3">
                   {[
                     ['Compared with', result.matched_asset],
                     ['Exact match', sim.exact_match === undefined ? undefined : sim.exact_match ? 'Yes' : 'No'],
@@ -282,8 +303,8 @@ export const WatchtowerView: React.FC = () => {
                     .filter(([, v]) => v !== undefined && v !== '')
                     .map(([k, v]) => (
                       <div key={k as string}>
-                        <dt className="text-xs text-fgSubtle">{k}</dt>
-                        <dd className="text-fg">{String(v)}</dd>
+                        <dt className="text-[11px] text-fgSubtle">{k}</dt>
+                        <dd className="font-medium text-fg">{String(v)}</dd>
                       </div>
                     ))}
                 </dl>
@@ -291,36 +312,38 @@ export const WatchtowerView: React.FC = () => {
             </>
           )}
 
-          <div className="flex flex-wrap items-center gap-3 border-t border-line pt-4">
+          <div className="flex flex-wrap items-center gap-3 border-t border-line pt-3.5">
             {!result.is_official_asset && !saved && (
               <button
                 onClick={() => run(true)}
                 disabled={busy !== null}
-                className="rounded-full border border-line px-4 py-1.5 text-sm hover:bg-surface3 disabled:opacity-50"
+                className="rounded-md border border-line bg-surface2 hover:bg-surface3 px-3 py-1.5 text-xs font-medium text-fg transition-colors cursor-pointer disabled:opacity-50 focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-accent"
               >
                 {busy === 'save' ? 'Saving…' : 'Save as finding'}
               </button>
             )}
             {saved && (
-              <span className="inline-flex items-center gap-2 text-sm text-ok">
+              <span className="inline-flex items-center gap-2 text-xs text-ok font-medium">
                 <CheckCircle2 className="h-4 w-4" /> Saved as a finding.
-                <button onClick={() => setActiveTab('investigation-center')} className="underline">Open investigations</button>
+                <button onClick={() => setActiveTab('investigation-center')} className="underline cursor-pointer">Open investigations</button>
               </span>
             )}
-            <p className="text-xs text-fgSubtle">{result.scan_mode_clarification || 'On-demand evaluation by an analyst request.'} Findings need analyst review.</p>
+            <p className="text-[11px] text-fgSubtle">{result.scan_mode_clarification || 'On-demand evaluation by an analyst request.'} Findings need analyst review.</p>
           </div>
         </section>
       )}
 
       {recent.length > 0 && (
-        <details className="rounded-2xl border border-line bg-surface">
-          <summary className="cursor-pointer px-4 py-3 text-sm font-medium">Checks in this session ({recent.length})</summary>
+        <details className="rounded-xl border border-line bg-surface overflow-hidden">
+          <summary className="cursor-pointer px-4 py-2.5 text-xs font-medium text-fg hover:bg-surface2 transition-colors">
+            Checks in this session ({recent.length})
+          </summary>
           <ul className="divide-y divide-line border-t border-line">
             {recent.map((r, i) => (
-              <li key={`${r.id}-${i}`} className="flex flex-wrap items-center gap-3 px-4 py-2 text-sm">
+              <li key={`${r.id}-${i}`} className="flex flex-wrap items-center gap-3 px-4 py-2 text-xs">
                 <span className="min-w-0 flex-1 truncate font-mono text-fg">{r.id}</span>
-                <span className={`rounded-full px-2 py-0.5 text-xs ${TONE[r.level.toUpperCase()] || 'bg-surface3 text-fgMuted'}`}>{r.level.toLowerCase()}</span>
-                <span className="text-xs text-fgSubtle">{new Date(r.at).toLocaleTimeString()}</span>
+                <span className={`rounded px-1.5 py-0.5 text-[10px] font-medium border ${TONE[r.level.toUpperCase()] || 'border-line bg-surface2 text-fgMuted'}`}>{r.level.toLowerCase()}</span>
+                <span className="text-[11px] text-fgSubtle">{new Date(r.at).toLocaleTimeString()}</span>
               </li>
             ))}
           </ul>

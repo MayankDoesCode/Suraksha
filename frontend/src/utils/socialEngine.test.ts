@@ -9,24 +9,24 @@ import type { SocialCandidateInput } from './socialEngine.ts';
 import type { BrandProfile } from '../types/index.ts';
 
 const MOCK_BRAND_PROFILE: BrandProfile = {
-  id: 'brand-apexpay-001',
-  brandName: 'ApexPay',
-  officialWebsite: 'https://apexpay.com',
-  officialDomains: ['apexpay.com', 'apexpay.io'],
+  id: 'brand-sentinelpay-001',
+  brandName: 'SentinelPay',
+  officialWebsite: 'https://sentinelpay.com',
+  officialDomains: ['sentinelpay.com', 'sentinelpay.io'],
   officialSocialUrls: [
     {
       id: 'soc-01',
       platform: 'Twitter / X',
-      handle: '@apexpay_official',
-      url: 'https://x.com/apexpay_official',
+      handle: '@sentinelpay_official',
+      url: 'https://x.com/sentinelpay_official',
       verificationStatus: 'verified_platform',
       notes: 'Verified Organization Gold Badge',
     },
     {
       id: 'soc-02',
       platform: 'Instagram',
-      handle: '@apexpay.fintech',
-      url: 'https://instagram.com/apexpay.fintech',
+      handle: '@sentinelpay.fintech',
+      url: 'https://instagram.com/sentinelpay.fintech',
       verificationStatus: 'verified_platform',
     },
   ],
@@ -34,29 +34,29 @@ const MOCK_BRAND_PROFILE: BrandProfile = {
 
 describe('Social Media Monitor - URL Normalization & Handle Extraction', () => {
   test('normalizeSocialUrl handles standard X/Twitter variants', () => {
-    assert.strictEqual(normalizeSocialUrl('https://x.com/apexpay_official'), 'x.com/apexpay_official');
-    assert.strictEqual(normalizeSocialUrl('https://x.com/apexpay_official/'), 'x.com/apexpay_official');
-    assert.strictEqual(normalizeSocialUrl('https://twitter.com/ApexPay_Official'), 'x.com/apexpay_official');
-    assert.strictEqual(normalizeSocialUrl('http://mobile.twitter.com/apexpay_official/'), 'x.com/apexpay_official');
-    assert.strictEqual(normalizeSocialUrl('https://www.x.com/@apexpay_official'), 'x.com/apexpay_official');
-    assert.strictEqual(normalizeSocialUrl('https://x.com/apexpay_official?ref_src=twsrc'), 'x.com/apexpay_official');
+    assert.strictEqual(normalizeSocialUrl('https://x.com/sentinelpay_official'), 'x.com/sentinelpay_official');
+    assert.strictEqual(normalizeSocialUrl('https://x.com/sentinelpay_official/'), 'x.com/sentinelpay_official');
+    assert.strictEqual(normalizeSocialUrl('https://twitter.com/SentinelPay_Official'), 'x.com/sentinelpay_official');
+    assert.strictEqual(normalizeSocialUrl('http://mobile.twitter.com/sentinelpay_official/'), 'x.com/sentinelpay_official');
+    assert.strictEqual(normalizeSocialUrl('https://www.x.com/@sentinelpay_official'), 'x.com/sentinelpay_official');
+    assert.strictEqual(normalizeSocialUrl('https://x.com/sentinelpay_official?ref_src=twsrc'), 'x.com/sentinelpay_official');
   });
 
   test('extractHandleFromUrl extracts handle from X/Twitter URLs', () => {
     assert.strictEqual(extractHandleFromUrl('https://x.com/Microsoft'), 'microsoft');
-    assert.strictEqual(extractHandleFromUrl('https://twitter.com/@apexpay_official/'), 'apexpay_official');
-    assert.strictEqual(extractHandleFromUrl('https://mobile.twitter.com/ApexPay_Official'), 'apexpay_official');
+    assert.strictEqual(extractHandleFromUrl('https://twitter.com/@sentinelpay_official/'), 'sentinelpay_official');
+    assert.strictEqual(extractHandleFromUrl('https://mobile.twitter.com/SentinelPay_Official'), 'sentinelpay_official');
   });
 });
 
 describe('Social Media Monitor - Official Profile URL Mismatch Regression Tests', () => {
-  test('REGRESSION: @apexpay_official paired with https://x.com/Microsoft is NOT exempt and flagged as conflict', () => {
+  test('REGRESSION: @sentinelpay_official paired with https://x.com/Microsoft is NOT exempt and flagged as conflict', () => {
     const candidate: SocialCandidateInput = {
-      name: 'ApexPay Official',
-      username: '@apexpay_official',
+      name: 'SentinelPay Official',
+      username: '@sentinelpay_official',
       platform: 'X',
       url: 'https://x.com/Microsoft',
-      bio: 'The official handle for ApexPay Global.',
+      bio: 'The official handle for SentinelPay Global.',
       followerCount: '148500',
     };
 
@@ -78,13 +78,13 @@ describe('Social Media Monitor - Official Profile URL Mismatch Regression Tests'
     assert.strictEqual(result.recommendedAction, 'Escalate to Brand Protection Investigation');
   });
 
-  test('LEGITIMATE: @apexpay_official paired with matching official URL https://x.com/apexpay_official is allowlisted', () => {
+  test('LEGITIMATE: @sentinelpay_official paired with matching official URL https://x.com/sentinelpay_official is allowlisted', () => {
     const candidate: SocialCandidateInput = {
-      name: 'ApexPay Official',
-      username: '@apexpay_official',
+      name: 'SentinelPay Official',
+      username: '@sentinelpay_official',
       platform: 'X',
-      url: 'https://x.com/apexpay_official',
-      bio: 'The official handle for ApexPay Global.',
+      url: 'https://x.com/sentinelpay_official',
+      bio: 'The official handle for SentinelPay Global.',
       followerCount: '148500',
     };
 
@@ -98,13 +98,13 @@ describe('Social Media Monitor - Official Profile URL Mismatch Regression Tests'
     assert.strictEqual(result.signals[0].type, 'OFFICIAL_REGISTERED_HANDLE');
   });
 
-  test('LEGITIMATE EQUIVALENT: @apexpay_official paired with https://twitter.com/apexpay_official/ is allowlisted', () => {
+  test('LEGITIMATE EQUIVALENT: @sentinelpay_official paired with https://twitter.com/sentinelpay_official/ is allowlisted', () => {
     const candidate: SocialCandidateInput = {
-      name: 'ApexPay Official',
-      username: '@apexpay_official',
+      name: 'SentinelPay Official',
+      username: '@sentinelpay_official',
       platform: 'X',
-      url: 'https://twitter.com/ApexPay_Official/',
-      bio: 'The official handle for ApexPay Global.',
+      url: 'https://twitter.com/SentinelPay_Official/',
+      bio: 'The official handle for SentinelPay Global.',
       followerCount: '148500',
     };
 
@@ -116,13 +116,13 @@ describe('Social Media Monitor - Official Profile URL Mismatch Regression Tests'
     assert.strictEqual(result.recommendedAction, 'Mark Benign & Allowlist');
   });
 
-  test('LEGITIMATE EQUIVALENT: @apexpay_official with mobile.twitter.com and www variants', () => {
+  test('LEGITIMATE EQUIVALENT: @sentinelpay_official with mobile.twitter.com and www variants', () => {
     const candidate: SocialCandidateInput = {
-      name: 'ApexPay Official',
-      username: '@apexpay_official',
+      name: 'SentinelPay Official',
+      username: '@sentinelpay_official',
       platform: 'X',
-      url: 'https://mobile.twitter.com/apexpay_official',
-      bio: 'The official handle for ApexPay Global.',
+      url: 'https://mobile.twitter.com/sentinelpay_official',
+      bio: 'The official handle for SentinelPay Global.',
       followerCount: '148500',
     };
 

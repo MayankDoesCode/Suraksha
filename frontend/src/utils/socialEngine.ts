@@ -302,7 +302,7 @@ export function analyzeSocialCandidate(
       if (candidateUrl) {
         const candidateUrlHandle = extractHandleFromUrl(candidateUrl);
 
-        // Check 1: Does candidate URL resolve to a different account? (e.g. @microsoft vs @apexpay_official)
+        // Check 1: Does candidate URL resolve to a different account? (e.g. @microsoft vs @sentinelpay_official)
         const resolvesToDifferentAccount = Boolean(candidateUrlHandle && candidateUrlHandle !== normCandidateHandle);
         // Check 2: If official registered URL exists, does candidate URL conflict with it?
         const urlConflictsWithRegistry = Boolean(normOfficialUrl && !urlMatches && resolvesToDifferentAccount);
@@ -396,7 +396,7 @@ export function analyzeSocialCandidate(
         'Maintain in safe allowlist; exempt from automated takedown actions.',
         'Ensure continuous monitoring of 2FA posture and account administrative access.'
       ],
-      executiveSummary: `Verified authentic official asset. The social media profile "${candidate.username.startsWith('@') ? candidate.username : '@' + candidate.username}" on ${candidate.platform} is registered in the active ApexPay brand profile repository.`,
+      executiveSummary: `Verified authentic official asset. The social media profile "${candidate.username.startsWith('@') ? candidate.username : '@' + candidate.username}" on ${candidate.platform} is registered in the active ${brandProfile.brandName || 'official'} brand profile repository.`,
       stringSimilarity: 100,
       levenshteinDistance: 0,
     };

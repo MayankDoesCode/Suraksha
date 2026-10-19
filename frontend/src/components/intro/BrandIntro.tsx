@@ -5,23 +5,21 @@ interface BrandIntroProps {
   onComplete: () => void;
 }
 
-export const INTRO_HOLD_MS = 4900; // time on screen before the fade-out starts
-const FADE_MS = 500;
+export const INTRO_HOLD_MS = 3200; // calibrated pacing so users can fully absorb the cinematic sequence
+const FADE_MS = 400;
 
 const OUTLINE = 'M24 3 5 10v15c0 13 8 23 19 28 11-5 19-15 19-28V10L24 3Z';
 
 /** Five plates that make up the shield, each arriving from a different direction. */
 const PLATES: { id: string; d: string; fill: string; dx: number; dy: number; r: number; delay: number }[] = [
-  { id: 'tl', d: 'M24 3 5 10v15h19Z', fill: 'url(#bi-steel)', dx: -34, dy: -26, r: -14, delay: 0.35 },
-  { id: 'tr', d: 'M24 3l19 7v15H24Z', fill: 'url(#bi-indigo)', dx: 34, dy: -26, r: 14, delay: 0.5 },
-  { id: 'bl', d: 'M5 25h19v28C13 48 5 38 5 25Z', fill: 'url(#bi-steel-dark)', dx: -30, dy: 34, r: 10, delay: 0.65 },
-  { id: 'br', d: 'M24 25h19c0 13-8 23-19 28Z', fill: 'url(#bi-indigo-dark)', dx: 30, dy: 34, r: -10, delay: 0.8 },
+  { id: 'tl', d: 'M24 3 5 10v15h19Z', fill: 'url(#bi-steel)', dx: -34, dy: -26, r: -14, delay: 0.15 },
+  { id: 'tr', d: 'M24 3l19 7v15H24Z', fill: 'url(#bi-indigo)', dx: 34, dy: -26, r: 14, delay: 0.30 },
+  { id: 'bl', d: 'M5 25h19v28C13 48 5 38 5 25Z', fill: 'url(#bi-steel-dark)', dx: -30, dy: 34, r: 10, delay: 0.45 },
+  { id: 'br', d: 'M24 25h19c0 13-8 23-19 28Z', fill: 'url(#bi-indigo-dark)', dx: 30, dy: 34, r: -10, delay: 0.60 },
 ];
 
 /**
- * Opening title. Pure black. A shield assembles from five plates, catches one pass of light, then slides left
- * as the wordmark and the Hindi line are revealed beside it. A hairline progress bar runs along the bottom.
- * About 5.4 seconds; "Skip Intro" or any key ends it; reduced-motion users skip it entirely.
+ * Opening title with digital cybernetic effects, hover elevation, and calibrated pacing.
  */
 export const BrandIntro: React.FC<BrandIntroProps> = ({ onComplete }) => {
   const [leaving, setLeaving] = useState(false);
@@ -42,10 +40,7 @@ export const BrandIntro: React.FC<BrandIntroProps> = ({ onComplete }) => {
       return;
     }
     timers.current = [window.setTimeout(finish, INTRO_HOLD_MS)];
-    const onKey = () => finish();
-    window.addEventListener('keydown', onKey);
     return () => {
-      window.removeEventListener('keydown', onKey);
       timers.current.forEach(clearTimeout);
     };
     // eslint-disable-next-line react-hooks/exhaustive-deps
@@ -53,11 +48,12 @@ export const BrandIntro: React.FC<BrandIntroProps> = ({ onComplete }) => {
 
   return (
     <div className={`bi ${leaving ? 'bi--leaving' : ''}`} role="status" aria-label="SURAKSHA, digital brand protection">
-      <button className="bi__skip" onClick={finish}>
-        Skip Intro <kbd>Esc</kbd>
-      </button>
+      {/* Digital Cyber Background Matrix & Scanline */}
+      <div className="bi__grid" aria-hidden="true" />
+      <div className="bi__scanline" aria-hidden="true" />
+      <div className="bi__aura" aria-hidden="true" />
 
-      <div className="bi__lockup">
+      <div className="bi__lockup" tabIndex={0} role="presentation">
         <svg className="bi__shield" viewBox="0 0 48 56" fill="none" aria-hidden="true">
           <defs>
             <clipPath id="bi-clip"><path d={OUTLINE} /></clipPath>

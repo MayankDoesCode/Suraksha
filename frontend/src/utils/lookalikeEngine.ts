@@ -11,7 +11,7 @@ export interface CharacterDiff {
 export interface DomainAnalysisDetails {
   candidateRaw: string;
   normalizedHostname: string;
-  extractedSLD: string; // Second Level Domain e.g. "apexpay" in "apexpay.com"
+  extractedSLD: string; // Second Level Domain e.g. "sentinelpay" in "sentinelpay.com"
   extractedTLD: string; // Top Level Domain e.g. "com", "io", "xyz"
   subdomains: string[];
   isSubdomainAbuse: boolean;
@@ -430,7 +430,7 @@ export function runFullLookalikeAnalysis(
   brandProfile: BrandProfile,
   candidateDescription?: string
 ): LookalikeAnalysisResult {
-  const brandName = brandProfile.brandName || 'ApexPay';
+  const brandName = brandProfile.brandName || 'Brand';
   const cleanBrand = normalizeString(brandName);
   const cleanCandidateName = normalizeString(candidateName);
 
@@ -715,24 +715,24 @@ export function runFullLookalikeAnalysis(
   const domDetails = normalizedCandidateDomain;
 
   if (domDetails.normalizedHostname.length > 0) {
-    // 1. Subdomain abuse: e.g. apexpay.claims-portal.com or apexpay-login.suspicious.net
+    // 1. Subdomain abuse: e.g. sentinelpay.claims-portal.com or sentinelpay-login.suspicious.net
     const subdomainsJoined = domDetails.subdomains.join('.');
     const brandInSubdomain =
       domDetails.subdomains.some(sub => sub.includes(cleanBrand) || sub.includes(strippedBrand)) ||
       subdomainsJoined.includes(cleanBrand);
 
-    const isDifferentApexDomain = !officialDomainsNormalized.some(
+    const isDifferentRootDomain = !officialDomainsNormalized.some(
       od => od.extractedSLD === domDetails.extractedSLD && od.extractedTLD === domDetails.extractedTLD
     );
 
-    if (brandInSubdomain && isDifferentApexDomain) {
+    if (brandInSubdomain && isDifferentRootDomain) {
       domDetails.isSubdomainAbuse = true;
       signals.push({
         id: 'SUBDOMAIN_BRAND_ABUSE',
         category: 'Subdomain Abuse',
         type: 'SUBDOMAIN_HOSTING_SPOOF',
         title: 'Brand Subdomain Hosting Abuse',
-        detail: `The official brand "${brandName}" is used as a subdomain prefix under an unrelated apex domain "${domDetails.extractedSLD}.${domDetails.extractedTLD}".`,
+        detail: `The official brand "${brandName}" is used as a subdomain prefix under an unrelated domain "${domDetails.extractedSLD}.${domDetails.extractedTLD}".`,
         severity: 'critical',
       });
       evidenceSupporting.push(
@@ -779,7 +779,7 @@ export function runFullLookalikeAnalysis(
       evidenceSupporting.push(`Domain typo-squatting on root label (${sldDistance} character difference).`);
       overallScore += 30;
     } else if (domDetails.extractedSLD.includes(cleanBrand) && domDetails.extractedSLD !== cleanBrand) {
-      // Combosquatting in SLD: e.g. apexpay-security.com or apexpaylogin.xyz
+      // Combosquatting in SLD: e.g. sentinelpay-security.com or sentinelpaylogin.xyz
       signals.push({
         id: 'DOMAIN_COMBOSQUATTING',
         category: 'Domain & TLD',

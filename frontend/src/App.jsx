@@ -15,24 +15,12 @@ export default function App() {
   });
   const [navOptions, setNavOptions] = useState(null);
 
-  // Manage brand intro on first eligible session visit to landing page
+  // Play brand intro every time landing page is opened
   const [showIntro, setShowIntro] = useState(() => {
     if (typeof window === 'undefined') return false;
     // Do not show on direct dashboard navigation
     if (window.location.pathname.startsWith('/dashboard')) return false;
-
-    // Force display if explicitly requested via query parameter (?intro=1)
-    const urlParams = new URLSearchParams(window.location.search);
-    if (urlParams.get('intro') === '1' || urlParams.get('intro') === 'true') {
-      return true;
-    }
-
-    try {
-      const hasSeen = sessionStorage.getItem('suraksha_intro_seen');
-      return !hasSeen;
-    } catch {
-      return false;
-    }
+    return true;
   });
 
   useEffect(() => {
@@ -52,24 +40,17 @@ export default function App() {
     }
     setRoute(normalized);
     setNavOptions(options);
+    if (normalized === '/') {
+      setShowIntro(true);
+    }
     window.scrollTo({ top: 0, behavior: 'smooth' });
   };
 
   const handleIntroComplete = () => {
-    try {
-      sessionStorage.setItem('suraksha_intro_seen', 'true');
-    } catch {
-      // safe fallback if storage unavailable
-    }
     setShowIntro(false);
   };
 
   const handleReplayIntro = () => {
-    try {
-      sessionStorage.removeItem('suraksha_intro_seen');
-    } catch {
-      // safe fallback
-    }
     setShowIntro(true);
   };
 

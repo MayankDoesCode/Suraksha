@@ -1,5 +1,6 @@
 import React from 'react';
-import { ArrowLeft, ChevronDown, LogOut, RefreshCw, Shield } from 'lucide-react';
+import { ArrowLeft, ChevronDown, LogOut, RefreshCw } from 'lucide-react';
+import { SurakshaLogo } from './SurakshaLogo';
 import { useApp } from '../context/AppContext';
 import { useAuth } from '../context/AuthContext';
 import { NAV_GROUPS } from './navigation';
@@ -49,8 +50,12 @@ export const Sidebar: React.FC<SidebarProps> = ({ onNavigateHome, isOpen, onClos
       {/* Workspace / brand switcher */}
       <div className="px-3 pb-2 pt-3">
         <div className="flex items-center gap-2">
-          <button onClick={() => (onNavigateHome ? onNavigateHome() : (window.location.href = '/'))} title="Back to site" className="flex h-6 w-6 shrink-0 items-center justify-center rounded-md bg-accent text-onAccent">
-            <Shield className="h-3.5 w-3.5" />
+          <button
+            onClick={() => (onNavigateHome ? onNavigateHome() : (window.location.href = '/'))}
+            title="Back to site"
+            className="flex h-7 w-7 shrink-0 items-center justify-center rounded-lg bg-surface2 border border-line hover:border-accent/40 hover:bg-surface3 transition-all"
+          >
+            <SurakshaLogo size={19} />
           </button>
           <div className="relative min-w-0 flex-1">
             <select

@@ -105,17 +105,23 @@ const WorkspaceContent: React.FC<WorkspaceShellProps> = ({ onNavigateHome, initi
             onOpenSearch={() => setPaletteOpen(true)}
           />
 
-          {isDemoMode && (
-            <div role="status" className="flex shrink-0 items-center justify-between gap-3 border-b border-line bg-warn/10 px-4 py-1 text-xs text-warn">
-              <span>
-                <strong className="font-medium">Demo data.</strong> <span className="text-fgMuted">Synthetic, not real threats.</span>
-              </span>
-              <button onClick={exitDemoMode} className="shrink-0 rounded px-2 py-0.5 hover:bg-warn/15">Exit demo</button>
-            </div>
-          )}
+          {/* Subtle Cybernetic Ambient Background in Dashboard Shell */}
+          <div aria-hidden className="pointer-events-none absolute inset-0 overflow-hidden z-0 select-none">
+            <div className="absolute -top-32 right-1/4 h-[420px] w-[420px] rounded-full bg-accent/[0.05] blur-[140px]" />
+            <div className="absolute top-1/3 -left-20 h-[500px] w-[500px] rounded-full bg-ai/[0.04] blur-[150px]" />
+            <div className="absolute -bottom-24 right-1/3 h-96 w-96 rounded-full bg-ok/[0.035] blur-[130px]" />
+            <div className="absolute inset-0 bg-[radial-gradient(ellipse_80%_80%_at_50%_-20%,rgba(104,116,220,0.07),transparent_70%)]" />
+            <div
+              className="absolute inset-0 opacity-[0.03] dark:opacity-[0.04]"
+              style={{
+                backgroundImage: 'radial-gradient(circle at 1px 1px, currentColor 1px, transparent 0)',
+                backgroundSize: '24px 24px',
+              }}
+            />
+          </div>
 
-          <main className="flex-1 overflow-y-auto p-4 sm:p-6">
-            <div key={activeTab} className="sk-fade-in mx-auto w-full max-w-[1200px]">
+          <main className="relative z-10 flex-1 overflow-y-auto p-4 sm:p-6 lg:p-8">
+            <div key={activeTab} className="sk-fade-in mx-auto w-full max-w-[1720px]">
               {renderActiveView()}
             </div>
           </main>

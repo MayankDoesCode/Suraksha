@@ -219,51 +219,47 @@ export const AppProvider: React.FC<{ children: React.ReactNode }> = ({ children 
   };
 
   const [brandProfile, setBrandProfile] = useState<BrandProfile>(() => {
-    if (currentUser?.uid === 'analyst-demo-001') {
-      return INITIAL_BRAND_PROFILE;
-    }
     try {
       const saved = sessionStorage.getItem(`suraksha_user_${currentUser?.uid || 'guest'}_profile`);
-      return saved ? JSON.parse(saved) : EMPTY_BRAND_PROFILE;
-    } catch {
-      return EMPTY_BRAND_PROFILE;
-    }
+      if (saved) {
+        const parsed = JSON.parse(saved);
+        if (parsed && parsed.brandName) return parsed;
+      }
+    } catch {}
+    return INITIAL_BRAND_PROFILE;
   });
 
   const [candidates, setCandidates] = useState<CandidateAsset[]>(() => {
-    if (currentUser?.uid === 'analyst-demo-001') {
-      return DEMO_CANDIDATES;
-    }
     try {
       const saved = sessionStorage.getItem(`suraksha_user_${currentUser?.uid || 'guest'}_candidates`);
-      return saved ? JSON.parse(saved) : [];
-    } catch {
-      return [];
-    }
+      if (saved) {
+        const parsed = JSON.parse(saved);
+        if (Array.isArray(parsed) && parsed.length > 0) return parsed;
+      }
+    } catch {}
+    return DEMO_CANDIDATES;
   });
 
   const [threatNodes, setThreatNodes] = useState<ThreatNode[]>(() => {
-    if (currentUser?.uid === 'analyst-demo-001') {
-      return INITIAL_THREAT_NODES;
-    }
     try {
       const saved = sessionStorage.getItem(`suraksha_user_${currentUser?.uid || 'guest'}_nodes`);
-      return saved ? JSON.parse(saved) : [];
-    } catch {
-      return [];
-    }
+      if (saved) {
+        const parsed = JSON.parse(saved);
+        if (Array.isArray(parsed) && parsed.length > 0) return parsed;
+      }
+    } catch {}
+    return INITIAL_THREAT_NODES;
   });
 
   const [threatEdges, setThreatEdges] = useState<ThreatEdge[]>(() => {
-    if (currentUser?.uid === 'analyst-demo-001') {
-      return INITIAL_THREAT_EDGES;
-    }
     try {
       const saved = sessionStorage.getItem(`suraksha_user_${currentUser?.uid || 'guest'}_edges`);
-      return saved ? JSON.parse(saved) : [];
-    } catch {
-      return [];
-    }
+      if (saved) {
+        const parsed = JSON.parse(saved);
+        if (Array.isArray(parsed) && parsed.length > 0) return parsed;
+      }
+    } catch {}
+    return INITIAL_THREAT_EDGES;
   });
 
   const [activeTab, setActiveTab] = useState<string>('overview');
@@ -312,7 +308,7 @@ export const AppProvider: React.FC<{ children: React.ReactNode }> = ({ children 
   // Demo mode toggles
   const enterDemoMode = useCallback(() => {
     setIsDemoMode(true);
-    setSelectedBackendBrandId('demo-apexpay');
+    setSelectedBackendBrandId('demo-brand');
     setBrandProfile(INITIAL_BRAND_PROFILE);
     setCandidates(DEMO_CANDIDATES);
     setThreatNodes(INITIAL_THREAT_NODES);
@@ -348,7 +344,7 @@ export const AppProvider: React.FC<{ children: React.ReactNode }> = ({ children 
           );
         } else {
           setBackendBrands([
-            { id: 'demo-apexpay', name: 'ApexPay Global (Demo)', description: 'Simulated Fintech Platform' }
+            { id: 'demo-brand', name: 'Acme Corp Global (Demo)', description: 'Enterprise Brand Identity' }
           ]);
         }
         return;
@@ -405,7 +401,7 @@ export const AppProvider: React.FC<{ children: React.ReactNode }> = ({ children 
   }, [refreshBackendData]);
 
   const selectBrandById = async (brandId: string) => {
-    if (brandId === 'demo-apexpay') {
+    if (brandId === 'demo-brand' || brandId === 'demo-sentinelpay') {
       enterDemoMode();
       return;
     }
@@ -474,7 +470,7 @@ export const AppProvider: React.FC<{ children: React.ReactNode }> = ({ children 
     setThreatNodes(INITIAL_THREAT_NODES);
     setThreatEdges(INITIAL_THREAT_EDGES);
     setSelectedCandidateId(null);
-    setSelectedBackendBrandId('demo-apexpay');
+    setSelectedBackendBrandId('demo-brand');
   };
 
   const addCandidate = (candidateData: Partial<CandidateAsset>): CandidateAsset => {

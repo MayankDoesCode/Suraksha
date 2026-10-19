@@ -304,7 +304,7 @@ export const BrandProfileView: React.FC = () => {
       authorizedPartners: partners,
       logoUrl: logoPreview,
       protectedKeywords: protectedKeywords,
-      isCustomBrand: brandName.toLowerCase() !== 'apexpay',
+      isCustomBrand: brandName.toLowerCase() !== 'acme corp',
     });
 
     // Demo data never leaves the browser. Live brands are saved to the backend and the real result is shown.
@@ -340,7 +340,7 @@ export const BrandProfileView: React.FC = () => {
     }
   };
 
-  // Reset to ApexPay confirmation
+  // Reset to default demo brand confirmation
   const handleConfirmReset = () => {
     resetBrandProfileToDefault();
     setShowResetModal(false);
@@ -407,27 +407,27 @@ export const BrandProfileView: React.FC = () => {
     }
   };
 
-  const isApexPayDemo = isDemoMode && brandName.toLowerCase() === 'apexpay';
+  const isDemoBrand = isDemoMode && brandName.toLowerCase() === 'acme corp';
 
   return (
-    <div className="mx-auto max-w-5xl space-y-5 font-sans text-fg">
-      <div className="flex flex-wrap items-center justify-between gap-3">
+    <div className="w-full max-w-[1720px] mx-auto space-y-6 font-sans text-fg">
+      {/* 1. Header */}
+      <div className="flex flex-col gap-3 md:flex-row md:items-start md:justify-between">
         <div className="min-w-0">
-          <h2 className="truncate text-lg font-semibold tracking-tight text-fg">{brandName || 'New brand'}</h2>
-          <p className="text-sm text-fgMuted">
+          <h1 className="text-xl font-semibold tracking-tight text-fg truncate">{brandName || 'Protected assets'}</h1>
+          <p className="text-xs text-fgMuted mt-1 leading-relaxed">
             Assets registered here are treated as official and excluded from findings.
-            {isApexPayDemo && ' This is the synthetic demo brand.'}
           </p>
         </div>
         <div className="flex flex-wrap items-center gap-2">
           {backendBrands.length > 0 && (
             <select
-              value={selectedBackendBrandId || (isDemoMode ? 'demo-apexpay' : backendBrands[0]?.id || '')}
+              value={selectedBackendBrandId || (isDemoMode ? 'demo-brand' : backendBrands[0]?.id || '')}
               onChange={(e) => selectBrandById(e.target.value)}
               aria-label="Active brand"
-              className="rounded-md border border-line bg-surface px-2.5 py-1.5 text-sm text-fg hover:bg-surface3 focus:border-accent"
+              className="rounded-md border border-line bg-surface px-2.5 py-1.5 text-xs font-medium text-fg hover:bg-surface2 focus:outline-none focus:ring-1 focus:ring-accent cursor-pointer"
             >
-              {isDemoMode && <option value="demo-apexpay">Demo brand (synthetic)</option>}
+              {isDemoMode && <option value="demo-brand">Acme Corp Global (Primary)</option>}
               {backendBrands.map((b) => (
                 <option key={b.id} value={b.id}>{b.name}</option>
               ))}
@@ -437,16 +437,16 @@ export const BrandProfileView: React.FC = () => {
             type="button"
             onClick={() => setIsEditing(!isEditing)}
             aria-pressed={isEditing}
-            className={`inline-flex items-center gap-1.5 rounded-md border px-3 py-1.5 text-sm ${
- isEditing ? 'border-accent bg-accent/10 text-accent' : 'border-line text-fgMuted hover:bg-surface3 hover:text-fg'
- }`}
+            className={`inline-flex items-center gap-1.5 rounded-md border px-3 py-1.5 text-xs font-medium transition-colors cursor-pointer focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-accent ${
+              isEditing ? 'border-accent bg-accent/10 text-accent' : 'border-line text-fgMuted hover:bg-surface2 hover:text-fg'
+            }`}
           >
             <Edit2 className="h-3.5 w-3.5" /> {isEditing ? 'Editing' : 'Edit'}
           </button>
           <button
             type="button"
             onClick={handleStartBlankBrand}
-            className="inline-flex items-center gap-1.5 rounded-md border border-line px-3 py-1.5 text-sm text-fgMuted hover:bg-surface3 hover:text-fg"
+            className="inline-flex items-center gap-1.5 rounded-md border border-line px-3 py-1.5 text-xs font-medium text-fgMuted hover:bg-surface2 hover:text-fg transition-colors cursor-pointer focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-accent"
             title="Clear all fields to enter a new brand from scratch"
           >
             <Plus className="h-3.5 w-3.5" /> New brand
@@ -455,7 +455,7 @@ export const BrandProfileView: React.FC = () => {
             <button
               type="button"
               onClick={() => setShowResetModal(true)}
-              className="inline-flex items-center gap-1.5 rounded-md border border-line px-3 py-1.5 text-sm text-fgMuted hover:bg-surface3 hover:text-fg"
+              className="inline-flex items-center gap-1.5 rounded-md border border-line px-3 py-1.5 text-xs font-medium text-fgMuted hover:bg-surface2 hover:text-fg transition-colors cursor-pointer focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-accent"
             >
               <RotateCcw className="h-3.5 w-3.5" /> Reset demo
             </button>
@@ -464,9 +464,9 @@ export const BrandProfileView: React.FC = () => {
       </div>
 
       {!brandProfile.brandName && (
-        <div className="rounded-xl border border-line bg-surface p-5">
-          <h3 className="flex items-center gap-2 text-sm font-semibold"><Sparkles className="h-4 w-4 text-accent" /> Start with your brand</h3>
-          <ol className="mt-2 list-decimal space-y-1 pl-5 text-sm text-fgMuted">
+        <div className="rounded-xl border border-line bg-surface p-4">
+          <h3 className="flex items-center gap-2 text-xs font-semibold text-fg"><Sparkles className="h-4 w-4 text-accent" /> Start with your brand</h3>
+          <ol className="mt-2 list-decimal space-y-1 pl-5 text-xs text-fgMuted">
             <li>Name the brand and add its primary domain.</li>
             <li>Register the social profiles and apps you really own, so they are never flagged.</li>
             <li>Add authorised partners allowed to use your marks.</li>
@@ -474,6 +474,7 @@ export const BrandProfileView: React.FC = () => {
         </div>
       )}
 
+      {/* Tabs */}
       <div role="tablist" aria-label="Brand sections" className="flex gap-1 overflow-x-auto border-b border-line">
         {([
           ['identity', 'Identity', protectedKeywords.length],
@@ -488,12 +489,12 @@ export const BrandProfileView: React.FC = () => {
             type="button"
             aria-selected={section === id}
             onClick={() => setSection(id)}
-            className={`-mb-px whitespace-nowrap border-b-2 px-3 py-2 text-sm ${
- section === id ? 'border-accent font-medium text-fg' : 'border-transparent text-fgMuted hover:text-fg'
- }`}
+            className={`-mb-px whitespace-nowrap border-b-2 px-3 py-2 text-xs transition-colors cursor-pointer focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-accent ${
+              section === id ? 'border-accent font-medium text-fg' : 'border-transparent text-fgMuted hover:text-fg'
+            }`}
           >
             {label}
-            {id !== 'identity' && <span className="ml-1.5 rounded-full bg-surface3 px-1.5 text-xs tabular-nums text-fgMuted">{n}</span>}
+            {id !== 'identity' && <span className="ml-1.5 rounded-md bg-surface2 px-1.5 py-0.5 text-[10px] tabular-nums text-fgMuted">{n}</span>}
           </button>
         ))}
       </div>
@@ -501,14 +502,14 @@ export const BrandProfileView: React.FC = () => {
       <form onSubmit={handleSaveProfile} className="space-y-6">
         <div role="tabpanel" className={section === 'identity' ? "block" : "hidden"}>
         {/* SECTION 1: Core Brand Identity */}
-        <div className="bg-surface p-5 sm:p-6 rounded-2xl border border-line space-y-5">
+        <div className="bg-surface p-5 rounded-xl border border-line space-y-4">
           <div className="flex items-center justify-between border-b border-line pb-3">
-            <h3 className="text-sm font-bold text-fg flex items-center gap-2">
+            <h3 className="text-sm font-semibold text-fg flex items-center gap-2">
               <Building2 className="w-4 h-4 text-accent" />
               Brand Identity &amp; Primary Web Presence
             </h3>
             {brandName ? (
-              <span className="text-xs text-ok font-semibold flex items-center gap-1 font-mono">
+              <span className="text-xs text-ok font-medium flex items-center gap-1 font-mono">
                 <Check className="w-3.5 h-3.5" /> Active Protected Entity
               </span>
             ) : (
@@ -516,14 +517,14 @@ export const BrandProfileView: React.FC = () => {
             )}
           </div>
 
-          <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
+          <div className="grid grid-cols-1 md:grid-cols-3 gap-5">
             {/* Logo Upload & Preview */}
             <div className="space-y-2">
-              <label className="text-xs font-semibold text-fgSubtle block">
+              <label className="text-xs font-medium text-fgSubtle block">
                 Brand Logo / Official Seal
               </label>
               <div className="flex items-center gap-3">
-                <div className="w-24 h-24 rounded-2xl border-2 border-dashed border-line flex items-center justify-center bg-surface2 overflow-hidden shrink-0 relative group">
+                <div className="w-20 h-20 rounded-lg border border-dashed border-line flex items-center justify-center bg-surface2 overflow-hidden shrink-0 relative group">
                   {logoPreview ? (
                     <>
                       <img src={logoPreview} alt="Brand Logo" className="w-full h-full object-contain p-1.5" />
@@ -540,31 +541,31 @@ export const BrandProfileView: React.FC = () => {
                     </>
                   ) : (
                     <div className="text-center p-2">
-                      <Building2 className="w-7 h-7 text-fgMuted mx-auto" />
-                      <span className="text-xs text-fgMuted font-mono block mt-1">No Logo</span>
+                      <Building2 className="w-6 h-6 text-fgMuted mx-auto" />
+                      <span className="text-[11px] text-fgMuted font-mono block mt-1">No Logo</span>
                     </div>
                   )}
                 </div>
 
                 {isEditing && (
-                  <div className="space-y-1.5">
-                    <label className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-lg bg-surface2 hover:bg-canvas text-fg text-xs font-medium cursor-pointer border border-line transition-colors">
+                  <div className="space-y-1">
+                    <label className="inline-flex items-center gap-1.5 px-2.5 py-1.5 rounded-md bg-surface2 hover:bg-surface3 text-fg text-xs font-medium cursor-pointer border border-line transition-colors">
                       <Upload className="w-3.5 h-3.5 text-accent" />
-                      <span>{logoPreview ? 'Change Logo' : 'Upload Logo'}</span>
+                      <span>{logoPreview ? 'Change' : 'Upload'}</span>
                       <input type="file" accept="image/*" onChange={handleLogoUpload} className="hidden" />
                     </label>
-                    <p className="text-xs text-fgMuted font-mono">PNG, JPG, SVG up to 2MB</p>
+                    <p className="text-[11px] text-fgSubtle font-mono">PNG, JPG, SVG ≤ 2MB</p>
                   </div>
                 )}
               </div>
             </div>
 
             {/* Brand Name, Primary Website & Description */}
-            <div className="md:col-span-2 space-y-4">
-              <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+            <div className="md:col-span-2 space-y-3.5">
+              <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
                 <div>
-                  <label className="text-xs font-semibold text-fgSubtle block mb-1">
-                    Brand Name *
+                  <label className="text-xs font-medium text-fgSubtle block mb-1">
+                    Brand Name <span className="text-danger">*</span>
                   </label>
                   <input
                     type="text"
@@ -572,14 +573,14 @@ export const BrandProfileView: React.FC = () => {
                     disabled={!isEditing}
                     value={brandName}
                     onChange={e => setBrandName(e.target.value)}
-                    placeholder="e.g. ApexPay"
-                    className="w-full px-3.5 py-2 text-sm border border-line rounded-xl focus:outline-hidden focus:border-accent bg-surface2 disabled:opacity-70 font-semibold text-fg transition-all"
+                    placeholder="e.g. Acme Corp"
+                    className="w-full px-3 py-2 text-xs border border-line rounded-md focus:outline-none focus:ring-1 focus:ring-accent bg-surface2 disabled:opacity-70 font-semibold text-fg transition-colors"
                   />
                 </div>
 
                 <div>
-                  <label className="text-xs font-semibold text-fgSubtle block mb-1">
-                    Official Website URL *
+                  <label className="text-xs font-medium text-fgSubtle block mb-1">
+                    Official Website URL <span className="text-danger">*</span>
                   </label>
                   <input
                     type="url"
@@ -589,17 +590,17 @@ export const BrandProfileView: React.FC = () => {
                       setOfficialWebsite(e.target.value);
                       if (websiteError) setWebsiteError('');
                     }}
-                    placeholder="https://apexpay.com"
-                    className={`w-full px-3.5 py-2 text-xs border rounded-xl focus:outline-hidden focus:border-accent bg-surface2 disabled:opacity-70 font-mono text-fg transition-all ${
- websiteError ? 'border-danger bg-danger/10' : 'border-line'
- }`}
+                    placeholder="https://example.com"
+                    className={`w-full px-3 py-2 text-xs border rounded-md focus:outline-none focus:ring-1 focus:ring-accent bg-surface2 disabled:opacity-70 font-mono text-fg transition-colors ${
+                      websiteError ? 'border-danger bg-danger/10' : 'border-line'
+                    }`}
                   />
                   {websiteError && <p className="text-xs text-danger mt-1">{websiteError}</p>}
                 </div>
               </div>
 
               <div>
-                <label className="text-xs font-semibold text-fgSubtle block mb-1">
+                <label className="text-xs font-medium text-fgSubtle block mb-1">
                   Brand Commercial Description &amp; Scope
                 </label>
                 <textarea
@@ -608,20 +609,20 @@ export const BrandProfileView: React.FC = () => {
                   value={brandDescription}
                   onChange={e => setBrandDescription(e.target.value)}
                   placeholder="Describe the company's offerings, products, target audience, and authorized business activities..."
-                  className="w-full px-3.5 py-2 text-xs border border-line rounded-xl focus:outline-hidden focus:border-accent bg-surface2 disabled:opacity-70 text-fg leading-relaxed transition-all"
+                  className="w-full px-3 py-2 text-xs border border-line rounded-md focus:outline-none focus:ring-1 focus:ring-accent bg-surface2 disabled:opacity-70 text-fg leading-relaxed transition-colors"
                 />
               </div>
 
               {/* Protected Keyword Chips */}
               <div>
-                <label className="text-xs font-semibold text-fgSubtle block mb-1">
+                <label className="text-xs font-medium text-fgSubtle block mb-1">
                   Protected Trademark Keywords &amp; Variants
                 </label>
                 <div className="flex flex-wrap gap-1.5 mb-2">
                   {protectedKeywords.map((kw, idx) => (
                     <span
                       key={idx}
-                      className="inline-flex items-center gap-1 px-2.5 py-1 rounded-md bg-surface2 text-accent text-xs font-mono font-medium border border-line"
+                      className="inline-flex items-center gap-1 px-2 py-0.5 rounded-md bg-surface2 text-accent text-xs font-mono font-medium border border-line"
                     >
                       <span>{kw}</span>
                       {isEditing && (
@@ -646,13 +647,13 @@ export const BrandProfileView: React.FC = () => {
                       type="text"
                       value={newKeyword}
                       onChange={e => setNewKeyword(e.target.value)}
-                      placeholder="Add keyword variant (e.g. apex wallet)"
-                      className="px-3 py-1.5 text-xs border border-line rounded-lg focus:outline-hidden focus:border-accent bg-surface2 text-fg font-mono w-64"
+                      placeholder="Add keyword variant (e.g. corporate wallet)"
+                      className="px-3 py-1.5 text-xs border border-line rounded-md focus:outline-none focus:ring-1 focus:ring-accent bg-surface2 text-fg font-mono w-64 transition-colors"
                     />
                     <button
                       type="button"
                       onClick={handleAddKeyword}
-                      className="px-3 py-1.5 rounded-lg bg-accent hover:bg-accent/90 text-onAccent text-xs font-medium cursor-pointer transition-all"
+                      className="px-3 py-1.5 rounded-md bg-accent hover:bg-accent/90 text-onAccent text-xs font-medium cursor-pointer transition-colors focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-accent"
                     >
                       Add Keyword
                     </button>
@@ -666,38 +667,38 @@ export const BrandProfileView: React.FC = () => {
 
         <div role="tabpanel" className={section === 'domains' ? "block" : "hidden"}>
         {/* SECTION 2: Official Domains Registry */}
-        <div className="bg-surface p-5 sm:p-6 rounded-2xl border border-line space-y-4">
+        <div className="bg-surface p-4 sm:p-5 rounded-xl border border-line space-y-4">
           <div className="flex items-center justify-between border-b border-line pb-3">
             <div>
-              <h3 className="text-sm font-bold text-fg flex items-center gap-2">
+              <h3 className="text-sm font-semibold text-fg flex items-center gap-2">
                 <Globe className="w-4 h-4 text-ok" />
                 Official Corporate Domains ({domains.length})
               </h3>
-              <p className="text-xs text-fgMuted">
+              <p className="text-xs text-fgMuted mt-0.5">
                 Authorized hostnames and root domains. Screened against deceptive typosquats and look-alike TLDs.
               </p>
             </div>
-            <span className="text-xs text-ok font-mono bg-ok/10 px-2 py-0.5 rounded border border-ok/30">
+            <span className="text-[11px] text-ok font-mono bg-ok/10 px-2 py-0.5 rounded-md border border-ok/30">
               Protected Allowlist
             </span>
           </div>
 
           {/* Domains Grid / Empty State */}
           {domains.length === 0 ? (
-            <div className="p-8 text-center bg-surface2/50 rounded-xl border border-dashed border-line text-fgMuted text-xs">
-              <Globe className="w-6 h-6 mx-auto mb-1 text-fgMuted" />
+            <div className="p-6 text-center bg-surface2/40 rounded-lg border border-dashed border-line text-fgMuted text-xs">
+              <Globe className="w-5 h-5 mx-auto mb-1 text-fgMuted" />
               <p>No official domains registered yet. Add your brand's root and API domains below.</p>
             </div>
           ) : (
-            <div className="grid grid-cols-1 xl:grid-cols-2 gap-2.5">
+            <div className="grid grid-cols-1 xl:grid-cols-2 gap-2">
               {domains.map((dom, idx) => (
                 <div
                   key={idx}
-                  className="p-3 rounded-xl bg-surface2 border border-line flex items-center justify-between text-xs hover:border-accent/40 transition-colors"
+                  className="p-3 rounded-lg bg-surface2 border border-line flex items-center justify-between text-xs hover:border-line/80 transition-colors"
                 >
                   <div className="flex items-center gap-2 truncate">
                     <span className="w-2 h-2 rounded-full bg-ok shrink-0" />
-                    <span className="font-mono font-semibold text-fg truncate">{dom}</span>
+                    <span className="font-mono font-medium text-fg truncate">{dom}</span>
                   </div>
 
                   <div className="flex items-center gap-2 shrink-0">
@@ -706,7 +707,7 @@ export const BrandProfileView: React.FC = () => {
                       <button
                         type="button"
                         onClick={() => handleRemoveDomain(idx)}
-                        className="text-fgMuted hover:text-danger transition-colors p-1 cursor-pointer"
+                        className="text-fgMuted hover:text-danger transition-colors p-1 cursor-pointer focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-accent rounded"
                         title="Remove domain"
                       >
                         <Trash2 className="w-3.5 h-3.5" />
@@ -720,7 +721,7 @@ export const BrandProfileView: React.FC = () => {
 
           {/* Add Domain Input Form */}
           {isEditing && (
-            <div className="pt-2 border-t border-line/60">
+            <div className="pt-2 border-t border-line">
               <div className="flex flex-col sm:flex-row gap-2">
                 <input
                   type="text"
@@ -729,15 +730,15 @@ export const BrandProfileView: React.FC = () => {
                     setNewDomain(e.target.value);
                     if (domainError) setDomainError('');
                   }}
-                  placeholder="Enter hostname or domain (e.g. auth.apexpay.com)"
-                  className={`flex-1 px-3 py-1.5 text-xs border rounded-lg focus:outline-hidden focus:border-accent bg-surface2 text-fg font-mono ${
- domainError ? 'border-danger bg-danger/10' : 'border-line'
- }`}
+                  placeholder="Enter hostname or domain (e.g. auth.example.com)"
+                  className={`flex-1 px-3 py-1.5 text-xs border rounded-md focus:outline-none focus:ring-1 focus:ring-accent bg-surface2 text-fg font-mono transition-colors ${
+                    domainError ? 'border-danger bg-danger/10' : 'border-line'
+                  }`}
                 />
                 <button
                   type="button"
                   onClick={handleAddDomain}
-                  className="px-4 py-1.5 rounded-lg bg-accent hover:bg-accent/90 text-onAccent text-xs font-semibold flex items-center justify-center gap-1.5 transition-colors cursor-pointer"
+                  className="px-3 py-1.5 rounded-md bg-accent hover:bg-accentHover text-onAccent text-xs font-medium flex items-center justify-center gap-1.5 transition-colors cursor-pointer focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-accent"
                 >
                   <Plus className="w-3.5 h-3.5" />
                   <span>Register Domain</span>
@@ -751,47 +752,47 @@ export const BrandProfileView: React.FC = () => {
 
         <div role="tabpanel" className={section === 'social' ? "block" : "hidden"}>
         {/* SECTION 3: Official Social Media Accounts */}
-        <div className="bg-surface p-5 sm:p-6 rounded-2xl border border-line space-y-4">
+        <div className="bg-surface p-4 sm:p-5 rounded-xl border border-line space-y-4">
           <div className="flex items-center justify-between border-b border-line pb-3">
             <div>
-              <h3 className="text-sm font-bold text-fg flex items-center gap-2">
+              <h3 className="text-sm font-semibold text-fg flex items-center gap-2">
                 <Share2 className="w-4 h-4 text-accent" />
                 Official Social Media Channels ({socials.length})
               </h3>
-              <p className="text-xs text-fgMuted">
+              <p className="text-xs text-fgMuted mt-0.5">
                 Official handles and verified platform URLs exempted from impersonation alerts.
               </p>
             </div>
-            <span className="text-xs text-accent font-mono bg-accent/10 px-2 py-0.5 rounded border border-accent/30">
+            <span className="text-[11px] text-accent font-mono bg-accent/10 px-2 py-0.5 rounded-md border border-accent/30">
               Verified Socials
             </span>
           </div>
 
           {/* Social Accounts Grid / Empty State */}
           {socials.length === 0 ? (
-            <div className="p-8 text-center bg-surface2/50 rounded-xl border border-dashed border-line text-fgMuted text-xs">
-              <Share2 className="w-6 h-6 mx-auto mb-1 text-fgMuted" />
+            <div className="p-6 text-center bg-surface2/40 rounded-lg border border-dashed border-line text-fgMuted text-xs">
+              <Share2 className="w-5 h-5 mx-auto mb-1 text-fgMuted" />
               <p>No official social accounts registered yet. Add official Twitter/X, Instagram, or LinkedIn profiles.</p>
             </div>
           ) : (
-            <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-3">
+            <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-2.5">
               {socials.map((soc, idx) => (
                 <div
                   key={soc.id || idx}
-                  className="p-3.5 rounded-xl bg-surface2 border border-line flex flex-col justify-between text-xs space-y-2 hover:border-accent transition-colors"
+                  className="p-3 rounded-lg bg-surface2 border border-line flex flex-col justify-between text-xs space-y-2 hover:border-line/80 transition-colors"
                 >
                   <div className="flex items-start justify-between">
                     <div>
-                      <span className="text-xs font-medium text-fgSubtle block">
+                      <span className="text-[11px] font-medium text-fgSubtle block">
                         {soc.platform}
                       </span>
-                      <span className="font-bold text-fg text-sm font-mono mt-0.5 block">{soc.handle}</span>
+                      <span className="font-semibold text-fg text-xs font-mono mt-0.5 block">{soc.handle}</span>
                     </div>
                     {isEditing && (
                       <button
                         type="button"
                         onClick={() => handleRemoveSocial(idx)}
-                        className="text-fgMuted hover:text-danger p-1 cursor-pointer transition-colors"
+                        className="text-fgMuted hover:text-danger p-1 cursor-pointer transition-colors focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-accent rounded"
                         title="Remove Social Account"
                       >
                         <Trash2 className="w-3.5 h-3.5" />
@@ -811,7 +812,7 @@ export const BrandProfileView: React.FC = () => {
 
                   <div className="flex items-center justify-between pt-1 border-t border-line/60 text-xs">
                     <div>{renderVerificationBadge(soc.verificationStatus)}</div>
-                    {soc.notes && <span className="text-fgMuted italic truncate ml-1">{soc.notes}</span>}
+                    {soc.notes && <span className="text-fgMuted italic truncate ml-1 text-[11px]">{soc.notes}</span>}
                   </div>
                 </div>
               ))}
@@ -820,15 +821,15 @@ export const BrandProfileView: React.FC = () => {
 
           {/* Add Social Account Form */}
           {isEditing && (
-            <div className="p-4 rounded-xl bg-surface2 border border-line space-y-3">
-              <span className="text-xs font-bold text-fg block font-mono">Add Official Social Account:</span>
+            <div className="p-3.5 rounded-lg bg-surface2 border border-line space-y-3">
+              <span className="text-xs font-medium text-fg block font-mono">Add Official Social Account:</span>
               <div className="grid grid-cols-1 sm:grid-cols-4 gap-2 text-xs">
                 <div>
-                  <label className="text-xs font-semibold text-fgSubtle block mb-1">Platform</label>
+                  <label className="text-xs font-medium text-fgSubtle block mb-1">Platform</label>
                   <select
                     value={newSocialPlatform}
                     onChange={e => setNewSocialPlatform(e.target.value)}
-                    className="w-full text-xs border border-line rounded-lg px-2.5 py-1.5 bg-surface text-fg focus:outline-hidden"
+                    className="w-full text-xs border border-line rounded-md px-2.5 py-1.5 bg-surface text-fg focus:outline-none focus:ring-1 focus:ring-accent"
                   >
                     <option value="Twitter / X">Twitter / X</option>
                     <option value="Instagram">Instagram</option>
@@ -842,18 +843,18 @@ export const BrandProfileView: React.FC = () => {
                 </div>
 
                 <div>
-                  <label className="text-xs font-semibold text-fgSubtle block mb-1">Handle / Name *</label>
+                  <label className="text-xs font-medium text-fgSubtle block mb-1">Handle / Name *</label>
                   <input
                     type="text"
                     value={newSocialHandle}
                     onChange={e => setNewSocialHandle(e.target.value)}
-                    placeholder="@apexpay_official"
-                    className="w-full text-xs border border-line rounded-lg px-2.5 py-1.5 bg-surface text-fg font-mono focus:outline-hidden focus:border-accent"
+                    placeholder="@brand_official"
+                    className="w-full text-xs border border-line rounded-md px-2.5 py-1.5 bg-surface text-fg font-mono focus:outline-none focus:ring-1 focus:ring-accent"
                   />
                 </div>
 
                 <div>
-                  <label className="text-xs font-semibold text-fgSubtle block mb-1">Profile URL *</label>
+                  <label className="text-xs font-medium text-fgSubtle block mb-1">Profile URL *</label>
                   <input
                     type="url"
                     value={newSocialUrl}
@@ -861,17 +862,17 @@ export const BrandProfileView: React.FC = () => {
                       setNewSocialUrl(e.target.value);
                       if (socialUrlError) setSocialUrlError('');
                     }}
-                    placeholder="https://x.com/apexpay_official"
-                    className="w-full text-xs border border-line rounded-lg px-2.5 py-1.5 bg-surface text-fg font-mono focus:outline-hidden focus:border-accent"
+                    placeholder="https://x.com/brand_official"
+                    className="w-full text-xs border border-line rounded-md px-2.5 py-1.5 bg-surface text-fg font-mono focus:outline-none focus:ring-1 focus:ring-accent"
                   />
                 </div>
 
                 <div>
-                  <label className="text-xs font-semibold text-fgSubtle block mb-1">Verification Tier</label>
+                  <label className="text-xs font-medium text-fgSubtle block mb-1">Verification Tier</label>
                   <select
                     value={newSocialTier}
                     onChange={e => setNewSocialTier(e.target.value as AssetVerificationTier)}
-                    className="w-full text-xs border border-line rounded-lg px-2.5 py-1.5 bg-surface text-fg focus:outline-hidden"
+                    className="w-full text-xs border border-line rounded-md px-2.5 py-1.5 bg-surface text-fg focus:outline-none focus:ring-1 focus:ring-accent"
                   >
                     <option value="user_declared">User-Declared</option>
                     <option value="verified_platform">Platform Verified Badge</option>
@@ -886,7 +887,7 @@ export const BrandProfileView: React.FC = () => {
                 <button
                   type="button"
                   onClick={handleAddSocial}
-                  className="px-4 py-1.5 rounded-lg bg-accent hover:bg-accent/90 text-onAccent text-xs font-semibold flex items-center gap-1.5 transition-colors cursor-pointer"
+                  className="px-3 py-1.5 rounded-md bg-accent hover:bg-accentHover text-onAccent text-xs font-medium flex items-center gap-1.5 transition-colors cursor-pointer focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-accent"
                 >
                   <Plus className="w-3.5 h-3.5" />
                   <span>Register Social Account</span>
@@ -899,49 +900,49 @@ export const BrandProfileView: React.FC = () => {
 
         <div role="tabpanel" className={section === 'apps' ? "block" : "hidden"}>
         {/* SECTION 4: Official Mobile Applications */}
-        <div className="bg-surface p-5 sm:p-6 rounded-2xl border border-line space-y-4">
+        <div className="bg-surface p-4 sm:p-5 rounded-xl border border-line space-y-4">
           <div className="flex items-center justify-between border-b border-line pb-3">
             <div>
-              <h3 className="text-sm font-bold text-fg flex items-center gap-2">
+              <h3 className="text-sm font-semibold text-fg flex items-center gap-2">
                 <Smartphone className="w-4 h-4 text-ai" />
                 Official Mobile Applications ({apps.length})
               </h3>
-              <p className="text-xs text-fgMuted">
+              <p className="text-xs text-fgMuted mt-0.5">
                 Official apps and authorized publisher signatures used to detect developer mismatches and rogue APKs.
               </p>
             </div>
-            <span className="text-xs text-ai font-mono bg-ai/15 px-2 py-0.5 rounded border border-ai/30">
+            <span className="text-[11px] text-ai font-mono bg-ai/15 px-2 py-0.5 rounded-md border border-ai/30">
               Authorized Publishers
             </span>
           </div>
 
           {/* Apps Grid / Empty State */}
           {apps.length === 0 ? (
-            <div className="p-8 text-center bg-surface2/50 rounded-xl border border-dashed border-line text-fgMuted text-xs">
-              <Smartphone className="w-6 h-6 mx-auto mb-1 text-fgMuted" />
+            <div className="p-6 text-center bg-surface2/40 rounded-lg border border-dashed border-line text-fgMuted text-xs">
+              <Smartphone className="w-5 h-5 mx-auto mb-1 text-fgMuted" />
               <p>No official mobile applications cataloged. Add your brand's Google Play or App Store applications below.</p>
             </div>
           ) : (
-            <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
+            <div className="grid grid-cols-1 sm:grid-cols-2 gap-2.5">
               {apps.map((app, idx) => (
                 <div
                   key={app.id || idx}
-                  className="p-4 rounded-xl bg-surface2 border border-line flex flex-col justify-between text-xs space-y-2 hover:border-ai/50 transition-colors"
+                  className="p-3.5 rounded-lg bg-surface2 border border-line flex flex-col justify-between text-xs space-y-2 hover:border-line/80 transition-colors"
                 >
                   <div className="flex items-start justify-between">
                     <div>
-                      <span className="font-bold text-fg text-sm block">{app.name}</span>
+                      <span className="font-semibold text-fg text-xs block">{app.name}</span>
                       <div className="mt-1 space-y-0.5 text-fgMuted text-xs">
                         <p>
-                          <strong className="text-fg">Authorized Publisher:</strong>{' '}
-                          <span className="text-accent font-semibold">{app.developer}</span>
+                          <strong className="text-fg font-medium">Authorized Publisher:</strong>{' '}
+                          <span className="text-accent font-medium">{app.developer}</span>
                         </p>
                         <p>
-                          <strong className="text-fg">Store / Marketplace:</strong> <span>{app.store}</span>
+                          <strong className="text-fg font-medium">Store / Marketplace:</strong> <span>{app.store}</span>
                         </p>
                         {app.appId && (
                           <p>
-                            <strong className="text-fg">Bundle ID:</strong>{' '}
+                            <strong className="text-fg font-medium">Bundle ID:</strong>{' '}
                             <span className="font-mono text-fgMuted">{app.appId}</span>
                           </p>
                         )}
@@ -951,7 +952,7 @@ export const BrandProfileView: React.FC = () => {
                       <button
                         type="button"
                         onClick={() => handleRemoveApp(idx)}
-                        className="text-fgMuted hover:text-danger p-1 cursor-pointer transition-colors"
+                        className="text-fgMuted hover:text-danger p-1 cursor-pointer transition-colors focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-accent rounded"
                         title="Remove Mobile App"
                       >
                         <Trash2 className="w-3.5 h-3.5" />
@@ -981,39 +982,39 @@ export const BrandProfileView: React.FC = () => {
 
           {/* Add Mobile App Form */}
           {isEditing && (
-            <div className="p-4 rounded-xl bg-surface2 border border-line space-y-3">
-              <span className="text-xs font-bold text-fg block font-mono">Catalog Official Mobile App:</span>
-              <div className="grid grid-cols-1 sm:grid-cols-3 gap-2.5 text-xs">
+            <div className="p-3.5 rounded-lg bg-surface2 border border-line space-y-3">
+              <span className="text-xs font-medium text-fg block font-mono">Catalog Official Mobile App:</span>
+              <div className="grid grid-cols-1 sm:grid-cols-3 gap-2 text-xs">
                 <div>
-                  <label className="text-xs font-semibold text-fgSubtle block mb-1">App Name *</label>
+                  <label className="text-xs font-medium text-fgSubtle block mb-1">App Name *</label>
                   <input
                     type="text"
                     value={newAppName}
                     onChange={e => setNewAppName(e.target.value)}
-                    placeholder="e.g. ApexPay: Mobile Wallet"
-                    className="w-full text-xs border border-line rounded-lg px-2.5 py-1.5 bg-surface text-fg focus:outline-hidden focus:border-accent"
+                    placeholder="e.g. Brand Mobile Wallet"
+                    className="w-full text-xs border border-line rounded-md px-2.5 py-1.5 bg-surface text-fg focus:outline-none focus:ring-1 focus:ring-accent"
                   />
                 </div>
 
                 <div>
-                  <label className="text-xs font-semibold text-fgSubtle block mb-1">
+                  <label className="text-xs font-medium text-fgSubtle block mb-1">
                     Authorized Developer / Publisher *
                   </label>
                   <input
                     type="text"
                     value={newAppDeveloper}
                     onChange={e => setNewAppDeveloper(e.target.value)}
-                    placeholder="e.g. ApexPay Technologies Inc."
-                    className="w-full text-xs border border-line rounded-lg px-2.5 py-1.5 bg-surface text-fg focus:outline-hidden focus:border-accent"
+                    placeholder="e.g. Brand Technologies Inc."
+                    className="w-full text-xs border border-line rounded-md px-2.5 py-1.5 bg-surface text-fg focus:outline-none focus:ring-1 focus:ring-accent"
                   />
                 </div>
 
                 <div>
-                  <label className="text-xs font-semibold text-fgSubtle block mb-1">Store Platform</label>
+                  <label className="text-xs font-medium text-fgSubtle block mb-1">Store Platform</label>
                   <select
                     value={newAppStore}
                     onChange={e => setNewAppStore(e.target.value)}
-                    className="w-full text-xs border border-line rounded-lg px-2.5 py-1.5 bg-surface text-fg focus:outline-hidden"
+                    className="w-full text-xs border border-line rounded-md px-2.5 py-1.5 bg-surface text-fg focus:outline-none focus:ring-1 focus:ring-accent"
                   >
                     <option value="Google Play Store">Google Play Store</option>
                     <option value="Apple App Store">Apple App Store</option>
@@ -1024,7 +1025,7 @@ export const BrandProfileView: React.FC = () => {
                 </div>
 
                 <div className="sm:col-span-2">
-                  <label className="text-xs font-semibold text-fgSubtle block mb-1">Store Listing URL</label>
+                  <label className="text-xs font-medium text-fgSubtle block mb-1">Store Listing URL</label>
                   <input
                     type="url"
                     value={newAppStoreUrl}
@@ -1032,17 +1033,17 @@ export const BrandProfileView: React.FC = () => {
                       setNewAppStoreUrl(e.target.value);
                       if (appUrlError) setAppUrlError('');
                     }}
-                    placeholder="https://play.google.com/store/apps/details?id=com.apexpay.wallet"
-                    className="w-full text-xs border border-line rounded-lg px-2.5 py-1.5 bg-surface text-fg font-mono focus:outline-hidden focus:border-accent"
+                    placeholder="https://play.google.com/store/apps/details?id=com.brand.wallet"
+                    className="w-full text-xs border border-line rounded-md px-2.5 py-1.5 bg-surface text-fg font-mono focus:outline-none focus:ring-1 focus:ring-accent"
                   />
                 </div>
 
                 <div>
-                  <label className="text-xs font-semibold text-fgSubtle block mb-1">Verification Tier</label>
+                  <label className="text-xs font-medium text-fgSubtle block mb-1">Verification Tier</label>
                   <select
                     value={newAppTier}
                     onChange={e => setNewAppTier(e.target.value as AssetVerificationTier)}
-                    className="w-full text-xs border border-line rounded-lg px-2.5 py-1.5 bg-surface text-fg focus:outline-hidden"
+                    className="w-full text-xs border border-line rounded-md px-2.5 py-1.5 bg-surface text-fg focus:outline-none focus:ring-1 focus:ring-accent"
                   >
                     <option value="user_declared">User-Declared</option>
                     <option value="verified_store">Verified Store Publisher</option>
@@ -1057,7 +1058,7 @@ export const BrandProfileView: React.FC = () => {
                 <button
                   type="button"
                   onClick={handleAddApp}
-                  className="px-4 py-1.5 rounded-lg bg-accent hover:bg-accent/90 text-onAccent text-xs font-semibold flex items-center gap-1.5 transition-colors cursor-pointer"
+                  className="px-3 py-1.5 rounded-md bg-accent hover:bg-accentHover text-onAccent text-xs font-medium flex items-center gap-1.5 transition-colors cursor-pointer focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-accent"
                 >
                   <Plus className="w-3.5 h-3.5" />
                   <span>Register Mobile App</span>
@@ -1070,40 +1071,40 @@ export const BrandProfileView: React.FC = () => {
 
         <div role="tabpanel" className={section === 'partners' ? "block" : "hidden"}>
         {/* SECTION 5: Authorized Third-Party Partners */}
-        <div className="bg-surface p-5 sm:p-6 rounded-2xl border border-line space-y-4">
+        <div className="bg-surface p-4 sm:p-5 rounded-xl border border-line space-y-4">
           <div className="flex items-center justify-between border-b border-line pb-3">
             <div>
-              <h3 className="text-sm font-bold text-fg flex items-center gap-2">
+              <h3 className="text-sm font-semibold text-fg flex items-center gap-2">
                 <Users className="w-4 h-4 text-warn" />
                 Authorized Third-Party Partners ({partners.length})
               </h3>
-              <p className="text-xs text-fgMuted">
+              <p className="text-xs text-fgMuted mt-0.5">
                 Registered affiliates, merchants, and hardware partners allowed to display brand marks without being
                 flagged as rogue impersonators.
               </p>
             </div>
-            <span className="text-xs text-warn font-mono bg-warn/10 px-2 py-0.5 rounded border border-warn/30">
+            <span className="text-[11px] text-warn font-mono bg-warn/10 px-2 py-0.5 rounded-md border border-warn/30">
               Co-Marketing Directory
             </span>
           </div>
 
           {/* Partners Grid / Empty State */}
           {partners.length === 0 ? (
-            <div className="p-8 text-center bg-surface2/50 rounded-xl border border-dashed border-line text-fgMuted text-xs">
-              <Users className="w-6 h-6 mx-auto mb-1 text-fgMuted" />
+            <div className="p-6 text-center bg-surface2/40 rounded-lg border border-dashed border-line text-fgMuted text-xs">
+              <Users className="w-5 h-5 mx-auto mb-1 text-fgMuted" />
               <p>No authorized partners registered. Add verified affiliate partners, merchants, or distributors below.</p>
             </div>
           ) : (
-            <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
+            <div className="grid grid-cols-1 sm:grid-cols-2 gap-2.5">
               {partners.map((partner, idx) => (
                 <div
                   key={partner.id || idx}
-                  className="p-4 rounded-xl bg-surface2 border border-line flex flex-col justify-between text-xs space-y-2 hover:border-warn/50 transition-colors"
+                  className="p-3.5 rounded-lg bg-surface2 border border-line flex flex-col justify-between text-xs space-y-2 hover:border-line/80 transition-colors"
                 >
                   <div className="flex items-start justify-between">
                     <div>
-                      <span className="font-bold text-fg text-sm block">{partner.name}</span>
-                      <span className="text-xs font-medium text-fgSubtle mt-0.5 block">
+                      <span className="font-semibold text-fg text-xs block">{partner.name}</span>
+                      <span className="text-[11px] font-medium text-fgSubtle mt-0.5 block">
                         {partner.relationshipType}
                       </span>
                     </div>
@@ -1111,7 +1112,7 @@ export const BrandProfileView: React.FC = () => {
                       <button
                         type="button"
                         onClick={() => handleRemovePartner(idx)}
-                        className="text-fgMuted hover:text-danger p-1 cursor-pointer transition-colors"
+                        className="text-fgMuted hover:text-danger p-1 cursor-pointer transition-colors focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-accent rounded"
                         title="Remove Partner"
                       >
                         <Trash2 className="w-3.5 h-3.5" />
@@ -1121,11 +1122,11 @@ export const BrandProfileView: React.FC = () => {
 
                   <div className="text-xs text-fgMuted space-y-0.5">
                     <p>
-                      <strong className="text-fg">Authorized Marks:</strong> {partner.authorizedMarks}
+                      <strong className="text-fg font-medium">Authorized Marks:</strong> {partner.authorizedMarks}
                     </p>
                     {partner.agreementReference && (
                       <p>
-                        <strong className="text-fg">Contract Reference:</strong>{' '}
+                        <strong className="text-fg font-medium">Contract Reference:</strong>{' '}
                         <span className="font-mono text-accent">{partner.agreementReference}</span>
                       </p>
                     )}
@@ -1153,26 +1154,26 @@ export const BrandProfileView: React.FC = () => {
 
           {/* Add Partner Form */}
           {isEditing && (
-            <div className="p-4 rounded-xl bg-surface2 border border-line space-y-3">
-              <span className="text-xs font-bold text-fg block font-mono">Register Authorized Commercial Partner:</span>
-              <div className="grid grid-cols-1 sm:grid-cols-3 gap-2.5 text-xs">
+            <div className="p-3.5 rounded-lg bg-surface2 border border-line space-y-3">
+              <span className="text-xs font-medium text-fg block font-mono">Register Authorized Commercial Partner:</span>
+              <div className="grid grid-cols-1 sm:grid-cols-3 gap-2 text-xs">
                 <div>
-                  <label className="text-xs font-semibold text-fgSubtle block mb-1">Partner Organization *</label>
+                  <label className="text-xs font-medium text-fgSubtle block mb-1">Partner Organization *</label>
                   <input
                     type="text"
                     value={newPartnerName}
                     onChange={e => setNewPartnerName(e.target.value)}
                     placeholder="e.g. FinTech Daily Media Hub"
-                    className="w-full text-xs border border-line rounded-lg px-2.5 py-1.5 bg-surface text-fg focus:outline-hidden focus:border-accent"
+                    className="w-full text-xs border border-line rounded-md px-2.5 py-1.5 bg-surface text-fg focus:outline-none focus:ring-1 focus:ring-accent"
                   />
                 </div>
 
                 <div>
-                  <label className="text-xs font-semibold text-fgSubtle block mb-1">Relationship Type</label>
+                  <label className="text-xs font-medium text-fgSubtle block mb-1">Relationship Type</label>
                   <select
                     value={newPartnerType}
                     onChange={e => setNewPartnerType(e.target.value as AuthorizedPartner['relationshipType'])}
-                    className="w-full text-xs border border-line rounded-lg px-2.5 py-1.5 bg-surface text-fg focus:outline-hidden"
+                    className="w-full text-xs border border-line rounded-md px-2.5 py-1.5 bg-surface text-fg focus:outline-none focus:ring-1 focus:ring-accent"
                   >
                     <option value="Merchant Partner">Merchant Partner</option>
                     <option value="Affiliate Network">Affiliate Network</option>
@@ -1183,7 +1184,7 @@ export const BrandProfileView: React.FC = () => {
                 </div>
 
                 <div>
-                  <label className="text-xs font-semibold text-fgSubtle block mb-1">Partner Website URL</label>
+                  <label className="text-xs font-medium text-fgSubtle block mb-1">Partner Website URL</label>
                   <input
                     type="url"
                     value={newPartnerUrl}
@@ -1192,38 +1193,38 @@ export const BrandProfileView: React.FC = () => {
                       if (partnerUrlError) setPartnerUrlError('');
                     }}
                     placeholder="https://partner.example"
-                    className="w-full text-xs border border-line rounded-lg px-2.5 py-1.5 bg-surface text-fg font-mono focus:outline-hidden focus:border-accent"
+                    className="w-full text-xs border border-line rounded-md px-2.5 py-1.5 bg-surface text-fg font-mono focus:outline-none focus:ring-1 focus:ring-accent"
                   />
                 </div>
 
                 <div>
-                  <label className="text-xs font-semibold text-fgSubtle block mb-1">Trademark License / Scope</label>
+                  <label className="text-xs font-medium text-fgSubtle block mb-1">Trademark License / Scope</label>
                   <input
                     type="text"
                     value={newPartnerMarks}
                     onChange={e => setNewPartnerMarks(e.target.value)}
                     placeholder="e.g. Co-Branded Showcase Badge"
-                    className="w-full text-xs border border-line rounded-lg px-2.5 py-1.5 bg-surface text-fg focus:outline-hidden focus:border-accent"
+                    className="w-full text-xs border border-line rounded-md px-2.5 py-1.5 bg-surface text-fg focus:outline-none focus:ring-1 focus:ring-accent"
                   />
                 </div>
 
                 <div>
-                  <label className="text-xs font-semibold text-fgSubtle block mb-1">Agreement / Ticket Ref</label>
+                  <label className="text-xs font-medium text-fgSubtle block mb-1">Agreement / Ticket Ref</label>
                   <input
                     type="text"
                     value={newPartnerAgreement}
                     onChange={e => setNewPartnerAgreement(e.target.value)}
                     placeholder="e.g. PMA-2025-08"
-                    className="w-full text-xs border border-line rounded-lg px-2.5 py-1.5 bg-surface text-fg font-mono focus:outline-hidden focus:border-accent"
+                    className="w-full text-xs border border-line rounded-md px-2.5 py-1.5 bg-surface text-fg font-mono focus:outline-none focus:ring-1 focus:ring-accent"
                   />
                 </div>
 
                 <div>
-                  <label className="text-xs font-semibold text-fgSubtle block mb-1">Verification Tier</label>
+                  <label className="text-xs font-medium text-fgSubtle block mb-1">Verification Tier</label>
                   <select
                     value={newPartnerTier}
                     onChange={e => setNewPartnerTier(e.target.value as AssetVerificationTier)}
-                    className="w-full text-xs border border-line rounded-lg px-2.5 py-1.5 bg-surface text-fg focus:outline-hidden"
+                    className="w-full text-xs border border-line rounded-md px-2.5 py-1.5 bg-surface text-fg focus:outline-none focus:ring-1 focus:ring-accent"
                   >
                     <option value="user_declared">User-Declared</option>
                     <option value="contract_verified">Contract License Verified</option>
@@ -1238,7 +1239,7 @@ export const BrandProfileView: React.FC = () => {
                 <button
                   type="button"
                   onClick={handleAddPartner}
-                  className="px-4 py-1.5 rounded-lg bg-accent hover:bg-accent/90 text-onAccent text-xs font-semibold flex items-center gap-1.5 transition-colors cursor-pointer"
+                  className="px-3 py-1.5 rounded-md bg-accent hover:bg-accentHover text-onAccent text-xs font-medium flex items-center gap-1.5 transition-colors cursor-pointer focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-accent"
                 >
                   <Plus className="w-3.5 h-3.5" />
                   <span>Register Partner</span>
@@ -1253,8 +1254,8 @@ export const BrandProfileView: React.FC = () => {
           <p
             role="status"
             className={`flex items-center gap-1.5 text-sm ${
- saveStatus.kind === 'ok' ? 'text-ok' : saveStatus.kind === 'error' ? 'text-danger' : saveStatus.kind === 'local' ? 'text-warn' : 'text-fgMuted'
- }`}
+              saveStatus.kind === 'ok' ? 'text-ok' : saveStatus.kind === 'error' ? 'text-danger' : saveStatus.kind === 'local' ? 'text-warn' : 'text-fgMuted'
+            }`}
           >
             {saveStatus.kind === 'ok' && <CheckCircle2 className="h-4 w-4" />}
             {(saveStatus.kind === 'error' || saveStatus.kind === 'local') && <AlertCircle className="h-4 w-4" />}
@@ -1263,46 +1264,46 @@ export const BrandProfileView: React.FC = () => {
           <button
             type="submit"
             disabled={saveStatus.kind === 'saving'}
-            className="inline-flex items-center gap-2 rounded-md bg-accent px-4 py-2 text-sm font-medium text-onAccent hover:bg-accentHover disabled:opacity-50"
+            className="inline-flex items-center gap-2 rounded-md bg-accent px-3.5 py-2 text-xs font-medium text-onAccent hover:bg-accentHover disabled:opacity-50 cursor-pointer transition-colors focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-accent"
           >
-            <Save className="h-4 w-4" /> Save brand
+            <Save className="h-3.5 w-3.5" /> Save brand
           </button>
         </div>
       </form>
 
       {/* Confirmation Modal for Resetting Demo */}
       {showResetModal && (
-        <div className="fixed inset-0 z-50 bg-black/80 backdrop-blur-xs flex items-center justify-center p-4">
-          <div className="bg-surface rounded-2xl p-6 max-w-md w-full border border-line space-y-4 animate-in fade-in zoom-in-95 duration-150 text-fg">
+        <div className="fixed inset-0 z-50 bg-black/70 backdrop-blur-xs flex items-center justify-center p-4">
+          <div className="bg-surface rounded-xl p-5 max-w-md w-full border border-line space-y-4 animate-in fade-in zoom-in-95 duration-150 text-fg shadow-xl">
             <div className="flex items-center gap-3 text-warn">
-              <div className="p-2 rounded-xl bg-warn/10 border border-warn/30">
-                <AlertCircle className="w-6 h-6 text-warn" />
+              <div className="p-2 rounded-lg bg-warn/10 border border-warn/30 shrink-0">
+                <AlertCircle className="w-5 h-5 text-warn" />
               </div>
               <div>
-                <h3 className="font-bold text-fg text-sm">Reset to Demo Brand Profile?</h3>
-                <span className="text-xs text-fgMuted">Restore fictional ApexPay assets</span>
+                <h3 className="font-semibold text-fg text-sm">Reset to Demo Brand Profile?</h3>
+                <span className="text-xs text-fgMuted">Restore fictional demo assets</span>
               </div>
             </div>
 
             <p className="text-xs text-fgMuted leading-relaxed">
-              Are you sure you want to restore the default fictional <strong className="text-fg">ApexPay</strong> demo profile?
+              Are you sure you want to restore the default fictional <strong className="text-fg font-medium">demo</strong> brand profile?
               Any custom brand assets, domains, or partners added in this browser session will be replaced.
             </p>
 
-            <div className="flex items-center justify-end gap-2 pt-2">
+            <div className="flex items-center justify-end gap-2 pt-1">
               <button
                 type="button"
                 onClick={() => setShowResetModal(false)}
-                className="px-3.5 py-1.5 rounded-lg border border-line text-fgMuted hover:text-fg hover:bg-surface2 text-xs font-medium cursor-pointer transition-colors"
+                className="px-3 py-1.5 rounded-md border border-line text-fgMuted hover:text-fg hover:bg-surface2 text-xs font-medium cursor-pointer transition-colors focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-accent"
               >
                 Cancel
               </button>
               <button
                 type="button"
                 onClick={handleConfirmReset}
-                className="px-4 py-1.5 rounded-lg bg-accent hover:bg-accent/90 text-onAccent text-xs font-semibold shadow-accent/30 cursor-pointer transition-all"
+                className="px-3.5 py-1.5 rounded-md bg-accent hover:bg-accentHover text-onAccent text-xs font-medium cursor-pointer transition-colors focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-accent"
               >
-                Yes, Restore ApexPay
+                Yes, Restore Demo Brand
               </button>
             </div>
           </div>

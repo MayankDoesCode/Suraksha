@@ -47,7 +47,7 @@ interface AIProviderMeta {
 
 export const ExplainableAIAssistant: React.FC<ExplainableAIAssistantProps> = ({
   candidate,
-  brandName = 'ApexPay',
+  brandName = 'Protected Brand',
   onStatusChange,
   className = '',
 }) => {

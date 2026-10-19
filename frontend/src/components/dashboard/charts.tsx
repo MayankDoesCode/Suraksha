@@ -13,13 +13,7 @@ export const Donut: React.FC<{ parts: DonutPart[]; size?: number; thickness?: nu
   return (
     <div className="relative shrink-0" style={{ width: size, height: size }}>
       <svg viewBox={`0 0 ${size} ${size}`} width={size} height={size} role="img" aria-label={parts.map((p) => `${p.label} ${p.value}`).join(', ')}>
-        <defs>
-          <radialGradient id="donut-halo" cx="50%" cy="50%" r="50%">
-            <stop offset="62%" stopColor="rgb(var(--c-accent))" stopOpacity="0" />
-            <stop offset="100%" stopColor="rgb(var(--c-accent))" stopOpacity="0.10" />
-          </radialGradient>
-        </defs>
-        <circle cx={size / 2} cy={size / 2} r={r + thickness * 0.9} fill="url(#donut-halo)" />
+        {/* Neutral background track */}
         <circle cx={size / 2} cy={size / 2} r={r} fill="none" stroke="rgb(var(--c-surface-3))" strokeWidth={thickness} />
         {total > 0 &&
           parts.filter((p) => p.value > 0).map((p, i) => {
@@ -34,14 +28,14 @@ export const Donut: React.FC<{ parts: DonutPart[]; size?: number; thickness?: nu
                 pathLength={100}
                 strokeDashoffset={-start}
                 className="sk-seg"
-                style={{ ['--len' as string]: len, animationDelay: `${0.2 + i * 0.12}s`, transform: 'rotate(-90deg)', transformOrigin: 'center' }}
+                style={{ ['--len' as string]: len, animationDelay: `${0.15 + i * 0.1}s`, transform: 'rotate(-90deg)', transformOrigin: 'center' }}
               />
             );
           })}
       </svg>
       <div className="pointer-events-none absolute inset-0 flex flex-col items-center justify-center text-center">
         {centre}
-        {caption && <span className="mt-1 text-xs text-fgSubtle">{caption}</span>}
+        {caption && <span className="mt-1 text-xs font-medium text-fgSubtle">{caption}</span>}
       </div>
     </div>
   );

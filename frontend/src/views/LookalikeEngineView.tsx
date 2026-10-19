@@ -38,8 +38,8 @@ export const LookalikeEngineView: React.FC = () => {
   const { brandProfile, addCandidate, setActiveTab, isDemoMode, selectedBackendBrandId, backendOnline, refreshBackendData } = useApp();
 
   // Inputs: start clean for real users, populated for demo mode
-  const [candidateName, setCandidateName] = useState(() => isDemoMode ? 'ApexPay Support Team' : '');
-  const [candidateDomain, setCandidateDomain] = useState(() => isDemoMode ? 'apexpay-support.claims' : '');
+  const [candidateName, setCandidateName] = useState(() => isDemoMode ? 'Acme Support Team' : '');
+  const [candidateDomain, setCandidateDomain] = useState(() => isDemoMode ? 'acme-support.claims' : '');
   const [candidateDescription, setCandidateDescription] = useState(() =>
     isDemoMode ? 'Assisting users with transaction refunds, account unlock, and wallet recovery.' : ''
   );
@@ -53,8 +53,8 @@ export const LookalikeEngineView: React.FC = () => {
     if (!isDemoMode) return null;
     try {
       return runFullLookalikeAnalysis(
-        'ApexPay Support Team',
-        'apexpay-support.claims',
+        'Acme Support Team',
+        'acme-support.claims',
         brandProfile,
         'Assisting users with transaction refunds, account unlock, and wallet recovery.'
       );
@@ -72,56 +72,56 @@ export const LookalikeEngineView: React.FC = () => {
     {
       title: 'Homoglyph IDN Spoofing',
       category: 'Critical Threat',
-      name: 'аpexpay.com', // Contains Cyrillic 'а' (U+0430)
-      domain: 'аpexpay.com',
+      name: 'аcme.com', // Contains Cyrillic 'а' (U+0430)
+      domain: 'аcme.com',
       description: 'Zero-width characters and Cyrillic small letter "а" visually mimicking Latin "a".',
       badge: 'Cyrillic Homoglyph',
     },
     {
       title: 'Subdomain Brand Hijack',
       category: 'Critical Threat',
-      name: 'ApexPay Claims Desk',
-      domain: 'apexpay.claims-portal.com',
-      description: 'Embeds brand name as subdomain prefix under rogue apex domain claims-portal.com.',
+      name: 'Acme Claims Desk',
+      domain: 'acme.claims-portal.com',
+      description: 'Embeds brand name as subdomain prefix under rogue root domain claims-portal.com.',
       badge: 'Subdomain Abuse',
     },
     {
       title: 'Lure Keyword Combosquat',
       category: 'High Threat',
-      name: 'ApexPay Security Portal',
-      domain: 'apexpay-security-login.xyz',
+      name: 'Acme Security Portal',
+      domain: 'acme-security-login.xyz',
       description: 'Appends high-risk keywords "security" and "login" with suspicious .xyz TLD.',
       badge: 'Lure Words + .XYZ',
     },
     {
       title: 'Single-Character Typosquat',
       category: 'High Threat',
-      name: 'ApxPay Portal',
-      domain: 'apxpay.com',
-      description: 'Omission typo missing vowel "e", Damerau-Levenshtein distance of 1.',
+      name: 'Acmme Portal',
+      domain: 'acmme.com',
+      description: 'Character repetition typo with Damerau-Levenshtein distance of 1.',
       badge: 'Levenshtein Dist 1',
     },
     {
       title: 'Hyphenated Brand Phish',
       category: 'High Threat',
-      name: 'Apex-Pay Online',
-      domain: 'apex-pay-login.com',
+      name: 'Acme-Online Portal',
+      domain: 'acme-online-login.com',
       description: 'Hyphen-separated brand token with credential solicitation intent.',
       badge: 'Hyphen Insertion',
     },
     {
-      title: 'Bitsquatting Single Bitflip',
+      title: 'Vowel Substitution Spoof',
       category: 'Medium Threat',
-      name: 'EpexPay Hub',
-      domain: 'epexpay.com',
-      description: 'Single ASCII bitflip on character "a" (0x61 -> 0x65 "e").',
-      badge: 'Hardware Bitflip',
+      name: 'Ocme Hub',
+      domain: 'ocme.com',
+      description: 'Single character substitution typo (acme -> ocme).',
+      badge: 'Vowel Substitution',
     },
     {
       title: 'Official Allowlisted Domain',
       category: 'Benign Allowlisted',
-      name: 'ApexPay Corporate Portal',
-      domain: 'apexpay.com',
+      name: 'Acme Corporate Portal',
+      domain: 'acme.com',
       description: 'Authentic root domain registered in Official Brand Profile.',
       badge: 'Official Whitelist',
     },
@@ -136,9 +136,9 @@ export const LookalikeEngineView: React.FC = () => {
     {
       title: 'Short Brand Token Substring',
       category: 'Low / Benign',
-      name: 'Apex Logistics',
-      domain: 'apex-logistics.net',
-      description: 'Shares common English dictionary token "Apex" in unrelated logistics industry.',
+      name: 'Global Logistics',
+      domain: 'global-logistics.net',
+      description: 'Shares common English dictionary token in unrelated logistics industry.',
       badge: 'Benign Token Match',
     },
     {
@@ -189,12 +189,12 @@ export const LookalikeEngineView: React.FC = () => {
   };
 
   const handleReset = () => {
-    setCandidateName('ApexPay Support Team');
-    setCandidateDomain('apexpay-support.claims');
+    setCandidateName('Acme Support Team');
+    setCandidateDomain('acme-support.claims');
     setCandidateDescription('Assisting users with transaction refunds, account unlock, and wallet recovery.');
     executeAnalysis(
-      'ApexPay Support Team',
-      'apexpay-support.claims',
+      'Acme Support Team',
+      'acme-support.claims',
       'Assisting users with transaction refunds, account unlock, and wallet recovery.'
     );
   };
@@ -308,19 +308,22 @@ ${analysisResult.recommendedNextSteps.map((s, i) => `${i + 1}. ${s}`).join('\n')
   };
 
   return (
-    <div className="max-w-6xl mx-auto space-y-6 font-sans text-fg">
-      <div className="flex flex-wrap items-start justify-between gap-3">
-        <p className="max-w-2xl text-sm text-fgMuted">
-          Compare a suspected name or domain with the verified assets of <span className="text-fg">{brandProfile.brandName}</span>:
-          edit distance, homoglyphs, subdomain abuse, lure words and counter-evidence. The analysis runs in your browser;
-          escalating re-checks it with the backend detector and saves a finding.
-        </p>
+    <div className="w-full max-w-[1720px] mx-auto space-y-6 font-sans text-fg">
+      {/* Header */}
+      <div className="flex flex-wrap items-start justify-between gap-4">
+        <div>
+          <h2 className="text-xl font-semibold tracking-tight text-fg">Domain similarity assessment</h2>
+          <p className="mt-1 max-w-2xl text-xs sm:text-sm text-fgMuted leading-relaxed">
+            Compare a suspected name or domain with verified assets of <span className="text-fg font-medium">{brandProfile.brandName || 'Acme Corp'}</span>:
+            Levenshtein edit distance, homoglyphs, subdomain abuse, lure keywords, and counter-evidence. Analysis runs locally in your browser.
+          </p>
+        </div>
         {analysisResult && (
           <div className="flex items-center gap-2">
             <button
               type="button"
               onClick={handleExportReport}
-              className="inline-flex items-center gap-1.5 rounded-md border border-line px-3 py-1.5 text-sm text-fgMuted hover:bg-surface3 hover:text-fg"
+              className="inline-flex items-center gap-1.5 rounded-md border border-line bg-surface px-3 py-1.5 text-xs sm:text-sm text-fgMuted hover:bg-surface3 hover:text-fg transition-colors focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-accent"
             >
               {copiedReport ? <Check className="h-4 w-4 text-ok" /> : <Copy className="h-4 w-4" />}
               {copiedReport ? 'Copied' : 'Copy report'}
@@ -329,7 +332,7 @@ ${analysisResult.recommendedNextSteps.map((s, i) => `${i + 1}. ${s}`).join('\n')
               type="button"
               onClick={handleCreateInvestigationCase}
               disabled={escalation?.kind === 'saving'}
-              className="inline-flex items-center gap-1.5 rounded-md bg-accent px-3 py-1.5 text-sm font-medium text-onAccent hover:bg-accentHover disabled:opacity-50"
+              className="inline-flex items-center gap-1.5 rounded-md bg-accent px-3.5 py-1.5 text-xs sm:text-sm font-medium text-onAccent hover:bg-accentHover disabled:opacity-50 transition-colors shadow-sm focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-accent"
             >
               <FolderPlus className="h-4 w-4" /> Escalate to investigation
             </button>
@@ -340,16 +343,16 @@ ${analysisResult.recommendedNextSteps.map((s, i) => `${i + 1}. ${s}`).join('\n')
       {escalation && (
         <div
           role="status"
-          className={`flex flex-wrap items-center justify-between gap-2 rounded-lg border px-3 py-2 text-sm ${
- escalation.kind === 'ok' ? 'border-ok/30 bg-ok/10 text-ok'
- : escalation.kind === 'error' ? 'border-danger/30 bg-danger/10 text-danger'
- : escalation.kind === 'local' ? 'border-warn/30 bg-warn/10 text-warn'
- : 'border-line bg-surface text-fgMuted'
- }`}
+          className={`flex flex-wrap items-center justify-between gap-2 rounded-md border px-3.5 py-2 text-xs sm:text-sm ${
+            escalation.kind === 'ok' ? 'border-ok/30 bg-ok/10 text-ok'
+            : escalation.kind === 'error' ? 'border-danger/30 bg-danger/10 text-danger'
+            : escalation.kind === 'local' ? 'border-warn/30 bg-warn/10 text-warn'
+            : 'border-line bg-surface text-fgMuted'
+          }`}
         >
           <span>{escalation.message}</span>
           {(escalation.kind === 'ok' || escalation.kind === 'local') && (
-            <button type="button" onClick={() => setActiveTab('reports')} className="inline-flex items-center gap-1 underline">
+            <button type="button" onClick={() => setActiveTab('reports')} className="inline-flex items-center gap-1 font-medium underline">
               View findings <ArrowRight className="h-3 w-3" />
             </button>
           )}
@@ -358,59 +361,58 @@ ${analysisResult.recommendedNextSteps.map((s, i) => `${i + 1}. ${s}`).join('\n')
 
       {/* Validation or Analysis Error Alert */}
       {validationError && (
-        <div className="p-4 rounded-xl bg-danger/15 border border-danger/40 text-danger text-xs flex items-start gap-2.5">
+        <div role="alert" className="p-3.5 rounded-md bg-danger/10 border border-danger/30 text-danger text-xs flex items-start gap-2.5">
           <AlertCircle className="w-4 h-4 text-danger shrink-0 mt-0.5" />
           <div>
-            <strong className="block font-bold font-mono">Input Validation Notice:</strong>
+            <strong className="block font-semibold">Input Validation Notice:</strong>
             <p className="mt-0.5">{validationError}</p>
           </div>
         </div>
       )}
 
       {analysisError && (
-        <div className="p-4 rounded-xl bg-danger/15 border border-danger/40 text-danger text-xs flex items-start gap-2.5">
+        <div role="alert" className="p-3.5 rounded-md bg-danger/10 border border-danger/30 text-danger text-xs flex items-start gap-2.5">
           <AlertOctagon className="w-4 h-4 text-danger shrink-0 mt-0.5" />
           <div>
-            <strong className="block font-bold font-mono">Analysis Execution Error:</strong>
+            <strong className="block font-semibold">Analysis Execution Error:</strong>
             <p className="mt-0.5">{analysisError}</p>
           </div>
         </div>
       )}
 
       {/* 2. Side-by-Side: Protected Official Brand vs Candidate Input Bench */}
-      <div className="grid grid-cols-1 lg:grid-cols-12 gap-6 items-start">
+      {/* Side-by-Side: Protected Official Brand vs Candidate Input Bench */}
+      <div className="grid grid-cols-1 lg:grid-cols-12 gap-5 items-start">
         {/* Official Brand Profile Reference Panel */}
-        <div className="lg:col-span-4 bg-surface text-fg p-5 rounded-2xl border border-line flex flex-col justify-between space-y-4">
+        <div className="lg:col-span-4 bg-surface text-fg p-5 rounded-xl border border-line flex flex-col justify-between space-y-4 shadow-panel">
           <div className="space-y-3">
             <div className="flex items-center justify-between border-b border-line pb-3">
               <div className="flex items-center gap-2">
                 <ShieldCheck className="w-4 h-4 text-ok" />
                 <span className="text-xs font-medium text-fgSubtle">
-                  Protected Official Profile
+                  Protected baseline
                 </span>
               </div>
-              <span className="text-xs bg-ok/10 text-ok border border-ok/30 px-2 py-0.5 rounded-full font-mono">
-                Active Baseline
+              <span className="text-[11px] bg-ok/10 text-ok border border-ok/30 px-2 py-0.5 rounded-full font-mono">
+                Allowlisted
               </span>
             </div>
 
             <div>
               <span className="text-xs text-fgMuted block font-mono">Monitored Brand:</span>
-              <span className="text-lg font-bold text-fg tracking-tight">{brandProfile.brandName}</span>
-              {brandProfile.brandDescription && (
-                <p className="text-xs text-fgMuted mt-1 line-clamp-2 leading-relaxed">
-                  {brandProfile.brandDescription}
-                </p>
-              )}
+              <span className="text-lg font-semibold text-fg tracking-tight">{brandProfile.brandName || 'Acme Corp'}</span>
+              <p className="text-xs text-fgMuted mt-1 line-clamp-2 leading-relaxed">
+                {brandProfile.brandDescription || 'Primary enterprise brand baseline with verified domains and monitored digital assets.'}
+              </p>
             </div>
 
             <div>
-              <span className="text-xs text-fgMuted block mb-1 font-mono">Registered Official Domains:</span>
+              <span className="text-xs text-fgMuted block mb-1.5 font-mono">Registered Official Domains:</span>
               <div className="flex flex-wrap gap-1.5">
-                {brandProfile.officialDomains.map((dom, i) => (
+                {(brandProfile.officialDomains?.length ? brandProfile.officialDomains : ['acme.com', 'acme.io']).map((dom, i) => (
                   <span
                     key={i}
-                    className="inline-flex items-center gap-1 px-2.5 py-1 rounded-lg bg-surface2 text-fg font-mono text-xs border border-line"
+                    className="inline-flex items-center gap-1 px-2 py-0.5 rounded-md bg-surface2 text-fg font-mono text-xs border border-line"
                   >
                     <Globe className="w-3 h-3 text-ok" />
                     {dom}
@@ -421,15 +423,15 @@ ${analysisResult.recommendedNextSteps.map((s, i) => `${i + 1}. ${s}`).join('\n')
 
             {brandProfile.authorizedPartners && brandProfile.authorizedPartners.length > 0 && (
               <div>
-                <span className="text-xs text-fgMuted block mb-1 font-mono">Registered Authorized Partners:</span>
+                <span className="text-xs text-fgMuted block mb-1.5 font-mono">Registered Authorized Partners:</span>
                 <div className="space-y-1">
                   {brandProfile.authorizedPartners.slice(0, 2).map((p, i) => (
                     <div
                       key={i}
-                      className="text-xs bg-surface2 px-2.5 py-1 rounded-lg border border-line text-fgMuted flex items-center justify-between"
+                      className="text-xs bg-surface2 px-2.5 py-1 rounded-md border border-line text-fgMuted flex items-center justify-between"
                     >
                       <span className="text-fg font-medium">{p.name}</span>
-                      <span className="font-mono text-accent">{p.relationshipType}</span>
+                      <span className="font-mono text-accent text-[11px]">{p.relationshipType}</span>
                     </div>
                   ))}
                 </div>
@@ -440,15 +442,15 @@ ${analysisResult.recommendedNextSteps.map((s, i) => `${i + 1}. ${s}`).join('\n')
           <div className="pt-3 border-t border-line text-xs text-fgMuted flex items-center gap-1.5">
             <Info className="w-3.5 h-3.5 text-accent shrink-0" />
             <span>
-              All look-alike algorithms dynamically compare against this profile. Official assets are recognized and protected.
+              All look-alike heuristics compare against this profile. Official assets are recognized and excluded from alerts.
             </span>
           </div>
         </div>
 
         {/* Candidate Input Test Bench */}
-        <div className="lg:col-span-8 bg-surface p-5 sm:p-6 rounded-2xl border border-line space-y-4">
+        <div className="lg:col-span-8 bg-surface p-5 sm:p-6 rounded-xl border border-line space-y-4 shadow-panel">
           <div className="flex items-center justify-between border-b border-line pb-3">
-            <h3 className="text-sm font-bold text-fg flex items-center gap-2">
+            <h3 className="text-sm font-semibold text-fg flex items-center gap-2">
               <Search className="w-4 h-4 text-accent" />
               Candidate Asset Test Bench
             </h3>
@@ -456,7 +458,7 @@ ${analysisResult.recommendedNextSteps.map((s, i) => `${i + 1}. ${s}`).join('\n')
               <button
                 type="button"
                 onClick={handleClear}
-                className="text-xs text-fgMuted hover:text-fg flex items-center gap-1 px-2.5 py-1 rounded-lg hover:bg-surface2 transition-colors cursor-pointer"
+                className="text-xs text-fgMuted hover:text-fg flex items-center gap-1 px-2.5 py-1 rounded-md hover:bg-surface2 transition-colors cursor-pointer"
                 title="Clear all fields and results"
               >
                 <Eraser className="w-3 h-3 text-warn" />
@@ -465,7 +467,7 @@ ${analysisResult.recommendedNextSteps.map((s, i) => `${i + 1}. ${s}`).join('\n')
               <button
                 type="button"
                 onClick={handleReset}
-                className="text-xs text-fgMuted hover:text-fg flex items-center gap-1 px-2.5 py-1 rounded-lg hover:bg-surface2 transition-colors cursor-pointer"
+                className="text-xs text-fgMuted hover:text-fg flex items-center gap-1 px-2.5 py-1 rounded-md hover:bg-surface2 transition-colors cursor-pointer"
                 title="Reset to default demo test"
               >
                 <RotateCcw className="w-3 h-3 text-accent" />
@@ -476,7 +478,7 @@ ${analysisResult.recommendedNextSteps.map((s, i) => `${i + 1}. ${s}`).join('\n')
 
           <div className="grid grid-cols-1 md:grid-cols-2 gap-3.5 text-xs">
             <div>
-              <label className="font-semibold text-fgSubtle block mb-1 text-xs">
+              <label className="font-medium text-fgSubtle block mb-1 text-xs">
                 Candidate Brand Name <span className="text-danger">*</span>
               </label>
               <input
@@ -486,13 +488,13 @@ ${analysisResult.recommendedNextSteps.map((s, i) => `${i + 1}. ${s}`).join('\n')
                   setCandidateName(e.target.value);
                   if (validationError) setValidationError(null);
                 }}
-                placeholder="e.g. ApexPay Support Team or аpexpay"
-                className="w-full px-3 py-2 text-xs font-mono border border-line rounded-xl focus:outline-hidden focus:border-accent bg-surface2 text-fg transition-all"
+                placeholder="e.g. Brand Support Team or lookalike domain"
+                className="w-full px-3 py-2 text-xs font-mono border border-line rounded-md focus:outline-none focus:border-accent focus:ring-1 focus:ring-accent bg-surface2 text-fg placeholder:text-fgSubtle transition-colors"
               />
             </div>
 
             <div>
-              <label className="font-semibold text-fgSubtle block mb-1 text-xs">
+              <label className="font-medium text-fgSubtle block mb-1 text-xs">
                 Candidate Domain / URL <span className="text-danger">*</span>
               </label>
               <input
@@ -502,14 +504,14 @@ ${analysisResult.recommendedNextSteps.map((s, i) => `${i + 1}. ${s}`).join('\n')
                   setCandidateDomain(e.target.value);
                   if (validationError) setValidationError(null);
                 }}
-                placeholder="e.g. apexpay-support.claims or apexpay.claims-portal.com"
-                className="w-full px-3 py-2 text-xs font-mono border border-line rounded-xl focus:outline-hidden focus:border-accent bg-surface2 text-fg transition-all"
+                placeholder="e.g. brand-support.claims or auth-verify-login.xyz"
+                className="w-full px-3 py-2 text-xs font-mono border border-line rounded-md focus:outline-none focus:border-accent focus:ring-1 focus:ring-accent bg-surface2 text-fg placeholder:text-fgSubtle transition-colors"
               />
             </div>
           </div>
 
           <div>
-            <label className="font-semibold text-fgSubtle block mb-1 text-xs">
+            <label className="font-medium text-fgSubtle block mb-1 text-xs">
               Candidate Description &amp; Observed Context <span className="text-fgMuted/60 font-normal">(Optional)</span>
             </label>
             <input
@@ -517,11 +519,11 @@ ${analysisResult.recommendedNextSteps.map((s, i) => `${i + 1}. ${s}`).join('\n')
               value={candidateDescription}
               onChange={e => setCandidateDescription(e.target.value)}
               placeholder="e.g. Customer support claiming to provide refunds, login credentials, or official updates"
-              className="w-full px-3 py-2 text-xs border border-line rounded-xl focus:outline-hidden focus:border-accent bg-surface2 text-fg transition-all"
+              className="w-full px-3 py-2 text-xs border border-line rounded-md focus:outline-none focus:border-accent focus:ring-1 focus:ring-accent bg-surface2 text-fg placeholder:text-fgSubtle transition-colors"
             />
           </div>
 
-          <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3 pt-1">
+          <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3 pt-1 border-t border-line/60">
             <span className="text-xs text-fgMuted">
               Evaluates Levenshtein edit distance, homoglyphs, subdomain abuse, lure keywords, and benign counter-evidence.
             </span>
@@ -529,13 +531,12 @@ ${analysisResult.recommendedNextSteps.map((s, i) => `${i + 1}. ${s}`).join('\n')
             <button
               type="button"
               onClick={handleAnalyzeClick}
-              className="inline-flex items-center justify-center gap-2 px-5 py-2.5 bg-accent hover:bg-accent/90 disabled:opacity-50 text-onAccent text-xs font-bold rounded-xl transition-all shadow-accent/30 shrink-0 cursor-pointer hover:scale-[1.01] active:scale-95"
+              className="inline-flex items-center justify-center gap-2 px-4 py-2 bg-accent hover:bg-accentHover disabled:opacity-50 text-onAccent text-xs sm:text-sm font-medium rounded-md transition-colors shadow-sm shrink-0 cursor-pointer focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-accent"
             >
               <Sparkles className="h-3.5 w-3.5" />
               <span>Analyze similarity</span>
             </button>
           </div>
-
         </div>
       </div>
 
@@ -543,24 +544,24 @@ ${analysisResult.recommendedNextSteps.map((s, i) => `${i + 1}. ${s}`).join('\n')
       {analysisResult ? (
         <div className="space-y-6">
           {/* Results Summary Header Banner */}
-          <div className="bg-surface p-5 rounded-2xl border border-line flex flex-col sm:flex-row sm:items-center justify-between gap-3">
+          <div className="bg-surface p-5 rounded-xl border border-line flex flex-col sm:flex-row sm:items-center justify-between gap-3 shadow-panel">
             <div>
               <div className="flex items-center gap-2 mb-1">
-                <span className="text-xs font-medium text-fgSubtle bg-accent/20 border border-accent/30 px-2 py-0.5 rounded-md">
+                <span className="text-[11px] font-medium text-accent bg-accent/10 border border-accent/20 px-2 py-0.5 rounded">
                   Completed Analysis
                 </span>
                 <span className="text-xs text-fgMuted font-mono flex items-center gap-1">
-                  <Clock className="w-3 h-3 text-accent" />
+                  <Clock className="w-3 h-3 text-fgSubtle" />
                   {new Date(analysisResult.analyzedAt).toLocaleString()}
                 </span>
               </div>
-              <h3 className="text-base font-bold text-fg flex items-center gap-2">
+              <h3 className="text-base font-semibold text-fg flex items-center gap-2 flex-wrap">
                 <span>Candidate Evaluation:</span>
                 <span className="font-mono text-accent">"{analysisResult.candidateName}"</span>
                 <span className="text-fgMuted text-xs font-normal">vs</span>
                 <span className="font-mono text-fg">"{analysisResult.officialBrand}"</span>
               </h3>
-              <p className="text-xs text-fgMuted mt-0.5 font-mono">
+              <p className="text-xs text-fgMuted mt-1 font-mono">
                 Evaluated Domain: <code className="text-fg bg-surface2 px-1.5 py-0.5 rounded border border-line">{analysisResult.candidateDomain}</code>
               </p>
             </div>
@@ -580,11 +581,11 @@ ${analysisResult.recommendedNextSteps.map((s, i) => `${i + 1}. ${s}`).join('\n')
           {/* 4 Metric Cards Banner */}
           <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
             {/* 1. Overall Heuristic Score */}
-            <div className="bg-surface p-5 rounded-2xl border border-line flex items-center justify-between">
+            <div className="bg-surface p-4 sm:p-5 rounded-xl border border-line flex items-center justify-between shadow-panel">
               <div>
-                <span className="text-xs font-semibold text-fgMuted block font-mono">Heuristic Score</span>
+                <span className="text-xs font-medium text-fgSubtle block">Heuristic Score</span>
                 <div className="mt-1 flex items-baseline gap-1.5">
-                  <span className="text-2xl font-bold font-mono text-fg">
+                  <span className="text-2xl font-semibold tabular-nums font-mono text-fg">
                     {analysisResult.overallScore}
                   </span>
                   <span className="text-xs text-fgMuted font-mono">/ 100</span>
@@ -594,40 +595,40 @@ ${analysisResult.recommendedNextSteps.map((s, i) => `${i + 1}. ${s}`).join('\n')
                 </span>
               </div>
               <div
-                className={`p-3 rounded-2xl shrink-0 ${
- analysisResult.overallRiskCategory === 'Critical'
- ? 'bg-danger/15 text-danger border border-danger/30'
- : analysisResult.overallRiskCategory === 'High'
- ? 'bg-warn/15 text-warn border border-warn/30'
- : analysisResult.overallRiskCategory === 'Medium'
- ? 'bg-accent/15 text-accent border border-accent/30'
- : 'bg-ok/10 text-ok border border-ok/30'
- }`}
+                className={`p-2.5 rounded-lg shrink-0 ${
+                  analysisResult.overallRiskCategory === 'Critical'
+                  ? 'bg-danger/15 text-danger border border-danger/30'
+                  : analysisResult.overallRiskCategory === 'High'
+                  ? 'bg-warn/15 text-warn border border-warn/30'
+                  : analysisResult.overallRiskCategory === 'Medium'
+                  ? 'bg-accent/15 text-accent border border-accent/30'
+                  : 'bg-ok/10 text-ok border border-ok/30'
+                }`}
               >
                 {analysisResult.overallRiskCategory === 'Critical' ? (
-                  <AlertOctagon className="w-6 h-6" />
+                  <AlertOctagon className="w-5 h-5" />
                 ) : analysisResult.overallRiskCategory === 'High' ? (
-                  <ShieldAlert className="w-6 h-6" />
+                  <ShieldAlert className="w-5 h-5" />
                 ) : analysisResult.overallRiskCategory === 'Medium' ? (
-                  <AlertTriangle className="w-6 h-6" />
+                  <AlertTriangle className="w-5 h-5" />
                 ) : (
-                  <ShieldCheck className="w-6 h-6" />
+                  <ShieldCheck className="w-5 h-5" />
                 )}
               </div>
             </div>
 
             {/* 2. Damerau-Levenshtein Edit Distance & Name Similarity */}
-            <div className="bg-surface p-5 rounded-2xl border border-line">
-              <span className="text-xs font-semibold text-fgMuted block font-mono">Name Similarity &amp; Distance</span>
+            <div className="bg-surface p-4 sm:p-5 rounded-xl border border-line shadow-panel">
+              <span className="text-xs font-medium text-fgSubtle block">Name Similarity &amp; Distance</span>
               <div className="mt-1 flex items-baseline gap-2">
-                <span className="text-2xl font-bold font-mono text-fg">
+                <span className="text-2xl font-semibold tabular-nums font-mono text-fg">
                   {analysisResult.nameSimilarityScore}%
                 </span>
                 <span className="text-xs text-fgMuted font-mono">
                   (Dist: <strong className="text-accent">{analysisResult.damerauDistance}</strong>)
                 </span>
               </div>
-              <div className="text-xs text-fgMuted mt-1 font-mono">
+              <div className="text-xs text-fgMuted mt-1">
                 Exact Match:{' '}
                 <strong className={analysisResult.isExactNameMatch ? 'text-ok' : 'text-fg'}>
                   {analysisResult.isExactNameMatch ? 'Yes (100%)' : 'No'}
@@ -636,17 +637,17 @@ ${analysisResult.recommendedNextSteps.map((s, i) => `${i + 1}. ${s}`).join('\n')
             </div>
 
             {/* 3. Domain Similarity & Subdomain Abuse */}
-            <div className="bg-surface p-5 rounded-2xl border border-line">
-              <span className="text-xs font-semibold text-fgMuted block font-mono">Domain Similarity &amp; Host</span>
+            <div className="bg-surface p-4 sm:p-5 rounded-xl border border-line shadow-panel">
+              <span className="text-xs font-medium text-fgSubtle block">Domain Similarity &amp; Host</span>
               <div className="mt-1 flex items-baseline gap-2">
-                <span className="text-2xl font-bold font-mono text-fg">
+                <span className="text-2xl font-semibold tabular-nums font-mono text-fg">
                   {analysisResult.domainSimilarityScore}%
                 </span>
                 <span className="text-xs font-mono text-accent truncate">
                   .{analysisResult.domainDetails?.extractedTLD || 'com'}
                 </span>
               </div>
-              <div className="text-xs text-fgMuted mt-1 font-mono">
+              <div className="text-xs text-fgMuted mt-1">
                 Subdomain Abuse:{' '}
                 <strong
                   className={
@@ -659,19 +660,19 @@ ${analysisResult.recommendedNextSteps.map((s, i) => `${i + 1}. ${s}`).join('\n')
             </div>
 
             {/* 4. Whitelist / Authorized Asset Audit */}
-            <div className="bg-surface p-5 rounded-2xl border border-line">
-              <span className="text-xs font-semibold text-fgMuted block font-mono">Brand Authorization Audit</span>
-              <div className="mt-1 flex items-center gap-1.5 font-mono">
+            <div className="bg-surface p-4 sm:p-5 rounded-xl border border-line shadow-panel">
+              <span className="text-xs font-medium text-fgSubtle block">Brand Authorization Audit</span>
+              <div className="mt-1.5 flex items-center gap-1.5">
                 {analysisResult.isOfficialAsset ? (
-                  <span className="inline-flex items-center gap-1 text-xs font-bold text-ok bg-ok/10 px-2.5 py-1 rounded-full border border-ok/30">
+                  <span className="inline-flex items-center gap-1 text-xs font-medium text-ok bg-ok/10 px-2 py-0.5 rounded border border-ok/30">
                     <ShieldCheck className="w-3.5 h-3.5" /> Official Protected
                   </span>
                 ) : analysisResult.isAuthorizedPartner ? (
-                  <span className="inline-flex items-center gap-1 text-xs font-bold text-warn bg-warn/10 px-2.5 py-1 rounded-full border border-warn/30">
+                  <span className="inline-flex items-center gap-1 text-xs font-medium text-warn bg-warn/10 px-2 py-0.5 rounded border border-warn/30">
                     <CheckCircle2 className="w-3.5 h-3.5" /> Authorized Partner
                   </span>
                 ) : (
-                  <span className="inline-flex items-center gap-1 text-xs font-bold text-fgMuted bg-surface2 px-2.5 py-1 rounded-full border border-line">
+                  <span className="inline-flex items-center gap-1 text-xs font-medium text-fgMuted bg-surface2 px-2 py-0.5 rounded border border-line">
                     Unregistered Entity
                   </span>
                 )}
@@ -683,11 +684,11 @@ ${analysisResult.recommendedNextSteps.map((s, i) => `${i + 1}. ${s}`).join('\n')
           </div>
 
           {/* Visual Glyph Decomposition & Character Highlighting */}
-          <div className="bg-surface p-5 rounded-2xl border border-line space-y-3">
+          <div className="bg-surface p-5 rounded-xl border border-line space-y-3 shadow-panel">
             <div className="flex items-center justify-between border-b border-line pb-3">
               <div className="flex items-center gap-2">
                 <Layers className="w-4 h-4 text-accent" />
-                <h3 className="text-sm font-bold text-fg">
+                <h3 className="text-sm font-semibold text-fg">
                   Visual Glyph Decomposition &amp; Homoglyph Highlighting
                 </h3>
               </div>
@@ -696,22 +697,22 @@ ${analysisResult.recommendedNextSteps.map((s, i) => `${i + 1}. ${s}`).join('\n')
               </span>
             </div>
 
-            <div className="p-4 rounded-xl bg-surface2 text-fg space-y-2.5 border border-line">
-              <div className="flex items-center justify-between">
+            <div className="p-4 rounded-lg bg-surface2 text-fg space-y-2.5 border border-line">
+              <div className="flex items-center justify-between flex-wrap gap-2">
                 <span className="text-xs text-fgSubtle">
                   Candidate String Glyphs ({analysisResult.candidateName.length} characters)
                 </span>
                 <div className="flex items-center gap-3 text-xs">
                   <span className="flex items-center gap-1">
-                    <span className="w-2.5 h-2.5 rounded bg-danger inline-block animate-pulse" />
+                    <span className="w-2 h-2 rounded bg-danger inline-block" />
                     Homoglyph / Confusable
                   </span>
                   <span className="flex items-center gap-1">
-                    <span className="w-2.5 h-2.5 rounded bg-warn inline-block" />
+                    <span className="w-2 h-2 rounded bg-warn inline-block" />
                     Separator / Delimiter
                   </span>
                   <span className="flex items-center gap-1">
-                    <span className="w-2.5 h-2.5 rounded bg-line inline-block" />
+                    <span className="w-2 h-2 rounded bg-line inline-block" />
                     Standard Glyph
                   </span>
                 </div>
@@ -725,13 +726,13 @@ ${analysisResult.recommendedNextSteps.map((s, i) => `${i + 1}. ${s}`).join('\n')
                   return (
                     <span
                       key={idx}
-                      className={`px-3 py-1.5 rounded-lg font-bold text-sm transition-all ${
- diff
- ? 'bg-danger text-onAccent shadow-danger/40 ring-2 ring-danger/50'
- : isPunct
- ? 'bg-warn/20 text-warn border border-warn/40'
- : 'bg-surface text-fg border border-line'
- }`}
+                      className={`px-2.5 py-1 rounded text-xs font-mono transition-colors ${
+                        diff
+                        ? 'bg-danger/20 text-danger border border-danger/40'
+                        : isPunct
+                        ? 'bg-warn/20 text-warn border border-warn/40'
+                        : 'bg-surface text-fg border border-line'
+                      }`}
                       title={
                         diff
                           ? diff.explanation
@@ -769,11 +770,11 @@ ${analysisResult.recommendedNextSteps.map((s, i) => `${i + 1}. ${s}`).join('\n')
           </div>
 
           {/* Detailed Signals & Multi-Pillar Findings Grid */}
-          <div className="grid grid-cols-1 lg:grid-cols-12 gap-6 items-start">
+          <div className="grid grid-cols-1 lg:grid-cols-12 gap-5 items-start">
             {/* Left Column: Reasons for Assessment & Signals Breakdown (8 cols) */}
-            <div className="lg:col-span-8 bg-surface p-5 sm:p-6 rounded-2xl border border-line space-y-4">
+            <div className="lg:col-span-8 bg-surface p-5 sm:p-6 rounded-xl border border-line space-y-4 shadow-panel">
               <div className="flex items-center justify-between border-b border-line pb-3">
-                <h4 className="text-sm font-bold text-fg flex items-center gap-2">
+                <h4 className="text-sm font-semibold text-fg flex items-center gap-2">
                   <ShieldAlert className="w-4 h-4 text-accent" />
                   Reasons for Assessment &amp; Detection Signals ({analysisResult.signals.length})
                 </h4>
@@ -781,10 +782,10 @@ ${analysisResult.recommendedNextSteps.map((s, i) => `${i + 1}. ${s}`).join('\n')
               </div>
 
               {analysisResult.signals.length === 0 ? (
-                <div className="p-6 rounded-xl bg-ok/10 border border-ok/30 text-ok text-xs flex items-center gap-3">
+                <div className="p-5 rounded-lg bg-ok/10 border border-ok/30 text-ok text-xs flex items-center gap-3">
                   <CheckCircle2 className="w-5 h-5 text-ok shrink-0" />
                   <div>
-                    <strong className="block font-bold">No Adverse Typo-Squatting Signals</strong>
+                    <strong className="block font-medium">No Adverse Typo-Squatting Signals</strong>
                     <p className="mt-0.5 text-fgMuted">
                       The candidate name and domain do not trigger homoglyph substitutions, lure keyword combosquatting,
                       subdomain abuse, or suspicious edit distance thresholds against "{brandProfile.brandName}".
@@ -792,37 +793,37 @@ ${analysisResult.recommendedNextSteps.map((s, i) => `${i + 1}. ${s}`).join('\n')
                   </div>
                 </div>
               ) : (
-                <div className="space-y-3">
+                <div className="space-y-2.5">
                   {analysisResult.signals.map((sig, idx) => (
                     <div
                       key={idx}
-                      className={`p-4 rounded-xl border text-xs transition-all space-y-1.5 ${
- sig.severity === 'critical'
- ? 'bg-danger/10 border-danger/40 text-fg'
- : sig.severity === 'high'
- ? 'bg-warn/10 border-warn/40 text-fg'
- : sig.severity === 'medium'
- ? 'bg-accent/10 border-accent/40 text-fg'
- : 'bg-surface2 border-line text-fgMuted'
- }`}
+                      className={`p-3.5 rounded-lg border text-xs space-y-1.5 ${
+                        sig.severity === 'critical'
+                        ? 'bg-danger/10 border-danger/30 text-fg'
+                        : sig.severity === 'high'
+                        ? 'bg-warn/10 border-warn/30 text-fg'
+                        : sig.severity === 'medium'
+                        ? 'bg-accent/10 border-accent/30 text-fg'
+                        : 'bg-surface2 border-line text-fgMuted'
+                      }`}
                     >
                       <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-1 mb-1">
                         <div className="flex items-center gap-2">
-                          <span className="text-xs font-mono px-2 py-0.5 rounded bg-surface font-bold border border-line text-accent">
+                          <span className="text-[11px] font-mono px-2 py-0.5 rounded bg-surface border border-line text-accent">
                             {sig.category}
                           </span>
-                          <strong className="font-bold text-fg">{sig.title}</strong>
+                          <strong className="font-semibold text-fg">{sig.title}</strong>
                         </div>
                         <span
-                          className={`text-xs font-medium px-2 py-0.5 rounded border w-fit ${
- sig.severity === 'critical'
- ? 'bg-danger/20 text-fgSubtle border-danger/40'
- : sig.severity === 'high'
- ? 'bg-warn/20 text-fgSubtle border-warn/40'
- : sig.severity === 'medium'
- ? 'bg-accent/20 text-fgSubtle border-accent/40'
- : 'bg-ok/20 text-fgSubtle border-ok/40'
- }`}
+                          className={`text-[11px] font-medium px-2 py-0.5 rounded border w-fit ${
+                            sig.severity === 'critical'
+                            ? 'bg-danger/20 text-fgSubtle border-danger/30'
+                            : sig.severity === 'high'
+                            ? 'bg-warn/20 text-fgSubtle border-warn/30'
+                            : sig.severity === 'medium'
+                            ? 'bg-accent/20 text-fgSubtle border-accent/30'
+                            : 'bg-ok/20 text-fgSubtle border-ok/30'
+                          }`}
                         >
                           {sig.severity} Severity
                         </span>
@@ -847,8 +848,8 @@ ${analysisResult.recommendedNextSteps.map((s, i) => `${i + 1}. ${s}`).join('\n')
             {/* Right Column: Evidence, Counter-Evidence & Playbook (4 cols) */}
             <div className="lg:col-span-4 space-y-4">
               {/* Supporting Evidence */}
-              <div className="bg-surface p-5 rounded-2xl border border-line space-y-3">
-                <h5 className="text-xs font-medium text-fgSubtle flex items-center gap-2">
+              <div className="bg-surface p-5 rounded-xl border border-line space-y-3 shadow-panel">
+                <h5 className="text-xs font-semibold text-fgSubtle flex items-center gap-2">
                   <AlertTriangle className="w-3.5 h-3.5 text-danger" />
                   Supporting Evidence ({analysisResult.evidenceSupporting.length})
                 </h5>
@@ -868,8 +869,8 @@ ${analysisResult.recommendedNextSteps.map((s, i) => `${i + 1}. ${s}`).join('\n')
               </div>
 
               {/* Counter-Evidence & Uncertainties */}
-              <div className="bg-surface p-5 rounded-2xl border border-line space-y-3">
-                <h5 className="text-xs font-medium text-fgSubtle flex items-center gap-2">
+              <div className="bg-surface p-5 rounded-xl border border-line space-y-3 shadow-panel">
+                <h5 className="text-xs font-semibold text-fgSubtle flex items-center gap-2">
                   <CheckCircle2 className="w-3.5 h-3.5 text-ok" />
                   Counter-Evidence &amp; Uncertainties
                 </h5>
@@ -891,23 +892,23 @@ ${analysisResult.recommendedNextSteps.map((s, i) => `${i + 1}. ${s}`).join('\n')
               </div>
 
               {/* Recommended Analyst Action & Next Steps */}
-              <div className="bg-surface p-5 rounded-2xl border border-line space-y-3">
-                <h5 className="text-xs font-medium text-fgSubtle flex items-center gap-2">
+              <div className="bg-surface p-5 rounded-xl border border-line space-y-3 shadow-panel">
+                <h5 className="text-xs font-semibold text-fgSubtle flex items-center gap-2">
                   <ArrowRight className="w-3.5 h-3.5 text-accent" />
                   Recommended Analyst Action
                 </h5>
 
-                <div className="p-3 rounded-xl bg-surface2 border border-line">
+                <div className="p-3 rounded-lg bg-surface2 border border-line">
                   <span className="text-xs font-medium text-fgSubtle block">
                     Playbook Action
                   </span>
-                  <span className="text-xs font-bold text-fg block mt-0.5">
+                  <span className="text-xs font-semibold text-fg block mt-0.5">
                     {analysisResult.recommendedAction}
                   </span>
                 </div>
 
                 <div className="space-y-2 pt-1">
-                  <span className="text-xs font-semibold text-fgMuted block font-mono">
+                  <span className="text-xs font-medium text-fgMuted block font-mono">
                     Prescribed Playbook Steps:
                   </span>
                   <ol className="space-y-1.5 text-xs text-fgMuted list-decimal list-inside">
@@ -923,9 +924,9 @@ ${analysisResult.recommendedNextSteps.map((s, i) => `${i + 1}. ${s}`).join('\n')
                   <button
                     type="button"
                     onClick={handleCreateInvestigationCase}
-                    className="w-full py-2.5 px-3 text-xs font-bold text-center text-onAccent bg-accent hover:bg-accent/90 rounded-xl transition-all shadow-accent/30 flex items-center justify-center gap-2 cursor-pointer hover:scale-[1.01] active:scale-95"
+                    className="w-full py-2 px-3 text-xs font-medium text-center text-onAccent bg-accent hover:bg-accentHover rounded-md transition-colors shadow-sm flex items-center justify-center gap-2 cursor-pointer focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-accent"
                   >
-                    <FolderPlus className="w-3.5 h-3.5 text-accent" />
+                    <FolderPlus className="w-3.5 h-3.5 text-onAccent" />
                     <span>Ingest into Investigation Center</span>
                   </button>
                 </div>
@@ -935,12 +936,12 @@ ${analysisResult.recommendedNextSteps.map((s, i) => `${i + 1}. ${s}`).join('\n')
         </div>
       ) : (
         /* Empty State */
-        <div className="bg-surface p-10 rounded-2xl border border-line text-center space-y-3">
-          <div className="w-14 h-14 rounded-2xl bg-accent/15 text-accent flex items-center justify-center mx-auto border border-accent/30">
-            <Search className="w-7 h-7" />
+        <div className="bg-surface/50 p-12 rounded-xl border border-dashed border-line text-center space-y-3">
+          <div className="w-12 h-12 rounded-lg bg-surface2 text-accent flex items-center justify-center mx-auto border border-line">
+            <Search className="w-6 h-6" />
           </div>
           <div>
-            <h4 className="text-sm font-bold text-fg">No Candidate Analysis Loaded</h4>
+            <h4 className="text-sm font-medium text-fg">No Candidate Analysis Loaded</h4>
             <p className="text-xs text-fgMuted max-w-md mx-auto mt-1 leading-relaxed">
               Enter a candidate brand name and domain above and click <strong>Analyze Similarity</strong>, or pick a scenario from the Benchmark Validation Suite below to run deterministic heuristics.
             </p>
@@ -949,9 +950,9 @@ ${analysisResult.recommendedNextSteps.map((s, i) => `${i + 1}. ${s}`).join('\n')
             <button
               type="button"
               onClick={handleReset}
-              className="inline-flex items-center gap-1.5 px-4 py-2 bg-surface2 hover:bg-surface text-accent border border-line hover:border-accent/40 text-xs font-semibold rounded-xl transition-colors cursor-pointer"
+              className="inline-flex items-center gap-1.5 px-3 py-1.5 bg-surface2 hover:bg-surface3 text-fg border border-line text-xs font-medium rounded-md transition-colors cursor-pointer focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-accent"
             >
-              <RotateCcw className="w-3.5 h-3.5" />
+              <RotateCcw className="w-3.5 h-3.5 text-fgMuted" />
               <span>Load Demo Candidate</span>
             </button>
           )}
@@ -960,11 +961,11 @@ ${analysisResult.recommendedNextSteps.map((s, i) => `${i + 1}. ${s}`).join('\n')
 
       {/* 4. Benchmark Validation Suite (10 Preset Attack & Benign Scenarios - Demo Mode Only) */}
       {isDemoMode && (
-        <div className="bg-surface p-5 rounded-2xl border border-line space-y-3">
+        <div className="bg-surface p-4 rounded-xl border border-line space-y-3">
           <div className="flex items-center justify-between">
             <div className="flex items-center gap-2">
               <Sliders className="w-4 h-4 text-accent" />
-              <h3 className="text-sm font-bold text-fg">
+              <h3 className="text-sm font-semibold text-fg">
                 Demo Benchmark Validation Suite ({benchmarkSuite.length} Synthetic Scenarios)
               </h3>
             </div>
@@ -973,34 +974,34 @@ ${analysisResult.recommendedNextSteps.map((s, i) => `${i + 1}. ${s}`).join('\n')
             </span>
           </div>
 
-          <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-5 gap-2.5">
+          <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-5 gap-2">
             {benchmarkSuite.map((item, idx) => (
               <button
                 key={idx}
                 type="button"
                 onClick={() => handleSelectPreset(item)}
-                className="p-3 rounded-xl bg-surface3 hover:bg-surface border border-line hover:border-accent/50 text-left transition-all group flex flex-col justify-between cursor-pointer"
+                className="p-3 rounded-lg bg-surface2 hover:bg-surface3 border border-line hover:border-line/80 focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-accent text-left transition-colors group flex flex-col justify-between cursor-pointer"
               >
                 <div>
-                  <div className="flex items-center justify-between mb-1">
+                  <div className="flex items-center justify-between mb-1.5">
                     <span
-                      className={`text-xs font-medium px-1.5 py-0.5 rounded-md border ${
+                      className={`text-[10px] font-medium px-1.5 py-0.5 rounded border ${
  item.category.includes('Critical')
- ? 'bg-danger/15 text-fgSubtle border-danger/40'
+ ? 'bg-danger/10 text-danger border-danger/30'
  : item.category.includes('High')
- ? 'bg-high/15 text-high border-high/40'
- : 'bg-ok/10 text-fgSubtle border-ok/30'
+ ? 'bg-high/10 text-high border-high/30'
+ : 'bg-ok/10 text-ok border-ok/30'
  }`}
                     >
                       {item.badge}
                     </span>
                   </div>
-                  <div className="text-xs font-bold text-fg group-hover:text-accent truncate transition-colors">
+                  <div className="text-xs font-medium text-fg group-hover:text-accent truncate transition-colors">
                     {item.title}
                   </div>
                   <div className="text-xs font-mono text-fgMuted truncate mt-0.5">{item.domain}</div>
                 </div>
-                <div className="text-xs text-fgMuted/80 mt-1 line-clamp-1">{item.description}</div>
+                <div className="text-[11px] text-fgSubtle mt-1.5 line-clamp-1">{item.description}</div>
               </button>
             ))}
           </div>

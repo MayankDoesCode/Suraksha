@@ -100,7 +100,7 @@ export default function AppMonitoringView({ brands, onRefreshMetrics }) {
       setFormData({
         candidate_name: `${brandName} Mobile Fast Loan & Pay`,
         package_id: `com.${cleanName}.fastloan.apk`,
-        publisher_name: 'Apex QuickFin Holdings LTD',
+        publisher_name: 'QuickFin Holdings LTD',
         description: `Official instant mobile financing app for verified ${brandName} account holders. Secure quick authorization.`,
         source_url: `https://play.google.com/store/apps/details?id=com.${cleanName}.fastloan.apk`,
         platform: 'android_play_store',
@@ -451,7 +451,7 @@ export default function AppMonitoringView({ brands, onRefreshMetrics }) {
                 </label>
                 <input
                   type="text"
-                  placeholder="e.g. Apex Holdings"
+                  placeholder="e.g. Holdings Corp"
                   value={formData.publisher_name}
                   onChange={(e) => handleInputChange('publisher_name', e.target.value)}
                   className="w-full bg-cyber-darkest border border-cyber-border rounded-lg px-3 py-2 text-xs text-fg placeholder-slate-600 focus:outline-none focus:border-cyber-accent font-mono"

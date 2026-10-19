@@ -1,26 +1,19 @@
 import React from 'react';
+import { SurakshaLogo } from './SurakshaLogo';
 
 interface ShieldMarkProps {
   size?: number;
-  /** Draw the outline and tick on mount. Static (fully drawn) when false or for reduced-motion users. */
+  /** Draw outline and pulse core. Static when false. */
   animate?: boolean;
   className?: string;
 }
 
-/** The SURAKSHA shield: a quiet outline that draws itself, then the tick, then a soft fill. */
+/**
+ * SURAKSHA Shield Mark
+ * Re-exports the high-precision SurakshaLogo mark for backward compatibility.
+ */
 export const ShieldMark: React.FC<ShieldMarkProps> = ({ size = 44, animate = true, className = '' }) => (
-  <svg
-    width={size}
-    height={Math.round(size * 1.17)}
-    viewBox="0 0 48 56"
-    fill="none"
-    aria-hidden="true"
-    className={`${animate ? 'sk-shield' : ''} ${className}`}
-  >
-    <path className="sk-shield__fill" d="M24 3 5 10v15c0 13 8 23 19 28 11-5 19-15 19-28V10L24 3Z" />
-    <path className="sk-shield__line" pathLength={1} d="M24 3 5 10v15c0 13 8 23 19 28 11-5 19-15 19-28V10L24 3Z" />
-    <path className="sk-shield__tick" pathLength={1} d="m16 27 6 6 11-13" />
-  </svg>
+  <SurakshaLogo size={size} animate={animate} className={className} variant="mark" />
 );
 
 export default ShieldMark;

@@ -40,7 +40,17 @@ class ApiClient {
     };
 
     try {
-      const response = await fetch(url, config);
+      let response;
+      try {
+        response = await fetch(url, config);
+      } catch (fetchErr) {
+        if (typeof window !== 'undefined' && (window.location.hostname === 'localhost' || window.location.hostname === '127.0.0.1') && !url.includes(':5000')) {
+          const directUrl = `http://127.0.0.1:5000/api/v1${endpoint}`;
+          response = await fetch(directUrl, config);
+        } else {
+          throw fetchErr;
+        }
+      }
       const data = await response.json().catch(() => null);
 
       if (!response.ok) {

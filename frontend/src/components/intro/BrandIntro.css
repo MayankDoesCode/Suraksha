@@ -5,16 +5,104 @@
   display: flex;
   align-items: center;
   justify-content: center;
-  background: radial-gradient(80% 70% at 50% 46%, #0a0a10 0%, #000 100%);
+  background: radial-gradient(85% 75% at 50% 46%, #0b0c16 0%, #030305 100%);
   color: #fff;
   opacity: 1;
-  transition: opacity 0.5s ease;
+  transition: opacity 0.4s ease;
+  overflow: hidden;
 }
 .bi--leaving { opacity: 0; pointer-events: none; }
 
+/* Digital Cyber Background Matrix Grid */
+.bi__grid {
+  position: absolute;
+  inset: 0;
+  background-image: 
+    linear-gradient(to right, rgba(104, 116, 220, 0.05) 1px, transparent 1px),
+    linear-gradient(to bottom, rgba(104, 116, 220, 0.05) 1px, transparent 1px);
+  background-size: 38px 38px;
+  mask-image: radial-gradient(circle at 50% 50%, rgba(0, 0, 0, 0.8) 0%, transparent 75%);
+  pointer-events: none;
+  animation: bi-grid-pulse 4s ease-in-out infinite alternate;
+}
+@keyframes bi-grid-pulse {
+  0% { opacity: 0.4; }
+  100% { opacity: 0.85; }
+}
+
+/* Digital Scanline Sweep */
+.bi__scanline {
+  position: absolute;
+  inset: 0;
+  background: linear-gradient(
+    to bottom,
+    transparent 0%,
+    rgba(104, 116, 220, 0.08) 50%,
+    transparent 100%
+  );
+  height: 120px;
+  opacity: 0.6;
+  pointer-events: none;
+  animation: bi-scanline-move 3.2s linear infinite;
+}
+@keyframes bi-scanline-move {
+  0% { transform: translateY(-120px); }
+  100% { transform: translateY(100vh); }
+}
+
+/* Central Digital Energy Aura */
+.bi__aura {
+  position: absolute;
+  width: 320px;
+  height: 320px;
+  border-radius: 50%;
+  background: radial-gradient(circle, rgba(104, 116, 220, 0.22) 0%, rgba(167, 139, 250, 0.1) 40%, transparent 70%);
+  filter: blur(40px);
+  pointer-events: none;
+  animation: bi-aura-breathe 2.4s ease-in-out infinite alternate;
+}
+@keyframes bi-aura-breathe {
+  0% { transform: scale(0.85); opacity: 0.5; }
+  100% { transform: scale(1.15); opacity: 0.85; }
+}
+
 /* One centred row. The text column's width opens out, which slides the shield left. */
-.bi__lockup { display: flex; align-items: center; }
-.bi__shield { width: 70px; height: 82px; flex: none; overflow: visible; animation: bi-settle 0.8s cubic-bezier(0.2, 0.7, 0.2, 1) 1.75s both; }
+.bi__lockup {
+  position: relative;
+  z-index: 10;
+  display: flex;
+  align-items: center;
+  transition: transform 0.35s cubic-bezier(0.2, 0.7, 0.2, 1), filter 0.35s ease;
+  user-select: none;
+  outline: none;
+}
+
+/* Interactive Hover Effects on the lockup */
+.bi__lockup:hover {
+  transform: scale(1.04);
+  filter: drop-shadow(0 0 28px rgba(104, 116, 220, 0.5));
+  cursor: pointer;
+}
+.bi__lockup:hover .bi__word {
+  text-shadow: 0 0 22px rgba(167, 139, 250, 0.8);
+}
+.bi__lockup:hover .bi__rule {
+  background: linear-gradient(90deg, #6874dc, #a78bfa, transparent);
+  box-shadow: 0 0 12px rgba(104, 116, 220, 0.85);
+}
+.bi__lockup:hover .bi__outline {
+  stroke: rgba(255, 255, 255, 0.95);
+  filter: drop-shadow(0 0 8px rgba(104, 116, 220, 0.8));
+}
+
+.bi__shield {
+  width: 70px;
+  height: 82px;
+  flex: none;
+  overflow: visible;
+  animation: bi-settle 0.6s cubic-bezier(0.2, 0.7, 0.2, 1) 1.1s both;
+  transition: transform 0.3s ease;
+}
 
 /* Plates fly in from different directions and lock together. */
 .bi__plate {
@@ -24,7 +112,7 @@
   transform-box: fill-box;
   transform-origin: center;
   opacity: 0;
-  animation: bi-fly 0.95s cubic-bezier(0.2, 0.85, 0.2, 1) forwards;
+  animation: bi-fly 0.7s cubic-bezier(0.2, 0.85, 0.2, 1) forwards;
 }
 .bi__gem {
   fill: #c7ceff;
@@ -34,7 +122,7 @@
   transform-box: fill-box;
   transform-origin: center;
   opacity: 0;
-  animation: bi-gem 0.7s cubic-bezier(0.2, 0.85, 0.2, 1) 1.3s forwards;
+  animation: bi-gem 0.5s cubic-bezier(0.2, 0.85, 0.2, 1) 0.9s forwards;
 }
 .bi__outline {
   fill: none;
@@ -42,15 +130,43 @@
   stroke-width: 0.9;
   stroke-linejoin: round;
   opacity: 0;
-  animation: bi-fade 0.5s ease-out 1.65s forwards;
+  animation: bi-fade 0.4s ease-out 1.15s forwards;
+  transition: stroke 0.3s ease, filter 0.3s ease;
 }
-.bi__glint { transform: translateX(-20px) skewX(-18deg); opacity: 0; animation: bi-glint 1s ease-in-out 1.95s forwards; }
+.bi__glint {
+  transform: translateX(-20px) skewX(-18deg);
+  opacity: 0;
+  animation: bi-glint 0.7s ease-in-out 1.35s forwards;
+}
 
-.bi__text { overflow: hidden; max-width: 0; animation: bi-open 1.1s cubic-bezier(0.65, 0, 0.35, 1) 2.45s forwards; }
-.bi__wipe { padding: 4px 8px 4px 26px; clip-path: inset(0 100% 0 0); animation: bi-wipe 1.1s cubic-bezier(0.65, 0, 0.35, 1) 2.45s forwards; }
+.bi__text {
+  overflow: hidden;
+  max-width: 0;
+  animation: bi-open 0.8s cubic-bezier(0.65, 0, 0.35, 1) 1.6s forwards;
+}
+.bi__wipe {
+  padding: 4px 8px 4px 26px;
+  clip-path: inset(0 100% 0 0);
+  animation: bi-wipe 0.8s cubic-bezier(0.65, 0, 0.35, 1) 1.6s forwards;
+}
 
-.bi__word { display: block; white-space: nowrap; font-size: 34px; font-weight: 600; letter-spacing: 0.3em; line-height: 1.1; }
-.bi__rule { display: block; width: 100%; height: 1px; margin: 12px 0 11px; background: linear-gradient(90deg, rgba(255, 255, 255, 0.45), rgba(255, 255, 255, 0)); }
+.bi__word {
+  display: block;
+  white-space: nowrap;
+  font-size: 34px;
+  font-weight: 600;
+  letter-spacing: 0.3em;
+  line-height: 1.1;
+  transition: text-shadow 0.3s ease;
+}
+.bi__rule {
+  display: block;
+  width: 100%;
+  height: 1px;
+  margin: 12px 0 11px;
+  background: linear-gradient(90deg, rgba(255, 255, 255, 0.45), rgba(255, 255, 255, 0));
+  transition: background 0.3s ease, box-shadow 0.3s ease;
+}
 .bi__slogan {
   display: block;
   white-space: nowrap;
@@ -61,7 +177,7 @@
   color: rgba(255, 255, 255, 0.92);
   opacity: 0;
   transform: translateY(6px);
-  animation: bi-rise 0.8s cubic-bezier(0.2, 0.7, 0.2, 1) 3.4s forwards;
+  animation: bi-rise 0.5s cubic-bezier(0.2, 0.7, 0.2, 1) 2.15s forwards;
 }
 .bi__tag {
   display: block;
@@ -72,32 +188,19 @@
   text-transform: uppercase;
   color: rgba(255, 255, 255, 0.45);
   opacity: 0;
-  animation: bi-fade 0.8s ease-out 3.7s forwards;
+  animation: bi-fade 0.5s ease-out 2.4s forwards;
 }
 
-.bi__progress { position: absolute; left: 0; bottom: 0; height: 2px; width: 0; background: rgba(139, 149, 238, 0.85); animation: bi-bar 4.9s linear forwards; }
-
-.bi__skip {
+.bi__progress {
   position: absolute;
-  top: 22px;
-  right: 26px;
-  display: flex;
-  align-items: center;
-  gap: 8px;
-  padding: 8px 12px 8px 16px;
-  border: 1px solid rgba(255, 255, 255, 0.14);
-  border-radius: 9999px;
-  background: rgba(255, 255, 255, 0.06);
-  color: rgba(255, 255, 255, 0.85);
-  font: 500 13px/1 inherit;
-  cursor: pointer;
-  backdrop-filter: blur(6px);
-  opacity: 0;
-  animation: bi-fade 0.6s ease-out 0.4s forwards;
-  transition: background 0.2s ease;
+  left: 0;
+  bottom: 0;
+  height: 2px;
+  width: 0;
+  background: linear-gradient(90deg, rgba(104, 116, 220, 0.7), rgba(167, 139, 250, 0.95));
+  box-shadow: 0 0 10px rgba(104, 116, 220, 0.8);
+  animation: bi-bar 3.2s linear forwards;
 }
-.bi__skip:hover { background: rgba(255, 255, 255, 0.12); }
-.bi__skip kbd { padding: 3px 7px; border-radius: 6px; background: rgba(255, 255, 255, 0.12); font: 600 11px/1 inherit; }
 
 @keyframes bi-fly {
   0% { opacity: 0; transform: translate(var(--dx), var(--dy)) rotate(var(--r)) scale(0.85); filter: blur(3px); }
@@ -118,5 +221,4 @@
 }
 @media (max-width: 560px) {
   .bi__lockup { transform: scale(0.72); }
-  .bi__skip { top: 14px; right: 14px; }
 }

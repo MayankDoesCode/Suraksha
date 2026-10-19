@@ -1,32 +1,32 @@
 import type { BrandProfile, CandidateAsset, ThreatEdge, ThreatNode } from '../types';
 
 export const INITIAL_BRAND_PROFILE: BrandProfile = {
-  id: 'brand-apexpay-001',
-  brandName: 'ApexPay',
-  officialWebsite: 'https://apexpay.com',
-  officialDomains: ['apexpay.com', 'apexpay.io', 'api.apexpay.com', 'auth.apexpay.com'],
+  id: 'brand-Acme-001',
+  brandName: 'Acme Corp',
+  officialWebsite: 'https://acme.com',
+  officialDomains: ['acme.com', 'acme.io', 'api.acme.com', 'auth.acme.com'],
   officialSocialUrls: [
     {
       id: 'soc-01',
       platform: 'Twitter / X',
-      handle: '@apexpay_official',
-      url: 'https://x.com/apexpay_official',
+      handle: '@acme_official',
+      url: 'https://x.com/acme_official',
       verificationStatus: 'verified_platform',
       notes: 'Verified Organization Gold Badge',
     },
     {
       id: 'soc-02',
       platform: 'Instagram',
-      handle: '@apexpay.fintech',
-      url: 'https://instagram.com/apexpay.fintech',
+      handle: '@acme.fintech',
+      url: 'https://instagram.com/acme.fintech',
       verificationStatus: 'verified_platform',
       notes: 'Verified Meta Blue Check',
     },
     {
       id: 'soc-03',
       platform: 'LinkedIn',
-      handle: 'company/apexpay-technologies',
-      url: 'https://linkedin.com/company/apexpay-technologies',
+      handle: 'company/acme-technologies',
+      url: 'https://linkedin.com/company/acme-technologies',
       verificationStatus: 'user_declared',
       notes: 'Corporate Company Page',
     },
@@ -34,11 +34,11 @@ export const INITIAL_BRAND_PROFILE: BrandProfile = {
   officialApps: [
     {
       id: 'app-01',
-      name: 'ApexPay: Mobile Wallet & Pay',
-      developer: 'ApexPay Technologies Inc.',
+      name: 'Acme: Mobile Wallet & Pay',
+      developer: 'Acme Technologies Inc.',
       store: 'Google Play & Apple App Store',
-      storeUrl: 'https://play.google.com/store/apps/details?id=com.apexpay.wallet',
-      appId: 'com.apexpay.wallet',
+      storeUrl: 'https://play.google.com/store/apps/details?id=com.acme.wallet',
+      appId: 'com.acme.wallet',
       verificationStatus: 'verified_store',
     },
   ],
@@ -46,9 +46,9 @@ export const INITIAL_BRAND_PROFILE: BrandProfile = {
     {
       id: 'part-01',
       name: 'FinTech Daily News Network',
-      websiteUrl: 'https://fintechdaily.example/apexpay-merchant',
+      websiteUrl: 'https://fintechdaily.example/acme-merchant',
       relationshipType: 'Merchant Partner',
-      authorizedMarks: 'ApexPay Merchant Showcase Logo License #PMA-441',
+      authorizedMarks: 'Acme Corp Merchant Showcase Logo License #PMA-441',
       verificationStatus: 'contract_verified',
       agreementReference: 'PMA-2025-08',
     },
@@ -63,9 +63,9 @@ export const INITIAL_BRAND_PROFILE: BrandProfile = {
     },
   ],
   brandDescription:
-    'ApexPay is a regulated enterprise digital payments provider facilitating cross-border business payments, virtual debit card issuance, and instant peer-to-peer transfers.',
+    'Acme Corp is an enterprise technology provider facilitating cloud security infrastructure, digital authentication, and secure merchant systems.',
   logoUrl: '',
-  protectedKeywords: ['apexpay', 'apex pay', 'apex wallet', 'apex card'],
+  protectedKeywords: ['Acme Corp', 'Acme', 'acme wallet', 'acme portal'],
   lastUpdated: new Date().toISOString(),
   isCustomBrand: false,
 };
@@ -75,19 +75,19 @@ export const DEMO_CANDIDATES: CandidateAsset[] = [
   {
     id: 'cand-001',
     type: 'social',
-    title: 'ApexPay Verified Official',
-    identifier: '@apexpay_official',
+    title: 'Acme Corp Verified Official',
+    identifier: '@acme_official',
     platform: 'Twitter / X',
-    url: 'https://x.com/apexpay_official',
-    description: 'The official handle for ApexPay Global. Fast, secure enterprise payment infrastructure and smart digital wallets.',
-    observedBranding: 'Official blue and cyan corporate mark, verified organization checkmark, points to apexpay.com.',
-    evidence: 'Links directly to apexpay.com/security. DNS TXT record cross-verifies account ownership.',
+    url: 'https://x.com/acme_official',
+    description: 'The official handle for Acme Corp Global. Fast, secure enterprise infrastructure and smart digital solutions.',
+    observedBranding: 'Official corporate mark, verified organization checkmark, points to acme.com.',
+    evidence: 'Links directly to acme.com/security. DNS TXT record cross-verifies account ownership.',
     riskCategory: 'Low',
     summary: 'Authenticated official brand asset. Matches registered handle and official corporate domain in brand profile.',
     evidenceSupporting: [],
     evidenceAgainst: [
       'Handle exactly matches official profile registry',
-      'Bio links to authenticated root domain apexpay.com',
+      'Bio links to authenticated root domain acme.com',
       'No credential harvesting or unauthorized lures observed'
     ],
     missingInformation: ['None - Asset matches authenticated profile'],
@@ -137,20 +137,20 @@ export const DEMO_CANDIDATES: CandidateAsset[] = [
   {
     id: 'cand-002',
     type: 'social',
-    title: 'ApexPay Helpdesk & Refund Claims',
-    identifier: '@apexpay_support_claims',
+    title: 'Acme Corp Helpdesk & Refund Claims',
+    identifier: '@acme_support_claims',
     platform: 'Telegram / X',
-    url: 'https://t.me/apexpay_support_claims',
-    description: '🚨 ApexPay 24/7 Live Support & Instant Refund Assistance. Fix pending transactions, account locks, and claim gas rebates. Direct message our senior admin now!',
-    observedBranding: 'Low-resolution copy of ApexPay logo, unofficial "Support" badge watermark, urgency banners.',
-    evidence: 'Directs users to click t.me/apexpay_refund_bot and prompts for 12-word seed phrase or payment auth code to "unlock stuck transfers".',
+    url: 'https://t.me/acme_support_claims',
+    description: '🚨 Acme Corp 24/7 Live Support & Instant Refund Assistance. Fix pending transactions, account locks, and claim gas rebates. Direct message our senior admin now!',
+    observedBranding: 'Low-resolution copy of Acme Corp logo, unofficial "Support" badge watermark, urgency banners.',
+    evidence: 'Directs users to click t.me/acme_refund_bot and prompts for 12-word seed phrase or payment auth code to "unlock stuck transfers".',
     riskCategory: 'Critical',
     summary: 'Critical threat: High-fidelity brand impersonation soliciting customer credentials and unauthorized fund transfers under false emergency support pretenses.',
     evidenceSupporting: [
       'Handle combines protected brand name with high-risk lure keywords ("support", "claims")',
       'Unsolicited claims of transaction refunds and urgent account unlock',
       'Requests private seed phrases and personal authentication credentials via unmonitored Telegram bot',
-      'No affiliation with apexpay.com corporate infrastructure'
+      'No affiliation with acme.com corporate infrastructure'
     ],
     evidenceAgainst: ['None found. Clear phishing payload and deceitful intent.'],
     missingInformation: [
@@ -184,7 +184,7 @@ export const DEMO_CANDIDATES: CandidateAsset[] = [
       {
         id: 'note-002',
         author: 'Sarah Jenkins (Threat Intel)',
-        text: 'Examined Telegram bot. It prompts for private key inputs via a mocked web form hosted at apexpay-wallet-recovery.xyz. Takedown ticket #BS-9841 queued.',
+        text: 'Examined Telegram bot. It prompts for private key inputs via a mocked web form hosted at acme-wallet-recovery.xyz. Takedown ticket #BS-9841 queued.',
         timestamp: '2026-10-13T01:15:00.000Z',
       },
     ],
@@ -194,7 +194,7 @@ export const DEMO_CANDIDATES: CandidateAsset[] = [
     stringSignals: [
       {
         type: 'BRAND_CONTAINMENT',
-        detail: 'Candidate string embeds brand name "ApexPay" with suffix.',
+        detail: 'Candidate string embeds brand name "Acme Corp" with suffix.',
         severity: 'high',
       },
       {
@@ -218,17 +218,17 @@ export const DEMO_CANDIDATES: CandidateAsset[] = [
   {
     id: 'cand-003',
     type: 'social',
-    title: 'FinTech Daily - ApexPay Partner Network',
-    identifier: '@fintech_daily_apexpay_partner',
+    title: 'FinTech Daily - Acme Corp Partner Network',
+    identifier: '@fintech_daily_acme_partner',
     platform: 'LinkedIn',
-    url: 'https://linkedin.com/company/fintech-daily-apexpay-partner',
-    description: 'FinTech Daily news hub & certified merchant showcase. Official affiliate partner spotlighting ApexPay payment integrations for European retail e-commerce.',
-    observedBranding: 'Dual branding featuring FinTech Daily masthead alongside "Powered by ApexPay Merchant Partner" banner badge.',
-    evidence: 'Promotes an enterprise webinar about integrating the ApexPay API. Directs attendees to a legitimate Eventbrite page and registered merchant portal.',
+    url: 'https://linkedin.com/company/fintech-daily-acme-partner',
+    description: 'FinTech Daily news hub & certified merchant showcase. Official affiliate partner spotlighting Acme Corp integrations for European retail e-commerce.',
+    observedBranding: 'Dual branding featuring FinTech Daily masthead alongside "Powered by Acme Corp Merchant Partner" banner badge.',
+    evidence: 'Promotes an enterprise webinar about integrating the Acme Corp API. Directs attendees to a legitimate Eventbrite page and registered merchant portal.',
     riskCategory: 'Medium',
     summary: 'Moderate compliance review needed. Legitimate partner/affiliate displaying brand trademarks. Not malicious, but requires branding agreement validation.',
     evidenceSupporting: [
-      'Uses registered trademark "ApexPay" in title and promotional materials',
+      'Uses registered trademark "Acme Corp" in title and promotional materials',
       'Account is not registered in central Brand Profile directory'
     ],
     evidenceAgainst: [
@@ -278,7 +278,7 @@ export const DEMO_CANDIDATES: CandidateAsset[] = [
     stringSignals: [
       {
         type: 'BRAND_CONTAINMENT',
-        detail: 'Candidate string contains "apexpay" in multi-word compound.',
+        detail: 'Candidate string contains "Acme Corp" in multi-word compound.',
         severity: 'medium',
       },
       {
@@ -297,21 +297,21 @@ export const DEMO_CANDIDATES: CandidateAsset[] = [
   {
     id: 'cand-004',
     type: 'app',
-    title: 'ApexPay Pro: Instant Cash & Personal Loan',
-    identifier: 'com.apexpaypro.fastloan.instantcash',
+    title: 'Acme Wallet Pro: Instant Cash & Personal Loan',
+    identifier: 'com.acmepro.fastloan.instantcash',
     platform: 'Third-Party Android Store (APKMirror / APKPure)',
-    url: 'https://apkpure.example/com.apexpaypro.fastloan.instantcash',
-    description: 'Fast loans up to $5,000 in 5 minutes! Borrow against your ApexPay balance with no credit check. Instant approval and same-day direct payout.',
-    observedBranding: 'Exact replica of ApexPay icon overlaid with a gold "PRO" ribbon. Mismatched color palette in screenshots.',
-    developer: 'Apex Financial Tech UK Ltd (Unregistered)',
+    url: 'https://apkpure.example/com.acmepro.fastloan.instantcash',
+    description: 'Fast loans up to $5,000 in 5 minutes! Borrow against your Acme Corp balance with no credit check. Instant approval and same-day direct payout.',
+    observedBranding: 'Exact replica of Acme Corp icon overlaid with a gold "PRO" ribbon. Mismatched color palette in screenshots.',
+    developer: 'Rogue Financial Tech UK Ltd (Unregistered)',
     evidence: 'Manifest requests excessive permissions: READ_SMS, READ_CONTACTS, ACCESS_FINE_LOCATION, SYSTEM_ALERT_WINDOW. Hosted outside official Google Play Store.',
     riskCategory: 'Critical',
-    summary: 'Critical rogue application: Publisher is an unauthorized third party ("Apex Financial Tech UK Ltd"). Demands invasive SMS and contacts harvesting.',
+    summary: 'Critical rogue application: Publisher is an unauthorized third party ("Rogue Financial Tech UK Ltd"). Demands invasive SMS and contacts harvesting.',
     evidenceSupporting: [
-      'Publisher "Apex Financial Tech UK Ltd" does not match registered corporate entity "ApexPay Technologies Inc."',
+      'Publisher "Rogue Financial Tech UK Ltd" does not match registered corporate entity "Acme Corp Technologies Inc."',
       'Requests predatory permissions (READ_SMS, READ_CONTACTS) commonly used in predatory loan malware & OTP interception',
       'Distributed via unofficial third-party APK mirror outside verified store safeguards',
-      'Deceptively leverages "ApexPay" brand mark to lure retail banking customers'
+      'Deceptively leverages "Acme Corp" brand mark to lure retail banking customers'
     ],
     evidenceAgainst: ['None - Classic predatory rogue loan application signature.'],
     missingInformation: [
@@ -364,12 +364,12 @@ export const DEMO_CANDIDATES: CandidateAsset[] = [
     stringSignals: [
       {
         type: 'BRAND_CONTAINMENT',
-        detail: 'Candidate app name starts with "ApexPay" followed by "Pro: Instant Cash".',
+        detail: 'Candidate app name starts with "Acme" followed by "Pro: Instant Cash".',
         severity: 'high',
       },
       {
         type: 'DEVELOPER_MISMATCH',
-        detail: 'Publisher "Apex Financial Tech UK Ltd" does not match "ApexPay Technologies Inc."',
+        detail: 'Publisher "Rogue Financial Tech UK Ltd" does not match "Acme Corp Technologies Inc."',
         severity: 'high',
       },
     ],
@@ -383,15 +383,15 @@ export const DEMO_CANDIDATES: CandidateAsset[] = [
   {
     id: 'cand-005',
     type: 'social',
-    title: 'Apex Payne — Concept Art & 3D Design',
-    identifier: '@apex_payne_art',
+    title: 'Acme Vintage — Concept Art & 3D Design',
+    identifier: '@acme_vintage_art',
     platform: 'Instagram / ArtStation',
-    url: 'https://instagram.com/apex_payne_art',
-    description: 'Apex Payne 🎨 Freelance 3D environment artist & concept designer. Unreal Engine 5 worlds, blender tutorials, sci-fi landscapes. Open for commissions!',
-    observedBranding: 'Personal artist avatar, digital matte paintings, zero fintech or financial graphics.',
+    url: 'https://instagram.com/acme_vintage_art',
+    description: 'Acme Vintage 🎨 Freelance 3D environment artist & concept designer. Unreal Engine 5 worlds, blender tutorials, sci-fi landscapes. Open for commissions!',
+    observedBranding: 'Personal artist avatar, digital matte paintings, zero corporate tech graphics.',
     evidence: 'Portfolio consists entirely of cyberpunk concept paintings and 3D modeling reels. Links to personal ArtStation and Gumroad 3D asset store.',
     riskCategory: 'Low',
-    summary: 'Benign entity: Genuine personal surname/handle with coincidental phonetic similarity ("Apex Payne"). Zero commercial or deceptive overlap.',
+    summary: 'Benign entity: Genuine personal surname/handle with coincidental phonetic similarity ("Acme Vintage"). Zero commercial or deceptive overlap.',
     evidenceSupporting: [],
     evidenceAgainst: [
       'Account belongs to individual artist with legitimate creative portfolio',
@@ -407,10 +407,10 @@ export const DEMO_CANDIDATES: CandidateAsset[] = [
     impersonationIndicators: [],
     conflictingEvidence: [
       'Completely different commercial industry (Game art & 3D illustration)',
-      'Natural personal name "Payne" combined with gaming alias "Apex"'
+      'Natural personal moniker "Vintage" combined with handle alias'
     ],
     isBenignExplanationPossible: true,
-    benignExplanation: 'Coincidental homophone and natural personal name in an entirely separate creative domain.',
+    benignExplanation: 'Coincidental name in an entirely separate creative domain.',
     status: 'Dismissed',
     statusHistory: [
       {
@@ -435,7 +435,7 @@ export const DEMO_CANDIDATES: CandidateAsset[] = [
     stringSignals: [
       {
         type: 'PHONETIC_SIMILARITY',
-        detail: 'Contains words "apex" and "payne" with underscore separation.',
+        detail: 'Contains words "acme" and "vintage" with underscore separation.',
         severity: 'low',
       },
     ],
@@ -449,15 +449,15 @@ export const DEMO_CANDIDATES: CandidateAsset[] = [
   {
     id: 'cand-006',
     type: 'domain',
-    title: 'apexpay-wallet-recovery.xyz',
-    identifier: 'apexpay-wallet-recovery.xyz',
+    title: 'acme-wallet-recovery.xyz',
+    identifier: 'acme-wallet-recovery.xyz',
     platform: 'Web / DNS',
-    url: 'https://apexpay-wallet-recovery.xyz',
-    description: 'Phishing landing page spoofing ApexPay login and wallet recovery. Registered via privacy proxy.',
+    url: 'https://acme-wallet-recovery.xyz',
+    description: 'Phishing landing page spoofing Acme Corp login and wallet recovery. Registered via privacy proxy.',
     observedBranding: 'Exact clone of official CSS and brand stylesheet.',
-    evidence: 'Linked directly in bio of @apexpay_support_claims. Resolves to IP 185.220.101.45.',
+    evidence: 'Linked directly in bio of @acme_support_claims. Resolves to IP 185.220.101.45.',
     riskCategory: 'Critical',
-    summary: 'Credential harvesting credential trap directly linked to rogue social handle @apexpay_support_claims.',
+    summary: 'Credential harvesting credential trap directly linked to rogue social handle @acme_support_claims.',
     evidenceSupporting: [
       'Direct hyperlink from rogue social account bio',
       'Resolves to known bulletproof hosting network',
@@ -487,7 +487,7 @@ export const DEMO_CANDIDATES: CandidateAsset[] = [
 export const INITIAL_THREAT_NODES: ThreatNode[] = [
   {
     id: 'node-brand',
-    label: 'ApexPay (Brand Core)',
+    label: 'Acme Corp (Brand Core)',
     type: 'brand',
     riskCategory: 'Safe',
     details: 'Protected Brand Identity (FinTech Payments)',
@@ -496,7 +496,7 @@ export const INITIAL_THREAT_NODES: ThreatNode[] = [
   },
   {
     id: 'node-official-social',
-    label: '@apexpay_official (X)',
+    label: '@acme_official (X)',
     type: 'official_asset',
     riskCategory: 'Safe',
     details: 'Verified Official Social Profile',
@@ -505,16 +505,16 @@ export const INITIAL_THREAT_NODES: ThreatNode[] = [
   },
   {
     id: 'node-official-app',
-    label: 'ApexPay Wallet (App Store)',
+    label: 'Acme Wallet (App Store)',
     type: 'official_asset',
     riskCategory: 'Safe',
-    details: 'Verified Mobile App (ApexPay Tech Inc.)',
+    details: 'Verified Mobile App (Acme Corp Tech Inc.)',
     x: 580,
     y: 160,
   },
   {
     id: 'node-official-domain',
-    label: 'apexpay.com (Domain)',
+    label: 'acme.com (Domain)',
     type: 'official_asset',
     riskCategory: 'Safe',
     details: 'Official Root Corporate Domain',
@@ -523,7 +523,7 @@ export const INITIAL_THREAT_NODES: ThreatNode[] = [
   },
   {
     id: 'node-rogue-social',
-    label: '@apexpay_support_claims',
+    label: '@acme_support_claims',
     type: 'social_candidate',
     riskCategory: 'Critical',
     details: 'Rogue Phishing Support Account (Telegram/X)',
@@ -532,7 +532,7 @@ export const INITIAL_THREAT_NODES: ThreatNode[] = [
   },
   {
     id: 'node-phish-domain',
-    label: 'apexpay-wallet-recovery.xyz',
+    label: 'acme-wallet-recovery.xyz',
     type: 'domain_candidate',
     riskCategory: 'Critical',
     details: 'Credential Harvesting Target',
@@ -551,10 +551,10 @@ export const INITIAL_THREAT_NODES: ThreatNode[] = [
   },
   {
     id: 'node-rogue-app',
-    label: 'ApexPay Pro: Instant Cash',
+    label: 'Acme Wallet Pro: Instant Cash',
     type: 'app_candidate',
     riskCategory: 'Critical',
-    details: 'Rogue APK (Apex Financial Tech UK)',
+    details: 'Rogue APK (Rogue Financial Tech UK)',
     x: 620,
     y: 420,
   },
@@ -569,7 +569,7 @@ export const INITIAL_THREAT_NODES: ThreatNode[] = [
   },
   {
     id: 'node-unrelated',
-    label: '@apex_payne_art',
+    label: '@acme_vintage_art',
     type: 'social_candidate',
     riskCategory: 'Low',
     details: '3D Artist (Benign Coincidental Name)',

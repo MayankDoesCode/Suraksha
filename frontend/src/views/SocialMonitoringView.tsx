@@ -73,15 +73,15 @@ export const SocialMonitoringView: React.FC = () => {
       badgeColor: 'bg-ok/10 text-ok border-ok/30',
       description: 'Verified official corporate channel registered in Brand Profile allowlist.',
       data: {
-        name: 'ApexPay Official',
-        username: '@apexpay_official',
+        name: 'Acme Corp Official',
+        username: '@acme_official',
         platform: 'X',
-        url: 'https://x.com/apexpay_official',
-        bio: 'The official handle for ApexPay Global. Fast, secure enterprise payment infrastructure and smart digital wallets. Managed by ApexPay Technologies Inc.',
+        url: 'https://x.com/acme_official',
+        bio: 'The official handle for Acme Corp Global. Fast, secure enterprise infrastructure and smart digital solutions. Managed by Acme Corp Technologies Inc.',
         followerCount: '148500',
         creationDate: '2021-04-12',
-        observedBranding: 'Official blue and cyan corporate mark, verified organization checkmark.',
-        evidence: 'Bio links directly to https://apexpay.com. Corporate DNS TXT records verify ownership.',
+        observedBranding: 'Official corporate mark, verified organization checkmark.',
+        evidence: 'Bio links directly to https://acme.com. Corporate DNS TXT records verify ownership.',
       },
     },
     {
@@ -90,14 +90,14 @@ export const SocialMonitoringView: React.FC = () => {
       badgeColor: 'bg-danger/10 text-danger border-danger/30',
       description: 'Critical risk: Impersonates official helpdesk requesting OTP and wallet recovery phrases.',
       data: {
-        name: 'ApexPay 24/7 Official Helpdesk & Refund Support',
-        username: '@apexpay_support_claims',
+        name: 'Acme Corp 24/7 Official Helpdesk & Refund Support',
+        username: '@acme_support_claims',
         platform: 'X',
-        url: 'https://x.com/apexpay_support_claims',
-        bio: '🚨 Official ApexPay Customer Care 24/7. Having stuck transactions or locked wallets? DM us your registered phone & OTP verification code. Instant gas rebates!',
+        url: 'https://x.com/acme_support_claims',
+        bio: '🚨 Official Acme Corp Customer Care 24/7. Having stuck transactions or locked wallets? DM us your registered phone & OTP verification code. Instant gas rebates!',
         followerCount: '24',
         creationDate: '2026-03-28',
-        observedBranding: 'Copies official circular blue logo with low-resolution "Live Help" overlay.',
+        observedBranding: 'Copies official circular logo with low-resolution "Live Help" overlay.',
         evidence: 'Urgent requests for private authentication credentials. Profile was registered 3 days ago.',
       },
     },
@@ -107,11 +107,11 @@ export const SocialMonitoringView: React.FC = () => {
       badgeColor: 'bg-danger/10 text-danger border-danger/30',
       description: 'High risk: Uses Cyrillic small letter "а" to visually forge authentic username.',
       data: {
-        name: 'ApexPay Announcements',
-        username: '@аpexpay_official', // Cyrillic 'а'
+        name: 'Acme Corp Announcements',
+        username: '@аcme_official', // Cyrillic 'а'
         platform: 'X',
-        url: 'https://x.com/аpexpay_official',
-        bio: 'Corporate announcements, product updates, and executive briefings for the ApexPay ecosystem.',
+        url: 'https://x.com/аcme_official',
+        bio: 'Corporate announcements, product updates, and executive briefings for the Acme Corp ecosystem.',
         followerCount: '310',
         creationDate: '2026-02-14',
         observedBranding: 'Pixel-identical SVG vector logo cloned directly from authentic press kit.',
@@ -124,11 +124,11 @@ export const SocialMonitoringView: React.FC = () => {
       badgeColor: 'bg-warn/10 text-warn border-warn/30',
       description: 'Low-to-medium risk: Legitimate commercial affiliate displaying approved mark.',
       data: {
-        name: 'FinTech Daily - ApexPay Partner Network',
-        username: '@fintech_daily_apexpay_partner',
+        name: 'FinTech Daily - Acme Corp Partner Network',
+        username: '@fintech_daily_acme_partner',
         platform: 'X',
-        url: 'https://x.com/fintech_daily_apexpay_partner',
-        bio: 'Independent financial journalism covering merchant payment rails. Authorized media affiliate of ApexPay Global under PMA-2025.',
+        url: 'https://x.com/fintech_daily_acme_partner',
+        bio: 'Independent financial journalism covering merchant payment rails. Authorized media affiliate of Acme Corp Global under PMA-2025.',
         followerCount: '84200',
         creationDate: '2022-09-01',
         observedBranding: 'Independent publication banner with "Official Partner" badge in header.',
@@ -141,11 +141,11 @@ export const SocialMonitoringView: React.FC = () => {
       badgeColor: 'bg-ai/15 text-ai border-ai/30',
       description: 'Low risk: Explicitly discloses fan/satire status without financial solicitations.',
       data: {
-        name: 'Broke with ApexPay (Parody)',
-        username: '@apexpay_memes_fan',
+        name: 'Broke with Acme Corp (Parody)',
+        username: '@acme_memes_fan',
         platform: 'X',
-        url: 'https://x.com/apexpay_memes_fan',
-        bio: 'Unofficial parody & memes about enterprise fee schedules. Not affiliated with ApexPay Technologies Inc. Just satirical commentary!',
+        url: 'https://x.com/acme_memes_fan',
+        bio: 'Unofficial parody & memes about enterprise fee schedules. Not affiliated with Acme Corp Technologies Inc. Just satirical commentary!',
         followerCount: '4920',
         creationDate: '2024-06-19',
         observedBranding: 'Cartoon caricature version of brand logo with clown nose overlay.',
@@ -342,17 +342,19 @@ export const SocialMonitoringView: React.FC = () => {
   ];
 
   return (
-    <div className="max-w-7xl mx-auto space-y-6 font-sans text-fg">
-      {/* 1. Intro */}
+    <div className="w-full max-w-[1720px] mx-auto space-y-6 font-sans text-fg">
+      {/* 1. Header */}
       <div className="flex flex-col gap-3 md:flex-row md:items-start md:justify-between">
-        <p className="max-w-2xl text-sm text-fgMuted">
-          Assess a suspected social profile against the verified accounts of <span className="text-fg">{brandProfile.brandName}</span>. Brand impersonation is judged by rules on
-          the handle, name, bio and links. The fake-account model, where it runs, is supporting evidence about automation only; it is not proof of impersonation.
-        </p>
-        <dl className="flex shrink-0 gap-6 text-sm">
-          <div><dt className="text-xs text-fgSubtle">Verified accounts</dt><dd className="tabular-nums">{brandProfile.officialSocialUrls?.length || 0}</dd></div>
-          <div><dt className="text-xs text-fgSubtle">Authorised partners</dt><dd className="tabular-nums">{brandProfile.authorizedPartners?.length || 0}</dd></div>
-          {isDemoMode && <div><dt className="text-xs text-fgSubtle">Data</dt><dd className="text-warn">Demo scenarios</dd></div>}
+        <div>
+          <h1 className="text-xl font-semibold tracking-tight text-fg">Check a social profile</h1>
+          <p className="max-w-2xl text-xs text-fgMuted mt-1 leading-relaxed">
+            Assess a suspected social profile against the verified accounts of <span className="text-fg font-medium">{brandProfile.brandName || 'your registered brand'}</span>. Brand impersonation is judged by rules on the handle, name, bio, and links. The fake-account model, where it runs, is supporting evidence about automation only; it is not proof of impersonation.
+          </p>
+        </div>
+        <dl className="flex shrink-0 gap-6 text-xs text-fgMuted">
+          <div><dt className="text-fgSubtle">Verified accounts</dt><dd className="font-mono font-medium text-fg tabular-nums">{brandProfile.officialSocialUrls?.length || 0}</dd></div>
+          <div><dt className="text-fgSubtle">Authorised partners</dt><dd className="font-mono font-medium text-fg tabular-nums">{brandProfile.authorizedPartners?.length || 0}</dd></div>
+          {isDemoMode && <div><dt className="text-fgSubtle">Data</dt><dd className="text-warn font-medium">Demo scenarios</dd></div>}
         </dl>
       </div>
 
@@ -375,14 +377,14 @@ export const SocialMonitoringView: React.FC = () => {
                 key={sc.id}
                 type="button"
                 onClick={() => loadScenario(sc.data)}
-                className="text-left p-3 rounded-xl border border-line bg-surface2 hover:border-accent/50 hover:bg-surface transition-all text-xs group cursor-pointer"
+                className="text-left p-3 rounded-lg border border-line bg-surface2 hover:bg-surface3 focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-accent transition-colors text-xs group cursor-pointer"
               >
                 <div className="flex items-center justify-between mb-1">
-                  <span className="font-bold text-fg text-xs group-hover:text-accent transition-colors">
+                  <span className="font-medium text-fg text-xs group-hover:text-accent transition-colors">
                     {sc.label}
                   </span>
                 </div>
-                <p className="text-xs text-fgMuted leading-tight line-clamp-2">
+                <p className="text-[11px] text-fgSubtle leading-relaxed line-clamp-2">
                   {sc.description}
                 </p>
               </button>
@@ -394,16 +396,16 @@ export const SocialMonitoringView: React.FC = () => {
       {/* 3. Main Workspace: 2-Column Split */}
       <div className="grid grid-cols-1 lg:grid-cols-12 gap-6 items-start">
         {/* Left Column: Candidate Ingestion Form (5 cols) */}
-        <div className="lg:col-span-5 bg-surface p-5 sm:p-6 rounded-2xl border border-line space-y-4">
+        <div className="lg:col-span-5 bg-surface p-5 rounded-xl border border-line space-y-4">
           <div className="flex items-center justify-between border-b border-line pb-3">
-            <h2 className="text-sm font-bold text-fg flex items-center gap-2">
+            <h2 className="text-sm font-semibold text-fg flex items-center gap-2">
               <Share2 className="w-4 h-4 text-accent" />
               Candidate Profile Test Bench
             </h2>
             <button
               type="button"
               onClick={handleClear}
-              className="px-2 py-1 rounded-lg text-xs font-semibold text-fgMuted hover:text-fg hover:bg-surface2 transition-colors flex items-center gap-1 cursor-pointer"
+              className="px-2 py-1 rounded-md text-xs font-medium text-fgMuted hover:text-fg hover:bg-surface2 transition-colors flex items-center gap-1 cursor-pointer focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-accent"
               title="Clear all fields"
             >
               <RotateCcw className="w-3 h-3 text-warn" />
@@ -414,41 +416,41 @@ export const SocialMonitoringView: React.FC = () => {
           <form onSubmit={handleAnalyze} className="space-y-3.5 text-xs">
             {/* Display Name */}
             <div>
-              <label className="font-semibold text-fgSubtle block mb-1 text-xs">
+              <label className="font-medium text-fgSubtle block mb-1 text-xs">
                 Candidate Display Name <span className="text-danger">*</span>
               </label>
               <input
                 type="text"
                 value={name}
                 onChange={e => setName(e.target.value)}
-                placeholder="e.g. ApexPay Live Helpdesk & Refund Support"
-                className="w-full px-3 py-2 border border-line rounded-xl focus:outline-hidden focus:border-accent bg-surface2 text-fg transition-colors"
+                placeholder="e.g. Brand Live Helpdesk & Refund Support"
+                className="w-full px-3 py-2 border border-line rounded-md focus:outline-none focus:ring-1 focus:ring-accent bg-surface2 text-fg transition-colors"
               />
             </div>
 
             {/* Handle & Platform Grid */}
             <div className="grid grid-cols-1 sm:grid-cols-2 gap-2.5">
               <div>
-                <label className="font-semibold text-fgSubtle block mb-1 text-xs">
+                <label className="font-medium text-fgSubtle block mb-1 text-xs">
                   Username / Handle <span className="text-danger">*</span>
                 </label>
                 <input
                   type="text"
                   value={username}
                   onChange={e => setUsername(e.target.value)}
-                  placeholder="e.g. @apexpay_support_claims"
-                  className="w-full px-3 py-2 border border-line rounded-xl focus:outline-hidden focus:border-accent bg-surface2 font-mono text-fg transition-colors"
+                  placeholder="e.g. @brand_support_claims"
+                  className="w-full px-3 py-2 border border-line rounded-md focus:outline-none focus:ring-1 focus:ring-accent bg-surface2 font-mono text-fg transition-colors"
                 />
               </div>
 
               <div>
-                <label className="font-semibold text-fgSubtle block mb-1 text-xs">
+                <label className="font-medium text-fgSubtle block mb-1 text-xs">
                   Social Platform
                 </label>
                 <select
                   value={platform}
                   onChange={e => setPlatform(e.target.value as SocialPlatform)}
-                  className="w-full px-3 py-2 border border-line rounded-xl focus:outline-hidden focus:border-accent bg-surface2 text-fg transition-colors cursor-pointer"
+                  className="w-full px-3 py-2 border border-line rounded-md focus:outline-none focus:ring-1 focus:ring-accent bg-surface2 text-fg transition-colors cursor-pointer"
                 >
                   <option value="Instagram">Instagram</option>
                   <option value="Facebook">Facebook</option>
@@ -465,21 +467,21 @@ export const SocialMonitoringView: React.FC = () => {
 
             {/* Profile URL */}
             <div>
-              <label className="font-semibold text-fgSubtle block mb-1 text-xs">
+              <label className="font-medium text-fgSubtle block mb-1 text-xs">
                 Profile URL
               </label>
               <input
                 type="url"
                 value={url}
                 onChange={e => setUrl(e.target.value)}
-                placeholder="https://x.com/apexpay_support_claims"
-                className="w-full px-3 py-2 border border-line rounded-xl focus:outline-hidden focus:border-accent bg-surface2 font-mono text-xs text-fg transition-colors"
+                placeholder="https://x.com/brand_support_claims"
+                className="w-full px-3 py-2 border border-line rounded-md focus:outline-none focus:ring-1 focus:ring-accent bg-surface2 font-mono text-xs text-fg transition-colors"
               />
             </div>
 
             {/* Bio */}
             <div>
-              <label className="font-semibold text-fgSubtle block mb-1 text-xs">
+              <label className="font-medium text-fgSubtle block mb-1 text-xs">
                 Bio or Profile Description
               </label>
               <textarea
@@ -487,14 +489,14 @@ export const SocialMonitoringView: React.FC = () => {
                 value={bio}
                 onChange={e => setBio(e.target.value)}
                 placeholder="Paste account bio, slogans, statements, or customer care claims..."
-                className="w-full px-3 py-2 border border-line rounded-xl focus:outline-hidden focus:border-accent bg-surface2 text-fg transition-colors leading-relaxed"
+                className="w-full px-3 py-2 border border-line rounded-md focus:outline-none focus:ring-1 focus:ring-accent bg-surface2 text-fg transition-colors leading-relaxed"
               />
             </div>
 
             {/* Metadata: Followers & Creation Date */}
             <div className="grid grid-cols-1 sm:grid-cols-2 gap-2.5">
               <div>
-                <label className="font-semibold text-fgSubtle flex items-center gap-1 mb-1 text-xs">
+                <label className="font-medium text-fgSubtle flex items-center gap-1 mb-1 text-xs">
                   <Users className="w-3.5 h-3.5 text-accent" />
                   Follower Count (Optional)
                 </label>
@@ -503,12 +505,12 @@ export const SocialMonitoringView: React.FC = () => {
                   value={followerCount}
                   onChange={e => setFollowerCount(e.target.value)}
                   placeholder="e.g. 24 or 150000"
-                  className="w-full px-3 py-2 border border-line rounded-xl focus:outline-hidden focus:border-accent bg-surface2 font-mono text-fg transition-colors"
+                  className="w-full px-3 py-2 border border-line rounded-md focus:outline-none focus:ring-1 focus:ring-accent bg-surface2 font-mono text-fg transition-colors"
                 />
               </div>
 
               <div>
-                <label className="font-semibold text-fgSubtle flex items-center gap-1 mb-1 text-xs">
+                <label className="font-medium text-fgSubtle flex items-center gap-1 mb-1 text-xs">
                   <Calendar className="w-3.5 h-3.5 text-accent" />
                   Creation Date (Optional)
                 </label>
@@ -516,14 +518,14 @@ export const SocialMonitoringView: React.FC = () => {
                   type="date"
                   value={creationDate}
                   onChange={e => setCreationDate(e.target.value)}
-                  className="w-full px-3 py-2 border border-line rounded-xl focus:outline-hidden focus:border-accent bg-surface2 text-fg transition-colors"
+                  className="w-full px-3 py-2 border border-line rounded-md focus:outline-none focus:ring-1 focus:ring-accent bg-surface2 text-fg transition-colors"
                 />
               </div>
             </div>
 
             {/* Optional Observed Branding & Evidence */}
             <div>
-              <label className="font-semibold text-fgSubtle block mb-1 text-xs">
+              <label className="font-medium text-fgSubtle block mb-1 text-xs">
                 Observed Branding &amp; Imagery (Optional)
               </label>
               <input
@@ -531,12 +533,12 @@ export const SocialMonitoringView: React.FC = () => {
                 value={observedBranding}
                 onChange={e => setObservedBranding(e.target.value)}
                 placeholder="e.g. Copied blue logo with gold PRO ribbon watermark"
-                className="w-full px-3 py-2 border border-line rounded-xl focus:outline-hidden focus:border-accent bg-surface2 text-fg transition-colors"
+                className="w-full px-3 py-2 border border-line rounded-md focus:outline-none focus:ring-1 focus:ring-accent bg-surface2 text-fg transition-colors"
               />
             </div>
 
             <div>
-              <label className="font-semibold text-fgSubtle block mb-1 text-xs">
+              <label className="font-medium text-fgSubtle block mb-1 text-xs">
                 Observed Evidence &amp; Actions (Optional)
               </label>
               <textarea
@@ -544,14 +546,14 @@ export const SocialMonitoringView: React.FC = () => {
                 value={evidence}
                 onChange={e => setEvidence(e.target.value)}
                 placeholder="e.g. Directs users to t.me/refund_bot; solicits OTP codes to unblock transfers"
-                className="w-full px-3 py-2 border border-line rounded-xl focus:outline-hidden focus:border-accent bg-surface2 text-fg transition-colors"
+                className="w-full px-3 py-2 border border-line rounded-md focus:outline-none focus:ring-1 focus:ring-accent bg-surface2 text-fg transition-colors"
               />
             </div>
 
             {/* Validation Errors */}
             {validationErrors.length > 0 && (
-              <div className="p-3 rounded-xl bg-danger/10 border border-danger/30 text-danger text-xs space-y-1">
-                <div className="font-bold flex items-center gap-1.5 font-mono">
+              <div className="p-3 rounded-lg bg-danger/10 border border-danger/30 text-danger text-xs space-y-1">
+                <div className="font-semibold flex items-center gap-1.5 font-mono">
                   <AlertCircle className="w-4 h-4 shrink-0 text-danger" />
                   <span>Validation Incomplete:</span>
                 </div>
@@ -568,16 +570,16 @@ export const SocialMonitoringView: React.FC = () => {
               <button
                 type="submit"
                 disabled={isAnalyzing}
-                className="flex-1 py-2.5 px-4 rounded-xl bg-accent hover:bg-accent/90 disabled:opacity-50 text-onAccent font-bold text-xs shadow-accent/30 transition-all flex items-center justify-center gap-2 cursor-pointer hover:scale-[1.01] active:scale-95"
+                className="flex-1 py-2 px-4 rounded-md bg-accent hover:bg-accent/90 disabled:opacity-50 text-onAccent font-medium text-xs transition-colors flex items-center justify-center gap-2 cursor-pointer focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-accent"
               >
                 {isAnalyzing ? (
                   <>
-                    <Loader2 className="w-4 h-4 animate-spin text-accent" />
+                    <Loader2 className="w-4 h-4 animate-spin text-onAccent" />
                     <span>Analyzing Multi-Signal Evidence...</span>
                   </>
                 ) : (
                   <>
-                    <Shield className="w-4 h-4 text-accent" />
+                    <Shield className="w-4 h-4 text-onAccent" />
                     <span>Analyze Profile</span>
                   </>
                 )}
@@ -586,7 +588,7 @@ export const SocialMonitoringView: React.FC = () => {
               <button
                 type="button"
                 onClick={handleClear}
-                className="py-2.5 px-3.5 rounded-xl border border-line hover:bg-surface2 text-fgMuted hover:text-fg font-semibold text-xs transition-colors cursor-pointer"
+                className="py-2 px-3.5 rounded-md border border-line hover:bg-surface2 text-fgMuted hover:text-fg font-medium text-xs transition-colors cursor-pointer focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-accent"
               >
                 Clear
               </button>
@@ -598,27 +600,27 @@ export const SocialMonitoringView: React.FC = () => {
         <div className="lg:col-span-7 space-y-4">
           {/* Empty Awaiting State */}
           {!analysisResult && !isAnalyzing && (
-            <div className="bg-surface rounded-2xl border border-line p-10 sm:p-12 text-center">
-              <div className="w-14 h-14 rounded-2xl bg-accent/15 text-accent flex items-center justify-center mx-auto mb-3 border border-accent/30">
-                <Share2 className="w-7 h-7" />
+            <div className="bg-surface/50 rounded-xl border border-dashed border-line p-12 text-center">
+              <div className="w-12 h-12 rounded-lg bg-surface2 text-accent flex items-center justify-center mx-auto mb-3 border border-line">
+                <Share2 className="w-6 h-6" />
               </div>
-              <h3 className="text-base font-bold text-fg">Awaiting Profile Analysis</h3>
+              <h3 className="text-sm font-medium text-fg">Awaiting Profile Analysis</h3>
               <p className="text-xs text-fgMuted max-w-md mx-auto mt-1 leading-relaxed">
-                Enter candidate profile details on the left or click one of the pre-configured
-                benchmark scenarios above to evaluate impersonation risks against registered brand assets.
+                Enter candidate profile details on the left or select a pre-configured
+                benchmark scenario above to evaluate impersonation risks against registered brand assets.
               </p>
-              <div className="mt-6 flex flex-wrap justify-center gap-2">
+              <div className="mt-5 flex flex-wrap justify-center gap-2">
                 <button
                   type="button"
                   onClick={() => loadScenario(scenarios[1].data)}
-                  className="px-3.5 py-1.5 rounded-xl bg-danger/15 text-danger hover:bg-danger/25 font-semibold text-xs border border-danger/40 transition-colors cursor-pointer"
+                  className="px-3 py-1.5 rounded-md bg-danger/10 text-danger hover:bg-danger/20 font-medium text-xs border border-danger/30 transition-colors cursor-pointer focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-accent"
                 >
                   Test High-Risk Scam Lure →
                 </button>
                 <button
                   type="button"
                   onClick={() => loadScenario(scenarios[0].data)}
-                  className="px-3.5 py-1.5 rounded-xl bg-ok/10 text-ok hover:bg-ok/20 font-semibold text-xs border border-ok/30 transition-colors cursor-pointer"
+                  className="px-3 py-1.5 rounded-md bg-ok/10 text-ok hover:bg-ok/20 font-medium text-xs border border-ok/30 transition-colors cursor-pointer focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-accent"
                 >
                   Test Official Account →
                 </button>
@@ -628,21 +630,21 @@ export const SocialMonitoringView: React.FC = () => {
 
           {/* Analyzing Progress State */}
           {isAnalyzing && (
-            <div className="bg-surface rounded-2xl border border-line p-12 text-center space-y-3">
-              <Loader2 className="w-8 h-8 text-accent animate-spin mx-auto" />
-              <h3 className="text-sm font-bold text-fg">Evaluating Social Profile Candidates</h3>
+            <div className="bg-surface rounded-xl border border-line p-10 text-center space-y-3">
+              <Loader2 className="w-6 h-6 text-accent animate-spin mx-auto" />
+              <h3 className="text-sm font-medium text-fg">Evaluating Social Profile Candidates</h3>
               <div className="text-xs text-fgMuted space-y-1.5 max-w-sm mx-auto font-mono">
                 <p className="flex items-center justify-center gap-1.5">
                   <span className="w-1.5 h-1.5 rounded-full bg-accent" />
-                  Cross-referencing Brand Profile allowlist & handles...
+                  Cross-referencing Brand Profile allowlist &amp; handles...
                 </p>
                 <p className="flex items-center justify-center gap-1.5">
                   <span className="w-1.5 h-1.5 rounded-full bg-accent" />
-                  Checking Cyrillic homoglyphs & leetspeak substitutions...
+                  Checking Cyrillic homoglyphs &amp; leetspeak substitutions...
                 </p>
                 <p className="flex items-center justify-center gap-1.5">
                   <span className="w-1.5 h-1.5 rounded-full bg-danger" />
-                  Inspecting bio for OTP & credential solicitation...
+                  Inspecting bio for OTP &amp; credential solicitation...
                 </p>
                 <p className="flex items-center justify-center gap-1.5">
                   <span className="w-1.5 h-1.5 rounded-full bg-ok" />
@@ -656,20 +658,20 @@ export const SocialMonitoringView: React.FC = () => {
           {analysisResult && !isAnalyzing && (
             <div className="space-y-4">
               {/* Verdict Header Card */}
-              <div className="bg-surface rounded-2xl border border-line p-5 sm:p-6 space-y-4">
+              <div className="bg-surface rounded-xl border border-line p-5 space-y-4">
                 <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3 border-b border-line pb-4">
                   <div>
                     <span className="text-xs font-medium text-fgSubtle block">
                       Threat Assessment Verdict
                     </span>
-                    <h3 className="text-lg font-bold text-fg flex items-center gap-2">
+                    <h3 className="text-base font-semibold text-fg flex items-center gap-2">
                       {analysisResult.candidate.name}
                       <span className="text-xs font-mono font-normal text-accent">
                         ({analysisResult.candidate.username})
                       </span>
                     </h3>
                     <div className="flex items-center gap-2 text-xs text-fgMuted mt-0.5">
-                      <span className="font-semibold text-fg font-mono">{analysisResult.candidate.platform}</span>
+                      <span className="font-medium text-fg font-mono">{analysisResult.candidate.platform}</span>
                       <span>•</span>
                       <span>Analyzed {new Date(analysisResult.analyzedAt).toLocaleTimeString()}</span>
                     </div>
@@ -680,7 +682,7 @@ export const SocialMonitoringView: React.FC = () => {
                       <span className="text-xs font-medium text-fgSubtle block">
                         Threat Index
                       </span>
-                      <div className="text-xl font-mono font-extrabold text-fg">
+                      <div className="text-xl font-mono font-semibold text-fg">
                         {analysisResult.heuristicScore}
                         <span className="text-xs font-normal text-fgMuted">/100</span>
                       </div>
@@ -690,77 +692,77 @@ export const SocialMonitoringView: React.FC = () => {
                 </div>
 
                 {/* Score Disclaimer Notice */}
-                <div className="px-3.5 py-2.5 rounded-xl bg-surface2 border border-line flex items-start gap-2 text-xs text-fgMuted">
+                <div className="px-3.5 py-2.5 rounded-lg bg-surface2 border border-line flex items-start gap-2 text-xs text-fgMuted">
                   <Info className="w-3.5 h-3.5 text-accent shrink-0 mt-0.5" />
                   <span>
-                    <strong className="text-fg">Notice:</strong> {analysisResult.scoreDisclaimer}
+                    <strong className="text-fg font-medium">Notice:</strong> {analysisResult.scoreDisclaimer}
                   </span>
                 </div>
 
                 {/* InstaFake Machine Learning Classifier Telemetry */}
                 {mlSocialResult && (
-                  <div className="p-4 rounded-xl bg-surface2 border border-line text-xs space-y-2.5">
+                  <div className="p-3.5 rounded-lg bg-surface2 border border-line text-xs space-y-2.5">
                     <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-2 border-b border-line pb-2">
                       <div className="flex items-center gap-2">
-                        <span className="p-1 rounded-lg bg-accent/20 text-accent border border-accent/30">
+                        <span className="p-1 rounded bg-accent/15 text-accent border border-accent/20">
                           <Cpu className="w-3.5 h-3.5" />
                         </span>
                         <div>
-                          <span className="font-bold text-fg block">
+                          <span className="font-semibold text-fg block">
                             Fake-account model (supporting evidence)
                           </span>
-                          <span className="text-xs text-fgMuted font-mono">
+                          <span className="text-[11px] text-fgMuted font-mono">
                             Generic automation signal only, uncalibrated. Trained on 2018 Instagram data (CC BY-NC 4.0). Not proof of impersonation.
                           </span>
                         </div>
                       </div>
-                      <span className="text-xs font-mono font-bold px-2 py-0.5 rounded-full bg-warn/15 text-warn border border-warn/30 self-start sm:self-auto">
+                      <span className="text-[10px] font-mono font-medium px-2 py-0.5 rounded border bg-warn/10 text-warn border-warn/30 self-start sm:self-auto">
                         Needs Analyst Review
                       </span>
                     </div>
 
                     <div className="grid grid-cols-2 sm:grid-cols-4 gap-2 text-fgMuted">
-                      <div className="p-2.5 bg-surface rounded-xl border border-line">
+                      <div className="p-2.5 bg-surface rounded-lg border border-line">
                         <span className="text-xs font-medium text-fgSubtle block">Automation score</span>
-                        <span className="font-mono font-bold text-sm text-accent">
+                        <span className="font-mono font-semibold text-sm text-accent">
                           {mlSocialResult.generic_fake_account_ml?.fake_probability != null
                             ? `${(mlSocialResult.generic_fake_account_ml.fake_probability * 100).toFixed(1)}%`
                             : 'N/A'}
                         </span>
-                        <span className="text-xs text-fgMuted block mt-0.5">Automated/Bot ML</span>
+                        <span className="text-[11px] text-fgSubtle block mt-0.5">Automated/Bot ML</span>
                       </div>
-                      <div className="p-2.5 bg-surface rounded-xl border border-line">
+                      <div className="p-2.5 bg-surface rounded-lg border border-line">
                         <span className="text-xs font-medium text-fgSubtle block">Brand rule score</span>
-                        <span className="font-mono font-bold text-sm text-fg">
+                        <span className="font-mono font-semibold text-sm text-fg">
                           {mlSocialResult.risk_score} / 100
                         </span>
-                        <span className="text-xs text-fgMuted block mt-0.5">Tier: {mlSocialResult.severity_tier}</span>
+                        <span className="text-[11px] text-fgSubtle block mt-0.5">Tier: {mlSocialResult.severity_tier}</span>
                       </div>
-                      <div className="p-2.5 bg-surface rounded-xl border border-line">
+                      <div className="p-2.5 bg-surface rounded-lg border border-line">
                         <span className="text-xs font-medium text-fgSubtle block">Trademark Match</span>
-                        <span className="font-bold text-fg text-xs block truncate mt-0.5">
+                        <span className="font-medium text-fg text-xs block truncate mt-0.5">
                           {mlSocialResult.brand_impersonation_assessment?.brand_matched ? 'Detected & Matched' : 'No Official Match'}
                         </span>
-                        <span className="text-xs text-fgMuted block mt-0.5">Allowlist Corroboration</span>
+                        <span className="text-[11px] text-fgSubtle block mt-0.5">Allowlist Corroboration</span>
                       </div>
-                      <div className="p-2.5 bg-surface rounded-xl border border-line">
-                        <span className="text-xs font-medium text-fgSubtle block">Validation Scope</span>
-                        <span className="text-xs font-semibold text-ok block truncate mt-0.5">
-                          +12.5% F1 vs Baseline
+                      <div className="p-2.5 bg-surface rounded-lg border border-line">
+                        <span className="text-xs font-medium text-fgSubtle block">Dataset Context</span>
+                        <span className="text-xs font-mono text-fgMuted block truncate mt-0.5">
+                          InstaFake Benchmark
                         </span>
-                        <span className="text-xs text-fgMuted block mt-0.5">Held-out test set</span>
+                        <span className="text-[11px] text-fgSubtle block mt-0.5">Held-out test baseline</span>
                       </div>
                     </div>
                   </div>
                 )}
 
                 {/* Comparison Against Official Brand Card */}
-                <div className="p-3.5 rounded-xl bg-surface2 border border-line text-xs grid grid-cols-1 sm:grid-cols-2 gap-3">
+                <div className="p-3.5 rounded-lg bg-surface2 border border-line text-xs grid grid-cols-1 sm:grid-cols-2 gap-3">
                   <div>
                     <span className="text-xs font-medium text-fgSubtle block mb-1">
                       Target Protected Brand
                     </span>
-                    <div className="font-bold text-fg text-sm">
+                    <div className="font-semibold text-fg text-sm">
                       {brandProfile.brandName}
                     </div>
                     <div className="text-xs text-fgMuted mt-0.5 font-mono">
@@ -773,12 +775,12 @@ export const SocialMonitoringView: React.FC = () => {
                       Allowlist Registry Match
                     </span>
                     {analysisResult.isExactOfficialMatch ? (
-                      <div className="text-ok font-bold flex items-center gap-1.5 font-mono">
+                      <div className="text-ok font-medium flex items-center gap-1.5 font-mono">
                         <CheckCircle2 className="w-4 h-4 text-ok" />
                         <span>Matches Registered Official Handle</span>
                       </div>
                     ) : analysisResult.isAuthorizedPartner ? (
-                      <div className="text-warn font-bold flex items-center gap-1.5 font-mono">
+                      <div className="text-warn font-medium flex items-center gap-1.5 font-mono">
                         <Tag className="w-4 h-4 text-warn" />
                         <span>Registered Authorized Partner</span>
                       </div>
@@ -788,33 +790,33 @@ export const SocialMonitoringView: React.FC = () => {
                         <span>No match in official allowlist registry</span>
                       </div>
                     )}
-                    <div className="text-xs text-fgMuted mt-0.5 font-mono">
+                    <div className="text-[11px] text-fgMuted mt-0.5 font-mono">
                       String Similarity: {analysisResult.stringSimilarity}% • Edit Distance: {analysisResult.levenshteinDistance}
                     </div>
                   </div>
                 </div>
 
                 {/* Candidate Profile Details Snapshot */}
-                <div className="p-3.5 rounded-xl bg-surface2 border border-line text-xs space-y-2">
+                <div className="p-3.5 rounded-lg bg-surface2 border border-line text-xs space-y-2">
                   <span className="text-xs font-medium text-fgSubtle block">
                     Candidate Profile Summary
                   </span>
                   <div className="grid grid-cols-1 sm:grid-cols-3 gap-2 text-xs">
                     <div>
                       <span className="text-fgMuted block">Handle &amp; Platform:</span>
-                      <span className="font-semibold text-fg font-mono">
+                      <span className="font-medium text-fg font-mono">
                         {analysisResult.candidate.username} ({analysisResult.candidate.platform})
                       </span>
                     </div>
                     <div>
                       <span className="text-fgMuted block">Audience / Followers:</span>
-                      <span className="font-semibold text-fg font-mono">
+                      <span className="font-medium text-fg font-mono">
                         {analysisResult.candidate.followerCount ? Number(analysisResult.candidate.followerCount).toLocaleString() : 'Not provided'}
                       </span>
                     </div>
                     <div>
                       <span className="text-fgMuted block">Account Created:</span>
-                      <span className="font-semibold text-fg font-mono">
+                      <span className="font-medium text-fg font-mono">
                         {analysisResult.candidate.creationDate || 'Not provided'}
                       </span>
                     </div>
@@ -828,32 +830,32 @@ export const SocialMonitoringView: React.FC = () => {
                   )}
 
                   {analysisResult.candidate.bio && (
-                    <div className="text-xs pt-1 border-t border-line text-fgMuted bg-surface p-2.5 rounded-lg border border-line/60">
-                      <span className="font-semibold text-fg block mb-0.5 font-mono">Bio:</span>
-                      <p className="italic leading-relaxed">{analysisResult.candidate.bio}</p>
+                    <div className="text-xs pt-1 border-t border-line text-fgMuted bg-surface p-2.5 rounded-md border border-line">
+                      <span className="font-medium text-fg block mb-0.5 font-mono">Bio:</span>
+                      <p className="leading-relaxed text-fgMuted">{analysisResult.candidate.bio}</p>
                     </div>
                   )}
                 </div>
 
                 {/* Executive Summary */}
-                <div className="p-3.5 rounded-xl bg-accent/10 border border-accent/30 text-xs">
-                  <span className="font-bold text-accent block mb-1 font-mono">Executive Summary</span>
+                <div className="p-3.5 rounded-lg bg-accent/10 border border-accent/20 text-xs">
+                  <span className="font-medium text-accent block mb-1 font-mono">Executive Summary</span>
                   <p className="text-fg leading-relaxed text-xs">
                     {analysisResult.executiveSummary}
                   </p>
                 </div>
 
                 {/* Recommended Analyst Action Box */}
-                <div className="p-4 rounded-xl bg-surface border border-line text-xs space-y-2">
+                <div className="p-4 rounded-lg bg-surface border border-line text-xs space-y-2">
                   <div className="flex items-center justify-between">
                     <span className="text-xs font-medium text-fgSubtle">
                       Recommended Action
                     </span>
-                    <span className="px-2 py-0.5 rounded-md bg-surface2 text-fgMuted font-mono text-xs border border-line">
+                    <span className="px-2 py-0.5 rounded bg-surface2 text-fgMuted font-mono text-[11px] border border-line">
                       Playbook Execution
                     </span>
                   </div>
-                  <div className="text-sm font-bold text-fg flex items-center gap-2">
+                  <div className="text-sm font-semibold text-fg flex items-center gap-2">
                     <ArrowRight className="w-4 h-4 text-accent" />
                     <span>{analysisResult.recommendedAction}</span>
                   </div>
@@ -869,9 +871,9 @@ export const SocialMonitoringView: React.FC = () => {
               </div>
 
               {/* Signals Breakdown by Category */}
-              <div className="bg-surface rounded-2xl border border-line p-5 sm:p-6 space-y-4">
+              <div className="bg-surface rounded-xl border border-line p-5 space-y-4">
                 <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-2 border-b border-line pb-3">
-                  <h4 className="text-sm font-bold text-fg flex items-center gap-2">
+                  <h4 className="text-sm font-semibold text-fg flex items-center gap-2">
                     <Activity className="w-4 h-4 text-accent" />
                     Detected Threat Signals ({analysisResult.signals.length})
                   </h4>
@@ -881,11 +883,11 @@ export const SocialMonitoringView: React.FC = () => {
                     <button
                       type="button"
                       onClick={() => setSelectedSignalTab('all')}
-                      className={`px-2.5 py-1 rounded-lg text-xs font-semibold transition-colors cursor-pointer ${
- selectedSignalTab === 'all'
- ? 'bg-accent text-onAccent '
- : 'bg-surface2 text-fgMuted hover:text-fg'
- }`}
+                      className={`px-2.5 py-1 rounded-md text-xs font-medium transition-colors cursor-pointer focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-accent ${
+                        selectedSignalTab === 'all'
+                          ? 'bg-accent text-onAccent'
+                          : 'bg-surface2 text-fgMuted hover:text-fg'
+                      }`}
                     >
                       All ({analysisResult.signals.length})
                     </button>
@@ -896,11 +898,11 @@ export const SocialMonitoringView: React.FC = () => {
                           key={cat}
                           type="button"
                           onClick={() => setSelectedSignalTab(cat)}
-                          className={`px-2.5 py-1 rounded-lg text-xs font-semibold transition-colors cursor-pointer ${
- selectedSignalTab === cat
- ? 'bg-accent text-onAccent '
- : 'bg-surface2 text-fgMuted hover:text-fg'
- }`}
+                          className={`px-2.5 py-1 rounded-md text-xs font-medium transition-colors cursor-pointer focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-accent ${
+                            selectedSignalTab === cat
+                              ? 'bg-accent text-onAccent'
+                              : 'bg-surface2 text-fgMuted hover:text-fg'
+                          }`}
                         >
                           {cat} ({count})
                         </button>
@@ -910,36 +912,36 @@ export const SocialMonitoringView: React.FC = () => {
                 </div>
 
                 {filteredSignals.length === 0 ? (
-                  <div className="p-6 rounded-xl bg-surface2 text-center text-xs text-fgMuted border border-line">
+                  <div className="p-6 rounded-lg bg-surface2 text-center text-xs text-fgMuted border border-line">
                     No threat signals triggered under this category.
                   </div>
                 ) : (
-                  <div className="space-y-2.5">
+                  <div className="space-y-2">
                     {filteredSignals.map(sig => {
                       const badgeBg =
                         sig.severity === 'critical'
-                          ? 'bg-danger/15 text-danger border-danger/40'
+                          ? 'bg-danger/10 text-danger border-danger/30'
                           : sig.severity === 'high'
-                          ? 'bg-warn/15 text-warn border-warn/40'
+                          ? 'bg-warn/10 text-warn border-warn/30'
                           : sig.severity === 'medium'
-                          ? 'bg-accent/15 text-accent border-accent/40'
+                          ? 'bg-accent/10 text-accent border-accent/30'
                           : 'bg-ok/10 text-ok border-ok/30';
 
                       return (
                         <div
                           key={sig.id}
-                          className="p-3.5 rounded-xl border border-line bg-surface2 hover:border-accent/40 transition-colors text-xs space-y-1.5"
+                          className="p-3 rounded-lg border border-line bg-surface2 hover:border-line/80 transition-colors text-xs space-y-1"
                         >
                           <div className="flex items-center justify-between gap-2">
-                            <span className="font-bold text-fg text-xs flex items-center gap-1.5">
+                            <span className="font-medium text-fg text-xs flex items-center gap-1.5">
                               {sig.title}
                             </span>
                             <div className="flex items-center gap-1.5">
-                              <span className="text-xs font-mono text-fgMuted">
+                              <span className="text-[11px] font-mono text-fgMuted">
                                 {sig.category}
                               </span>
                               <span
-                                className={`px-2 py-0.5 rounded-full text-xs font-medium border ${badgeBg}`}
+                                className={`px-1.5 py-0.5 rounded text-[10px] font-medium border ${badgeBg}`}
                               >
                                 {sig.severity}
                               </span>
@@ -949,7 +951,7 @@ export const SocialMonitoringView: React.FC = () => {
                             {sig.detail}
                           </p>
                           {sig.mitigatingFactor && (
-                            <div className="mt-1 text-xs text-ok bg-ok/10 px-2.5 py-1 rounded-md border border-ok/30 flex items-center gap-1 font-mono">
+                            <div className="mt-1 text-xs text-ok bg-ok/10 px-2 py-0.5 rounded border border-ok/30 flex items-center gap-1 font-mono">
                               <CheckCircle2 className="w-3 h-3 text-ok shrink-0" />
                               <span>Mitigating Factor: {sig.mitigatingFactor}</span>
                             </div>
@@ -964,8 +966,8 @@ export const SocialMonitoringView: React.FC = () => {
               {/* Evidence For & Against (Dual Columns) */}
               <div className="grid grid-cols-1 md:grid-cols-2 gap-4 text-xs">
                 {/* Supporting Evidence */}
-                <div className="bg-surface p-5 rounded-2xl border border-line space-y-3">
-                  <h5 className="font-bold text-danger flex items-center gap-1.5 border-b border-line pb-2 font-mono">
+                <div className="bg-surface p-4 rounded-xl border border-line space-y-3">
+                  <h5 className="font-semibold text-danger flex items-center gap-1.5 border-b border-line pb-2 font-mono text-xs">
                     <ShieldAlert className="w-4 h-4 text-danger" />
                     Evidence Supporting Threat ({analysisResult.evidenceSupporting.length})
                   </h5>
@@ -986,8 +988,8 @@ export const SocialMonitoringView: React.FC = () => {
                 </div>
 
                 {/* Counter-Evidence & Benign Factors */}
-                <div className="bg-surface p-5 rounded-2xl border border-line space-y-3">
-                  <h5 className="font-bold text-ok flex items-center gap-1.5 border-b border-line pb-2 font-mono">
+                <div className="bg-surface p-4 rounded-xl border border-line space-y-3">
+                  <h5 className="font-semibold text-ok flex items-center gap-1.5 border-b border-line pb-2 font-mono text-xs">
                     <ShieldCheck className="w-4 h-4 text-ok" />
                     Counter-Evidence &amp; Benign Factors ({analysisResult.counterEvidence.length})
                   </h5>
@@ -1009,12 +1011,12 @@ export const SocialMonitoringView: React.FC = () => {
               </div>
 
               {/* Action Buttons Bar */}
-              <div className="bg-surface p-4 rounded-2xl border border-line flex flex-wrap items-center justify-between gap-3">
+              <div className="bg-surface p-3.5 rounded-xl border border-line flex flex-wrap items-center justify-between gap-3">
                 <div className="flex items-center gap-2">
                   <button
                     type="button"
                     onClick={handleCopyReport}
-                    className="px-3.5 py-2 rounded-xl border border-line bg-surface2 hover:bg-surface hover:border-accent/40 text-fg text-xs font-semibold flex items-center gap-1.5 transition-colors cursor-pointer"
+                    className="px-3 py-1.5 rounded-md border border-line bg-surface2 hover:bg-surface3 text-fg text-xs font-medium flex items-center gap-1.5 transition-colors cursor-pointer focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-accent"
                   >
                     {copiedReport ? (
                       <>
@@ -1032,7 +1034,7 @@ export const SocialMonitoringView: React.FC = () => {
                   <button
                     type="button"
                     onClick={handleClear}
-                    className="px-3.5 py-2 rounded-xl border border-line bg-surface2 hover:bg-surface text-fgMuted hover:text-fg text-xs font-semibold transition-colors cursor-pointer"
+                    className="px-3 py-1.5 rounded-md border border-line bg-surface2 hover:bg-surface3 text-fgMuted hover:text-fg text-xs font-medium transition-colors cursor-pointer focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-accent"
                   >
                     Dismiss / Clear
                   </button>
@@ -1040,7 +1042,7 @@ export const SocialMonitoringView: React.FC = () => {
 
                 <div>
                   {createdCandidateId ? (
-                    <div className="flex items-center gap-2 text-xs text-ok font-semibold bg-ok/10 px-3.5 py-2 rounded-xl border border-ok/30">
+                    <div className="flex items-center gap-2 text-xs text-ok font-medium bg-ok/10 px-3 py-1.5 rounded-md border border-ok/30">
                       <CheckCircle2 className="w-4 h-4 text-ok" />
                       <span>Case created in Investigation Center!</span>
                       <button
@@ -1049,7 +1051,7 @@ export const SocialMonitoringView: React.FC = () => {
                           setSelectedCandidateId(createdCandidateId);
                           setActiveTab('investigation-center');
                         }}
-                        className="text-accent underline font-bold hover:text-fg ml-1.5 cursor-pointer"
+                        className="text-accent underline font-semibold hover:text-fg ml-1.5 cursor-pointer"
                       >
                         Open Dossier →
                       </button>
@@ -1058,10 +1060,10 @@ export const SocialMonitoringView: React.FC = () => {
                     <button
                       type="button"
                       onClick={handleSendToInvestigation}
-                      className="px-4 py-2 rounded-xl bg-accent hover:bg-accent/90 text-onAccent text-xs font-bold transition-all flex items-center gap-2 shadow-accent/30 cursor-pointer hover:scale-[1.02] active:scale-95"
+                      className="px-3.5 py-1.5 rounded-md bg-accent hover:bg-accent/90 text-onAccent text-xs font-medium transition-colors flex items-center gap-1.5 cursor-pointer focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-accent"
                     >
                       <span>Escalate to Investigation Center</span>
-                      <ArrowRight className="w-3.5 h-3.5 text-accent" />
+                      <ArrowRight className="w-3.5 h-3.5 text-onAccent" />
                     </button>
                   )}
                 </div>
