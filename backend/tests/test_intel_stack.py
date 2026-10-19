@@ -167,3 +167,18 @@ def test_discover_graph_enrich_report_end_to_end(client, monkeypatch):
 def test_intel_endpoints_require_auth(unauth_client):
     assert unauth_client.post("/api/v1/brands/x/discover").status_code in (401, 403)
     assert unauth_client.post("/api/v1/findings/x/enrich").status_code in (401, 403)
+
+
+def test_campaigns_need_strong_link_or_two_kinds():
+    from backend.app.services.graph_service import build_graph
+    a, b, c = _finding("a", cert="abc"), _finding("b", cert="abc"), _finding("c", a="8.8.4.4", registrar="R")
+    camps = build_graph([a, b, c])["campaigns"]
+    assert len(camps) == 1 and camps[0]["members"] == ["a", "b"] and "cert" in camps[0]["shared_indicator_kinds"]
+
+
+def test_single_weak_overlap_is_not_a_campaign():
+    from backend.app.services.graph_service import build_graph
+    x = _finding("x", a="1.1.1.1", registrar="Same")
+    y = {**_finding("y", a="2.2.2.2", registrar="Same")}
+    y["evidence"][0] = {"id": 9, "evidence_type": "dns_records", "description": kv(a=["2.2.2.2"], asn=["2.2.2.2:AS1/2.2.0.0/16/US"]), "captured_at": "t"}
+    assert build_graph([x, y])["campaigns"] == []

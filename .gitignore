@@ -65,3 +65,9 @@ Thumbs.db
 # Only the empty templates under backend/app/ml/data/annotations/templates/ are tracked.
 backend/app/ml/data/annotations/*.csv
 backend/app/ml/data/annotations/*.json
+
+# Local/agent artifacts and databases
+_to_delete/
+.gsd/
+GSD-STYLE.md
+*.db

@@ -2,44 +2,53 @@
   "trained": true,
   "status": "operational",
   "task": "url_phishing_detection",
-  "model_version": "1.0.0",
+  "model_version": "2.0.0",
   "model_artifact": "url_phishing_pipeline.joblib",
-  "timestamp": "2026-10-19T05:53:29.249851+00:00",
+  "timestamp": "2026-10-19T15:14:02.159617+00:00",
   "random_state": 42,
+  "runtime_versions": {
+    "python": "3.14.2",
+    "scikit-learn": "1.9.1",
+    "joblib": "1.6.0",
+    "numpy": "2.5.4"
+  },
   "dataset_metadata": {
-    "source": "HuggingFace Olaroti/phishing-dataset (AlienVault OTX & Tranco Top Domains)",
-    "license": "MIT",
-    "total_samples": 10000,
-    "train_samples": 7790,
-    "test_samples": 2210,
-    "train_class_distribution": {
-      "0": 3980,
-      "1": 3810
-    },
-    "test_class_distribution": {
-      "1": 1190,
-      "0": 1020
-    },
-    "unique_root_domains": 8012,
-    "domain_overlap": 0
+    "source": "UCI PhiUSIIL + HuggingFace OTX/Tranco, canonical hosts, grouped by registrable domain",
+    "train_hosts": 181107,
+    "removed_roots_shared_with_external_test": 88,
+    "domain_overlap_with_external_test": 0
   },
   "metrics": {
-    "accuracy": 0.9005,
-    "precision": 0.9736,
-    "recall": 0.8378,
-    "f1": 0.9006,
-    "roc_auc": 0.9563,
-    "confusion_matrix": [
-      [
-        993,
-        27
-      ],
-      [
-        193,
-        997
-      ]
-    ]
+    "internal_heldout": {
+      "precision": 0.921,
+      "recall": 0.6978,
+      "f1": 0.794,
+      "fpr": 0.0346,
+      "n_pos": 16014,
+      "n_neg": 27686
+    },
+    "external_openphish_host_level": {
+      "precision": 0.2113,
+      "recall": 0.9449,
+      "f1": 0.3454,
+      "fpr": 0.0346,
+      "n_pos": 272,
+      "n_neg": 27686
+    },
+    "external_openphish_root_level": {
+      "openphish_roots": 88,
+      "candidate_root_recall": 0.8295,
+      "shipped_root_recall": 0.2273
+    },
+    "shipped_v1_on_same_external_test": {
+      "precision": 0.0385,
+      "recall": 0.0809,
+      "f1": 0.0521,
+      "fpr": 0.0199,
+      "n_pos": 272,
+      "n_neg": 27686
+    }
   },
-  "architecture": "TfidfVectorizer(char_wb, (3,5)) + LogisticRegression(balanced)",
-  "scope_boundary": "Model is trained and evaluated strictly for URL and lookalike domain detection. It does NOT claim validation for mobile application package IDs or social media profile mimicry."
+  "architecture": "char 2-5gram TF-IDF + host-shape features + LogisticRegression, sigmoid-calibrated (cv=3), host-only input",
+  "scope_boundary": "Host-only lexical model. ~3.5% false-alarm rate on benign hosts at 0.5; external test is ~88 root domains from one feed. Supporting evidence only; never sets severity."
 }

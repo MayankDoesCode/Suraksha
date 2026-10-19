@@ -629,10 +629,6 @@ export const AuthView: React.FC<AuthViewProps> = ({ onNavigateHome, initialMode 
             <span className="h-1.5 w-1.5 rounded-full bg-ok" />
             TLS 1.3 Encrypted
           </span>
-          <span className="text-line">·</span>
-          <span>SOC-2 Certified Ops</span>
-          <span className="text-line">·</span>
-          <span>Zero-Knowledge Architecture</span>
         </div>
       </footer>
     </div>

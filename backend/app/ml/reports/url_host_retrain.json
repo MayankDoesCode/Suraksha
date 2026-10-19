@@ -1,0 +1,40 @@
+{
+  "root_level": {
+    "openphish_roots": 88,
+    "candidate_root_recall": 0.8295,
+    "shipped_root_recall": 0.2273
+  },
+  "removed_from_training_roots": 88,
+  "chosen": {
+    "C": 3,
+    "class_weight": "balanced"
+  },
+  "train_hosts": 181107,
+  "external_test": {
+    "candidate": {
+      "precision": 0.2113,
+      "recall": 0.9449,
+      "f1": 0.3454,
+      "fpr": 0.0346,
+      "n_pos": 272,
+      "n_neg": 27686
+    },
+    "shipped": {
+      "precision": 0.0385,
+      "recall": 0.0809,
+      "f1": 0.0521,
+      "fpr": 0.0199,
+      "n_pos": 272,
+      "n_neg": 27686
+    }
+  },
+  "internal_heldout_candidate": {
+    "precision": 0.921,
+    "recall": 0.6978,
+    "f1": 0.794,
+    "fpr": 0.0346,
+    "n_pos": 16014,
+    "n_neg": 27686
+  },
+  "candidate_beats_shipped": true
+}

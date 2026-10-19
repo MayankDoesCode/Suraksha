@@ -8,6 +8,7 @@ changed since the report was drafted.
 """
 
 import hashlib
+import os
 import json
 from datetime import datetime, timezone
 from typing import Any, Dict, List, Optional
@@ -128,3 +129,94 @@ def build_report(finding: Dict[str, Any], brand_name: str, audience: str, analys
         "sent": False,
         "generated_at": now,
     }
+
+
+# ------------------------------------------------------------------------------------------ takedown notices
+NOTICES = {"registrar": "Domain registrar", "host": "Hosting provider", "trademark": "Trademark / impersonation notice"}
+
+
+def _jinja():
+    from jinja2 import Environment, FileSystemLoader, StrictUndefined
+    return Environment(loader=FileSystemLoader(os.path.join(os.path.dirname(__file__), "..", "templates")), undefined=StrictUndefined, autoescape=False, keep_trailing_newline=True)
+
+
+def render_takedown(finding: Dict[str, Any], brand_name: str, notice: str, abuse_email: Optional[str], analyst: Optional[str] = None) -> Dict[str, Any]:
+    if notice not in NOTICES:
+        raise ValidationError("Unknown notice type.", details=[{"field": "notice", "message": "Use one of: " + ", ".join(sorted(NOTICES))}])
+    if finding.get("asset_type") != "domain":
+        raise ValidationError("Takedown notices are generated for domain findings only.", details=[{"field": "asset_type", "message": "Finding is a " + str(finding.get("asset_type")) + "."}])
+    evidence = [e for e in finding.get("evidence", []) if e.get("evidence_type") != "analyst_triage_audit"]
+    infra = _infra(evidence)
+    keys = [("IP addresses", "dns_records.a"), ("Name servers", "dns_records.ns"), ("Registrar", "whois_registration.registrar"),
+            ("Registered", "whois_registration.registered_at"), ("Certificate SHA-256", "tls_certificate.sha256")]
+    indicators = [label + ": " + infra[k] for label, k in keys if infra.get(k)]
+    to = abuse_email or "[abuse contact not found in RDAP: look up the registrar or network abuse address]"
+    ctx = {
+        "subject": "Brand impersonation: " + str(finding.get("candidate_name")), "to": to,
+        "recipient": {"registrar": infra.get("whois_registration.registrar") or "Abuse Team", "host": "Abuse Team", "trademark": "Trust & Safety Team"}[notice],
+        "target": finding.get("candidate_name"), "source_url": finding.get("source_url"), "brand": brand_name,
+        "severity": finding.get("severity", "UNKNOWN"), "score": finding.get("final_risk_score", finding.get("risk_score", 0)),
+        "first_seen": finding.get("observed_at") or finding.get("created_at") or "not recorded", "indicators": indicators,
+        "reasons": [x.get("explanation") for x in finding.get("signals", [])], "manifest": manifest_hash(evidence), "evidence_count": len(evidence),
+        "analyst_line": ("Submitting analyst: " + analyst) if analyst else "Submitting analyst: [to be completed]",
+    }
+    text = _jinja().get_template("takedown/" + notice + ".j2").render(**ctx)
+    return {"notice": notice, "label": NOTICES[notice], "to": to, "abuse_contact_source": "rdap" if abuse_email else "not found",
+            "subject": ctx["subject"], "text": text, "manifest_sha256": ctx["manifest"], "sent": False}
+
+
+def to_eml(notice: Dict[str, Any]) -> bytes:
+    from email.message import EmailMessage
+    m = EmailMessage()
+    m["Subject"] = notice["subject"]
+    m["To"] = notice["to"] if ("@" in notice["to"] and "[" not in notice["to"]) else "undisclosed-recipients:;"
+    m["X-Suraksha-Draft"] = "not-sent; analyst verification required"
+    m.set_content(notice["text"])
+    return bytes(m)
+
+
+def to_pdf(text: str) -> bytes:
+    """Dependency-free text PDF (Helvetica, Latin-1)."""
+    import textwrap
+
+    def esc(t):
+        return t.encode("latin-1", "replace").decode("latin-1").replace("\\", "\\\\").replace("(", "\\(").replace(")", "\\)")
+
+    lines: List[str] = []
+    for raw in text.splitlines():
+        lines += textwrap.wrap(raw, 92) or [""]
+    pages = [lines[i:i + 52] for i in range(0, len(lines), 52)] or [[]]
+    objs: List[bytes] = [b"<< /Type /Catalog /Pages 2 0 R >>", b"", b"<< /Type /Font /Subtype /Type1 /BaseFont /Helvetica >>"]
+    kids = []
+    for pg in pages:
+        stream = "BT /F1 10 Tf 50 800 Td 14 TL\n" + "\n".join("(" + esc(l) + ") Tj T*" for l in pg) + "\nET"
+        sb = stream.encode("latin-1")
+        objs.append(b"<< /Length " + str(len(sb)).encode() + b" >>\nstream\n" + sb + b"\nendstream")
+        cid = len(objs)
+        objs.append(("<< /Type /Page /Parent 2 0 R /MediaBox [0 0 595 842] /Contents %d 0 R /Resources << /Font << /F1 3 0 R >> >> >>" % cid).encode())
+        kids.append("%d 0 R" % len(objs))
+    objs[1] = ("<< /Type /Pages /Kids [%s] /Count %d >>" % (" ".join(kids), len(kids))).encode()
+    out, offs = bytearray(b"%PDF-1.4\n"), []
+    for i, o in enumerate(objs, 1):
+        offs.append(len(out))
+        out += ("%d 0 obj\n" % i).encode() + o + b"\nendobj\n"
+    xref = len(out)
+    out += ("xref\n0 %d\n0000000000 65535 f \n" % (len(objs) + 1)).encode() + b"".join(("%010d 00000 n \n" % o).encode() for o in offs)
+    out += ("trailer\n<< /Size %d /Root 1 0 R >>\nstartxref\n%d\n%%%%EOF\n" % (len(objs) + 1, xref)).encode()
+    return bytes(out)
+
+
+def generate_takedown(finding_id: str, notice: str = "registrar", analyst: Optional[str] = None, repo=None, rdap_fetch=None) -> Dict[str, Any]:
+    """Draft a takedown notice for a domain finding using the RDAP abuse contact. Never sent."""
+    from backend.app.intel import rdap as rdap_mod
+    from backend.app.repositories.threat_repository import ThreatRepository
+    from backend.app.utils.errors import NotFoundError
+    finding = (repo or ThreatRepository()).get_by_id(finding_id)
+    if not finding:
+        raise NotFoundError("Finding with ID '" + finding_id + "' not found.")
+    data = finding.to_dict(include_relations=True)
+    rec = (rdap_fetch or rdap_mod.fetch_rdap)(finding.candidate_name) if finding.asset_type == "domain" else None
+    n = render_takedown(data, finding.brand.name if finding.brand else "the brand", notice, getattr(rec, "abuse_email", None), analyst)
+    n["finding_id"] = finding_id
+    n["rdap_error"] = getattr(rec, "error", None)
+    return n

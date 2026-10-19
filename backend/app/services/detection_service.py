@@ -5,6 +5,7 @@ from backend.app.repositories.brand_repository import BrandRepository
 from backend.app.repositories.threat_repository import ThreatRepository
 from backend.app.detection.social_detector import SocialDetector
 from backend.app.detection.app_detector import AppDetector
+from backend.app.detection.combined import combine
 from backend.app.detection.domain_detector import DomainDetector
 from backend.app.ai.risk_classifier import risk_classifier as default_risk_classifier, RiskClassifier
 from backend.app.ml import get_ml_service
@@ -405,6 +406,13 @@ class DetectionService:
             "ml_model_version": ml_version,
             "ml_fallback_used": ml_fallback_used,
             "ml_fused_into_score": bool(ml_fused_into_score and not ml_fallback_used and ml_risk_score is not None),
+            "combined": combine(
+                rule_score,
+                url_model_probability=(ml_risk_score / 100.0) if (asset_type_normalized == "domain" and ml_risk_score is not None and not ml_fallback_used) else None,
+                domain_age_days=candidate_data.get("domain_age_days"),
+                tls=candidate_data.get("tls"),
+                page_similarity=candidate_data.get("page_similarity"),
+            ),
             "severity": final_severity,
             "signals": [
                 {

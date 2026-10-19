@@ -106,6 +106,15 @@ class MonitoringScheduler(BaseScheduler):
         finally:
             brand_lock.release()
 
+    def start_ct_stream(self) -> bool:
+        """Start the CT feed (replay mode). Returns False if already running."""
+        from backend.app.intel.ct_stream import get_stream
+        return get_stream().start()
+
+    def stop_ct_stream(self) -> None:
+        from backend.app.intel.ct_stream import get_stream
+        get_stream().stop()
+
     def get_job_status(self, job_id: str) -> Dict[str, Any]:
         """Return execution state, retry count, and last run timestamp."""
         with self._lock:

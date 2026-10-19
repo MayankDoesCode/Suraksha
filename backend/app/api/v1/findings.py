@@ -584,3 +584,24 @@ def finding_report(finding_id: str):
     brand_name = finding.brand.name if finding.brand else "the brand"
     report = build_report(data, brand_name, request.args.get("audience", "registrar"), analyst=user_info.get("email") or user_info.get("uid"))
     return jsonify({"success": True, "data": report}), 200
+
+
+@findings_bp.route("/findings/<string:finding_id>/takedown", methods=["POST"])
+@require_auth(allowed_roles=["admin", "lead", "analyst"])
+@limiter.limit(lambda: current_app.config.get("RATELIMIT_DISCOVER", "3 per minute"))
+def finding_takedown(finding_id: str):
+    """Draft a takedown notice (registrar/host/trademark). Body: {notice, format: json|eml|pdf}. Never sends."""
+    import base64
+    from flask import Response
+    from backend.app.services import report_service as rs
+    _, user_info = _owned_finding(finding_id)
+    body = request.get_json(silent=True) or {}
+    n = rs.generate_takedown(finding_id, body.get("notice", "registrar"), analyst=user_info.get("email") or user_info.get("uid"))
+    fmt = body.get("format", "json")
+    if fmt == "eml":
+        return Response(rs.to_eml(n), mimetype="message/rfc822", headers={"Content-Disposition": "attachment; filename=takedown-" + finding_id + ".eml"})
+    if fmt == "pdf":
+        return Response(rs.to_pdf(n["text"]), mimetype="application/pdf", headers={"Content-Disposition": "attachment; filename=takedown-" + finding_id + ".pdf"})
+    n["eml_base64"] = base64.b64encode(rs.to_eml(n)).decode()
+    n["pdf_base64"] = base64.b64encode(rs.to_pdf(n["text"])).decode()
+    return jsonify({"success": True, "data": n}), 200

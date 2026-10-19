@@ -1,0 +1,25 @@
+Subject: {{ subject }}
+To: {{ to }}
+
+Dear {{ recipient }},
+
+{% block body %}{% endblock %}
+
+Details
+-------
+Reported name: {{ target }}{% if source_url %} ({{ source_url }}){% endif %}
+
+Brand owner: {{ brand }}
+Assessed severity: {{ severity }} (rule-based score {{ score }}/100)
+First recorded: {{ first_seen }}
+{% for line in indicators %}{{ line }}
+{% endfor %}
+Why we believe this is impersonation
+------------------------------------
+{% for s in reasons %}- {{ s }}
+{% else %}- No rule signal is recorded.
+{% endfor %}
+Evidence integrity: SHA-256 of the evidence manifest = {{ manifest }} ({{ evidence_count }} records).
+
+{{ analyst_line }}
+This notice was drafted by SURAKSHA and has NOT been sent. It must be verified by a named analyst before submission.

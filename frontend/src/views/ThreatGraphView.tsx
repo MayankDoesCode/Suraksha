@@ -2,6 +2,7 @@ import React, { useMemo, useState } from 'react';
 import { ArrowRight, Network, ZoomIn, ZoomOut } from 'lucide-react';
 import { useApp } from '../context/AppContext';
 import { deriveThreatGraph, type GraphEdge, type GraphNode } from '../utils/threatGraph';
+import { CampaignsPanel } from '../components/CampaignsPanel';
 import { RiskBadge } from '../components/RiskBadge';
 import { StatusBadge } from '../components/StatusBadge';
 
@@ -20,7 +21,7 @@ const Basis: React.FC<{ basis: GraphEdge['basis']; strength?: number }> = ({ bas
 );
 
 export const ThreatGraphView: React.FC = () => {
-  const { candidates, brandProfile, setSelectedCandidateId, setActiveTab } = useApp();
+  const { candidates, brandProfile, setSelectedCandidateId, setActiveTab, isDemoMode, backendOnline, selectedBackendBrandId } = useApp();
 
   const [showInferred, setShowInferred] = useState(true);
   const [includeDismissed, setIncludeDismissed] = useState(false);
@@ -238,6 +239,7 @@ export const ThreatGraphView: React.FC = () => {
         Links are recomputed from the current findings each time and are not stored. The “recorded against brand” links are shown faintly because every finding has one.
         An inferred link is a lead for an analyst to check, not evidence.
       </p>
+      {!isDemoMode && backendOnline && selectedBackendBrandId && <CampaignsPanel brandId={selectedBackendBrandId} onOpen={(id) => { setSelectedCandidateId(id); setActiveTab('investigation-center'); }} />}
     </div>
   );
 };

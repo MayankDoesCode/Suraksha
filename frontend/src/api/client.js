@@ -173,6 +173,9 @@ class ApiClient {
   async getFindingReport(findingId, audience) {
     return this.request(`/findings/${encodeURIComponent(findingId)}/report?audience=${encodeURIComponent(audience)}`);
   }
+  async createTakedown(findingId, notice) {
+    return this.request(`/findings/${encodeURIComponent(findingId)}/takedown`, { method: 'POST', body: JSON.stringify({ notice }) });
+  }
   async getBrandGraph(brandId) {
     return this.request(`/brands/${encodeURIComponent(brandId)}/graph`);
   }

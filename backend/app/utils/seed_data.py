@@ -18,6 +18,25 @@ from backend.app.database import init_db, get_db
 from backend.app.models.brand import Brand, BrandDomain, BrandSocialHandle, BrandAppIdentifier, BrandPublisher
 from backend.app.services.detection_service import DetectionService
 
+INDIAN_BRANDS = [
+    ("State Bank of India", "sbi.co.in"), ("HDFC Bank", "hdfcbank.com"), ("ICICI Bank", "icicibank.com"),
+    ("Paytm", "paytm.com"), ("PhonePe", "phonepe.com"), ("IRCTC", "irctc.co.in"),
+]
+
+
+def seed_indian_brands(db):
+    """Idempotently add brand profiles with their public primary domain (no handles or app ids are invented)."""
+    for name, domain in INDIAN_BRANDS:
+        if db.query(Brand).filter(Brand.name == name).first():
+            continue
+        b = Brand(name=name, description=f"{name} (seeded profile; verify assets before relying on it).")
+        db.add(b)
+        db.commit()
+        db.refresh(b)
+        db.add(BrandDomain(brand_id=b.id, domain=domain, is_primary=True))
+        db.commit()
+
+
 def seed_demo_data():
     database_url = os.getenv("DATABASE_URL", "sqlite:///sentinelshield.db")
     init_db(database_url)
@@ -60,6 +79,8 @@ def seed_demo_data():
     else:
         brand = existing_brand
         print(f"[*] Found existing demo brand '{brand.name}'.")
+
+    seed_indian_brands(db)
 
     # Evaluate realistic sample candidates using the Detection Engine
     detection_service = DetectionService()

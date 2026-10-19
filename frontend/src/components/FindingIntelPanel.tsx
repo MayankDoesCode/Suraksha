@@ -12,6 +12,16 @@ export const FindingIntelPanel: React.FC<{ findingId: string; assetType: string;
   const [err, setErr] = useState<string | null>(null);
   const [busy, setBusy] = useState(false);
   const [report, setReport] = useState<{ body_markdown: string; manifest_sha256: string } | null>(null);
+  const [take, setTake] = useState<{ to: string; source: string; eml: string; pdf: string; name: string } | null>(null);
+  const takedown = async (notice: string) => {
+    setBusy(true); setErr(null);
+    try {
+      const d = (await api.createTakedown(findingId, notice)).data;
+      setReport({ body_markdown: d.text, manifest_sha256: d.manifest_sha256 });
+      setTake({ to: d.to, source: d.abuse_contact_source, eml: d.eml_base64, pdf: d.pdf_base64, name: `takedown-${notice}` });
+    } catch (e: any) { setErr(e?.message || 'Could not draft the takedown notice.'); } finally { setBusy(false); }
+  };
+  const href = (b64: string, type: string) => `data:${type};base64,${b64}`;
   const audiences = AUDIENCES[assetType] || [];
 
   const enrich = async () => {
@@ -32,10 +42,12 @@ export const FindingIntelPanel: React.FC<{ findingId: string; assetType: string;
       <div className="flex flex-wrap items-center gap-2">
         <span className="mr-2 text-xs font-medium text-fgSubtle">Actions</span>
         {assetType === 'domain' && <button onClick={enrich} disabled={busy} className="rounded-md border border-line px-2.5 py-1 text-fg hover:bg-surface3 disabled:opacity-40">Look up DNS, registration and certificate</button>}
+        {assetType === 'domain' && ['registrar', 'host', 'trademark'].map((n) => <button key={n} onClick={() => takedown(n)} disabled={busy} className="rounded-md border border-line px-2.5 py-1 text-fg hover:bg-surface3 disabled:opacity-40">Takedown: {n}</button>)}
         {audiences.map((a) => <button key={a.id} onClick={() => draft(a.id)} disabled={busy} className="rounded-md border border-line px-2.5 py-1 text-fg hover:bg-surface3 disabled:opacity-40">Draft report: {a.label}</button>)}
       </div>
       {msg && <p className="mt-2 text-xs text-fgMuted" aria-live="polite">{msg}</p>}
       {err && <p role="alert" className="mt-2 text-xs text-danger">{err}</p>}
+      {take && <p className="mt-2 text-xs text-fgMuted">Send to: {take.to} ({take.source === 'rdap' ? 'from the RDAP record' : 'abuse contact not found; look it up'}). <a className="text-accent underline" download={`${take.name}.eml`} href={href(take.eml, 'message/rfc822')}>Download .eml</a> · <a className="text-accent underline" download={`${take.name}.pdf`} href={href(take.pdf, 'application/pdf')}>Download PDF</a></p>}
       {report && (
         <div className="mt-3">
           <textarea readOnly value={report.body_markdown} rows={12} className="w-full rounded-md border border-line bg-surface px-3 py-2 font-mono text-xs" />

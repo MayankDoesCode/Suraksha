@@ -1,0 +1,1406 @@
+{
+ "synthetic_stub": true,
+ "note": "Synthetic. Regression check only; not a real-world accuracy estimate.",
+ "items": [
+  {
+   "name": "login-sbi.com",
+   "brand": "State Bank of India",
+   "brand_domain": "sbi.co.in",
+   "label": 1,
+   "technique": "combo"
+  },
+  {
+   "name": "pay-sbi.com",
+   "brand": "State Bank of India",
+   "brand_domain": "sbi.co.in",
+   "label": 1,
+   "technique": "combo"
+  },
+  {
+   "name": "support-sbi.co.in",
+   "brand": "State Bank of India",
+   "brand_domain": "sbi.co.in",
+   "label": 1,
+   "technique": "combo"
+  },
+  {
+   "name": "sbji.co.in",
+   "brand": "State Bank of India",
+   "brand_domain": "sbi.co.in",
+   "label": 1,
+   "technique": "insertion"
+  },
+  {
+   "name": "sfi.co.in",
+   "brand": "State Bank of India",
+   "brand_domain": "sbi.co.in",
+   "label": 1,
+   "technique": "bitsquat"
+  },
+  {
+   "name": "asbi.co.in",
+   "brand": "State Bank of India",
+   "brand_domain": "sbi.co.in",
+   "label": 1,
+   "technique": "insertion"
+  },
+  {
+   "name": "sbisecure.co.in",
+   "brand": "State Bank of India",
+   "brand_domain": "sbi.co.in",
+   "label": 1,
+   "technique": "combo"
+  },
+  {
+   "name": "sbi-wallet.com",
+   "brand": "State Bank of India",
+   "brand_domain": "sbi.co.in",
+   "label": 1,
+   "technique": "combo"
+  },
+  {
+   "name": "wsbi.co.in",
+   "brand": "State Bank of India",
+   "brand_domain": "sbi.co.in",
+   "label": 1,
+   "technique": "insertion"
+  },
+  {
+   "name": "sbiwallet.co.in",
+   "brand": "State Bank of India",
+   "brand_domain": "sbi.co.in",
+   "label": 1,
+   "technique": "combo"
+  },
+  {
+   "name": "account-sbi.com",
+   "brand": "State Bank of India",
+   "brand_domain": "sbi.co.in",
+   "label": 1,
+   "technique": "combo"
+  },
+  {
+   "name": "sbi-help.co.in",
+   "brand": "State Bank of India",
+   "brand_domain": "sbi.co.in",
+   "label": 1,
+   "technique": "combo"
+  },
+  {
+   "name": "sbki.co.in",
+   "brand": "State Bank of India",
+   "brand_domain": "sbi.co.in",
+   "label": 1,
+   "technique": "insertion"
+  },
+  {
+   "name": "sbi-secure.com",
+   "brand": "State Bank of India",
+   "brand_domain": "sbi.co.in",
+   "label": 1,
+   "technique": "combo"
+  },
+  {
+   "name": "sbi-pay.co.in",
+   "brand": "State Bank of India",
+   "brand_domain": "sbi.co.in",
+   "label": 1,
+   "technique": "combo"
+  },
+  {
+   "name": "wallet-sbi.co.in",
+   "brand": "State Bank of India",
+   "brand_domain": "sbi.co.in",
+   "label": 1,
+   "technique": "combo"
+  },
+  {
+   "name": "qbi.co.in",
+   "brand": "State Bank of India",
+   "brand_domain": "sbi.co.in",
+   "label": 1,
+   "technique": "bitsquat"
+  },
+  {
+   "name": "login-hdfcbank.com",
+   "brand": "HDFC Bank",
+   "brand_domain": "hdfcbank.com",
+   "label": 1,
+   "technique": "combo"
+  },
+  {
+   "name": "refund-hdfcbank.com",
+   "brand": "HDFC Bank",
+   "brand_domain": "hdfcbank.com",
+   "label": 1,
+   "technique": "combo"
+  },
+  {
+   "name": "hdfcbgank.com",
+   "brand": "HDFC Bank",
+   "brand_domain": "hdfcbank.com",
+   "label": 1,
+   "technique": "insertion"
+  },
+  {
+   "name": "hdfcbank.biz",
+   "brand": "HDFC Bank",
+   "brand_domain": "hdfcbank.com",
+   "label": 1,
+   "technique": "tld-swap"
+  },
+  {
+   "name": "hdfcbhank.com",
+   "brand": "HDFC Bank",
+   "brand_domain": "hdfcbank.com",
+   "label": 1,
+   "technique": "insertion"
+  },
+  {
+   "name": "hdfcbanko.com",
+   "brand": "HDFC Bank",
+   "brand_domain": "hdfcbank.com",
+   "label": 1,
+   "technique": "insertion"
+  },
+  {
+   "name": "hdfcbwnk.com",
+   "brand": "HDFC Bank",
+   "brand_domain": "hdfcbank.com",
+   "label": 1,
+   "technique": "replacement"
+  },
+  {
+   "name": "hdfcabnk.com",
+   "brand": "HDFC Bank",
+   "brand_domain": "hdfcbank.com",
+   "label": 1,
+   "technique": "transposition"
+  },
+  {
+   "name": "hhdfcbank.com",
+   "brand": "HDFC Bank",
+   "brand_domain": "hdfcbank.com",
+   "label": 1,
+   "technique": "repetition"
+  },
+  {
+   "name": "hdfcbanksupport.com",
+   "brand": "HDFC Bank",
+   "brand_domain": "hdfcbank.com",
+   "label": 1,
+   "technique": "combo"
+  },
+  {
+   "name": "hdfcnbank.com",
+   "brand": "HDFC Bank",
+   "brand_domain": "hdfcbank.com",
+   "label": 1,
+   "technique": "insertion"
+  },
+  {
+   "name": "hdfcbnank.com",
+   "brand": "HDFC Bank",
+   "brand_domain": "hdfcbank.com",
+   "label": 1,
+   "technique": "insertion"
+  },
+  {
+   "name": "hrfcbank.com",
+   "brand": "HDFC Bank",
+   "brand_domain": "hdfcbank.com",
+   "label": 1,
+   "technique": "replacement"
+  },
+  {
+   "name": "hdvfcbank.com",
+   "brand": "HDFC Bank",
+   "brand_domain": "hdfcbank.com",
+   "label": 1,
+   "technique": "insertion"
+  },
+  {
+   "name": "hdfcbanjk.com",
+   "brand": "HDFC Bank",
+   "brand_domain": "hdfcbank.com",
+   "label": 1,
+   "technique": "insertion"
+  },
+  {
+   "name": "hdfcbannk.com",
+   "brand": "HDFC Bank",
+   "brand_domain": "hdfcbank.com",
+   "label": 1,
+   "technique": "repetition"
+  },
+  {
+   "name": "hdfcbanki.com",
+   "brand": "HDFC Bank",
+   "brand_domain": "hdfcbank.com",
+   "label": 1,
+   "technique": "insertion"
+  },
+  {
+   "name": "xn--iciibank-hch.com",
+   "brand": "ICICI Bank",
+   "brand_domain": "icicibank.com",
+   "label": 1,
+   "technique": "homoglyph-idn"
+  },
+  {
+   "name": "icicibanki.com",
+   "brand": "ICICI Bank",
+   "brand_domain": "icicibank.com",
+   "label": 1,
+   "technique": "insertion"
+  },
+  {
+   "name": "icicifank.com",
+   "brand": "ICICI Bank",
+   "brand_domain": "icicibank.com",
+   "label": 1,
+   "technique": "bitsquat"
+  },
+  {
+   "name": "icidcibank.com",
+   "brand": "ICICI Bank",
+   "brand_domain": "icicibank.com",
+   "label": 1,
+   "technique": "insertion"
+  },
+  {
+   "name": "iciciba-nk.com",
+   "brand": "ICICI Bank",
+   "brand_domain": "icicibank.com",
+   "label": 1,
+   "technique": "hyphenation"
+  },
+  {
+   "name": "app-icicibank.com",
+   "brand": "ICICI Bank",
+   "brand_domain": "icicibank.com",
+   "label": 1,
+   "technique": "combo"
+  },
+  {
+   "name": "icicibvank.com",
+   "brand": "ICICI Bank",
+   "brand_domain": "icicibank.com",
+   "label": 1,
+   "technique": "insertion"
+  },
+  {
+   "name": "ibicibank.com",
+   "brand": "ICICI Bank",
+   "brand_domain": "icicibank.com",
+   "label": 1,
+   "technique": "bitsquat"
+  },
+  {
+   "name": "icicibannk.com",
+   "brand": "ICICI Bank",
+   "brand_domain": "icicibank.com",
+   "label": 1,
+   "technique": "repetition"
+  },
+  {
+   "name": "icicibak.com",
+   "brand": "ICICI Bank",
+   "brand_domain": "icicibank.com",
+   "label": 1,
+   "technique": "omission"
+  },
+  {
+   "name": "secure-icicibank.com",
+   "brand": "ICICI Bank",
+   "brand_domain": "icicibank.com",
+   "label": 1,
+   "technique": "combo"
+  },
+  {
+   "name": "cicibank.com",
+   "brand": "ICICI Bank",
+   "brand_domain": "icicibank.com",
+   "label": 1,
+   "technique": "omission"
+  },
+  {
+   "name": "icicibank-verify.com",
+   "brand": "ICICI Bank",
+   "brand_domain": "icicibank.com",
+   "label": 1,
+   "technique": "combo"
+  },
+  {
+   "name": "care-icicibank.com",
+   "brand": "ICICI Bank",
+   "brand_domain": "icicibank.com",
+   "label": 1,
+   "technique": "combo"
+  },
+  {
+   "name": "icicibnak.com",
+   "brand": "ICICI Bank",
+   "brand_domain": "icicibank.com",
+   "label": 1,
+   "technique": "transposition"
+  },
+  {
+   "name": "icocibank.com",
+   "brand": "ICICI Bank",
+   "brand_domain": "icicibank.com",
+   "label": 1,
+   "technique": "replacement"
+  },
+  {
+   "name": "icicibankverify.com",
+   "brand": "ICICI Bank",
+   "brand_domain": "icicibank.com",
+   "label": 1,
+   "technique": "combo"
+  },
+  {
+   "name": "oaytm.com",
+   "brand": "Paytm",
+   "brand_domain": "paytm.com",
+   "label": 1,
+   "technique": "replacement"
+  },
+  {
+   "name": "pwytm.com",
+   "brand": "Paytm",
+   "brand_domain": "paytm.com",
+   "label": 1,
+   "technique": "replacement"
+  },
+  {
+   "name": "paytm-care.com",
+   "brand": "Paytm",
+   "brand_domain": "paytm.com",
+   "label": 1,
+   "technique": "combo"
+  },
+  {
+   "name": "paytm-account.com",
+   "brand": "Paytm",
+   "brand_domain": "paytm.com",
+   "label": 1,
+   "technique": "combo"
+  },
+  {
+   "name": "paytmj.com",
+   "brand": "Paytm",
+   "brand_domain": "paytm.com",
+   "label": 1,
+   "technique": "insertion"
+  },
+  {
+   "name": "payytm.com",
+   "brand": "Paytm",
+   "brand_domain": "paytm.com",
+   "label": 1,
+   "technique": "repetition"
+  },
+  {
+   "name": "paytgm.com",
+   "brand": "Paytm",
+   "brand_domain": "paytm.com",
+   "label": 1,
+   "technique": "insertion"
+  },
+  {
+   "name": "paytm.net",
+   "brand": "Paytm",
+   "brand_domain": "paytm.com",
+   "label": 1,
+   "technique": "tld-swap"
+  },
+  {
+   "name": "pautm.com",
+   "brand": "Paytm",
+   "brand_domain": "paytm.com",
+   "label": 1,
+   "technique": "replacement"
+  },
+  {
+   "name": "paytm-help.com",
+   "brand": "Paytm",
+   "brand_domain": "paytm.com",
+   "label": 1,
+   "technique": "combo"
+  },
+  {
+   "name": "paytm-official.com",
+   "brand": "Paytm",
+   "brand_domain": "paytm.com",
+   "label": 1,
+   "technique": "combo"
+  },
+  {
+   "name": "paytmn.com",
+   "brand": "Paytm",
+   "brand_domain": "paytm.com",
+   "label": 1,
+   "technique": "insertion"
+  },
+  {
+   "name": "paym.com",
+   "brand": "Paytm",
+   "brand_domain": "paytm.com",
+   "label": 1,
+   "technique": "omission"
+  },
+  {
+   "name": "paytrm.com",
+   "brand": "Paytm",
+   "brand_domain": "paytm.com",
+   "label": 1,
+   "technique": "insertion"
+  },
+  {
+   "name": "payt.com",
+   "brand": "Paytm",
+   "brand_domain": "paytm.com",
+   "label": 1,
+   "technique": "omission"
+  },
+  {
+   "name": "patym.com",
+   "brand": "Paytm",
+   "brand_domain": "paytm.com",
+   "label": 1,
+   "technique": "transposition"
+  },
+  {
+   "name": "paytm.club",
+   "brand": "Paytm",
+   "brand_domain": "paytm.com",
+   "label": 1,
+   "technique": "tld-swap"
+  },
+  {
+   "name": "phonepeofficial.com",
+   "brand": "PhonePe",
+   "brand_domain": "phonepe.com",
+   "label": 1,
+   "technique": "combo"
+  },
+  {
+   "name": "phonepe.top",
+   "brand": "PhonePe",
+   "brand_domain": "phonepe.com",
+   "label": 1,
+   "technique": "tld-swap"
+  },
+  {
+   "name": "plhonepe.com",
+   "brand": "PhonePe",
+   "brand_domain": "phonepe.com",
+   "label": 1,
+   "technique": "insertion"
+  },
+  {
+   "name": "phmnepe.com",
+   "brand": "PhonePe",
+   "brand_domain": "phonepe.com",
+   "label": 1,
+   "technique": "bitsquat"
+  },
+  {
+   "name": "pbonepe.com",
+   "brand": "PhonePe",
+   "brand_domain": "phonepe.com",
+   "label": 1,
+   "technique": "replacement"
+  },
+  {
+   "name": "phkonepe.com",
+   "brand": "PhonePe",
+   "brand_domain": "phonepe.com",
+   "label": 1,
+   "technique": "insertion"
+  },
+  {
+   "name": "phonsepe.com",
+   "brand": "PhonePe",
+   "brand_domain": "phonepe.com",
+   "label": 1,
+   "technique": "insertion"
+  },
+  {
+   "name": "phonepecare.com",
+   "brand": "PhonePe",
+   "brand_domain": "phonepe.com",
+   "label": 1,
+   "technique": "combo"
+  },
+  {
+   "name": "xn--honepe-9qf.com",
+   "brand": "PhonePe",
+   "brand_domain": "phonepe.com",
+   "label": 1,
+   "technique": "homoglyph-idn"
+  },
+  {
+   "name": "xn--phonep-8of.com",
+   "brand": "PhonePe",
+   "brand_domain": "phonepe.com",
+   "label": 1,
+   "technique": "homoglyph-idn"
+  },
+  {
+   "name": "ophonepe.com",
+   "brand": "PhonePe",
+   "brand_domain": "phonepe.com",
+   "label": 1,
+   "technique": "insertion"
+  },
+  {
+   "name": "phunepe.com",
+   "brand": "PhonePe",
+   "brand_domain": "phonepe.com",
+   "label": 1,
+   "technique": "vowel-swap"
+  },
+  {
+   "name": "phojepe.com",
+   "brand": "PhonePe",
+   "brand_domain": "phonepe.com",
+   "label": 1,
+   "technique": "replacement"
+  },
+  {
+   "name": "phonexe.com",
+   "brand": "PhonePe",
+   "brand_domain": "phonepe.com",
+   "label": 1,
+   "technique": "bitsquat"
+  },
+  {
+   "name": "phonepw.com",
+   "brand": "PhonePe",
+   "brand_domain": "phonepe.com",
+   "label": 1,
+   "technique": "replacement"
+  },
+  {
+   "name": "hponepe.com",
+   "brand": "PhonePe",
+   "brand_domain": "phonepe.com",
+   "label": 1,
+   "technique": "transposition"
+  },
+  {
+   "name": "plonepe.com",
+   "brand": "PhonePe",
+   "brand_domain": "phonepe.com",
+   "label": 1,
+   "technique": "bitsquat"
+  },
+  {
+   "name": "account-irctc.co.in",
+   "brand": "IRCTC",
+   "brand_domain": "irctc.co.in",
+   "label": 1,
+   "technique": "combo"
+  },
+  {
+   "name": "ircvc.co.in",
+   "brand": "IRCTC",
+   "brand_domain": "irctc.co.in",
+   "label": 1,
+   "technique": "bitsquat"
+  },
+  {
+   "name": "official-irctc.com",
+   "brand": "IRCTC",
+   "brand_domain": "irctc.co.in",
+   "label": 1,
+   "technique": "combo"
+  },
+  {
+   "name": "irctc-official.com",
+   "brand": "IRCTC",
+   "brand_domain": "irctc.co.in",
+   "label": 1,
+   "technique": "combo"
+  },
+  {
+   "name": "orctc.co.in",
+   "brand": "IRCTC",
+   "brand_domain": "irctc.co.in",
+   "label": 1,
+   "technique": "replacement"
+  },
+  {
+   "name": "xn--irtc-m6d.co.in",
+   "brand": "IRCTC",
+   "brand_domain": "irctc.co.in",
+   "label": 1,
+   "technique": "homoglyph-idn"
+  },
+  {
+   "name": "mrctc.co.in",
+   "brand": "IRCTC",
+   "brand_domain": "irctc.co.in",
+   "label": 1,
+   "technique": "bitsquat"
+  },
+  {
+   "name": "irctcrefund.com",
+   "brand": "IRCTC",
+   "brand_domain": "irctc.co.in",
+   "label": 1,
+   "technique": "combo"
+  },
+  {
+   "name": "irctxc.co.in",
+   "brand": "IRCTC",
+   "brand_domain": "irctc.co.in",
+   "label": 1,
+   "technique": "insertion"
+  },
+  {
+   "name": "irstc.co.in",
+   "brand": "IRCTC",
+   "brand_domain": "irctc.co.in",
+   "label": 1,
+   "technique": "bitsquat"
+  },
+  {
+   "name": "irctv.co.in",
+   "brand": "IRCTC",
+   "brand_domain": "irctc.co.in",
+   "label": 1,
+   "technique": "replacement"
+  },
+  {
+   "name": "ircttc.co.in",
+   "brand": "IRCTC",
+   "brand_domain": "irctc.co.in",
+   "label": 1,
+   "technique": "repetition"
+  },
+  {
+   "name": "irctcpay.co.in",
+   "brand": "IRCTC",
+   "brand_domain": "irctc.co.in",
+   "label": 1,
+   "technique": "combo"
+  },
+  {
+   "name": "ircta.co.in",
+   "brand": "IRCTC",
+   "brand_domain": "irctc.co.in",
+   "label": 1,
+   "technique": "bitsquat"
+  },
+  {
+   "name": "ircgc.co.in",
+   "brand": "IRCTC",
+   "brand_domain": "irctc.co.in",
+   "label": 1,
+   "technique": "replacement"
+  },
+  {
+   "name": "secure.sbi.co.in",
+   "brand": "State Bank of India",
+   "brand_domain": "sbi.co.in",
+   "label": 0,
+   "technique": "legitimate"
+  },
+  {
+   "name": "python.org",
+   "brand": "HDFC Bank",
+   "brand_domain": "hdfcbank.com",
+   "label": 0,
+   "technique": "legitimate"
+  },
+  {
+   "name": "openstreetmap.org",
+   "brand": "ICICI Bank",
+   "brand_domain": "icicibank.com",
+   "label": 0,
+   "technique": "legitimate"
+  },
+  {
+   "name": "mozilla.org",
+   "brand": "Paytm",
+   "brand_domain": "paytm.com",
+   "label": 0,
+   "technique": "legitimate"
+  },
+  {
+   "name": "gnu.org",
+   "brand": "PhonePe",
+   "brand_domain": "phonepe.com",
+   "label": 0,
+   "technique": "legitimate"
+  },
+  {
+   "name": "help.irctc.co.in",
+   "brand": "IRCTC",
+   "brand_domain": "irctc.co.in",
+   "label": 0,
+   "technique": "legitimate"
+  },
+  {
+   "name": "kernel.org",
+   "brand": "State Bank of India",
+   "brand_domain": "sbi.co.in",
+   "label": 0,
+   "technique": "legitimate"
+  },
+  {
+   "name": "nature.com",
+   "brand": "HDFC Bank",
+   "brand_domain": "hdfcbank.com",
+   "label": 0,
+   "technique": "legitimate"
+  },
+  {
+   "name": "bbc.co.uk",
+   "brand": "ICICI Bank",
+   "brand_domain": "icicibank.com",
+   "label": 0,
+   "technique": "legitimate"
+  },
+  {
+   "name": "nasa.gov",
+   "brand": "Paytm",
+   "brand_domain": "paytm.com",
+   "label": 0,
+   "technique": "legitimate"
+  },
+  {
+   "name": "mail.phonepe.com",
+   "brand": "PhonePe",
+   "brand_domain": "phonepe.com",
+   "label": 0,
+   "technique": "legitimate"
+  },
+  {
+   "name": "ubuntu.com",
+   "brand": "IRCTC",
+   "brand_domain": "irctc.co.in",
+   "label": 0,
+   "technique": "legitimate"
+  },
+  {
+   "name": "debian.org",
+   "brand": "State Bank of India",
+   "brand_domain": "sbi.co.in",
+   "label": 0,
+   "technique": "legitimate"
+  },
+  {
+   "name": "apache.org",
+   "brand": "HDFC Bank",
+   "brand_domain": "hdfcbank.com",
+   "label": 0,
+   "technique": "legitimate"
+  },
+  {
+   "name": "rust-lang.org",
+   "brand": "ICICI Bank",
+   "brand_domain": "icicibank.com",
+   "label": 0,
+   "technique": "legitimate"
+  },
+  {
+   "name": "careers.paytm.com",
+   "brand": "Paytm",
+   "brand_domain": "paytm.com",
+   "label": 0,
+   "technique": "legitimate"
+  },
+  {
+   "name": "nginx.org",
+   "brand": "PhonePe",
+   "brand_domain": "phonepe.com",
+   "label": 0,
+   "technique": "legitimate"
+  },
+  {
+   "name": "postgresql.org",
+   "brand": "IRCTC",
+   "brand_domain": "irctc.co.in",
+   "label": 0,
+   "technique": "legitimate"
+  },
+  {
+   "name": "sqlite.org",
+   "brand": "State Bank of India",
+   "brand_domain": "sbi.co.in",
+   "label": 0,
+   "technique": "legitimate"
+  },
+  {
+   "name": "wordpress.org",
+   "brand": "HDFC Bank",
+   "brand_domain": "hdfcbank.com",
+   "label": 0,
+   "technique": "legitimate"
+  },
+  {
+   "name": "mail.icicibank.com",
+   "brand": "ICICI Bank",
+   "brand_domain": "icicibank.com",
+   "label": 0,
+   "technique": "legitimate"
+  },
+  {
+   "name": "python.org",
+   "brand": "Paytm",
+   "brand_domain": "paytm.com",
+   "label": 0,
+   "technique": "legitimate"
+  },
+  {
+   "name": "openstreetmap.org",
+   "brand": "PhonePe",
+   "brand_domain": "phonepe.com",
+   "label": 0,
+   "technique": "legitimate"
+  },
+  {
+   "name": "mozilla.org",
+   "brand": "IRCTC",
+   "brand_domain": "irctc.co.in",
+   "label": 0,
+   "technique": "legitimate"
+  },
+  {
+   "name": "gnu.org",
+   "brand": "State Bank of India",
+   "brand_domain": "sbi.co.in",
+   "label": 0,
+   "technique": "legitimate"
+  },
+  {
+   "name": "secure.hdfcbank.com",
+   "brand": "HDFC Bank",
+   "brand_domain": "hdfcbank.com",
+   "label": 0,
+   "technique": "legitimate"
+  },
+  {
+   "name": "kernel.org",
+   "brand": "ICICI Bank",
+   "brand_domain": "icicibank.com",
+   "label": 0,
+   "technique": "legitimate"
+  },
+  {
+   "name": "nature.com",
+   "brand": "Paytm",
+   "brand_domain": "paytm.com",
+   "label": 0,
+   "technique": "legitimate"
+  },
+  {
+   "name": "bbc.co.uk",
+   "brand": "PhonePe",
+   "brand_domain": "phonepe.com",
+   "label": 0,
+   "technique": "legitimate"
+  },
+  {
+   "name": "nasa.gov",
+   "brand": "IRCTC",
+   "brand_domain": "irctc.co.in",
+   "label": 0,
+   "technique": "legitimate"
+  },
+  {
+   "name": "secure.sbi.co.in",
+   "brand": "State Bank of India",
+   "brand_domain": "sbi.co.in",
+   "label": 0,
+   "technique": "legitimate"
+  },
+  {
+   "name": "ubuntu.com",
+   "brand": "HDFC Bank",
+   "brand_domain": "hdfcbank.com",
+   "label": 0,
+   "technique": "legitimate"
+  },
+  {
+   "name": "debian.org",
+   "brand": "ICICI Bank",
+   "brand_domain": "icicibank.com",
+   "label": 0,
+   "technique": "legitimate"
+  },
+  {
+   "name": "apache.org",
+   "brand": "Paytm",
+   "brand_domain": "paytm.com",
+   "label": 0,
+   "technique": "legitimate"
+  },
+  {
+   "name": "rust-lang.org",
+   "brand": "PhonePe",
+   "brand_domain": "phonepe.com",
+   "label": 0,
+   "technique": "legitimate"
+  },
+  {
+   "name": "help.irctc.co.in",
+   "brand": "IRCTC",
+   "brand_domain": "irctc.co.in",
+   "label": 0,
+   "technique": "legitimate"
+  },
+  {
+   "name": "nginx.org",
+   "brand": "State Bank of India",
+   "brand_domain": "sbi.co.in",
+   "label": 0,
+   "technique": "legitimate"
+  },
+  {
+   "name": "postgresql.org",
+   "brand": "HDFC Bank",
+   "brand_domain": "hdfcbank.com",
+   "label": 0,
+   "technique": "legitimate"
+  },
+  {
+   "name": "sqlite.org",
+   "brand": "ICICI Bank",
+   "brand_domain": "icicibank.com",
+   "label": 0,
+   "technique": "legitimate"
+  },
+  {
+   "name": "wordpress.org",
+   "brand": "Paytm",
+   "brand_domain": "paytm.com",
+   "label": 0,
+   "technique": "legitimate"
+  },
+  {
+   "name": "careers.phonepe.com",
+   "brand": "PhonePe",
+   "brand_domain": "phonepe.com",
+   "label": 0,
+   "technique": "legitimate"
+  },
+  {
+   "name": "python.org",
+   "brand": "IRCTC",
+   "brand_domain": "irctc.co.in",
+   "label": 0,
+   "technique": "legitimate"
+  },
+  {
+   "name": "openstreetmap.org",
+   "brand": "State Bank of India",
+   "brand_domain": "sbi.co.in",
+   "label": 0,
+   "technique": "legitimate"
+  },
+  {
+   "name": "mozilla.org",
+   "brand": "HDFC Bank",
+   "brand_domain": "hdfcbank.com",
+   "label": 0,
+   "technique": "legitimate"
+  },
+  {
+   "name": "gnu.org",
+   "brand": "ICICI Bank",
+   "brand_domain": "icicibank.com",
+   "label": 0,
+   "technique": "legitimate"
+  },
+  {
+   "name": "help.paytm.com",
+   "brand": "Paytm",
+   "brand_domain": "paytm.com",
+   "label": 0,
+   "technique": "legitimate"
+  },
+  {
+   "name": "kernel.org",
+   "brand": "PhonePe",
+   "brand_domain": "phonepe.com",
+   "label": 0,
+   "technique": "legitimate"
+  },
+  {
+   "name": "nature.com",
+   "brand": "IRCTC",
+   "brand_domain": "irctc.co.in",
+   "label": 0,
+   "technique": "legitimate"
+  },
+  {
+   "name": "bbc.co.uk",
+   "brand": "State Bank of India",
+   "brand_domain": "sbi.co.in",
+   "label": 0,
+   "technique": "legitimate"
+  },
+  {
+   "name": "nasa.gov",
+   "brand": "HDFC Bank",
+   "brand_domain": "hdfcbank.com",
+   "label": 0,
+   "technique": "legitimate"
+  },
+  {
+   "name": "help.icicibank.com",
+   "brand": "ICICI Bank",
+   "brand_domain": "icicibank.com",
+   "label": 0,
+   "technique": "legitimate"
+  },
+  {
+   "name": "ubuntu.com",
+   "brand": "Paytm",
+   "brand_domain": "paytm.com",
+   "label": 0,
+   "technique": "legitimate"
+  },
+  {
+   "name": "debian.org",
+   "brand": "PhonePe",
+   "brand_domain": "phonepe.com",
+   "label": 0,
+   "technique": "legitimate"
+  },
+  {
+   "name": "apache.org",
+   "brand": "IRCTC",
+   "brand_domain": "irctc.co.in",
+   "label": 0,
+   "technique": "legitimate"
+  },
+  {
+   "name": "rust-lang.org",
+   "brand": "State Bank of India",
+   "brand_domain": "sbi.co.in",
+   "label": 0,
+   "technique": "legitimate"
+  },
+  {
+   "name": "careers.hdfcbank.com",
+   "brand": "HDFC Bank",
+   "brand_domain": "hdfcbank.com",
+   "label": 0,
+   "technique": "legitimate"
+  },
+  {
+   "name": "nginx.org",
+   "brand": "ICICI Bank",
+   "brand_domain": "icicibank.com",
+   "label": 0,
+   "technique": "legitimate"
+  },
+  {
+   "name": "postgresql.org",
+   "brand": "Paytm",
+   "brand_domain": "paytm.com",
+   "label": 0,
+   "technique": "legitimate"
+  },
+  {
+   "name": "sqlite.org",
+   "brand": "PhonePe",
+   "brand_domain": "phonepe.com",
+   "label": 0,
+   "technique": "legitimate"
+  },
+  {
+   "name": "wordpress.org",
+   "brand": "IRCTC",
+   "brand_domain": "irctc.co.in",
+   "label": 0,
+   "technique": "legitimate"
+  },
+  {
+   "name": "mail.sbi.co.in",
+   "brand": "State Bank of India",
+   "brand_domain": "sbi.co.in",
+   "label": 0,
+   "technique": "legitimate"
+  },
+  {
+   "name": "books34.com",
+   "brand": "HDFC Bank",
+   "brand_domain": "hdfcbank.com",
+   "label": 0,
+   "technique": "legitimate"
+  },
+  {
+   "name": "cafe24.in",
+   "brand": "ICICI Bank",
+   "brand_domain": "icicibank.com",
+   "label": 0,
+   "technique": "legitimate"
+  },
+  {
+   "name": "books45.org",
+   "brand": "Paytm",
+   "brand_domain": "paytm.com",
+   "label": 0,
+   "technique": "legitimate"
+  },
+  {
+   "name": "cafe91.in",
+   "brand": "PhonePe",
+   "brand_domain": "phonepe.com",
+   "label": 0,
+   "technique": "legitimate"
+  },
+  {
+   "name": "careers.irctc.co.in",
+   "brand": "IRCTC",
+   "brand_domain": "irctc.co.in",
+   "label": 0,
+   "technique": "legitimate"
+  },
+  {
+   "name": "cafe21.com",
+   "brand": "State Bank of India",
+   "brand_domain": "sbi.co.in",
+   "label": 0,
+   "technique": "legitimate"
+  },
+  {
+   "name": "travel89.com",
+   "brand": "HDFC Bank",
+   "brand_domain": "hdfcbank.com",
+   "label": 0,
+   "technique": "legitimate"
+  },
+  {
+   "name": "travel96.org",
+   "brand": "ICICI Bank",
+   "brand_domain": "icicibank.com",
+   "label": 0,
+   "technique": "legitimate"
+  },
+  {
+   "name": "travel33.com",
+   "brand": "Paytm",
+   "brand_domain": "paytm.com",
+   "label": 0,
+   "technique": "legitimate"
+  },
+  {
+   "name": "careers.phonepe.com",
+   "brand": "PhonePe",
+   "brand_domain": "phonepe.com",
+   "label": 0,
+   "technique": "legitimate"
+  },
+  {
+   "name": "garden69.org",
+   "brand": "IRCTC",
+   "brand_domain": "irctc.co.in",
+   "label": 0,
+   "technique": "legitimate"
+  },
+  {
+   "name": "garden22.com",
+   "brand": "State Bank of India",
+   "brand_domain": "sbi.co.in",
+   "label": 0,
+   "technique": "legitimate"
+  },
+  {
+   "name": "garden30.com",
+   "brand": "HDFC Bank",
+   "brand_domain": "hdfcbank.com",
+   "label": 0,
+   "technique": "legitimate"
+  },
+  {
+   "name": "cafe62.com",
+   "brand": "ICICI Bank",
+   "brand_domain": "icicibank.com",
+   "label": 0,
+   "technique": "legitimate"
+  },
+  {
+   "name": "help.paytm.com",
+   "brand": "Paytm",
+   "brand_domain": "paytm.com",
+   "label": 0,
+   "technique": "legitimate"
+  },
+  {
+   "name": "cafe75.com",
+   "brand": "PhonePe",
+   "brand_domain": "phonepe.com",
+   "label": 0,
+   "technique": "legitimate"
+  },
+  {
+   "name": "travel28.org",
+   "brand": "IRCTC",
+   "brand_domain": "irctc.co.in",
+   "label": 0,
+   "technique": "legitimate"
+  },
+  {
+   "name": "cafe71.in",
+   "brand": "State Bank of India",
+   "brand_domain": "sbi.co.in",
+   "label": 0,
+   "technique": "legitimate"
+  },
+  {
+   "name": "cafe89.com",
+   "brand": "HDFC Bank",
+   "brand_domain": "hdfcbank.com",
+   "label": 0,
+   "technique": "legitimate"
+  },
+  {
+   "name": "careers.icicibank.com",
+   "brand": "ICICI Bank",
+   "brand_domain": "icicibank.com",
+   "label": 0,
+   "technique": "legitimate"
+  },
+  {
+   "name": "yoga99.in",
+   "brand": "Paytm",
+   "brand_domain": "paytm.com",
+   "label": 0,
+   "technique": "legitimate"
+  },
+  {
+   "name": "travel94.org",
+   "brand": "PhonePe",
+   "brand_domain": "phonepe.com",
+   "label": 0,
+   "technique": "legitimate"
+  },
+  {
+   "name": "yoga12.in",
+   "brand": "IRCTC",
+   "brand_domain": "irctc.co.in",
+   "label": 0,
+   "technique": "legitimate"
+  },
+  {
+   "name": "books34.in",
+   "brand": "State Bank of India",
+   "brand_domain": "sbi.co.in",
+   "label": 0,
+   "technique": "legitimate"
+  },
+  {
+   "name": "help.hdfcbank.com",
+   "brand": "HDFC Bank",
+   "brand_domain": "hdfcbank.com",
+   "label": 0,
+   "technique": "legitimate"
+  },
+  {
+   "name": "cafe23.org",
+   "brand": "ICICI Bank",
+   "brand_domain": "icicibank.com",
+   "label": 0,
+   "technique": "legitimate"
+  },
+  {
+   "name": "cafe36.org",
+   "brand": "Paytm",
+   "brand_domain": "paytm.com",
+   "label": 0,
+   "technique": "legitimate"
+  },
+  {
+   "name": "books47.com",
+   "brand": "PhonePe",
+   "brand_domain": "phonepe.com",
+   "label": 0,
+   "technique": "legitimate"
+  },
+  {
+   "name": "yoga30.in",
+   "brand": "IRCTC",
+   "brand_domain": "irctc.co.in",
+   "label": 0,
+   "technique": "legitimate"
+  },
+  {
+   "name": "help.sbi.co.in",
+   "brand": "State Bank of India",
+   "brand_domain": "sbi.co.in",
+   "label": 0,
+   "technique": "legitimate"
+  },
+  {
+   "name": "yoga39.in",
+   "brand": "HDFC Bank",
+   "brand_domain": "hdfcbank.com",
+   "label": 0,
+   "technique": "legitimate"
+  },
+  {
+   "name": "yoga74.org",
+   "brand": "ICICI Bank",
+   "brand_domain": "icicibank.com",
+   "label": 0,
+   "technique": "legitimate"
+  },
+  {
+   "name": "travel83.org",
+   "brand": "Paytm",
+   "brand_domain": "paytm.com",
+   "label": 0,
+   "technique": "legitimate"
+  },
+  {
+   "name": "travel76.org",
+   "brand": "PhonePe",
+   "brand_domain": "phonepe.com",
+   "label": 0,
+   "technique": "legitimate"
+  },
+  {
+   "name": "secure.irctc.co.in",
+   "brand": "IRCTC",
+   "brand_domain": "irctc.co.in",
+   "label": 0,
+   "technique": "legitimate"
+  },
+  {
+   "name": "yoga13.org",
+   "brand": "State Bank of India",
+   "brand_domain": "sbi.co.in",
+   "label": 0,
+   "technique": "legitimate"
+  },
+  {
+   "name": "travel20.com",
+   "brand": "HDFC Bank",
+   "brand_domain": "hdfcbank.com",
+   "label": 0,
+   "technique": "legitimate"
+  },
+  {
+   "name": "travel71.org",
+   "brand": "ICICI Bank",
+   "brand_domain": "icicibank.com",
+   "label": 0,
+   "technique": "legitimate"
+  },
+  {
+   "name": "cafe99.in",
+   "brand": "Paytm",
+   "brand_domain": "paytm.com",
+   "label": 0,
+   "technique": "legitimate"
+  }
+ ]
+}

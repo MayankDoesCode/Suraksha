@@ -187,3 +187,31 @@ input::placeholder, textarea::placeholder { color: rgb(var(--c-fg-subtle)); }
 @keyframes sk-grow-x { from { transform: scaleX(0); } to { transform: scaleX(1); } }
 .sk-grow-x { transform-origin: left; animation: sk-grow-x 0.9s cubic-bezier(0.2, 0.7, 0.2, 1) 0.3s both; }
 @media (prefers-reduced-motion: reduce) { .sk-grow-x { animation: none !important; } }
+
+/* ---- Tactile feedback layer: every control answers the pointer; all of it is disabled for reduced motion. ---- */
+button, [role="tab"], [role="option"], a { transition: background-color 0.15s ease, border-color 0.15s ease, color 0.15s ease, transform 0.12s ease, box-shadow 0.18s ease; }
+button:not(:disabled):active, [role="tab"]:active { transform: translateY(1px) scale(0.985); }
+button:disabled { cursor: not-allowed; }
+::selection { background: rgb(var(--c-accent) / 0.28); }
+
+/* List rows: a 2px accent bar slides in on hover; the selected row keeps it. */
+[role="option"] { position: relative; }
+[role="option"]::before {
+  content: ''; position: absolute; left: 0; top: 18%; bottom: 18%; width: 2px; border-radius: 2px;
+  background: rgb(var(--c-accent)); transform: scaleY(0); transition: transform 0.18s cubic-bezier(0.2, 0.7, 0.2, 1);
+}
+[role="option"]:hover::before, [role="option"][aria-selected="true"]::before { transform: scaleY(1); }
+
+/* Panels: a soft spotlight follows the cursor (position set in main.jsx). */
+section[class*="border-line"][class*="bg-surface"] { position: relative; }
+section[class*="border-line"][class*="bg-surface"]::after {
+  content: ''; position: absolute; inset: 0; border-radius: inherit; pointer-events: none; opacity: 0; transition: opacity 0.25s ease;
+  background: radial-gradient(260px circle at var(--mx, 50%) var(--my, 50%), rgb(var(--c-accent) / 0.07), transparent 70%);
+}
+section[class*="border-line"][class*="bg-surface"]:hover::after { opacity: 1; }
+@media (hover: none) { section[class*="border-line"][class*="bg-surface"]::after { display: none; } }
+@media (prefers-reduced-motion: reduce) {
+  button:not(:disabled):active, [role="tab"]:active { transform: none; }
+  [role="option"]::before { transition: none; }
+  section[class*="border-line"][class*="bg-surface"]::after { display: none; }
+}

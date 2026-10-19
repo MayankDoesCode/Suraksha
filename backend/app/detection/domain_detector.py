@@ -1,5 +1,9 @@
 import re
 from urllib.parse import urlparse
+
+from backend.app.detection.similarity import levenshtein_distance
+
+from backend.app.intel.permutations import TWO_LEVEL_SUFFIXES
 from typing import Dict, Any, List, Optional, Set
 from dataclasses import dataclass, field
 import idna
@@ -88,7 +92,10 @@ def extract_domain_components(raw_input: str) -> Dict[str, Any]:
             punycode_hostname = raw_host
 
     parts = unicode_hostname.split(".") if unicode_hostname else []
-    if len(parts) >= 2:
+    if len(parts) >= 3 and ".".join(parts[-2:]) in TWO_LEVEL_SUFFIXES:
+        tld = ".".join(parts[-2:])  # e.g. co.in, co.uk: the registrable label is the one before the suffix
+        sld = parts[-3]
+    elif len(parts) >= 2:
         tld = parts[-1]
         sld = parts[-2]
     else:
@@ -96,7 +103,10 @@ def extract_domain_components(raw_input: str) -> Dict[str, Any]:
         sld = unicode_hostname
 
     puny_parts = punycode_hostname.split(".") if punycode_hostname else []
-    punycode_sld = puny_parts[-2] if len(puny_parts) >= 2 else punycode_hostname
+    if len(puny_parts) >= 3 and ".".join(puny_parts[-2:]) in TWO_LEVEL_SUFFIXES:
+        punycode_sld = puny_parts[-3]
+    else:
+        punycode_sld = puny_parts[-2] if len(puny_parts) >= 2 else punycode_hostname
 
     return {
         "original_input": original_input,
@@ -109,6 +119,20 @@ def extract_domain_components(raw_input: str) -> Dict[str, Any]:
         "parts": parts,
         "is_idn": is_idn,
     }
+
+
+def is_adjacent_transposition(a: str, b: str) -> bool:
+    """True when `a` equals `b` with exactly one pair of adjacent characters swapped (a != b)."""
+    if a == b or len(a) != len(b):
+        return False
+    diff = [i for i in range(len(a)) if a[i] != b[i]]
+    return len(diff) == 2 and diff[1] == diff[0] + 1 and a[diff[0]] == b[diff[1]] and a[diff[1]] == b[diff[0]]
+
+
+def has_exact_token(hostname: str, target: str) -> bool:
+    """Short brand names (<4 chars) only count as embedded when they stand alone between separators or digits."""
+    labels = hostname.lower().split(".")[:-1] or [hostname.lower()]
+    return any(target in re.split(r"[-_\d]+", label) for label in labels)
 
 
 class DomainDetector(BaseDetector):
@@ -261,10 +285,30 @@ class DomainDetector(BaseDetector):
             for target in target_slds:
                 if not target:
                     continue
+                if len(target) < 4:
+                    # Containment similarity on 3-letter names flags every word that starts with them ("sbirthday"),
+                    # so only a standalone token or a single edit counts.
+                    if target in re.split(r"[-_\d]+", sld_var):
+                        short_score, why = 0.90, "The verified short brand name appears as a standalone token."
+                    elif levenshtein_distance(sld_var, target) <= 1:
+                        short_score, why = 0.78, "The name is one character edit away from the verified short brand name."
+                    else:
+                        continue
+                    if short_score > best_sim_score:
+                        best_sim_score, best_sim_explanation, matched_target = short_score, why, target
+                    continue
                 sim = NameSimilarityService.compare(sld_var, target)
                 if sim.similarity_score > best_sim_score:
                     best_sim_score = sim.similarity_score
                     best_sim_explanation = sim.explanation
+                    matched_target = target
+
+        # A single adjacent-character swap (patym / paytm) is a classic typo-squat but scores low on edit distance.
+        for sld_var in candidate_sld_variants:
+            for target in target_slds:
+                if target and len(target) >= 5 and " " not in target and is_adjacent_transposition(sld_var, target) and best_sim_score < 0.88:
+                    best_sim_score = 0.88
+                    best_sim_explanation = "Two adjacent characters are swapped relative to the verified name (transposition typo-squat)."
                     matched_target = target
 
         # De-leeted candidate SLD and hostname for normalized matching
@@ -285,7 +329,8 @@ class DomainDetector(BaseDetector):
             brand_compact in de_leeted_sld.replace("-", "") or
             any(t in candidate_hostname for t in target_slds if len(t) >= 4) or
             any(t in resolved_hostname for t in target_slds if len(t) >= 4) or
-            any(t in de_leeted_sld for t in target_slds if len(t) >= 4)
+            any(t in de_leeted_sld for t in target_slds if len(t) >= 4) or
+            any(has_exact_token(candidate_hostname, t) for t in target_slds if t and 3 <= len(t) < 4 and " " not in t)
         )
 
         if best_sim_score >= 0.75 or (best_sim_score >= 0.60 and brand_embedded):
