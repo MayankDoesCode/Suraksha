@@ -37,6 +37,13 @@ export const EMPTY_BRAND_PROFILE: BrandProfile = {
   isCustomBrand: false,
 };
 
+/** Outcome of a status change. `saved` is false when the change exists only in this browser session. */
+export interface StatusUpdateResult {
+  ok: boolean;
+  saved: boolean;
+  message?: string;
+}
+
 interface AppContextType {
   brandProfile: BrandProfile;
   setBrandProfile: React.Dispatch<React.SetStateAction<BrandProfile>>;
@@ -50,7 +57,7 @@ interface AppContextType {
     newStatus: InvestigationStatus,
     analyst: string,
     note?: string
-  ) => void;
+  ) => Promise<StatusUpdateResult>;
   addAnalystNote: (candidateId: string, author: string, text: string) => void;
   deleteCandidate: (id: string) => void;
 
@@ -63,6 +70,9 @@ interface AppContextType {
   setActiveTab: (tab: string) => void;
 
   selectedCandidateId: string | null;
+  /** Finding shown in the Investigations detail panel. Opening a finding from any page sets this and switches there. */
+  focusedFindingId: string | null;
+  setFocusedFindingId: (id: string | null) => void;
   setSelectedCandidateId: (id: string | null) => void;
 
   isAnalyzing: boolean;
@@ -258,6 +268,7 @@ export const AppProvider: React.FC<{ children: React.ReactNode }> = ({ children 
 
   const [activeTab, setActiveTab] = useState<string>('overview');
   const [selectedCandidateId, setSelectedCandidateId] = useState<string | null>(null);
+  const [focusedFindingId, setFocusedFindingId] = useState<string | null>(null);
   const [isAnalyzing, setIsAnalyzing] = useState<boolean>(false);
 
   // Backend state
@@ -556,12 +567,12 @@ export const AppProvider: React.FC<{ children: React.ReactNode }> = ({ children 
     return fullCandidate;
   };
 
-  const updateCandidateStatus = (
+  const updateCandidateStatus = async (
     id: string,
     newStatus: InvestigationStatus,
     analyst: string,
     note?: string
-  ) => {
+  ): Promise<StatusUpdateResult> => {
     // Map to backend status enum
     const backendStatusMap: Record<InvestigationStatus, string> = {
       'New': 'NEW',
@@ -570,35 +581,32 @@ export const AppProvider: React.FC<{ children: React.ReactNode }> = ({ children 
       'Dismissed': 'FALSE_POSITIVE',
     };
 
+    const previous = candidates.find(c => c.id === id);
+    if (!previous) return { ok: false, saved: false, message: 'Finding not found.' };
+
+    const entry = {
+      from: previous.status,
+      to: newStatus,
+      timestamp: new Date().toISOString(),
+      analyst: analyst || analystName || 'Security Analyst',
+      note: note || `Status transitioned to ${newStatus}.`,
+    };
     setCandidates(prev =>
-      prev.map(c => {
-        if (c.id === id) {
-          const newHistory = [
-            ...c.statusHistory,
-            {
-              from: c.status,
-              to: newStatus,
-              timestamp: new Date().toISOString(),
-              analyst: analyst || analystName || 'Security Analyst',
-              note: note || `Status transitioned to ${newStatus}.`,
-            },
-          ];
-          return {
-            ...c,
-            status: newStatus,
-            statusHistory: newHistory,
-          };
-        }
-        return c;
-      })
+      prev.map(c => (c.id === id ? { ...c, status: newStatus, statusHistory: [...c.statusHistory, entry] } : c))
     );
 
-    // Persist review status change to backend if it's a backend finding UUID
-    const mapped = backendStatusMap[newStatus];
-    if (mapped) {
-      api.updateFindingStatus(id, mapped).catch(err => {
-        console.warn('Backend status update note (ignorable for demo records):', err.message);
-      });
+    // Demo findings never touch the backend.
+    if (isDemoMode) return { ok: true, saved: false, message: 'Demo data: changed in this session only.' };
+
+    try {
+      await api.updateFindingStatus(id, backendStatusMap[newStatus]);
+      return { ok: true, saved: true };
+    } catch (err: any) {
+      // Roll back so the screen never shows a status the server does not have.
+      setCandidates(prev =>
+        prev.map(c => (c.id === id ? { ...c, status: previous.status, statusHistory: c.statusHistory.filter(h => h !== entry) } : c))
+      );
+      return { ok: false, saved: false, message: err?.message || 'The server did not accept the change.' };
     }
   };
 
@@ -674,6 +682,8 @@ export const AppProvider: React.FC<{ children: React.ReactNode }> = ({ children 
         activeTab,
         setActiveTab,
         selectedCandidateId,
+        focusedFindingId,
+        setFocusedFindingId,
         setSelectedCandidateId,
         isAnalyzing,
         setIsAnalyzing,

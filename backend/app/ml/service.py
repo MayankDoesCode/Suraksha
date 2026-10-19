@@ -5,6 +5,7 @@ from typing import Optional, Dict, Any, List
 
 import joblib
 import pandas as pd
+from backend.app.ml.artifact_compat import load_artifact, runtime_versions
 from backend.app.ml.pipeline import (
     MANIFEST_FILENAME as CANDIDATE_MANIFEST_FILENAME,
     MODEL_FILENAME as CANDIDATE_MODEL_FILENAME,
@@ -18,7 +19,9 @@ from backend.app.ml.social_pipeline import (
     SOCIAL_MANIFEST_FILENAME,
     SOCIAL_MODEL_FILENAME,
     extract_social_features,
+    get_missing_social_metadata,
 )
+from backend.app.ml.url_eval import canonical_host
 from backend.app.ml.mobile_pipeline import (
     MOBILE_MANIFEST_FILENAME,
     MOBILE_MODEL_FILENAME,
@@ -59,6 +62,7 @@ class MLService:
         self.social_manifest = None
         self.mobile_model = None
         self.mobile_manifest = None
+        self.artifact_compat: Dict[str, Dict[str, Any]] = {}
         self._load_models()
 
     def _load_models(self) -> None:
@@ -77,7 +81,7 @@ class MLService:
 
         if os.path.exists(candidate_model_path) and self.candidate_manifest and self.candidate_manifest.get("trained"):
             try:
-                self.candidate_model = joblib.load(candidate_model_path)
+                self.candidate_model = self._load_verified("candidate", candidate_model_path, self.candidate_manifest)
             except Exception as e:
                 logger.error("Failed to load candidate model artifact: %s", e)
                 self.candidate_model = None
@@ -96,7 +100,7 @@ class MLService:
 
         if os.path.exists(url_model_path) and self.url_manifest and self.url_manifest.get("trained"):
             try:
-                self.url_model = joblib.load(url_model_path)
+                self.url_model = self._load_verified("url_phishing", url_model_path, self.url_manifest)
                 logger.info(
                     "SURAKSHA URL Phishing ML Model v%s loaded successfully.",
                     self.url_manifest.get("model_version", "1.0.0"),
@@ -119,7 +123,7 @@ class MLService:
 
         if os.path.exists(social_model_path) and self.social_manifest and self.social_manifest.get("trained"):
             try:
-                self.social_model = joblib.load(social_model_path)
+                self.social_model = self._load_verified("social_fake_account", social_model_path, self.social_manifest)
                 logger.info(
                     "SURAKSHA Social Fake Profile ML Model v%s loaded successfully.",
                     self.social_manifest.get("model_version", "1.0.0"),
@@ -142,11 +146,17 @@ class MLService:
 
         if os.path.exists(mobile_model_path) and self.mobile_manifest and self.mobile_manifest.get("trained"):
             try:
-                self.mobile_model = joblib.load(mobile_model_path)
+                self.mobile_model = self._load_verified("mobile_app", mobile_model_path, self.mobile_manifest)
                 logger.info("SURAKSHA Mobile App ML Model loaded successfully.")
             except Exception as e:
                 logger.error("Failed to load mobile model artifact: %s", e)
                 self.mobile_model = None
+
+    def _load_verified(self, name: str, path: str, manifest: Optional[Dict[str, Any]]):
+        """Load an artifact, refusing it (returns None) when its scikit-learn version is incompatible."""
+        model, compat = load_artifact(path, name, manifest)
+        self.artifact_compat[name] = compat.to_dict()
+        return model
 
     def reload(self) -> None:
         """Reload all model components from disk."""
@@ -279,6 +289,8 @@ class MLService:
             "metrics": top_metrics,
             "auto_confirmation": False,
             "advisory_only": True,
+            "runtime_versions": runtime_versions(),
+            "artifact_compatibility": dict(self.artifact_compat),
             "components": {
                 "url_phishing": url_meta,
                 "social_fake_account": social_meta,
@@ -300,8 +312,12 @@ class MLService:
             }
 
         clean_url = str(url_or_domain).strip()
+        # Score the canonical host only. Training data has class-dependent URL
+        # formatting (benign rows are bare domains, many phishing rows full URLs),
+        # so scheme/path alone push a legitimate URL toward "phishing".
+        scored_input = canonical_host(clean_url) or clean_url
         try:
-            probs = self.url_model.predict_proba([clean_url])[0]
+            probs = self.url_model.predict_proba([scored_input])[0]
             classes = list(self.url_model.classes_)
             prob_phishing = float(probs[classes.index(1)]) if 1 in classes else float(probs[-1])
             risk_score = round(prob_phishing * 100.0, 1)
@@ -318,6 +334,7 @@ class MLService:
                 "task": "url_phishing_detection",
                 "model_version": self.url_manifest.get("model_version", "1.0.0"),
                 "indicator": clean_url,
+                "scored_input": scored_input,
                 "is_phishing_risk": prob_phishing >= 0.5,
                 "risk_probability": round(prob_phishing, 4),
                 "risk_score": risk_score,
@@ -376,7 +393,13 @@ class MLService:
         ml_fake_prob = None
         ml_status = "not_loaded"
 
-        if self.is_social_model_available():
+        missing_metadata = get_missing_social_metadata(profile_data)
+
+        if not self.is_social_model_available():
+            pass
+        elif missing_metadata:
+            ml_status = "insufficient_metadata"
+        else:
             try:
                 features_df = extract_social_features(profile_data)
                 probs = self.social_model.predict_proba(features_df)[0]
@@ -400,15 +423,14 @@ class MLService:
             if any(lure in username.lower() or lure in bio.lower() for lure in ["support", "help", "official", "claim", "refund", "verify"]):
                 brand_signals.append("High-risk lure keywords detected in handle or profile bio")
 
-        # 4. Calibrated Composite Risk Score
-        # If ML model operational: weights ML fake probability (50%) + Brand Impersonation Signals (50%)
-        if ml_fake_score is not None:
-            brand_component = 80.0 if (brand_match and len(brand_signals) > 1) else (50.0 if brand_match else 10.0)
-            composite_score = round(0.50 * ml_fake_score + 0.50 * brand_component, 1)
-            primary_engine = "InstaFake LogisticRegression + Brand Entity Heuristics"
+        # 4. Brand impersonation risk score (deterministic heuristic, uncalibrated).
+        # The generic fake/bot probability answers a different question (is this
+        # account automated/fake?) and is reported separately, never blended in.
+        if brand_match:
+            composite_score = 80.0 if len(brand_signals) > 1 else 50.0
         else:
-            composite_score = 75.0 if brand_match else 25.0
-            primary_engine = "SURAKSHA Deterministic Heuristic Engine (ML Offline)"
+            composite_score = 10.0
+        primary_engine = "SURAKSHA Deterministic Brand Impersonation Heuristics"
 
         if composite_score >= 80.0:
             tier = "CRITICAL" if brand_match else "HIGH"
@@ -427,7 +449,14 @@ class MLService:
                 "model_version": self.social_manifest.get("model_version", "1.0.0") if self.social_manifest else None,
                 "fake_probability": ml_fake_prob,
                 "fake_score": ml_fake_score,
+                "missing_metadata": missing_metadata,
+                "fused_into_risk_score": False,
                 "dataset_source": "InstaFake Dataset (CC BY-NC 4.0)",
+                "note": (
+                    "Generic fake/automated-account signal only; it is not evidence of brand impersonation. "
+                    + ("Not computed: core metadata missing, and imputing zeros would bias toward 'fake'."
+                       if ml_status == "insufficient_metadata" else "Uncalibrated model probability.")
+                ),
             },
             "brand_impersonation_assessment": {
                 "engine": "deterministic_brand_heuristics",
@@ -436,6 +465,7 @@ class MLService:
                 "signals": brand_signals,
             },
             "risk_score": composite_score,
+            "risk_score_basis": "brand_impersonation_heuristics_only",
             "severity_tier": tier,
             "requires_analyst_review": True,
             "auto_confirmed": False,

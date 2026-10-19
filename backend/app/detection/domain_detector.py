@@ -2,10 +2,21 @@ import re
 from urllib.parse import urlparse
 from typing import Dict, Any, List, Optional, Set
 from dataclasses import dataclass, field
+import idna
 
 from backend.app.detection.base import DetectionSignal, RiskEvaluation, RiskScoreEngine, BaseDetector
 from backend.app.detection.similarity import NameSimilarityService, SUSPICIOUS_KEYWORDS, LEET_MAP
 from backend.app.detection.social_detector import DetectionOutcome
+from backend.app.detection.url_path_analysis import analyze_url_path, pick_url_with_path
+
+# Base severity per structural red flag (URL_DECEPTIVE_STRUCTURE).
+STRUCTURE_RULE_SCORES = {
+    "USERINFO_DECEPTION": 35.0,
+    "PAYLOAD_FILE_EXTENSION": 30.0,
+    "IP_LITERAL_HOST": 25.0,
+    "EMBEDDED_REDIRECT": 20.0,
+    "SENSITIVE_QUERY_PARAMETER": 20.0,
+}
 
 # High-risk TLDs commonly abused in automated phishing / brand impersonation
 HIGH_RISK_TLDS: Set[str] = {
@@ -21,40 +32,82 @@ PHISHING_INTENT_KEYWORDS: List[str] = [
 ]
 
 
-def extract_domain_components(raw_input: str) -> Dict[str, str]:
+def extract_domain_components(raw_input: str) -> Dict[str, Any]:
     """
     Extract clean domain, hostname, SLD (second-level domain), and TLD from raw input or URL.
-    Handles:
-    - 'https://secure-login.apexpay.com/auth' -> hostname: 'secure-login.apexpay.com', sld: 'apexpay', tld: 'com'
-    - 'apexpay-login.xyz' -> hostname: 'apexpay-login.xyz', sld: 'apexpay-login', tld: 'xyz'
+    Standards-aware:
+    - Decodes Punycode ('xn--...') to human-readable Unicode representation.
+    - Encodes non-ASCII Unicode IDNs to standard Punycode/ASCII hostname.
+    - Preserves original input safely.
+    - Handles malformed inputs, invalid codepoints, null bytes, and protocol prefixes without throwing.
     """
-    cleaned = raw_input.strip().lower()
+    original_input = str(raw_input or "").strip()
+    cleaned = original_input.lower()
+
+    # Safely remove null bytes and control characters
+    cleaned = re.sub(r"[\x00-\x1f\x7f-\x9f]", "", cleaned)
+
     if not cleaned.startswith(("http://", "https://")):
-        cleaned = "https://" + cleaned
+        cleaned_url = "https://" + cleaned
+    else:
+        cleaned_url = cleaned
 
     try:
-        parsed = urlparse(cleaned)
-        hostname = (parsed.hostname or "").strip().lower()
+        parsed = urlparse(cleaned_url)
+        raw_host = (parsed.hostname or "").strip().lower()
     except Exception:
-        hostname = raw_input.strip().lower().split("/")[0]
+        raw_host = cleaned.split("/")[0]
 
     # Strip port if present
-    if ":" in hostname:
-        hostname = hostname.split(":")[0]
+    if ":" in raw_host:
+        raw_host = raw_host.split(":")[0]
 
-    parts = hostname.split(".")
+    raw_host = raw_host.rstrip(".")
+
+    # Standards-aware IDNA/Punycode normalization
+    unicode_hostname = raw_host
+    punycode_hostname = raw_host
+    is_idn = False
+
+    if raw_host:
+        try:
+            if "xn--" in raw_host:
+                unicode_hostname = idna.decode(raw_host)
+                punycode_hostname = raw_host
+                is_idn = True
+            elif any(ord(c) > 127 for c in raw_host):
+                unicode_hostname = raw_host
+                punycode_hostname = idna.encode(raw_host).decode("ascii")
+                is_idn = True
+            else:
+                unicode_hostname = raw_host
+                punycode_hostname = raw_host
+        except Exception:
+            # Catch malformed punycode, invalid codepoint, or decoding errors safely
+            unicode_hostname = raw_host
+            punycode_hostname = raw_host
+
+    parts = unicode_hostname.split(".") if unicode_hostname else []
     if len(parts) >= 2:
         tld = parts[-1]
         sld = parts[-2]
     else:
         tld = ""
-        sld = hostname
+        sld = unicode_hostname
+
+    puny_parts = punycode_hostname.split(".") if punycode_hostname else []
+    punycode_sld = puny_parts[-2] if len(puny_parts) >= 2 else punycode_hostname
 
     return {
-        "hostname": hostname,
+        "original_input": original_input,
+        "hostname": unicode_hostname,
+        "unicode_hostname": unicode_hostname,
+        "punycode_hostname": punycode_hostname,
         "sld": sld,
+        "punycode_sld": punycode_sld,
         "tld": tld,
         "parts": parts,
+        "is_idn": is_idn,
     }
 
 
@@ -91,10 +144,12 @@ class DomainDetector(BaseDetector):
 
         components = extract_domain_components(raw_candidate)
         candidate_hostname = components["hostname"]
+        candidate_unicode_hostname = components["unicode_hostname"]
+        candidate_punycode_hostname = components["punycode_hostname"]
         candidate_sld = components["sld"]
         candidate_tld = components["tld"]
 
-        if not candidate_hostname:
+        if not candidate_hostname and not candidate_unicode_hostname:
             return DetectionOutcome(
                 is_official=False,
                 exclusion_reason=None,
@@ -104,13 +159,17 @@ class DomainDetector(BaseDetector):
 
         # -------------------------------------------------------------
         # 1. Official Domain Asset Exclusion Check
+        # Check against both standard ASCII/Punycode and decoded Unicode representations.
+        # Strict equality preserves script boundaries (e.g. Cyrillic 'а' != Latin 'a').
         # -------------------------------------------------------------
         for off_dom in official_domain_names:
             off_comp = extract_domain_components(off_dom)
-            off_hostname = off_comp["hostname"]
+            off_unicode_host = off_comp["unicode_hostname"]
+            off_punycode_host = off_comp["punycode_hostname"]
 
             # Exact match: candidate is the official domain
-            if candidate_hostname == off_hostname:
+            if (candidate_unicode_hostname and candidate_unicode_hostname == off_unicode_host) or \
+               (candidate_punycode_hostname and candidate_punycode_hostname == off_punycode_host):
                 return DetectionOutcome(
                     is_official=True,
                     exclusion_reason=f"Exact match against verified official domain '{off_dom}'.",
@@ -119,7 +178,8 @@ class DomainDetector(BaseDetector):
                 )
 
             # Legitimate authorized subdomain of official domain (e.g. auth.apexpay.com of apexpay.com)
-            if candidate_hostname.endswith("." + off_hostname):
+            if (off_unicode_host and candidate_unicode_hostname.endswith("." + off_unicode_host)) or \
+               (off_punycode_host and candidate_punycode_hostname.endswith("." + off_punycode_host)):
                 return DetectionOutcome(
                     is_official=True,
                     exclusion_reason=f"Authorized subdomain of verified official domain '{off_dom}'.",
@@ -140,6 +200,50 @@ class DomainDetector(BaseDetector):
         official_slds = [extract_domain_components(d)["sld"] for d in official_domain_names]
         target_slds = list(set([brand_compact, brand_clean] + [s for s in official_slds if s]))
 
+        # Unicode Confusable Homoglyph Analysis (UTS #39)
+        # Derive Latin equivalent if candidate uses mixed-script / confusable glyphs (e.g. Cyrillic, Greek)
+        resolved_latin_sld, confusables_found = NameSimilarityService.resolve_confusables(candidate_sld)
+        if confusables_found:
+            confusable_sim = 0.0
+            matched_conf_target = ""
+            for target in target_slds:
+                if not target:
+                    continue
+                if resolved_latin_sld == target or target in resolved_latin_sld:
+                    confusable_sim = 1.0
+                    matched_conf_target = target
+                    break
+                sim_res = NameSimilarityService.compare(resolved_latin_sld, target)
+                if sim_res.similarity_score > confusable_sim:
+                    confusable_sim = sim_res.similarity_score
+                    matched_conf_target = target
+
+            if confusable_sim >= 0.75:
+                confusable_details = ", ".join(
+                    f"{c['script']} '{c['character']}' ({c['codepoint']})->'{c['latin_replacement']}'"
+                    for c in confusables_found[:4]
+                )
+                signals.append(
+                    DetectionSignal(
+                        signal_type="UNICODE_HOMOGLYPH_IMPERSONATION",
+                        severity_score=55.0,
+                        confidence=0.96,
+                        explanation=(
+                            f"Domain '{candidate_unicode_hostname}' ({candidate_hostname}) uses deceptive "
+                            f"Unicode/Punycode homoglyphs: {confusable_details} mimicking brand target '{matched_conf_target}'."
+                        ),
+                        evidence_fields=["unicode_hostname", "punycode_hostname", "homoglyphs", "target_brand"]
+                    )
+                )
+                evidence.append({
+                    "evidence_type": "unicode_confusable_analysis",
+                    "description": (
+                        f"Deceptive Unicode homoglyphs: {confusable_details}. "
+                        f"Target brand: '{matched_conf_target}'. Canonical Latin resolution: '{resolved_latin_sld}'."
+                    ),
+                    "source_reference": components.get("original_input", candidate_hostname),
+                })
+
         # Normalize candidate SLD for comparison
         cand_norm_sld = candidate_sld.replace("-", "").replace("_", "")
 
@@ -148,26 +252,39 @@ class DomainDetector(BaseDetector):
         best_sim_explanation = ""
         matched_target = ""
 
-        for target in target_slds:
-            if not target:
-                continue
-            sim = NameSimilarityService.compare(candidate_sld, target)
-            if sim.similarity_score > best_sim_score:
-                best_sim_score = sim.similarity_score
-                best_sim_explanation = sim.explanation
-                matched_target = target
+        # Test both candidate SLD and confusable-resolved SLD
+        candidate_sld_variants = [candidate_sld]
+        if resolved_latin_sld and resolved_latin_sld != candidate_sld:
+            candidate_sld_variants.append(resolved_latin_sld)
+
+        for sld_var in candidate_sld_variants:
+            for target in target_slds:
+                if not target:
+                    continue
+                sim = NameSimilarityService.compare(sld_var, target)
+                if sim.similarity_score > best_sim_score:
+                    best_sim_score = sim.similarity_score
+                    best_sim_explanation = sim.explanation
+                    matched_target = target
 
         # De-leeted candidate SLD and hostname for normalized matching
-        de_leeted_sld = candidate_sld
+        de_leeted_sld = resolved_latin_sld or candidate_sld
         for digit, char in LEET_MAP.items():
             de_leeted_sld = de_leeted_sld.replace(digit, char)
 
         # Check if the brand name is embedded as a prominent token in the hostname
         clean_hostname_compact = candidate_hostname.replace("-", "").replace(".", "")
+        clean_unicode_compact = candidate_unicode_hostname.replace("-", "").replace(".", "")
+        resolved_hostname = candidate_hostname
+        if resolved_latin_sld and candidate_sld in candidate_unicode_hostname:
+            resolved_hostname = candidate_unicode_hostname.replace(candidate_sld, resolved_latin_sld)
+
         brand_embedded = (
             brand_compact in clean_hostname_compact or
+            brand_compact in clean_unicode_compact or
             brand_compact in de_leeted_sld.replace("-", "") or
             any(t in candidate_hostname for t in target_slds if len(t) >= 4) or
+            any(t in resolved_hostname for t in target_slds if len(t) >= 4) or
             any(t in de_leeted_sld for t in target_slds if len(t) >= 4)
         )
 
@@ -188,7 +305,7 @@ class DomainDetector(BaseDetector):
             evidence.append({
                 "evidence_type": "domain_typosquat_analysis",
                 "description": f"Domain hostname '{candidate_hostname}' exhibits visual/lexical typosquatting of '{matched_target}'.",
-                "source_reference": candidate_hostname,
+                "source_reference": components.get("original_input", candidate_hostname),
             })
 
         # Signal B: Phishing Intent / Security Keywords in Hostname
@@ -264,6 +381,74 @@ class DomainDetector(BaseDetector):
                 "description": f"Leetspeak/character substitution detected: {', '.join(substituted_chars)}",
                 "source_reference": candidate_hostname,
             })
+
+        # Signals E/F: URL path and structure. Weak on their own ("/login" is normal on
+        # most sites), so they only count when the URL is also tied to the protected
+        # brand: via the hostname, or via the brand name appearing in the path/userinfo.
+        url_with_path = pick_url_with_path(
+            candidate.get("source_url"), candidate.get("url"), candidate.get("candidate_name"), candidate.get("domain")
+        )
+        if url_with_path:
+            path_tokens = [t for t in target_slds + [brand_compact, brand_clean] if t]
+            path_analysis = analyze_url_path(url_with_path, path_tokens)
+            host_related = bool(brand_embedded or best_sim_score >= 0.60)
+            brand_in_path = list(path_analysis.brand_tokens_in_path)
+            brand_in_userinfo = list(path_analysis.brand_tokens_in_userinfo)
+            brand_related = host_related or bool(brand_in_path) or bool(brand_in_userinfo)
+
+            if path_analysis.lure_tokens and brand_related:
+                lures = path_analysis.lure_tokens
+                if host_related:
+                    lure_score = 25.0 + (5.0 if (brand_in_path or len(lures) >= 2) else 0.0)
+                    lure_conf = 0.80
+                    context = "on a hostname that already resembles the brand"
+                else:
+                    lure_score, lure_conf = 20.0, 0.60
+                    context = (
+                        f"on host '{path_analysis.hostname}', which does not itself resemble the brand, "
+                        f"but the path names the brand ({', '.join(brand_in_path)}); "
+                        "verify the host is not a legitimate third-party page"
+                    )
+                signals.append(
+                    DetectionSignal(
+                        signal_type="URL_PATH_CREDENTIAL_LURE",
+                        severity_score=lure_score,
+                        confidence=lure_conf,
+                        explanation=(
+                            f"URL path '{path_analysis.path[:80]}' contains credential-lure token(s) {lures} {context}."
+                        ),
+                        evidence_fields=["url_path", "lure_tokens", "brand_in_path"],
+                    )
+                )
+                evidence.append({
+                    "evidence_type": "url_path_lure",
+                    "description": (
+                        f"Path tokens {lures} matched the credential-lure list; brand tokens in path: "
+                        f"{brand_in_path or 'none'}. Rule-based, not an ML prediction."
+                    ),
+                    "source_reference": url_with_path[:200],
+                })
+
+            if path_analysis.structure_findings and brand_related:
+                findings = sorted(
+                    path_analysis.structure_findings, key=lambda f: -STRUCTURE_RULE_SCORES.get(f.rule_id, 15.0)
+                )
+                base = STRUCTURE_RULE_SCORES.get(findings[0].rule_id, 15.0)
+                struct_score = min(45.0, base + 5.0 * (len(findings) - 1))
+                signals.append(
+                    DetectionSignal(
+                        signal_type="URL_DECEPTIVE_STRUCTURE",
+                        severity_score=struct_score,
+                        confidence=0.80,
+                        explanation="Suspicious URL structure alongside brand context: " + " ".join(f.detail for f in findings),
+                        evidence_fields=["url_structure", "rule_ids"],
+                    )
+                )
+                evidence.append({
+                    "evidence_type": "url_structure_analysis",
+                    "description": "Rules fired: " + ", ".join(f.rule_id for f in findings) + ". Rule-based, not an ML prediction.",
+                    "source_reference": url_with_path[:200],
+                })
 
         # -------------------------------------------------------------
         # 3. Calculate Risk & Return Consolidated Outcome

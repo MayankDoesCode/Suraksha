@@ -55,6 +55,16 @@ class BaseConfig:
     LANGSMITH_PROJECT = os.getenv("LANGSMITH_PROJECT", "suraksha-investigations")
     LANGSMITH_ENDPOINT = os.getenv("LANGSMITH_ENDPOINT", "https://api.smith.langchain.com")
 
+    # API Rate Limiting Configuration
+    # Note: For multi-worker production deployments (Gunicorn), set RATELIMIT_STORAGE_URI
+    # to a shared Redis backend: redis://<host>:<port>/0 or rediss://...
+    RATELIMIT_ENABLED = os.getenv("RATELIMIT_ENABLED", "true").lower() in ("true", "1")
+    RATELIMIT_STORAGE_URI = os.getenv("RATELIMIT_STORAGE_URI", "memory://")
+    RATELIMIT_DEFAULT = os.getenv("RATELIMIT_DEFAULT", "200 per minute")
+    RATELIMIT_SCAN = os.getenv("RATELIMIT_SCAN", "10 per minute")
+    RATELIMIT_AI = os.getenv("RATELIMIT_AI", "15 per minute")
+    RATELIMIT_ML = os.getenv("RATELIMIT_ML", "30 per minute")
+
 class DevelopmentConfig(BaseConfig):
     """Development environment configuration."""
     DEBUG = True
@@ -68,6 +78,8 @@ class TestingConfig(BaseConfig):
     DATABASE_URL = "sqlite:///:memory:"
     LOG_LEVEL = "WARNING"
     ALLOW_DEV_TOKENS = True
+    RATELIMIT_ENABLED = True
+    RATELIMIT_STORAGE_URI = "memory://"
 
 class ProductionConfig(BaseConfig):
     """Production environment configuration."""
@@ -82,6 +94,8 @@ class ProductionConfig(BaseConfig):
         if origin.strip()
     ]
     ALLOW_DEV_TOKENS = os.getenv("ALLOW_DEV_TOKENS", "false").lower() in ("true", "1")
+    # In production, use Redis storage if provided, else fallback to memory:// with warning
+    RATELIMIT_STORAGE_URI = os.getenv("RATELIMIT_STORAGE_URI", os.getenv("REDIS_URL", "memory://"))
 
 CONFIG_MAP = {
     "development": DevelopmentConfig,

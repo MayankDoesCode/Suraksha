@@ -214,23 +214,23 @@ export const ExplainableAIAssistant: React.FC<ExplainableAIAssistantProps> = ({
   };
 
   return (
-    <div className={`rounded-xl border border-[#1E314F] bg-[#111D30] p-5 shadow-card space-y-4 text-xs font-sans ${className}`}>
+    <div className={`rounded-xl border border-line bg-surface p-5 shadow-card space-y-4 text-xs font-sans ${className}`}>
       {/* Header */}
-      <div className="flex flex-wrap items-center justify-between gap-3 border-b border-[#1E314F] pb-3">
+      <div className="flex flex-wrap items-center justify-between gap-3 border-b border-line pb-3">
         <div className="flex items-center gap-2.5">
-          <div className="w-8 h-8 rounded-lg bg-[#9B8AFB]/10 border border-[#9B8AFB]/25 flex items-center justify-center text-[#9B8AFB]">
-            <Sparkles className="w-4 h-4 text-[#9B8AFB]" />
+          <div className="w-8 h-8 rounded-lg bg-ai/10 border border-ai/25 flex items-center justify-center text-ai">
+            <Sparkles className="w-4 h-4 text-ai" />
           </div>
           <div>
             <div className="flex items-center gap-2">
-              <h3 className="font-bold text-sm text-[#F8FAFC] tracking-tight">
+              <h3 className="font-bold text-sm text-fg tracking-tight">
                 Explainable AI Investigation Assistant
               </h3>
-              <span className="text-[10px] font-mono px-2 py-0.2 rounded bg-[#9B8AFB]/10 text-[#9B8AFB] border border-[#9B8AFB]/25">
+              <span className="text-[10px] font-mono px-2 py-0.2 rounded bg-ai/10 text-ai border border-ai/25">
                 Groq + LangSmith Copilot
               </span>
             </div>
-            <p className="text-[11px] text-[#8EA2C6]">
+            <p className="text-[11px] text-fgMuted">
               Evidence-grounded epistemic synthesis separating verifiable facts from model inferences and intelligence gaps.
             </p>
           </div>
@@ -239,17 +239,17 @@ export const ExplainableAIAssistant: React.FC<ExplainableAIAssistantProps> = ({
         {/* Action Controls & Origin Badge */}
         <div className="flex items-center gap-2">
           {isMlModel ? (
-            <span className="inline-flex items-center gap-1.5 px-2.5 py-1 rounded bg-[#9B8AFB]/10 text-[#9B8AFB] border border-[#9B8AFB]/30 font-mono text-[11px] font-medium">
+            <span className="inline-flex items-center gap-1.5 px-2.5 py-1 rounded bg-ai/10 text-ai border border-ai/30 font-mono text-[11px] font-medium">
               <Sparkles className="w-3.5 h-3.5" />
               <span>ML Classifier Inference</span>
             </span>
           ) : isAllowlist ? (
-            <span className="inline-flex items-center gap-1.5 px-2.5 py-1 rounded bg-[#10B981]/10 text-[#10B981] border border-[#10B981]/30 font-mono text-[11px] font-medium">
+            <span className="inline-flex items-center gap-1.5 px-2.5 py-1 rounded bg-ok/10 text-ok border border-ok/30 font-mono text-[11px] font-medium">
               <ShieldCheck className="w-3.5 h-3.5" />
               <span>Allowlist Verification Rule</span>
             </span>
           ) : (
-            <span className="inline-flex items-center gap-1.5 px-2.5 py-1 rounded bg-[#16253D] text-[#45C8E8] border border-[#1E314F] font-mono text-[11px] font-medium">
+            <span className="inline-flex items-center gap-1.5 px-2.5 py-1 rounded bg-surface3 text-accent border border-line font-mono text-[11px] font-medium">
               <Cpu className="w-3.5 h-3.5" />
               <span>Deterministic Heuristics</span>
             </span>
@@ -262,11 +262,11 @@ export const ExplainableAIAssistant: React.FC<ExplainableAIAssistantProps> = ({
             disabled={aiLoading}
             className={`px-3 py-1 rounded-lg border font-mono text-[11px] font-semibold flex items-center gap-1.5 transition-all cursor-pointer ${
               aiLoading
-                ? 'bg-[#16253D] text-[#8EA2C6] border-[#1E314F] cursor-wait'
-                : 'bg-[#9B8AFB]/15 hover:bg-[#9B8AFB]/25 text-[#C4B5FD] border-[#9B8AFB]/40 shadow-xs'
+                ? 'bg-surface3 text-fgMuted border-line cursor-wait'
+                : 'bg-ai/15 hover:bg-ai/25 text-ai border-ai/40 shadow-xs'
             }`}
           >
-            <RefreshCw className={`w-3.5 h-3.5 ${aiLoading ? 'animate-spin text-[#9B8AFB]' : ''}`} />
+            <RefreshCw className={`w-3.5 h-3.5 ${aiLoading ? 'animate-spin text-ai' : ''}`} />
             <span>{aiAnalysis ? 'Re-run Groq Analysis' : 'Run Groq Copilot'}</span>
           </button>
         </div>
@@ -274,24 +274,24 @@ export const ExplainableAIAssistant: React.FC<ExplainableAIAssistantProps> = ({
 
       {/* Groq AI Loading State */}
       {aiLoading && (
-        <div className="p-4 rounded-lg bg-[#0E1726] border border-[#9B8AFB]/30 flex items-center justify-between gap-4 animate-pulse">
+        <div className="p-4 rounded-lg bg-surface2 border border-ai/30 flex items-center justify-between gap-4 animate-pulse">
           <div className="flex items-center gap-3">
-            <div className="w-8 h-8 rounded-lg bg-[#9B8AFB]/15 border border-[#9B8AFB]/30 flex items-center justify-center text-[#9B8AFB] shrink-0">
+            <div className="w-8 h-8 rounded-lg bg-ai/15 border border-ai/30 flex items-center justify-center text-ai shrink-0">
               <Activity className="w-4 h-4 animate-spin" />
             </div>
             <div>
               <div className="flex items-center gap-2">
-                <span className="font-bold text-white text-xs">Synthesizing Verified Telemetry with Groq LLaMA-3.3-70B</span>
-                <span className="text-[10px] font-mono px-1.5 py-0.2 rounded bg-[#9B8AFB]/20 text-[#C4B5FD]">
+                <span className="font-bold text-fg text-xs">Synthesizing Verified Telemetry with Groq LLaMA-3.3-70B</span>
+                <span className="text-[10px] font-mono px-1.5 py-0.2 rounded bg-ai/20 text-ai">
                   Active Copilot
                 </span>
               </div>
-              <p className="text-[10.5px] text-[#8EA2C6] mt-0.5">
+              <p className="text-[10.5px] text-fgMuted mt-0.5">
                 Executing evidence-grounded epistemic decomposition with LangSmith latency &amp; safety tracing...
               </p>
             </div>
           </div>
-          <span className="font-mono text-[10px] text-[#9B8AFB] bg-[#16253D] px-2.5 py-1 rounded border border-[#1E314F] shrink-0">
+          <span className="font-mono text-[10px] text-ai bg-surface3 px-2.5 py-1 rounded border border-line shrink-0">
             Pipeline Traced
           </span>
         </div>
@@ -299,18 +299,18 @@ export const ExplainableAIAssistant: React.FC<ExplainableAIAssistantProps> = ({
 
       {/* Groq AI Error State */}
       {aiError && !aiLoading && (
-        <div className="p-3.5 rounded-lg bg-[#EF4444]/10 border border-[#EF4444]/30 flex items-center justify-between gap-3 text-xs">
-          <div className="flex items-center gap-2.5 text-[#F87171]">
+        <div className="p-3.5 rounded-lg bg-danger/10 border border-danger/30 flex items-center justify-between gap-3 text-xs">
+          <div className="flex items-center gap-2.5 text-danger">
             <AlertCircle className="w-4 h-4 shrink-0" />
             <div>
               <span className="font-semibold block">AI Investigation Service Notice:</span>
-              <span className="text-[11px] text-[#FCA5A5]">{aiError}</span>
+              <span className="text-[11px] text-danger">{aiError}</span>
             </div>
           </div>
           <button
             type="button"
             onClick={runAIInvestigation}
-            className="px-2.5 py-1 rounded bg-[#EF4444]/20 hover:bg-[#EF4444]/30 text-white font-mono text-[10px] font-medium border border-[#EF4444]/40 transition-all cursor-pointer shrink-0"
+            className="px-2.5 py-1 rounded bg-danger/20 hover:bg-danger/30 text-fg font-mono text-[10px] font-medium border border-danger/40 transition-all cursor-pointer shrink-0"
           >
             Retry Analysis
           </button>
@@ -319,45 +319,45 @@ export const ExplainableAIAssistant: React.FC<ExplainableAIAssistantProps> = ({
 
       {/* AI-Generated Active Dossier Banner */}
       {aiAnalysis && !aiLoading && (
-        <div className="p-3.5 rounded-lg bg-[#0E1726] border border-[#9B8AFB]/30 space-y-2">
-          <div className="flex flex-wrap items-center justify-between gap-2 border-b border-[#1E314F] pb-2">
+        <div className="p-3.5 rounded-lg bg-surface2 border border-ai/30 space-y-2">
+          <div className="flex flex-wrap items-center justify-between gap-2 border-b border-line pb-2">
             <div className="flex items-center gap-2">
-              <span className="text-[10px] font-mono font-bold px-2 py-0.5 rounded bg-[#9B8AFB]/20 text-[#C4B5FD] border border-[#9B8AFB]/35 flex items-center gap-1.5">
-                <Sparkles className="w-3 h-3 text-[#9B8AFB]" />
+              <span className="text-[10px] font-mono font-bold px-2 py-0.5 rounded bg-ai/20 text-ai border border-ai/35 flex items-center gap-1.5">
+                <Sparkles className="w-3 h-3 text-ai" />
                 <span>AI-GENERATED ADVISORY — EVIDENCE GROUNDED</span>
               </span>
-              <span className="text-[10px] font-mono text-[#8EA2C6]">
-                Model: <strong className="text-white">{aiMeta?.model || 'llama-3.3-70b-versatile'}</strong>
+              <span className="text-[10px] font-mono text-fgMuted">
+                Model: <strong className="text-fg">{aiMeta?.model || 'llama-3.3-70b-versatile'}</strong>
               </span>
               {aiMeta?.execution_time_ms && (
-                <span className="text-[10px] font-mono text-[#8EA2C6]">
-                  Latency: <strong className="text-[#45C8E8]">{aiMeta.execution_time_ms}ms</strong>
+                <span className="text-[10px] font-mono text-fgMuted">
+                  Latency: <strong className="text-accent">{aiMeta.execution_time_ms}ms</strong>
                 </span>
               )}
             </div>
 
             <div className="flex items-center gap-2">
               {aiMeta?.tracing_enabled && (
-                <span className="text-[9.5px] font-mono px-1.5 py-0.2 rounded bg-[#10B981]/15 text-[#10B981] border border-[#10B981]/30">
+                <span className="text-[9.5px] font-mono px-1.5 py-0.2 rounded bg-ok/15 text-ok border border-ok/30">
                   LangSmith Traced
                 </span>
               )}
-              <span className="text-[9.5px] font-mono px-1.5 py-0.2 rounded bg-[#16253D] text-[#8EA2C6] border border-[#1E314F] flex items-center gap-1">
-                <Lock className="w-2.5 h-2.5 text-[#45C8E8]" />
+              <span className="text-[9.5px] font-mono px-1.5 py-0.2 rounded bg-surface3 text-fgMuted border border-line flex items-center gap-1">
+                <Lock className="w-2.5 h-2.5 text-accent" />
                 <span>Immutable Score: {candidate.stringSimilarity !== undefined ? `${candidate.stringSimilarity}/100` : `${candidate.riskCategory}`}</span>
               </span>
             </div>
           </div>
 
           {aiAnalysis.summary && (
-            <p className="text-[11.5px] text-[#F8FAFC] leading-relaxed italic bg-[#16253D]/50 p-2.5 rounded border border-[#1E314F]/60">
+            <p className="text-[11.5px] text-fg leading-relaxed italic bg-surface3/50 p-2.5 rounded border border-line/60">
               "{aiAnalysis.summary}"
             </p>
           )}
 
           {aiAnalysis.confidence_limitations && (
-            <p className="text-[10px] text-[#8EA2C6] font-mono">
-              <strong className="text-[#CAD7E8]">Operational Boundary:</strong> {aiAnalysis.confidence_limitations}
+            <p className="text-[10px] text-fgMuted font-mono">
+              <strong className="text-fg">Operational Boundary:</strong> {aiAnalysis.confidence_limitations}
             </p>
           )}
         </div>
@@ -365,20 +365,20 @@ export const ExplainableAIAssistant: React.FC<ExplainableAIAssistantProps> = ({
 
       {/* Documented Confidence Metric */}
       {hasConfidence && (
-        <div className="p-3 rounded-lg bg-[#0E1726] border border-[#1E314F] flex flex-col sm:flex-row sm:items-center justify-between gap-3 text-xs">
+        <div className="p-3 rounded-lg bg-surface2 border border-line flex flex-col sm:flex-row sm:items-center justify-between gap-3 text-xs">
           <div className="flex items-center gap-3">
-            <div className="w-8 h-8 rounded bg-[#16253D] border border-[#1E314F] flex items-center justify-center text-[#45C8E8] shrink-0 font-mono font-bold">
+            <div className="w-8 h-8 rounded bg-surface3 border border-line flex items-center justify-center text-accent shrink-0 font-mono font-bold">
               <Percent className="w-4 h-4" />
             </div>
             <div>
               <div className="flex items-center gap-2">
-                <span className="font-medium text-white">Detection Confidence:</span>
-                <span className="font-mono font-bold text-[#45C8E8] text-sm">{confidenceScore}%</span>
+                <span className="font-medium text-fg">Detection Confidence:</span>
+                <span className="font-mono font-bold text-accent text-sm">{confidenceScore}%</span>
               </div>
-              <p className="text-[10.5px] text-[#8EA2C6] mt-0.5">{confidenceMeaning}</p>
+              <p className="text-[10.5px] text-fgMuted mt-0.5">{confidenceMeaning}</p>
             </div>
           </div>
-          <span className="text-[10px] text-[#8EA2C6] font-mono px-2 py-0.5 rounded bg-[#16253D] border border-[#1E314F] shrink-0 self-start sm:self-auto">
+          <span className="text-[10px] text-fgMuted font-mono px-2 py-0.5 rounded bg-surface3 border border-line shrink-0 self-start sm:self-auto">
             Calibrated Posterior Probability
           </span>
         </div>
@@ -387,20 +387,20 @@ export const ExplainableAIAssistant: React.FC<ExplainableAIAssistantProps> = ({
       {/* 3-Tier Epistemic Separation Grid */}
       <div className="grid grid-cols-1 lg:grid-cols-3 gap-3">
         {/* Tier 1: Observed Facts */}
-        <div className="p-3.5 rounded-lg bg-[#0E1726] border border-[#1E314F] space-y-2">
-          <div className="flex items-center justify-between border-b border-[#1E314F] pb-2">
-            <span className="text-[11px] font-mono font-bold uppercase tracking-wider text-[#45C8E8] flex items-center gap-1.5">
+        <div className="p-3.5 rounded-lg bg-surface2 border border-line space-y-2">
+          <div className="flex items-center justify-between border-b border-line pb-2">
+            <span className="text-[11px] font-mono font-bold uppercase tracking-wider text-accent flex items-center gap-1.5">
               <FileText className="w-3.5 h-3.5" />
               <span>1. Observed Facts</span>
             </span>
-            <span className="text-[9.5px] font-mono text-[#8EA2C6] px-1.5 py-0.2 rounded bg-[#16253D]">
+            <span className="text-[9.5px] font-mono text-fgMuted px-1.5 py-0.2 rounded bg-surface3">
               Deterministic
             </span>
           </div>
-          <ul className="space-y-1.5 text-[11px] text-[#F8FAFC]">
+          <ul className="space-y-1.5 text-[11px] text-fg">
             {activeObservedFacts.map((fact, idx) => (
               <li key={idx} className="flex items-start gap-2">
-                <span className="w-1.5 h-1.5 rounded-full bg-[#45C8E8] mt-1.5 shrink-0" />
+                <span className="w-1.5 h-1.5 rounded-full bg-accent mt-1.5 shrink-0" />
                 <span className="leading-relaxed">{fact}</span>
               </li>
             ))}
@@ -408,20 +408,20 @@ export const ExplainableAIAssistant: React.FC<ExplainableAIAssistantProps> = ({
         </div>
 
         {/* Tier 2: Model Inferences & Rules */}
-        <div className="p-3.5 rounded-lg bg-[#0E1726] border border-[#1E314F] space-y-2">
-          <div className="flex items-center justify-between border-b border-[#1E314F] pb-2">
-            <span className="text-[11px] font-mono font-bold uppercase tracking-wider text-[#9B8AFB] flex items-center gap-1.5">
+        <div className="p-3.5 rounded-lg bg-surface2 border border-line space-y-2">
+          <div className="flex items-center justify-between border-b border-line pb-2">
+            <span className="text-[11px] font-mono font-bold uppercase tracking-wider text-ai flex items-center gap-1.5">
               <Cpu className="w-3.5 h-3.5" />
               <span>2. Model Inferences</span>
             </span>
-            <span className="text-[9.5px] font-mono text-[#8EA2C6] px-1.5 py-0.2 rounded bg-[#16253D]">
+            <span className="text-[9.5px] font-mono text-fgMuted px-1.5 py-0.2 rounded bg-surface3">
               Probabilistic
             </span>
           </div>
-          <ul className="space-y-1.5 text-[11px] text-[#F8FAFC]">
+          <ul className="space-y-1.5 text-[11px] text-fg">
             {activeModelInferences.map((inf, idx) => (
               <li key={idx} className="flex items-start gap-2">
-                <span className="w-1.5 h-1.5 rounded-full bg-[#9B8AFB] mt-1.5 shrink-0" />
+                <span className="w-1.5 h-1.5 rounded-full bg-ai mt-1.5 shrink-0" />
                 <span className="leading-relaxed">{inf}</span>
               </li>
             ))}
@@ -429,20 +429,20 @@ export const ExplainableAIAssistant: React.FC<ExplainableAIAssistantProps> = ({
         </div>
 
         {/* Tier 3: Unverified Claims & Gaps */}
-        <div className="p-3.5 rounded-lg bg-[#0E1726] border border-[#F59E0B]/30 space-y-2">
-          <div className="flex items-center justify-between border-b border-[#1E314F] pb-2">
-            <span className="text-[11px] font-mono font-bold uppercase tracking-wider text-[#F59E0B] flex items-center gap-1.5">
+        <div className="p-3.5 rounded-lg bg-surface2 border border-warn/30 space-y-2">
+          <div className="flex items-center justify-between border-b border-line pb-2">
+            <span className="text-[11px] font-mono font-bold uppercase tracking-wider text-warn flex items-center gap-1.5">
               <AlertTriangle className="w-3.5 h-3.5" />
               <span>3. Unverified Claims</span>
             </span>
-            <span className="text-[9.5px] font-mono text-[#F59E0B] px-1.5 py-0.2 rounded bg-[#F59E0B]/10 border border-[#F59E0B]/25">
+            <span className="text-[9.5px] font-mono text-warn px-1.5 py-0.2 rounded bg-warn/10 border border-warn/25">
               Audit Required
             </span>
           </div>
-          <ul className="space-y-1.5 text-[11px] text-[#CAD7E8]">
+          <ul className="space-y-1.5 text-[11px] text-fg">
             {activeUnverifiedClaims.map((claim, idx) => (
               <li key={idx} className="flex items-start gap-2">
-                <span className="w-1.5 h-1.5 rounded-full bg-[#F59E0B] mt-1.5 shrink-0" />
+                <span className="w-1.5 h-1.5 rounded-full bg-warn mt-1.5 shrink-0" />
                 <span className="leading-relaxed">{claim}</span>
               </li>
             ))}
@@ -451,15 +451,15 @@ export const ExplainableAIAssistant: React.FC<ExplainableAIAssistantProps> = ({
       </div>
 
       {/* Recommended Next Investigative Steps */}
-      <div className="p-3.5 rounded-lg bg-[#0E1726] border border-[#1E314F] space-y-2">
-        <span className="text-[11px] font-mono font-bold uppercase tracking-wider text-[#45C8E8] flex items-center gap-1.5">
-          <CheckCircle2 className="w-3.5 h-3.5 text-[#45C8E8]" />
+      <div className="p-3.5 rounded-lg bg-surface2 border border-line space-y-2">
+        <span className="text-[11px] font-mono font-bold uppercase tracking-wider text-accent flex items-center gap-1.5">
+          <CheckCircle2 className="w-3.5 h-3.5 text-accent" />
           <span>Recommended Evidence-Based Next Steps</span>
         </span>
         <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-2">
           {activeNextSteps.map((step, idx) => (
-            <div key={idx} className="p-2.5 rounded bg-[#16253D] border border-[#1E314F] text-[11px] text-[#F8FAFC] flex items-start gap-2">
-              <span className="w-4 h-4 rounded bg-[#45C8E8]/10 text-[#45C8E8] border border-[#45C8E8]/30 flex items-center justify-center shrink-0 font-mono text-[9px] font-bold mt-0.5">
+            <div key={idx} className="p-2.5 rounded bg-surface3 border border-line text-[11px] text-fg flex items-start gap-2">
+              <span className="w-4 h-4 rounded bg-accent/10 text-accent border border-accent/30 flex items-center justify-center shrink-0 font-mono text-[9px] font-bold mt-0.5">
                 {idx + 1}
               </span>
               <span className="leading-tight">{step}</span>
@@ -470,24 +470,24 @@ export const ExplainableAIAssistant: React.FC<ExplainableAIAssistantProps> = ({
 
       {/* Human-in-the-Loop Triage Commit Guard */}
       {onStatusChange && (
-        <form onSubmit={handleCommit} className="p-3.5 rounded-lg bg-[#0E1726] border border-[#1E314F] space-y-3">
+        <form onSubmit={handleCommit} className="p-3.5 rounded-lg bg-surface2 border border-line space-y-3">
           <div className="flex items-center justify-between">
-            <span className="text-[11px] font-mono font-bold uppercase tracking-wider text-[#45C8E8] flex items-center gap-1.5">
-              <UserCheck className="w-3.5 h-3.5 text-[#45C8E8]" />
+            <span className="text-[11px] font-mono font-bold uppercase tracking-wider text-accent flex items-center gap-1.5">
+              <UserCheck className="w-3.5 h-3.5 text-accent" />
               <span>Human Analyst Triage Action</span>
             </span>
-            <span className="text-[10px] text-[#8EA2C6] italic">
+            <span className="text-[10px] text-fgMuted italic font-mono">
               Advisory output: Zero automated confirmation enforced.
             </span>
           </div>
 
           <div className="grid grid-cols-1 sm:grid-cols-3 gap-2.5">
             <div>
-              <label className="text-[10px] font-mono text-[#8EA2C6] block mb-1">Target Status</label>
+              <label className="text-[10px] font-mono text-fgMuted block mb-1">Target Status</label>
               <select
                 value={selectedStatus}
                 onChange={(e) => setSelectedStatus(e.target.value as InvestigationStatus)}
-                className="w-full bg-[#16253D] border border-[#1E314F] rounded-lg px-3 py-1.5 text-xs text-white focus:outline-hidden focus:border-[#45C8E8]"
+                className="w-full bg-surface3 border border-line rounded-lg px-3 py-1.5 text-xs text-fg focus:outline-hidden focus:border-accent"
               >
                 <option value="New">New Intake</option>
                 <option value="Investigating">Under Active Investigation</option>
@@ -497,7 +497,7 @@ export const ExplainableAIAssistant: React.FC<ExplainableAIAssistantProps> = ({
             </div>
 
             <div className="sm:col-span-2">
-              <label className="text-[10px] font-mono text-[#8EA2C6] block mb-1">
+              <label className="text-[10px] font-mono text-fgMuted block mb-1">
                 Analyst Justification &amp; Evidence Audit Note
               </label>
               <input
@@ -505,26 +505,26 @@ export const ExplainableAIAssistant: React.FC<ExplainableAIAssistantProps> = ({
                 value={analystNote}
                 onChange={(e) => setAnalystNote(e.target.value)}
                 placeholder="Document your evidence verification rationale before transitioning..."
-                className="w-full bg-[#16253D] border border-[#1E314F] rounded-lg px-3 py-1.5 text-xs text-white placeholder-[#8EA2C6] focus:outline-hidden focus:border-[#45C8E8]"
+                className="w-full bg-surface3 border border-line rounded-lg px-3 py-1.5 text-xs text-fg placeholder-fgMuted focus:outline-hidden focus:border-accent"
               />
             </div>
           </div>
 
           <div className="flex items-center justify-between pt-1">
             {commitSuccess ? (
-              <span className="text-[#10B981] font-mono text-[11px] flex items-center gap-1.5">
+              <span className="text-ok font-mono text-[11px] flex items-center gap-1.5">
                 <CheckCircle2 className="w-3.5 h-3.5" />
                 <span>Status transition committed successfully to audit log.</span>
               </span>
             ) : (
-              <span className="text-[10.5px] text-[#8EA2C6] font-mono">
+              <span className="text-[10.5px] text-fgMuted font-mono">
                 Requires human review before updating enterprise threat posture.
               </span>
             )}
 
             <button
               type="submit"
-              className="px-3.5 py-1.5 rounded-lg bg-[#45C8E8] hover:bg-[#38B2D0] text-[#080F1D] text-xs font-semibold shadow-xs transition-all flex items-center gap-1.5 cursor-pointer"
+              className="px-3.5 py-1.5 rounded-lg bg-accent hover:bg-accentHover text-onAccent text-xs font-semibold shadow-xs transition-all flex items-center gap-1.5 cursor-pointer"
             >
               <Send className="w-3.5 h-3.5" />
               <span>Commit Status Transition</span>

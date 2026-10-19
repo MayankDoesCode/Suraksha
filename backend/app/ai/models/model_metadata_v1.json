@@ -2,7 +2,7 @@
   "model_version": "1.0.0",
   "model_name": "suraksha_rf_risk_classifier",
   "algorithm": "RandomForestClassifier + FeatureUnion (TF-IDF & Dense Scaler)",
-  "training_timestamp": "2026-10-13T22:53:45.642704+00:00",
+  "training_timestamp": "2026-10-19T05:53:20.844229+00:00",
   "dataset_version": "bootstrap-v1.0",
   "dataset_path": "backend\\app\\ai\\data\\threat_bootstrap_dataset.json",
   "dataset_records_count": 60,

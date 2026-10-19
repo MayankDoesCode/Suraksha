@@ -58,7 +58,7 @@ export default function BrandDetailDrawer({
               </div>
             )}
             <div>
-              <h2 className="text-lg font-bold text-white tracking-wide">
+              <h2 className="text-lg font-bold text-fg tracking-wide">
                 {brand.name}
               </h2>
               <div className="flex items-center gap-2 mt-1">
@@ -66,7 +66,7 @@ export default function BrandDetailDrawer({
                 <button
                   onClick={() => copyToClipboard(brand.id)}
                   title="Copy Full UUID"
-                  className="text-cyber-textMuted hover:text-white"
+                  className="text-cyber-textMuted hover:text-fg"
                 >
                   <Copy className="w-3.5 h-3.5" />
                 </button>
@@ -91,7 +91,7 @@ export default function BrandDetailDrawer({
             </button>
             <button
               onClick={onClose}
-              className="p-2 rounded-lg bg-cyber-surface border border-cyber-border text-cyber-textMuted hover:text-white transition-colors"
+              className="p-2 rounded-lg bg-cyber-surface border border-cyber-border text-cyber-textMuted hover:text-fg transition-colors"
             >
               <X className="w-4 h-4" />
             </button>
@@ -105,17 +105,17 @@ export default function BrandDetailDrawer({
             <div className="text-[11px] font-mono uppercase tracking-wider text-cyber-textMuted">
               Profile Metadata & Description
             </div>
-            <p className="text-xs text-slate-300 leading-relaxed">
+            <p className="text-xs text-fgMuted leading-relaxed">
               {brand.description || 'No corporate description provided.'}
             </p>
             <div className="grid grid-cols-2 gap-4 pt-3 border-t border-cyber-border/60 text-xs font-mono text-cyber-textMuted">
               <div>
-                <span className="text-[10px] uppercase block text-slate-500">First Registered</span>
-                <span className="text-white">{formatDate(brand.created_at)}</span>
+                <span className="text-[10px] uppercase block text-fgSubtle">First Registered</span>
+                <span className="text-fg">{formatDate(brand.created_at)}</span>
               </div>
               <div>
-                <span className="text-[10px] uppercase block text-slate-500">Last Baseline Update</span>
-                <span className="text-white">{formatDate(brand.updated_at)}</span>
+                <span className="text-[10px] uppercase block text-fgSubtle">Last Baseline Update</span>
+                <span className="text-fg">{formatDate(brand.updated_at)}</span>
               </div>
             </div>
           </div>
@@ -135,7 +135,7 @@ export default function BrandDetailDrawer({
                     className="cyber-panel p-3 rounded-lg border border-cyber-border flex items-center justify-between"
                   >
                     <div className="flex items-center gap-2">
-                      <span className="text-xs font-mono font-medium text-white">
+                      <span className="text-xs font-mono font-medium text-fg">
                         {dom.domain}
                       </span>
                       {dom.is_primary && (
@@ -149,14 +149,14 @@ export default function BrandDetailDrawer({
                         href={`https://${dom.domain}`}
                         target="_blank"
                         rel="noreferrer"
-                        className="text-cyber-textMuted hover:text-white"
+                        className="text-cyber-textMuted hover:text-fg"
                         title="Visit Domain"
                       >
                         <ExternalLink className="w-3.5 h-3.5" />
                       </a>
                       <button
                         onClick={() => copyToClipboard(dom.domain)}
-                        className="text-cyber-textMuted hover:text-white"
+                        className="text-cyber-textMuted hover:text-fg"
                         title="Copy Domain"
                       >
                         <Copy className="w-3.5 h-3.5" />
@@ -185,9 +185,9 @@ export default function BrandDetailDrawer({
                     className="cyber-panel p-3 rounded-lg border border-cyber-border flex items-center justify-between"
                   >
                     <div>
-                      <div className="text-xs font-mono font-medium text-white flex items-center gap-2">
+                      <div className="text-xs font-mono font-medium text-fg flex items-center gap-2">
                         <span>@{soc.handle}</span>
-                        <span className="text-[10px] font-mono px-1.5 py-0.5 rounded bg-cyber-surface border border-cyber-border text-blue-400 uppercase">
+                        <span className="text-[10px] font-mono px-1.5 py-0.5 rounded bg-cyber-surface border border-cyber-border text-accent uppercase">
                           {soc.platform}
                         </span>
                       </div>
@@ -199,7 +199,7 @@ export default function BrandDetailDrawer({
                     </div>
                     <button
                       onClick={() => copyToClipboard(`@${soc.handle}`)}
-                      className="text-cyber-textMuted hover:text-white"
+                      className="text-cyber-textMuted hover:text-fg"
                       title="Copy Handle"
                     >
                       <Copy className="w-3.5 h-3.5" />
@@ -237,7 +237,7 @@ export default function BrandDetailDrawer({
                     </div>
                     <button
                       onClick={() => copyToClipboard(app.identifier)}
-                      className="text-cyber-textMuted hover:text-white"
+                      className="text-cyber-textMuted hover:text-fg"
                       title="Copy Identifier"
                     >
                       <Copy className="w-3.5 h-3.5" />
@@ -262,7 +262,7 @@ export default function BrandDetailDrawer({
                 brand.publishers.map((pub) => (
                   <div
                     key={pub.id || pub.publisher_name}
-                    className="cyber-panel p-3 rounded-lg border border-cyber-border flex items-center justify-between text-xs font-medium text-white"
+                    className="cyber-panel p-3 rounded-lg border border-cyber-border flex items-center justify-between text-xs font-medium text-fg"
                   >
                     <span>{pub.publisher_name}</span>
                     {pub.platform && (

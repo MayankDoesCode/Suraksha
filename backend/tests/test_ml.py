@@ -391,6 +391,8 @@ def test_predict_social_frontend_payload_with_target_brand_and_followers_count()
         "display_name": "ApexPay Official",
         "biography": "The official handle for ApexPay Global. Fast, secure enterprise payment infrastructure.",
         "followers_count": 148500,
+        "following_count": 120,
+        "posts_count": 860,
         "target_brand": "ApexPay",
     })
     assert res.status_code == 200
@@ -486,3 +488,47 @@ def test_api_status_reports_all_components():
     assert "fallback_engine" in comps["mobile_app_brand_impersonation"]
     assert "dataset_audit" in comps["mobile_app_brand_impersonation"]
 
+
+
+def test_social_risk_missing_metadata_is_not_scored_as_fake():
+    from backend.app.ml import get_ml_service
+    service = get_ml_service()
+    result = service.predict_social_risk({"username": "johnsmith"}, brand_profile={"name": "acme"})
+    fake = result["generic_fake_account_ml"]
+    assert fake["status"] == "insufficient_metadata"
+    assert fake["fake_score"] is None
+    assert set(fake["missing_metadata"]) == {"follower_count", "following_count", "media_count"}
+    # Unrelated handle, no brand match: low brand risk regardless of the fake model.
+    assert result["risk_score"] == 10.0
+
+
+def test_social_brand_risk_independent_of_fake_score():
+    """Brand-impersonation risk_score must not move when only generic bot-likeness changes."""
+    from backend.app.ml import get_ml_service
+    service = get_ml_service()
+    base = {"username": "acme_support_help", "bio": "official support"}
+    botlike = dict(base, followers_count=2, following_count=3000, media_count=0)
+    healthy = dict(base, followers_count=50000, following_count=200, media_count=900)
+    r1 = service.predict_social_risk(botlike, brand_profile={"name": "acme"})
+    r2 = service.predict_social_risk(healthy, brand_profile={"name": "acme"})
+    assert r1["risk_score"] == r2["risk_score"]
+    assert r1["risk_score_basis"] == "brand_impersonation_heuristics_only"
+    assert r1["generic_fake_account_ml"]["fused_into_risk_score"] is False
+
+
+def test_url_risk_scores_canonical_host_not_full_url():
+    """Scheme, www, path and query must not change the URL model's score (format-leakage guard)."""
+    from backend.app.ml import get_ml_service
+    service = get_ml_service()
+    bare = service.predict_url_risk("docs.python.org")
+    full = service.predict_url_risk("https://www.docs.python.org/3/library/index.html?x=1")
+    assert full["scored_input"] == "docs.python.org"
+    assert full["indicator"].startswith("https://")
+    assert full["risk_score"] == bare["risk_score"]
+
+
+def test_canonical_host_normalization():
+    from backend.app.ml.url_eval import canonical_host
+    assert canonical_host("HTTPS://WWW.Example.COM./a?b=1") == "example.com"
+    assert canonical_host("user@login.example.com:8080") == "login.example.com"
+    assert canonical_host("wwwexample.com") == "wwwexample.com"

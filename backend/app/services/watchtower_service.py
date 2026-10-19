@@ -438,8 +438,9 @@ class WatchtowerService:
             domain_tld = components.get("tld", "")
             is_tld_high_risk = domain_tld in HIGH_RISK_TLDS
 
-            # Homoglyph detection: check for non-ASCII characters in hostname
-            for char in components.get("hostname", ""):
+            # Homoglyph detection: check for non-ASCII characters in decoded Unicode or raw hostname
+            target_host = components.get("unicode_hostname") or components.get("hostname", "")
+            for char in target_host:
                 if ord(char) > 127:
                     homoglyph_detected = True
                     homoglyph_chars.append(f"U+{ord(char):04X} ('{char}')")

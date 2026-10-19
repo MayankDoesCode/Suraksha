@@ -6,6 +6,7 @@ from dotenv import load_dotenv
 
 from backend.app.config import get_config
 from backend.app.database import init_db, close_db
+from backend.app.utils.limiter import init_limiter
 from backend.app.utils.errors import register_error_handlers
 from backend.app.api.v1 import api_v1_bp
 
@@ -47,6 +48,9 @@ def create_app(config_name: str | None = None) -> Flask:
         allow_headers=["Content-Type", "Authorization", "X-Requested-With"],
         methods=["GET", "POST", "PUT", "DELETE", "OPTIONS"]
     )
+
+    # Initialize rate limiting
+    init_limiter(app)
 
     # Attach error handlers
     register_error_handlers(app)

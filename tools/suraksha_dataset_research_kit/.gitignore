@@ -1,0 +1,9 @@
+# Data are acquired locally; only manifests/reports cleared for sharing should be considered for source control.
+data/
+*.joblib
+*.pkl
+*.parquet
+*.sqlite
+*.db
+__pycache__/
+.venv*/

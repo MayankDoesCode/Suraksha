@@ -1,1076 +1,203 @@
-import React, { useState, useMemo } from 'react';
+import React, { useMemo } from 'react';
+import { ArrowRight, Building2, ChevronRight, CloudOff } from 'lucide-react';
 import { useApp } from '../context/AppContext';
-import { RiskBadge } from '../components/RiskBadge';
-import { StatusBadge } from '../components/StatusBadge';
-import { exportCandidatesToCSV } from '../utils/csvExport';
-import {
-  ShieldAlert,
-  AlertTriangle,
-  FolderSearch,
-  Activity,
-  ArrowUpRight,
-  Filter,
-  Search,
-  Share2,
-  Smartphone,
-  Globe,
-  Sparkles,
-  Shield,
-  ShieldCheck,
-  TrendingUp,
-  Clock,
-  Radio,
-  FileSpreadsheet,
-  Network,
-  Cpu,
-  Layers,
-  CheckCircle2,
-  Calendar,
-  AlertCircle,
-  BarChart3,
-  SlidersHorizontal,
-  ChevronRight,
-  RotateCcw,
-  Plus,
-} from 'lucide-react';
-import type { RiskLevel, InvestigationStatus, AssetType } from '../types';
+import { useAuth } from '../context/AuthContext';
+import { SEVERITY_RANK } from '../components/FindingsTable';
+import { Donut } from '../components/dashboard/charts';
+import { CountUp } from '../components/landing/Reveal';
+import { deriveThreatGraph } from '../utils/threatGraph';
+import type { CandidateAsset, InvestigationStatus, RiskLevel } from '../types';
+
+const SEV: { key: RiskLevel; color: string; bar: string; text: string }[] = [
+  { key: 'Critical', color: 'rgb(var(--c-danger))', bar: 'bg-danger', text: 'text-danger' },
+  { key: 'High', color: 'rgb(var(--c-high))', bar: 'bg-high', text: 'text-high' },
+  { key: 'Medium', color: 'rgb(var(--c-warn))', bar: 'bg-warn', text: 'text-warn' },
+  { key: 'Low', color: 'rgb(var(--c-ok))', bar: 'bg-ok', text: 'text-ok' },
+];
+const STAGES: { key: InvestigationStatus; label: string; bar: string }[] = [
+  { key: 'New', label: 'New', bar: 'bg-accent' },
+  { key: 'Investigating', label: 'Investigating', bar: 'bg-warn' },
+  { key: 'Confirmed Suspicious', label: 'Confirmed', bar: 'bg-danger' },
+  { key: 'Dismissed', label: 'Dismissed', bar: 'bg-fgSubtle' },
+];
+
+const time = (iso: string) => { const t = Date.parse(iso); return Number.isNaN(t) ? 0 : t; };
+const ago = (iso: string) => {
+  if (!time(iso)) return '—';
+  const m = Math.max(0, (Date.now() - time(iso)) / 60000);
+  return m < 60 ? `${Math.max(1, Math.round(m))}m` : m < 1440 ? `${Math.round(m / 60)}h` : `${Math.round(m / 1440)}d`;
+};
+const greeting = () => {
+  const h = new Date().getHours();
+  return h < 5 ? 'Working late' : h < 12 ? 'Good morning' : h < 18 ? 'Good afternoon' : 'Good evening';
+};
 
 export const OverviewDashboard: React.FC = () => {
-  const {
-    candidates,
-    brandProfile,
-    stats,
-    setActiveTab,
-    setSelectedCandidateId,
-    backendOnline,
-    selectedBackendBrandId,
-    backendBrands,
-    threatNodes,
-    threatEdges,
-    isDemoMode,
-    enterDemoMode,
-  } = useApp();
+  const { candidates, brandProfile, setActiveTab, setSelectedCandidateId, backendOnline, isBackendLoading, isDemoMode, enterDemoMode, backendBrands } = useApp();
+  const { currentUser, userProfile } = useAuth();
 
-  // Multi-dimensional filters and search
-  const [filterSeverity, setFilterSeverity] = useState<string>('all');
-  const [filterSource, setFilterSource] = useState<string>('all');
-  const [filterStatus, setFilterStatus] = useState<string>('all');
-  const [searchQuery, setSearchQuery] = useState<string>('');
-  const [sortOption, setSortOption] = useState<'severity-desc' | 'date-desc' | 'date-asc' | 'title-asc'>('severity-desc');
+  const hasBrand = !!brandProfile.brandName && brandProfile.brandName !== 'No Brand Registered';
+  const open = useMemo(() => candidates.filter((c) => c.status !== 'Dismissed'), [candidates]);
+  const verifiedAssets = (brandProfile.officialDomains?.length || 0) + (brandProfile.officialSocialUrls?.length || 0) + (brandProfile.officialApps?.length || 0);
+  const first = (userProfile?.displayName || currentUser?.displayName || '').split(/[ (]/)[0];
 
-  // Total monitored assets from verified profile
-  const totalMonitoredAssets =
-    (brandProfile.officialDomains?.length || 0) +
-    (brandProfile.officialSocialUrls?.length || 0) +
-    (brandProfile.officialApps?.length || 0);
-
-  // Active unmitigated candidates (Dismissed / Allowlisted do not contribute to risk)
-  const activeCandidates = useMemo(
-    () => candidates.filter((c) => c.status !== 'Dismissed'),
-    [candidates]
-  );
-
-  const criticalCount = useMemo(
-    () => activeCandidates.filter((c) => c.riskCategory === 'Critical').length,
-    [activeCandidates]
-  );
-  const highCount = useMemo(
-    () => activeCandidates.filter((c) => c.riskCategory === 'High').length,
-    [activeCandidates]
-  );
-  const mediumCount = useMemo(
-    () => activeCandidates.filter((c) => c.riskCategory === 'Medium').length,
-    [activeCandidates]
-  );
-  const lowCount = useMemo(
-    () => activeCandidates.filter((c) => c.riskCategory === 'Low').length,
-    [activeCandidates]
-  );
-
-  // Transparent mathematical risk posture score:
-  // Critical=35, High=20, Medium=8, Low=2, bounded to [0, 100]
-  const calculatedRiskScore = useMemo(() => {
-    if (activeCandidates.length === 0) return 0;
-    const weightedSum = criticalCount * 35 + highCount * 20 + mediumCount * 8 + lowCount * 2;
-    return Math.min(100, Math.max(0, weightedSum));
-  }, [activeCandidates.length, criticalCount, highCount, mediumCount, lowCount]);
-
-  // Risk posture classification with disciplined enterprise colors
-  const postureMeta = useMemo(() => {
-    if (calculatedRiskScore >= 70) {
-      return {
-        label: 'CRITICAL RISK EXPOSURE',
-        color: '#EF4444',
-        badgeBg: 'bg-[#EF4444]/10 text-[#EF4444] border-[#EF4444]/30',
-        summary: 'Immediate active brand impersonation and rogue assets detected requiring urgent containment.',
-        icon: ShieldAlert,
-      };
-    }
-    if (calculatedRiskScore >= 40) {
-      return {
-        label: 'ELEVATED RISK POSTURE',
-        color: '#F97316',
-        badgeBg: 'bg-[#F97316]/10 text-[#F97316] border-[#F97316]/30',
-        summary: 'Multiple high-risk candidates observed. Active analyst triage and verification recommended.',
-        icon: AlertTriangle,
-      };
-    }
-    if (calculatedRiskScore >= 15) {
-      return {
-        label: 'MODERATE RISK POSTURE',
-        color: '#F59E0B',
-        badgeBg: 'bg-[#F59E0B]/10 text-[#F59E0B] border-[#F59E0B]/30',
-        summary: 'Candidate lookalike signals detected. Standard continuous surveillance active.',
-        icon: AlertCircle,
-      };
-    }
-    return {
-      label: 'RESILIENT / OPTIMAL POSTURE',
-      color: '#10B981',
-      badgeBg: 'bg-[#10B981]/10 text-[#10B981] border-[#10B981]/30',
-      summary: 'No active malicious brand threats detected. All screened entities allowlisted or benign.',
-      icon: ShieldCheck,
-    };
-  }, [calculatedRiskScore]);
-
-  // Detection source distribution
-  const sourceStats = useMemo(() => {
-    const total = candidates.length || 1;
-    const domain = candidates.filter((c) => c.type === 'domain').length;
-    const social = candidates.filter((c) => c.type === 'social').length;
-    const app = candidates.filter((c) => c.type === 'app').length;
-    return {
-      domain,
-      domainPct: Math.round((domain / total) * 100),
-      social,
-      socialPct: Math.round((social / total) * 100),
-      app,
-      appPct: Math.round((app / total) * 100),
-    };
-  }, [candidates]);
-
-  // Severity distribution across all candidates
-  const severityStats = useMemo(() => {
-    const total = candidates.length || 1;
-    const crit = candidates.filter((c) => c.riskCategory === 'Critical').length;
-    const high = candidates.filter((c) => c.riskCategory === 'High').length;
-    const med = candidates.filter((c) => c.riskCategory === 'Medium').length;
-    const low = candidates.filter((c) => c.riskCategory === 'Low').length;
-    return {
-      crit,
-      critPct: Math.round((crit / total) * 100),
-      high,
-      highPct: Math.round((high / total) * 100),
-      med,
-      medPct: Math.round((med / total) * 100),
-      low,
-      lowPct: Math.round((low / total) * 100),
-    };
-  }, [candidates]);
-
-  // Filtering and sorting the candidates table
-  const filteredCandidates = useMemo(() => {
-    return candidates
-      .filter((c) => {
-        const matchesSeverity =
-          filterSeverity === 'all' || c.riskCategory.toLowerCase() === filterSeverity.toLowerCase();
-        const matchesSource =
-          filterSource === 'all' || c.type.toLowerCase() === filterSource.toLowerCase();
-        const matchesStatus =
-          filterStatus === 'all' || c.status.toLowerCase() === filterStatus.toLowerCase();
-
-        const q = searchQuery.toLowerCase().trim();
-        const matchesSearch =
-          !q ||
-          c.title.toLowerCase().includes(q) ||
-          c.identifier.toLowerCase().includes(q) ||
-          c.platform.toLowerCase().includes(q) ||
-          (c.evidence && c.evidence.toLowerCase().includes(q)) ||
-          (c.tags && c.tags.some((t) => t.toLowerCase().includes(q)));
-
-        return matchesSeverity && matchesSource && matchesStatus && matchesSearch;
-      })
-      .sort((a, b) => {
-        if (sortOption === 'severity-desc') {
-          const weight: Record<RiskLevel, number> = {
-            Critical: 4,
-            High: 3,
-            Medium: 2,
-            Low: 1,
-          };
-          return (weight[b.riskCategory] || 0) - (weight[a.riskCategory] || 0);
-        }
-        if (sortOption === 'date-desc') {
-          return new Date(b.createdDate || 0).getTime() - new Date(a.createdDate || 0).getTime();
-        }
-        if (sortOption === 'date-asc') {
-          return new Date(a.createdDate || 0).getTime() - new Date(b.createdDate || 0).getTime();
-        }
-        if (sortOption === 'title-asc') {
-          return a.title.localeCompare(b.title);
-        }
-        return 0;
+  // Most severe first, then the most connected evidence.
+  const graph = useMemo(() => deriveThreatGraph(candidates, brandProfile.brandName), [candidates, brandProfile.brandName]);
+  const queue = useMemo(() => {
+    const links = new Map<string, { n: number; first?: string }>();
+    graph.edges.filter((e) => e.basis === 'observed' && e.kind !== 'TARGETS_BRAND').forEach((e) => {
+      [e.source, e.target].forEach((id) => {
+        const cur = links.get(id) || { n: 0 };
+        const other = graph.nodes.find((x) => x.id === (id === e.source ? e.target : e.source))?.label;
+        links.set(id, { n: cur.n + 1, first: cur.first || `${e.label.toLowerCase()} with ${other}` });
       });
-  }, [candidates, filterSeverity, filterSource, filterStatus, searchQuery, sortOption]);
+    });
+    return open
+      .filter((c) => c.status === 'New' || c.status === 'Investigating')
+      .map((c) => ({ c, link: links.get(`f:${c.id}`) }))
+      .sort((a, b) => SEVERITY_RANK[b.c.riskCategory] - SEVERITY_RANK[a.c.riskCategory] || (b.link?.n || 0) - (a.link?.n || 0) || time(b.c.createdDate) - time(a.c.createdDate))
+      .slice(0, 5);
+  }, [open, graph]);
 
-  const getSourceIcon = (type: AssetType) => {
-    switch (type) {
-      case 'app':
-        return <Smartphone className="w-3.5 h-3.5 text-[#45C8E8]" />;
-      case 'domain':
-        return <Globe className="w-3.5 h-3.5 text-[#9B8AFB]" />;
-      case 'social':
-      default:
-        return <Share2 className="w-3.5 h-3.5 text-[#45C8E8]" />;
-    }
-  };
+  if (isBackendLoading && candidates.length === 0) {
+    return <div aria-busy="true" aria-label="Loading overview" className="mx-auto max-w-4xl space-y-4"><div className="h-56 animate-pulse rounded-xl bg-surface3" /><div className="h-48 animate-pulse rounded-xl bg-surface3" /></div>;
+  }
 
-  const getSourceLabel = (type: AssetType) => {
-    switch (type) {
-      case 'app':
-        return 'Mobile App';
-      case 'domain':
-        return 'Domain / DNS';
-      case 'social':
-      default:
-        return 'Social Profile';
-    }
-  };
-
-  const getEngineBadge = (candidate: (typeof candidates)[0]) => {
-    const engine = candidate.analysisEngine || '';
-    if (engine.toLowerCase().includes('allowlist') || candidate.scenarioType === 'official') {
-      return (
-        <span className="inline-flex items-center gap-1 text-[10px] font-mono text-[#10B981] bg-[#10B981]/10 border border-[#10B981]/30 px-1.5 py-0.5 rounded">
-          <ShieldCheck className="w-2.5 h-2.5" />
-          <span>Rule: Allowlist</span>
-        </span>
-      );
-    }
-    if (engine.toLowerCase().includes('gemini') || engine.toLowerCase().includes('ml')) {
-      return (
-        <span className="inline-flex items-center gap-1 text-[10px] font-mono text-[#9B8AFB] bg-[#9B8AFB]/10 border border-[#9B8AFB]/30 px-1.5 py-0.5 rounded">
-          <Sparkles className="w-2.5 h-2.5" />
-          <span>ML Inference</span>
-        </span>
-      );
-    }
+  if (!hasBrand && !isDemoMode && backendBrands.length === 0) {
     return (
-      <span className="inline-flex items-center gap-1 text-[10px] font-mono text-[#45C8E8] bg-[#45C8E8]/10 border border-[#45C8E8]/30 px-1.5 py-0.5 rounded">
-        <Cpu className="w-2.5 h-2.5" />
-        <span>Heuristic Rule</span>
-      </span>
-    );
-  };
-
-  const formatTimestamp = (isoDate?: string) => {
-    if (!isoDate) return 'Intake Recorded';
-    try {
-      const d = new Date(isoDate);
-      return d.toLocaleDateString(undefined, {
-        month: 'short',
-        day: 'numeric',
-        hour: '2-digit',
-        minute: '2-digit',
-      });
-    } catch {
-      return isoDate;
-    }
-  };
-
-  const PostureIcon = postureMeta.icon;
-
-  // Real Workspace Empty State for new accounts with no registered brands
-  const isWorkspaceEmpty = !isDemoMode && (!brandProfile.id || backendBrands.length === 0) && candidates.length === 0;
-
-  if (isWorkspaceEmpty) {
-    return (
-      <div className="space-y-6 font-sans select-none text-[#F8FAFC]">
-        {/* Empty Workspace Hero Card */}
-        <section className="relative rounded-2xl border border-[#1E314F] bg-gradient-to-b from-[#0F1E36] to-[#0A1526] p-8 lg:p-12 shadow-2xl overflow-hidden text-center">
-          <div className="absolute inset-0 bg-radial-at-c from-[#45C8E8]/5 via-transparent to-transparent pointer-events-none" />
-
-          <div className="relative z-10 max-w-2xl mx-auto space-y-6">
-            <div className="w-16 h-16 mx-auto rounded-2xl bg-[#111D30] border border-[#1E314F] flex items-center justify-center shadow-lg">
-              <ShieldCheck className="w-8 h-8 text-[#45C8E8]" />
-            </div>
-
-            <div className="space-y-2">
-              <span className="text-[10px] font-mono uppercase tracking-widest text-[#45C8E8] font-bold px-3 py-1 rounded-full bg-[#45C8E8]/10 border border-[#45C8E8]/30">
-                Pristine Security Workspace
-              </span>
-              <h1 className="text-2xl lg:text-3xl font-bold text-white tracking-tight pt-2">
-                Your Workspace Is Empty &amp; Secure
-              </h1>
-              <p className="text-sm text-[#8EA2C6] leading-relaxed max-w-lg mx-auto">
-                No monitored brands or threat detections are currently active in your account. To begin autonomous brand protection and surveillance, register your verified organization assets.
-              </p>
-            </div>
-
-            {/* Accurate Zero Metrics */}
-            <div className="grid grid-cols-2 sm:grid-cols-4 gap-3 py-4">
-              <div className="p-4 rounded-xl bg-[#080F1D]/60 border border-[#1E314F]">
-                <p className="text-2xl font-mono font-bold text-white">0</p>
-                <p className="text-xs text-[#8EA2C6] mt-1">Registered Brands</p>
-              </div>
-              <div className="p-4 rounded-xl bg-[#080F1D]/60 border border-[#1E314F]">
-                <p className="text-2xl font-mono font-bold text-white">0</p>
-                <p className="text-xs text-[#8EA2C6] mt-1">Monitored Assets</p>
-              </div>
-              <div className="p-4 rounded-xl bg-[#080F1D]/60 border border-[#1E314F]">
-                <p className="text-2xl font-mono font-bold text-white">0</p>
-                <p className="text-xs text-[#8EA2C6] mt-1">Active Findings</p>
-              </div>
-              <div className="p-4 rounded-xl bg-[#080F1D]/60 border border-[#1E314F]">
-                <p className="text-2xl font-mono font-bold text-[#10B981]">0 / 100</p>
-                <p className="text-xs text-[#8EA2C6] mt-1">Risk Posture (Clear)</p>
-              </div>
-            </div>
-
-            {/* Actions */}
-            <div className="flex flex-col sm:flex-row items-center justify-center gap-3 pt-2">
-              <button
-                onClick={() => setActiveTab('brand-profile')}
-                className="w-full sm:w-auto px-6 py-3 rounded-xl bg-[#45C8E8] hover:bg-[#38b5d4] text-[#080F1D] font-bold text-sm transition-all shadow-lg hover:shadow-[#45C8E8]/20 flex items-center justify-center gap-2 cursor-pointer"
-              >
-                <Plus className="w-4 h-4" />
-                Add Your First Brand
-              </button>
-
-              <button
-                onClick={enterDemoMode}
-                className="w-full sm:w-auto px-6 py-3 rounded-xl bg-[#1A2942] hover:bg-[#223656] text-[#DCE7F6] border border-[#2A3E60] font-semibold text-sm transition-all flex items-center justify-center gap-2 cursor-pointer"
-              >
-                <Sparkles className="w-4 h-4 text-[#9B8AFB]" />
-                Try Demo Mode (Sandbox)
-              </button>
-            </div>
-
-            <p className="text-[11px] text-[#64748B] font-mono">
-              Zero synthetic incidents are fabricated in real accounts.
-            </p>
-          </div>
-        </section>
+      <div className="mx-auto max-w-md py-20 text-center">
+        <Building2 className="mx-auto h-6 w-6 text-fgSubtle" />
+        <h2 className="mt-4 text-lg font-semibold">Register the brand you want to protect</h2>
+        <p className="mt-1 text-sm text-fgMuted">Add your official domains, profiles and apps first. They are excluded from findings, and everything else is judged against them.</p>
+        <div className="mt-5 flex justify-center gap-2">
+          <button onClick={() => setActiveTab('brand-profile')} className="rounded-md bg-accent px-3.5 py-1.5 text-sm font-medium text-onAccent hover:bg-accentHover">Set up a brand</button>
+          <button onClick={enterDemoMode} className="rounded-md border border-line px-3.5 py-1.5 text-sm text-fgMuted hover:bg-surface3 hover:text-fg">Explore demo data</button>
+        </div>
       </div>
     );
   }
 
+  const bySev = SEV.map((s) => ({ label: s.key, value: open.filter((c) => c.riskCategory === s.key).length, color: s.color, text: s.text, bar: s.bar }));
+  const byStage = STAGES.map((s) => ({ ...s, n: candidates.filter((c) => c.status === s.key).length }));
+  const waiting = byStage[0].n + byStage[1].n;
+  const reviewed = candidates.length - byStage[0].n;
+  const urgent = open.filter((c) => c.riskCategory === 'Critical' || c.riskCategory === 'High').length;
+
   return (
-    <div className="space-y-5 font-sans select-none text-[#F8FAFC]">
-      {/* ========================================================= */}
-      {/* 1. EXECUTIVE POSTURE & INCIDENT RESPONSE BANNER            */}
-      {/* ========================================================= */}
-      <section className="bg-[#111D30] rounded-xl p-5 lg:p-6 text-[#F8FAFC] shadow-card border border-[#1E314F] relative overflow-hidden">
-        <div className="flex flex-col xl:flex-row items-stretch justify-between gap-6">
-          {/* Left: Brand Identity & Executive Overview */}
-          <div className="flex-1 space-y-3">
-            <div className="flex flex-wrap items-center gap-2">
-              <span className="text-[10px] font-mono font-bold uppercase tracking-widest text-[#45C8E8] bg-[#45C8E8]/10 px-2.5 py-0.5 rounded border border-[#45C8E8]/25 flex items-center gap-1.5">
-                <Shield className="w-3 h-3 text-[#45C8E8]" />
-                SURAKSHA COMMAND POSTURE
-              </span>
+    <div className="sk-stagger mx-auto max-w-4xl space-y-8 pb-6">
+      {!backendOnline && !isDemoMode && (
+        <p role="alert" className="flex items-center gap-2 rounded-md bg-warn/10 px-3 py-2 text-sm text-warn"><CloudOff className="h-4 w-4" /> Backend unreachable. Showing the findings last loaded.</p>
+      )}
 
-              <span className="text-xs text-[#8EA2C6] font-mono">
-                Target Entity:{' '}
-                <strong className="text-[#F8FAFC]">
-                  {brandProfile.brandName && brandProfile.brandName !== 'No Brand Registered'
-                    ? brandProfile.brandName
-                    : (isDemoMode ? 'ApexPay Global (Demo)' : 'No Brand Configured')}
-                </strong>
-                {selectedBackendBrandId ? (
-                  <span className="ml-1.5 text-[10px] text-[#10B981] bg-[#10B981]/10 px-1.5 py-0.2 rounded border border-[#10B981]/25">
-                    Live Protected
-                  </span>
-                ) : isDemoMode ? (
-                  <span className="ml-1.5 text-[10px] text-[#F59E0B] bg-[#F59E0B]/10 px-1.5 py-0.2 rounded border border-[#F59E0B]/25">
-                    Sandbox Demo
-                  </span>
-                ) : (
-                  <span className="ml-1.5 text-[10px] text-[#45C8E8] bg-[#45C8E8]/10 px-1.5 py-0.2 rounded border border-[#45C8E8]/25">
-                    Pristine Workspace
-                  </span>
-                )}
-              </span>
-
-              <span className="text-xs font-mono text-[#8EA2C6] hidden sm:inline">
-                • {totalMonitoredAssets} Verified Identity Assets Monitored
-              </span>
-            </div>
-
-            <div>
-              <h2 className="text-xl sm:text-2xl font-bold tracking-tight text-[#F8FAFC] leading-snug">
-                Digital Brand Risk Posture &amp; Attack Surface
-              </h2>
-              <p className="text-xs text-[#8EA2C6] leading-relaxed max-w-2xl mt-1">
-                Continuous surveillance across domain namespaces, authorized social channels, and public application
-                repositories. Risk scoring evaluates unmitigated candidate threats with verified false-positive exclusion.
-              </p>
-            </div>
-
-            {/* Transparent Calculation Breakdown */}
-            <div className="p-3 rounded-lg bg-[#0E1726] border border-[#1E314F] text-[11px] font-mono space-y-1.5 max-w-2xl">
-              <div className="flex items-center justify-between text-[#8EA2C6]">
-                <span className="flex items-center gap-1.5 text-[#45C8E8] font-semibold">
-                  <Cpu className="w-3.5 h-3.5 text-[#45C8E8]" />
-                  Mathematical Scoring Formula
-                </span>
-                <span className="text-[#8EA2C6] text-[10px]">Deterministic Severity Weights</span>
-              </div>
-              <p className="text-[#CAD7E8] text-[10.5px] leading-relaxed">
-                Risk Posture = min(100, Σ (Active Finding × Weight)). Weights: Critical=35, High=20, Medium=8, Low=2.
-              </p>
-              <div className="flex flex-wrap items-center gap-x-3 gap-y-1 pt-1 border-t border-[#1E314F] text-[10px] text-[#8EA2C6]">
-                <span>
-                  Active Signals:{' '}
-                  <strong className="text-white">{activeCandidates.length}</strong> of{' '}
-                  <strong className="text-white">{candidates.length}</strong> total
-                </span>
-                <span>•</span>
-                <span className="text-[#EF4444]">Critical: {criticalCount} (×35)</span>
-                <span>•</span>
-                <span className="text-[#F97316]">High: {highCount} (×20)</span>
-                <span>•</span>
-                <span className="text-[#F59E0B]">Medium: {mediumCount} (×8)</span>
-                <span>•</span>
-                <span className="text-[#10B981]">Low: {lowCount} (×2)</span>
-              </div>
-            </div>
-          </div>
-
-          {/* Center: Risk Posture Gauge Matrix */}
-          <div className="shrink-0 p-5 rounded-lg bg-[#16253D] border border-[#1E314F] flex flex-col justify-between items-center min-w-[230px] text-center shadow-sm">
-            <div className="flex items-center justify-between w-full mb-1">
-              <span className="text-[10px] uppercase font-mono font-semibold tracking-wider text-[#8EA2C6]">
-                Calculated Risk Score
-              </span>
-              <span className={`text-[10.5px] font-mono font-bold px-2 py-0.5 rounded border ${postureMeta.badgeBg}`}>
-                {calculatedRiskScore} / 100
-              </span>
-            </div>
-
-            <div className="my-3 flex items-center justify-center gap-3">
-              <div
-                className="w-12 h-12 rounded-xl flex items-center justify-center border"
-                style={{
-                  backgroundColor: `${postureMeta.color}15`,
-                  borderColor: `${postureMeta.color}35`,
-                }}
-              >
-                <PostureIcon className="w-6 h-6" style={{ color: postureMeta.color }} />
-              </div>
-              <div className="text-left">
-                <span className="text-3xl font-mono font-extrabold text-white tracking-tight">
-                  {calculatedRiskScore}
-                </span>
-                <span className="text-xs text-[#8EA2C6] block font-mono">Index Score</span>
-              </div>
-            </div>
-
-            {/* Segmented Meter Bar */}
-            <div className="w-full space-y-1">
-              <div className="h-2 w-full bg-[#0E1726] rounded-full overflow-hidden flex p-0.5 border border-[#1E314F]">
-                <div
-                  className="h-full rounded-full transition-all duration-500"
-                  style={{
-                    width: `${Math.max(4, calculatedRiskScore)}%`,
-                    backgroundColor: postureMeta.color,
-                  }}
-                />
-              </div>
-              <span className="text-[10px] font-mono font-semibold block" style={{ color: postureMeta.color }}>
-                {postureMeta.label}
-              </span>
-            </div>
-
-            <p className="text-[10px] text-[#8EA2C6] mt-2 max-w-[210px] leading-tight">
-              {postureMeta.summary}
-            </p>
-          </div>
-
-          {/* Right: Quick Action Controls */}
-          <div className="shrink-0 p-4 rounded-lg bg-[#16253D] border border-[#1E314F] flex flex-col justify-center gap-2 min-w-[210px]">
-            <span className="text-[10px] uppercase font-mono font-semibold tracking-wider text-[#8EA2C6] mb-0.5">
-              Rapid Surveillance Scans
-            </span>
-
-            <button
-              onClick={() => setActiveTab('social-monitoring')}
-              className="w-full px-3 py-2 rounded-lg bg-[#111D30] hover:bg-[#1E314F] text-[#F8FAFC] text-xs font-medium border border-[#1E314F] hover:border-[#9B8AFB]/40 transition-all flex items-center justify-between cursor-pointer"
-            >
-              <span className="flex items-center gap-2">
-                <Sparkles className="w-3.5 h-3.5 text-[#9B8AFB]" />
-                <span>Scan Social Profiles</span>
-              </span>
-              <ChevronRight className="w-3.5 h-3.5 text-[#8EA2C6]" />
-            </button>
-
-            <button
-              onClick={() => setActiveTab('app-monitoring')}
-              className="w-full px-3 py-2 rounded-lg bg-[#111D30] hover:bg-[#1E314F] text-[#F8FAFC] text-xs font-medium border border-[#1E314F] hover:border-[#45C8E8]/40 transition-all flex items-center justify-between cursor-pointer"
-            >
-              <span className="flex items-center gap-2">
-                <Smartphone className="w-3.5 h-3.5 text-[#45C8E8]" />
-                <span>Scan Rogue App Packages</span>
-              </span>
-              <ChevronRight className="w-3.5 h-3.5 text-[#8EA2C6]" />
-            </button>
-
-            <button
-              onClick={() => setActiveTab('lookalike-engine')}
-              className="w-full px-3 py-2 rounded-lg bg-[#111D30] hover:bg-[#1E314F] text-[#F8FAFC] text-xs font-medium border border-[#1E314F] hover:border-[#45C8E8]/40 transition-all flex items-center justify-between cursor-pointer"
-            >
-              <span className="flex items-center gap-2">
-                <Globe className="w-3.5 h-3.5 text-[#45C8E8]" />
-                <span>Inspect Look-alike Domains</span>
-              </span>
-              <ChevronRight className="w-3.5 h-3.5 text-[#8EA2C6]" />
-            </button>
-
-            <button
-              onClick={() => exportCandidatesToCSV(candidates, brandProfile.brandName)}
-              className="w-full px-3 py-1.5 rounded-lg bg-[#0E1726] hover:bg-[#111D30] text-[#8EA2C6] hover:text-white text-[11px] font-mono border border-[#1E314F] transition-colors flex items-center justify-center gap-1.5 cursor-pointer mt-1"
-            >
-              <FileSpreadsheet className="w-3 h-3 text-[#45C8E8]" />
-              <span>Export CSV Dossier</span>
-            </button>
-          </div>
+      {/* Greeting */}
+      <header className="flex flex-wrap items-end justify-between gap-4">
+        <div>
+          <p className="text-sm text-fgSubtle">{greeting()}{first ? `, ${first}` : ''}</p>
+          <h2 className="mt-1 text-[1.65rem] font-semibold leading-tight tracking-tight">
+            {candidates.length === 0
+              ? `Nothing to review for ${brandProfile.brandName}`
+              : waiting === 0
+              ? 'Everything has been reviewed'
+              : <>{waiting} {waiting === 1 ? 'finding is' : 'findings are'} waiting for a decision</>}
+          </h2>
         </div>
-      </section>
+        <button onClick={() => setActiveTab('lookalike-engine')} className="group inline-flex items-center gap-1.5 rounded-md bg-accent px-3.5 py-2 text-sm font-medium text-onAccent transition-colors hover:bg-accentHover">
+          Check a domain <ArrowRight className="h-3.5 w-3.5 transition-transform group-hover:translate-x-0.5" />
+        </button>
+      </header>
 
-      {/* ========================================================= */}
-      {/* 2. REAL SUMMARY METRIC CARDS (Purely Data-Driven)          */}
-      {/* ========================================================= */}
-      <section className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
-        {/* Card 1 — Monitored Assets */}
-        <div className="bg-[#111D30] p-4 sm:p-5 rounded-xl border border-[#1E314F] hover:border-[#45C8E8]/30 transition-all relative overflow-hidden group shadow-card">
-          <div className="flex items-center justify-between">
-            <span className="text-xs font-mono font-semibold text-[#8EA2C6] uppercase tracking-wider">
-              Monitored Assets
-            </span>
-            <div className="w-8 h-8 rounded-lg bg-[#45C8E8]/10 border border-[#45C8E8]/25 flex items-center justify-center text-[#45C8E8]">
-              <ShieldCheck className="w-4 h-4" />
-            </div>
-          </div>
-          <div className="mt-2.5 flex items-baseline gap-2">
-            <span className="text-2xl sm:text-3xl font-extrabold text-[#F8FAFC] tracking-tight font-mono">
-              {totalMonitoredAssets}
-            </span>
-            <span className="text-[10px] font-mono font-medium text-[#45C8E8] bg-[#45C8E8]/10 border border-[#45C8E8]/25 px-2 py-0.2 rounded">
-              Verified Profile
-            </span>
-          </div>
-          <p className="text-xs text-[#8EA2C6] mt-1.5">
-            {brandProfile.officialDomains?.length || 0} domains, {brandProfile.officialSocialUrls?.length || 0} handles,{' '}
-            {brandProfile.officialApps?.length || 0} apps in directory
-          </p>
-        </div>
+      {/* Hero: exposure ring and the three numbers that matter */}
+      <section
+        aria-label="Exposure"
+        className="relative overflow-hidden rounded-xl border border-line bg-surface p-6 sm:p-8"
+        style={{ backgroundImage: 'radial-gradient(110% 120% at 0% 0%, rgb(var(--c-accent) / 0.09), transparent 55%)' }}
+      >
+        <div className="flex flex-col items-center gap-8 sm:flex-row sm:gap-12">
+          <Donut
+            parts={bySev.map((s) => ({ label: s.label, value: s.value, color: s.color }))}
+            centre={<span className="text-5xl font-semibold tabular-nums tracking-tight"><CountUp value={String(open.length)} /></span>}
+            caption="open findings"
+          />
+          <div className="w-full flex-1">
+            <ul className="grid grid-cols-2 gap-x-6 gap-y-2 text-sm">
+              {bySev.map((s) => (
+                <li key={s.label} className="flex items-center gap-2 text-fgMuted">
+                  <span className={`h-2 w-2 rounded-full ${s.bar}`} aria-hidden />
+                  {s.label}
+                  <span className="ml-auto tabular-nums text-fg">{s.value}</span>
+                </li>
+              ))}
+            </ul>
 
-        {/* Card 2 — Active Unmitigated Findings */}
-        <div className="bg-[#111D30] p-4 sm:p-5 rounded-xl border border-[#1E314F] hover:border-[#EF4444]/30 transition-all relative overflow-hidden group shadow-card">
-          <div className="flex items-center justify-between">
-            <span className="text-xs font-mono font-semibold text-[#8EA2C6] uppercase tracking-wider">
-              Active Findings
-            </span>
-            <div className="w-8 h-8 rounded-lg bg-[#EF4444]/10 border border-[#EF4444]/25 flex items-center justify-center text-[#EF4444]">
-              <ShieldAlert className="w-4 h-4" />
-            </div>
-          </div>
-          <div className="mt-2.5 flex items-baseline gap-2">
-            <span className="text-2xl sm:text-3xl font-extrabold text-[#F8FAFC] tracking-tight font-mono">
-              {activeCandidates.length}
-            </span>
-            <span className="text-[10px] font-mono font-medium text-[#EF4444] bg-[#EF4444]/10 border border-[#EF4444]/25 px-2 py-0.2 rounded">
-              Needs Triage
-            </span>
-          </div>
-          <p className="text-xs text-[#8EA2C6] mt-1.5">
-            {criticalCount} Critical &amp; {highCount} High severity candidate entities
-          </p>
-        </div>
-
-        {/* Card 3 — In Active Investigation */}
-        <div className="bg-[#111D30] p-4 sm:p-5 rounded-xl border border-[#1E314F] hover:border-[#F59E0B]/30 transition-all relative overflow-hidden group shadow-card">
-          <div className="flex items-center justify-between">
-            <span className="text-xs font-mono font-semibold text-[#8EA2C6] uppercase tracking-wider">
-              Under Investigation
-            </span>
-            <div className="w-8 h-8 rounded-lg bg-[#F59E0B]/10 border border-[#F59E0B]/25 flex items-center justify-center text-[#F59E0B]">
-              <FolderSearch className="w-4 h-4" />
-            </div>
-          </div>
-          <div className="mt-2.5 flex items-baseline gap-2">
-            <span className="text-2xl sm:text-3xl font-extrabold text-[#F8FAFC] tracking-tight font-mono">
-              {stats.investigatingCount}
-            </span>
-            <span className="text-[10px] font-mono font-medium text-[#F59E0B] bg-[#F59E0B]/10 border border-[#F59E0B]/25 px-2 py-0.2 rounded">
-              Active Dossiers
-            </span>
-          </div>
-          <p className="text-xs text-[#8EA2C6] mt-1.5">
-            Assigned to analyst triage with recorded evidence trails
-          </p>
-        </div>
-
-        {/* Card 4 — Confirmed Incidents */}
-        <div className="bg-[#111D30] p-4 sm:p-5 rounded-xl border border-[#1E314F] hover:border-[#EF4444]/30 transition-all relative overflow-hidden group shadow-card">
-          <div className="flex items-center justify-between">
-            <span className="text-xs font-mono font-semibold text-[#8EA2C6] uppercase tracking-wider">
-              Confirmed Incidents
-            </span>
-            <div className="w-8 h-8 rounded-lg bg-[#EF4444]/10 border border-[#EF4444]/25 flex items-center justify-center text-[#EF4444]">
-              <AlertTriangle className="w-4 h-4" />
-            </div>
-          </div>
-          <div className="mt-2.5 flex items-baseline gap-2">
-            <span className="text-2xl sm:text-3xl font-extrabold text-[#F8FAFC] tracking-tight font-mono">
-              {stats.confirmedSuspiciousCount}
-            </span>
-            <span className="text-[10px] font-mono font-medium text-[#EF4444] bg-[#EF4444]/10 border border-[#EF4444]/25 px-2 py-0.2 rounded">
-              Takedown Ready
-            </span>
-          </div>
-          <p className="text-xs text-[#8EA2C6] mt-1.5">
-            Analyst-verified fraudulent look-alikes and rogue packages
-          </p>
-        </div>
-      </section>
-
-      {/* ========================================================= */}
-      {/* 3. THREAT INTELLIGENCE WORKSPACE: DISTRIBUTIONS & TRENDS    */}
-      {/* ========================================================= */}
-      <section className="grid grid-cols-1 lg:grid-cols-12 gap-5">
-        {/* Severity Distribution Card (4 cols) */}
-        <div className="lg:col-span-4 bg-[#111D30] rounded-xl p-5 border border-[#1E314F] shadow-card space-y-4">
-          <div className="flex items-center justify-between">
-            <div className="flex items-center gap-2">
-              <div className="w-7 h-7 rounded bg-[#16253D] border border-[#1E314F] flex items-center justify-center text-[#45C8E8]">
-                <BarChart3 className="w-3.5 h-3.5" />
-              </div>
-              <h3 className="text-xs font-mono font-bold uppercase tracking-wider text-[#F8FAFC]">
-                Severity Distribution
-              </h3>
-            </div>
-            <span className="text-[10.5px] font-mono text-[#8EA2C6]">
-              {candidates.length} Total Signals
-            </span>
-          </div>
-
-          {/* Stacked Proportional Bar */}
-          <div className="h-2 w-full bg-[#0E1726] rounded-full overflow-hidden flex gap-0.5 border border-[#1E314F]">
-            {severityStats.crit > 0 && (
-              <div
-                className="h-full bg-[#EF4444] rounded-xs"
-                style={{ width: `${severityStats.critPct}%` }}
-                title={`Critical: ${severityStats.crit}`}
-              />
-            )}
-            {severityStats.high > 0 && (
-              <div
-                className="h-full bg-[#F97316] rounded-xs"
-                style={{ width: `${severityStats.highPct}%` }}
-                title={`High: ${severityStats.high}`}
-              />
-            )}
-            {severityStats.med > 0 && (
-              <div
-                className="h-full bg-[#F59E0B] rounded-xs"
-                style={{ width: `${severityStats.medPct}%` }}
-                title={`Medium: ${severityStats.med}`}
-              />
-            )}
-            {severityStats.low > 0 && (
-              <div
-                className="h-full bg-[#10B981] rounded-xs"
-                style={{ width: `${severityStats.lowPct}%` }}
-                title={`Low: ${severityStats.low}`}
-              />
-            )}
-          </div>
-
-          {/* Detailed Severity Breakdown Rows */}
-          <div className="space-y-1.5 text-xs font-mono">
-            <div className="flex items-center justify-between p-2 rounded-lg bg-[#0E1726] border border-[#1E314F]">
-              <span className="flex items-center gap-2 text-[#EF4444]">
-                <span className="w-1.5 h-1.5 rounded-full bg-[#EF4444]" />
-                <span>Critical Severity</span>
-              </span>
-              <span className="font-bold text-white">
-                {severityStats.crit}{' '}
-                <span className="text-[10px] text-[#8EA2C6] font-normal">({severityStats.critPct}%)</span>
-              </span>
-            </div>
-
-            <div className="flex items-center justify-between p-2 rounded-lg bg-[#0E1726] border border-[#1E314F]">
-              <span className="flex items-center gap-2 text-[#F97316]">
-                <span className="w-1.5 h-1.5 rounded-full bg-[#F97316]" />
-                <span>High Severity</span>
-              </span>
-              <span className="font-bold text-white">
-                {severityStats.high}{' '}
-                <span className="text-[10px] text-[#8EA2C6] font-normal">({severityStats.highPct}%)</span>
-              </span>
-            </div>
-
-            <div className="flex items-center justify-between p-2 rounded-lg bg-[#0E1726] border border-[#1E314F]">
-              <span className="flex items-center gap-2 text-[#F59E0B]">
-                <span className="w-1.5 h-1.5 rounded-full bg-[#F59E0B]" />
-                <span>Medium Severity</span>
-              </span>
-              <span className="font-bold text-white">
-                {severityStats.med}{' '}
-                <span className="text-[10px] text-[#8EA2C6] font-normal">({severityStats.medPct}%)</span>
-              </span>
-            </div>
-
-            <div className="flex items-center justify-between p-2 rounded-lg bg-[#0E1726] border border-[#1E314F]">
-              <span className="flex items-center gap-2 text-[#10B981]">
-                <span className="w-1.5 h-1.5 rounded-full bg-[#10B981]" />
-                <span>Low / Allowlisted</span>
-              </span>
-              <span className="font-bold text-white">
-                {severityStats.low}{' '}
-                <span className="text-[10px] text-[#8EA2C6] font-normal">({severityStats.lowPct}%)</span>
-              </span>
-            </div>
-          </div>
-        </div>
-
-        {/* Source Vector Distribution Card (4 cols) */}
-        <div className="lg:col-span-4 bg-[#111D30] rounded-xl p-5 border border-[#1E314F] shadow-card space-y-4">
-          <div className="flex items-center justify-between">
-            <div className="flex items-center gap-2">
-              <div className="w-7 h-7 rounded bg-[#16253D] border border-[#1E314F] flex items-center justify-center text-[#45C8E8]">
-                <Layers className="w-3.5 h-3.5" />
-              </div>
-              <h3 className="text-xs font-mono font-bold uppercase tracking-wider text-[#F8FAFC]">
-                Findings by Vector
-              </h3>
-            </div>
-            <span className="text-[10.5px] font-mono text-[#45C8E8]">3 Vectors Active</span>
-          </div>
-
-          <div className="space-y-2.5">
-            {/* Social Media Vector */}
-            <div className="p-2.5 rounded-lg bg-[#0E1726] border border-[#1E314F] space-y-1.5">
-              <div className="flex items-center justify-between text-xs">
-                <span className="flex items-center gap-2 text-[#F8FAFC] font-medium">
-                  <Share2 className="w-3.5 h-3.5 text-[#45C8E8]" />
-                  <span>Social Media Profiles</span>
-                </span>
-                <span className="font-mono text-white font-bold">
-                  {sourceStats.social}{' '}
-                  <span className="text-[10px] text-[#8EA2C6] font-normal">({sourceStats.socialPct}%)</span>
-                </span>
-              </div>
-              <div className="h-1.5 w-full bg-[#16253D] rounded-full overflow-hidden">
-                <div className="h-full bg-[#45C8E8] rounded-full" style={{ width: `${sourceStats.socialPct}%` }} />
-              </div>
-            </div>
-
-            {/* Mobile Apps Vector */}
-            <div className="p-2.5 rounded-lg bg-[#0E1726] border border-[#1E314F] space-y-1.5">
-              <div className="flex items-center justify-between text-xs">
-                <span className="flex items-center gap-2 text-[#F8FAFC] font-medium">
-                  <Smartphone className="w-3.5 h-3.5 text-[#45C8E8]" />
-                  <span>Mobile App Packages</span>
-                </span>
-                <span className="font-mono text-white font-bold">
-                  {sourceStats.app}{' '}
-                  <span className="text-[10px] text-[#8EA2C6] font-normal">({sourceStats.appPct}%)</span>
-                </span>
-              </div>
-              <div className="h-1.5 w-full bg-[#16253D] rounded-full overflow-hidden">
-                <div className="h-full bg-[#45C8E8] rounded-full" style={{ width: `${sourceStats.appPct}%` }} />
-              </div>
-            </div>
-
-            {/* Lookalike Domains Vector */}
-            <div className="p-2.5 rounded-lg bg-[#0E1726] border border-[#1E314F] space-y-1.5">
-              <div className="flex items-center justify-between text-xs">
-                <span className="flex items-center gap-2 text-[#F8FAFC] font-medium">
-                  <Globe className="w-3.5 h-3.5 text-[#9B8AFB]" />
-                  <span>Look-alike Domains / DNS</span>
-                </span>
-                <span className="font-mono text-white font-bold">
-                  {sourceStats.domain}{' '}
-                  <span className="text-[10px] text-[#8EA2C6] font-normal">({sourceStats.domainPct}%)</span>
-                </span>
-              </div>
-              <div className="h-1.5 w-full bg-[#16253D] rounded-full overflow-hidden">
-                <div className="h-full bg-[#9B8AFB] rounded-full" style={{ width: `${sourceStats.domainPct}%` }} />
-              </div>
-            </div>
-          </div>
-        </div>
-
-        {/* Threat Graph Topology Card (4 cols) */}
-        <div className="lg:col-span-4 bg-[#111D30] rounded-xl p-5 border border-[#1E314F] shadow-card space-y-4 flex flex-col justify-between">
-          <div>
-            <div className="flex items-center justify-between mb-2">
-              <div className="flex items-center gap-2">
-                <div className="w-7 h-7 rounded bg-[#16253D] border border-[#1E314F] flex items-center justify-center text-[#9B8AFB]">
-                  <Network className="w-3.5 h-3.5" />
+            <dl className="mt-6 grid grid-cols-3 divide-x divide-line border-t border-line pt-5">
+              {[
+                ['Critical or high', urgent, urgent > 0 ? 'text-danger' : ''],
+                ['Investigating', byStage[1].n, ''],
+                ['Verified assets', verifiedAssets, ''],
+              ].map(([label, value, tone], i) => (
+                <div key={label as string} className={i === 0 ? 'pr-4' : 'px-4'}>
+                  <dd className={`text-3xl font-semibold tabular-nums ${tone}`}><CountUp value={String(value)} /></dd>
+                  <dt className="mt-0.5 text-xs text-fgSubtle">{label}</dt>
                 </div>
-                <h3 className="text-xs font-mono font-bold uppercase tracking-wider text-[#F8FAFC]">
-                  Threat Graph Topology
-                </h3>
-              </div>
-              <span className="text-[10px] font-mono text-[#10B981] bg-[#10B981]/10 border border-[#10B981]/25 px-1.5 py-0.2 rounded">
-                {threatNodes.length} Nodes
-              </span>
-            </div>
-
-            <p className="text-xs text-[#8EA2C6] leading-relaxed">
-              Analyzes shared registrar infrastructure, phishing kits, and cross-promoted rogue APK packages
-              associated with <strong className="text-white">{brandProfile.brandName}</strong>.
-            </p>
-
-            <div className="mt-3 grid grid-cols-2 gap-2 text-center text-xs font-mono">
-              <div className="p-2 rounded-lg bg-[#0E1726] border border-[#1E314F]">
-                <span className="text-base font-bold text-white block">{threatNodes.length}</span>
-                <span className="text-[9.5px] text-[#8EA2C6] uppercase">Graph Entities</span>
-              </div>
-              <div className="p-2 rounded-lg bg-[#0E1726] border border-[#1E314F]">
-                <span className="text-base font-bold text-[#45C8E8] block">{threatEdges.length}</span>
-                <span className="text-[9.5px] text-[#8EA2C6] uppercase">Linked Vectors</span>
-              </div>
-            </div>
+              ))}
+            </dl>
           </div>
-
-          <button
-            onClick={() => setActiveTab('threat-graph')}
-            className="w-full px-4 py-2 rounded-lg bg-[#16253D] hover:bg-[#1E314F] border border-[#1E314F] hover:border-[#45C8E8]/40 text-[#F8FAFC] text-xs font-medium transition-all flex items-center justify-center gap-2 cursor-pointer shadow-xs"
-          >
-            <Network className="w-3.5 h-3.5 text-[#45C8E8]" />
-            <span>Open Interactive Threat Graph</span>
-          </button>
         </div>
+
+        {/* Pipeline: where every finding currently stands */}
+        {candidates.length > 0 && (
+          <div className="mt-7 border-t border-line pt-5">
+            <div className="flex items-baseline justify-between text-xs text-fgSubtle">
+              <span>Review pipeline</span>
+              <span>{reviewed} of {candidates.length} reviewed</span>
+            </div>
+            <div className="mt-2 flex h-1.5 gap-0.5 overflow-hidden rounded-full" role="img" aria-label={byStage.map((s) => `${s.label} ${s.n}`).join(', ')}>
+              {byStage.filter((s) => s.n).map((s) => <div key={s.key} className={`${s.bar} sk-grow-x`} style={{ flex: s.n }} />)}
+            </div>
+            <ul className="mt-2.5 flex flex-wrap gap-x-5 gap-y-1 text-xs text-fgMuted">
+              {byStage.map((s) => <li key={s.key} className="flex items-center gap-1.5"><span className={`h-1.5 w-1.5 rounded-full ${s.bar}`} aria-hidden />{s.label} <span className="tabular-nums text-fg">{s.n}</span></li>)}
+            </ul>
+          </div>
+        )}
       </section>
 
-      {/* ========================================================= */}
-      {/* 4. RECENT INCIDENTS & SCREENED THREAT CANDIDATES TABLE     */}
-      {/* ========================================================= */}
-      <section className="bg-[#111D30] rounded-xl border border-[#1E314F] shadow-card overflow-hidden">
-        {/* Table Header with Filters and Search */}
-        <div className="p-4 sm:p-5 border-b border-[#1E314F] flex flex-col xl:flex-row xl:items-center justify-between gap-4">
-          <div className="flex items-center gap-3">
-            <div className="w-8 h-8 rounded-lg bg-[#16253D] border border-[#1E314F] flex items-center justify-center text-[#45C8E8] shrink-0">
-              <Activity className="w-4 h-4" />
-            </div>
-            <div>
-              <h3 className="text-sm font-bold text-[#F8FAFC]">
-                Screened Incidents &amp; Threat Candidates
-              </h3>
-              <p className="text-xs text-[#8EA2C6]">
-                Security operations register displaying {filteredCandidates.length} of {candidates.length} recorded candidate entities.
-              </p>
-            </div>
-          </div>
-
-          {/* Controls Bar: Multi-Filters & Search */}
-          <div className="flex flex-wrap items-center gap-2 text-xs">
-            {/* Severity Filter */}
-            <div className="flex items-center gap-1 bg-[#0E1726] px-2.5 py-1.5 rounded-lg border border-[#1E314F]">
-              <span className="text-[11px] font-mono text-[#8EA2C6]">Severity:</span>
-              <select
-                value={filterSeverity}
-                onChange={(e) => setFilterSeverity(e.target.value)}
-                className="bg-transparent text-xs font-mono font-semibold text-[#F8FAFC] focus:outline-hidden cursor-pointer"
-              >
-                <option value="all" className="bg-[#111D30]">All</option>
-                <option value="critical" className="bg-[#111D30]">Critical</option>
-                <option value="high" className="bg-[#111D30]">High</option>
-                <option value="medium" className="bg-[#111D30]">Medium</option>
-                <option value="low" className="bg-[#111D30]">Low</option>
-              </select>
-            </div>
-
-            {/* Source Vector Filter */}
-            <div className="flex items-center gap-1 bg-[#0E1726] px-2.5 py-1.5 rounded-lg border border-[#1E314F]">
-              <span className="text-[11px] font-mono text-[#8EA2C6]">Vector:</span>
-              <select
-                value={filterSource}
-                onChange={(e) => setFilterSource(e.target.value)}
-                className="bg-transparent text-xs font-mono font-semibold text-[#F8FAFC] focus:outline-hidden cursor-pointer"
-              >
-                <option value="all" className="bg-[#111D30]">All Vectors</option>
-                <option value="domain" className="bg-[#111D30]">Domain / DNS</option>
-                <option value="social" className="bg-[#111D30]">Social Profile</option>
-                <option value="app" className="bg-[#111D30]">Mobile App</option>
-              </select>
-            </div>
-
-            {/* Status Filter */}
-            <div className="flex items-center gap-1 bg-[#0E1726] px-2.5 py-1.5 rounded-lg border border-[#1E314F]">
-              <span className="text-[11px] font-mono text-[#8EA2C6]">Status:</span>
-              <select
-                value={filterStatus}
-                onChange={(e) => setFilterStatus(e.target.value)}
-                className="bg-transparent text-xs font-mono font-semibold text-[#F8FAFC] focus:outline-hidden cursor-pointer"
-              >
-                <option value="all" className="bg-[#111D30]">All Statuses</option>
-                <option value="new" className="bg-[#111D30]">New Intake</option>
-                <option value="investigating" className="bg-[#111D30]">Investigating</option>
-                <option value="confirmed suspicious" className="bg-[#111D30]">Confirmed Suspicious</option>
-                <option value="dismissed" className="bg-[#111D30]">Dismissed</option>
-              </select>
-            </div>
-
-            {/* Sort Dropdown */}
-            <div className="flex items-center gap-1 bg-[#0E1726] px-2.5 py-1.5 rounded-lg border border-[#1E314F]">
-              <SlidersHorizontal className="w-3.5 h-3.5 text-[#8EA2C6]" />
-              <select
-                value={sortOption}
-                onChange={(e) => setSortOption(e.target.value as any)}
-                className="bg-transparent text-xs font-mono font-semibold text-[#F8FAFC] focus:outline-hidden cursor-pointer"
-              >
-                <option value="severity-desc" className="bg-[#111D30]">Severity (High-Low)</option>
-                <option value="date-desc" className="bg-[#111D30]">Newest First</option>
-                <option value="date-asc" className="bg-[#111D30]">Oldest First</option>
-                <option value="title-asc" className="bg-[#111D30]">A-Z Title</option>
-              </select>
-            </div>
-
-            {/* Search Input */}
-            <div className="relative">
-              <Search className="w-3.5 h-3.5 text-[#8EA2C6] absolute left-3 top-1/2 -translate-y-1/2 pointer-events-none" />
-              <input
-                type="text"
-                value={searchQuery}
-                onChange={(e) => setSearchQuery(e.target.value)}
-                placeholder="Filter candidates..."
-                className="pl-8 pr-3 py-1.5 text-xs font-mono bg-[#0E1726] border border-[#1E314F] focus:border-[#45C8E8] rounded-lg text-white placeholder-[#8EA2C6] focus:outline-hidden w-40 sm:w-52 transition-all"
-              >
-              </input>
-            </div>
-
-            {(filterSeverity !== 'all' || filterSource !== 'all' || filterStatus !== 'all' || searchQuery) && (
-              <button
-                onClick={() => {
-                  setFilterSeverity('all');
-                  setFilterSource('all');
-                  setFilterStatus('all');
-                  setSearchQuery('');
-                }}
-                className="p-1.5 rounded-lg bg-[#0E1726] hover:bg-[#16253D] border border-[#1E314F] text-[#8EA2C6] hover:text-white transition-colors cursor-pointer"
-                title="Reset Filters"
-              >
-                <RotateCcw className="w-3.5 h-3.5" />
-              </button>
-            )}
-          </div>
+      {/* Needs attention */}
+      <section aria-labelledby="queue-h">
+        <div className="flex items-baseline justify-between">
+          <h3 id="queue-h" className="text-sm font-medium">Needs attention</h3>
+          {queue.length > 0 && <button onClick={() => setActiveTab('investigation-center')} className="text-xs text-accent hover:underline">All investigations</button>}
         </div>
-
-        {/* Incidents Table */}
-        <div className="overflow-x-auto">
-          <table className="w-full text-left text-xs">
-            <thead className="bg-[#0E1726] text-[#8EA2C6] font-mono uppercase tracking-wider text-[10.5px] border-b border-[#1E314F]">
-              <tr>
-                <th className="py-2.5 px-4 w-12">#</th>
-                <th className="py-2.5 px-4">CANDIDATE ASSET</th>
-                <th className="py-2.5 px-3">SOURCE VECTOR</th>
-                <th className="py-2.5 px-3">DETECTION PROVENANCE</th>
-                <th className="py-2.5 px-3">SEVERITY</th>
-                <th className="py-2.5 px-3">STATUS</th>
-                <th className="py-2.5 px-3">FIRST DETECTED</th>
-                <th className="py-2.5 px-4 text-right">ACTION</th>
-              </tr>
-            </thead>
-            <tbody className="divide-y divide-[#1E314F]/60 font-sans">
-              {filteredCandidates.length === 0 ? (
-                <tr>
-                  <td colSpan={8} className="py-12 text-center text-[#8EA2C6]">
-                    <div className="max-w-sm mx-auto space-y-2">
-                      <ShieldCheck className="w-8 h-8 text-[#10B981] mx-auto opacity-70" />
-                      <p className="font-semibold text-white">No candidate findings match your active filters</p>
-                      <p className="text-[11px] text-[#8EA2C6]">
-                        Adjust your severity, vector, or search parameters, or initiate a new monitoring sweep above.
-                      </p>
-                    </div>
-                  </td>
-                </tr>
-              ) : (
-                filteredCandidates.map((candidate, idx) => (
-                  <tr
-                    key={candidate.id}
-                    onClick={() => setSelectedCandidateId(candidate.id)}
-                    className="hover:bg-[#16253D]/50 cursor-pointer transition-colors group"
-                  >
-                    {/* Index */}
-                    <td className="py-3 px-4 font-mono font-medium text-[#8EA2C6]">
-                      {idx + 1}
-                    </td>
-
-                    {/* Candidate Asset Info */}
-                    <td className="py-3 px-4 max-w-sm">
-                      <div className="flex items-center gap-3">
-                        <div className="w-7 h-7 rounded-lg bg-[#0E1726] border border-[#1E314F] flex items-center justify-center shrink-0 group-hover:border-[#45C8E8]/40 transition-colors">
-                          {getSourceIcon(candidate.type)}
-                        </div>
-                        <div className="min-w-0">
-                          <div className="font-semibold text-[#F8FAFC] group-hover:text-[#45C8E8] flex items-center gap-1.5 transition-colors truncate">
-                            <span className="truncate">{candidate.title}</span>
-                            {candidate.isFictionalDemo && (
-                              <span className="text-[9px] bg-[#0E1726] text-[#8EA2C6] border border-[#1E314F] px-1 py-0.2 rounded font-mono shrink-0">
-                                DEMO
-                              </span>
-                            )}
-                          </div>
-                          <span className="text-[11px] text-[#8EA2C6] font-mono block mt-0.5 truncate">
-                            {candidate.identifier}
-                          </span>
-                        </div>
-                      </div>
-                    </td>
-
-                    {/* Source Vector */}
-                    <td className="py-3 px-3 text-[#F8FAFC] font-medium text-xs whitespace-nowrap">
-                      <div className="flex flex-col">
-                        <span>{getSourceLabel(candidate.type)}</span>
-                        <span className="text-[10px] text-[#8EA2C6] font-mono">{candidate.platform}</span>
-                      </div>
-                    </td>
-
-                    {/* Detection Provenance */}
-                    <td className="py-3 px-3 whitespace-nowrap">
-                      {getEngineBadge(candidate)}
-                    </td>
-
-                    {/* Risk Level */}
-                    <td className="py-3 px-3 whitespace-nowrap">
-                      <RiskBadge level={candidate.riskCategory} size="sm" />
-                    </td>
-
-                    {/* Status */}
-                    <td className="py-3 px-3 whitespace-nowrap">
-                      <StatusBadge status={candidate.status} size="sm" />
-                    </td>
-
-                    {/* First Detected Timestamp */}
-                    <td className="py-3 px-3 text-[11px] font-mono text-[#8EA2C6] whitespace-nowrap">
-                      {formatTimestamp(candidate.createdDate)}
-                    </td>
-
-                    {/* Action Button */}
-                    <td className="py-3 px-4 text-right whitespace-nowrap">
-                      <button
-                        onClick={(e) => {
-                          e.stopPropagation();
-                          setSelectedCandidateId(candidate.id);
-                        }}
-                        className="inline-flex items-center gap-1 px-2.5 py-1 rounded bg-[#16253D] hover:bg-[#1E314F] text-[#45C8E8] hover:text-white border border-[#1E314F] hover:border-[#45C8E8]/40 text-[11px] font-mono font-medium transition-all cursor-pointer"
-                      >
-                        <span>Dossier</span>
-                        <ArrowUpRight className="w-3 h-3" />
-                      </button>
-                    </td>
-                  </tr>
-                ))
-              )}
-            </tbody>
-          </table>
-        </div>
+        {queue.length === 0 ? (
+          <p className="mt-3 rounded-xl border border-dashed border-line px-4 py-8 text-center text-sm text-fgMuted">
+            {candidates.length === 0 ? 'Findings appear here after you check a suspected domain, profile or app. Checks run on demand; this is not continuous monitoring.' : 'Nothing is waiting. Every open finding has been reviewed.'}
+          </p>
+        ) : (
+          <ul className="mt-3 overflow-hidden rounded-xl border border-line bg-surface">
+            {queue.map(({ c, link }: { c: CandidateAsset; link?: { n: number; first?: string } }, i) => {
+              const sev = SEV.find((s) => s.key === c.riskCategory)!;
+              return (
+                <li key={c.id} className={i ? 'border-t border-line/70' : ''}>
+                  <button onClick={() => setSelectedCandidateId(c.id)} className="group relative flex w-full items-center gap-4 py-3.5 pl-5 pr-4 text-left transition-colors hover:bg-surface2">
+                    <span className={`absolute inset-y-2 left-0 w-[3px] rounded-r-full ${sev.bar}`} aria-hidden />
+                    <span className="min-w-0 flex-1">
+                      <span className="block truncate text-sm font-medium" title={c.title}>{c.title}</span>
+                      <span className={`mt-0.5 block truncate text-xs ${link ? 'text-accent' : 'font-mono text-fgSubtle'}`}>
+                        {link ? `Connected: ${link.first}` : c.identifier}
+                      </span>
+                    </span>
+                    <span className={`shrink-0 text-xs font-medium ${sev.text}`}>{c.riskCategory}</span>
+                    <span className="hidden w-20 shrink-0 whitespace-nowrap text-right text-xs text-fgSubtle sm:block">{c.status === 'Investigating' ? 'In progress' : 'New'}</span>
+                    <span className="w-6 shrink-0 text-right text-xs tabular-nums text-fgSubtle">{ago(c.createdDate)}</span>
+                    <ChevronRight className="h-4 w-4 shrink-0 text-fgSubtle transition-transform group-hover:translate-x-0.5 group-hover:text-fg" />
+                  </button>
+                </li>
+              );
+            })}
+          </ul>
+        )}
       </section>
+
+      <p className="text-xs text-fgSubtle">Counted from the findings loaded for this brand. Severity comes from rule-based analysis; model output is supporting evidence only.</p>
     </div>
   );
 };

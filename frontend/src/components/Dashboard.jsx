@@ -177,9 +177,9 @@ export default function Dashboard({ onNavigateHome }) {
             <div
               className={`fixed top-6 right-6 z-50 p-4 rounded-xl shadow-2xl text-xs font-medium flex items-center gap-3 border transition-all animate-in slide-in-from-top-2 duration-200 ${
                 toast.type === 'error'
-                  ? 'bg-cyber-rose/90 border-cyber-rose text-white shadow-glowRose'
+                  ? 'bg-cyber-rose/90 border-cyber-rose text-fg shadow-glowRose'
                   : toast.type === 'info'
-                  ? 'bg-cyber-surface border-cyber-border text-white'
+                  ? 'bg-cyber-surface border-cyber-border text-fg'
                   : 'bg-cyber-surface border-cyber-emerald/60 text-cyber-emerald shadow-glowEmerald'
               }`}
             >

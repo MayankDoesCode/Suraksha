@@ -1,7 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import LandingPage from './components/landing/LandingPage';
 import WorkspaceShell from './components/WorkspaceShell';
-import SurakshaVaultIntro from './components/intro/SurakshaVaultIntro';
+import BrandIntro from './components/intro/BrandIntro';
 
 /**
  * SURAKSHA Master Application Router
@@ -15,7 +15,7 @@ export default function App() {
   });
   const [navOptions, setNavOptions] = useState(null);
 
-  // Manage cinematic vault intro on first eligible session visit to landing page
+  // Manage brand intro on first eligible session visit to landing page
   const [showIntro, setShowIntro] = useState(() => {
     if (typeof window === 'undefined') return false;
     // Do not show on direct dashboard navigation
@@ -28,7 +28,7 @@ export default function App() {
     }
 
     try {
-      const hasSeen = sessionStorage.getItem('suraksha_vault_intro_seen');
+      const hasSeen = sessionStorage.getItem('suraksha_intro_seen');
       return !hasSeen;
     } catch {
       return false;
@@ -57,7 +57,7 @@ export default function App() {
 
   const handleIntroComplete = () => {
     try {
-      sessionStorage.setItem('suraksha_vault_intro_seen', 'true');
+      sessionStorage.setItem('suraksha_intro_seen', 'true');
     } catch {
       // safe fallback if storage unavailable
     }
@@ -66,7 +66,7 @@ export default function App() {
 
   const handleReplayIntro = () => {
     try {
-      sessionStorage.removeItem('suraksha_vault_intro_seen');
+      sessionStorage.removeItem('suraksha_intro_seen');
     } catch {
       // safe fallback
     }
@@ -85,7 +85,7 @@ export default function App() {
 
   return (
     <>
-      {showIntro && <SurakshaVaultIntro onComplete={handleIntroComplete} />}
+      {showIntro && <BrandIntro onComplete={handleIntroComplete} />}
       <LandingPage
         onLaunchDashboard={(options) => navigate('/dashboard', options)}
         onReplayIntro={handleReplayIntro}

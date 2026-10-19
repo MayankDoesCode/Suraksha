@@ -211,37 +211,41 @@ class ThreatRepository:
             )
             self.session.add(finding)
 
-        # Flush to establish finding.id if new
-        self.session.flush()
+        try:
+            # Flush to establish finding.id if new
+            self.session.flush()
 
-        # Add child signals
-        for sig in signals:
-            signal_model = DetectionSignalRecord(
-                finding_id=finding.id,
-                signal_type=sig.signal_type,
-                score=sig.severity_score,
-                confidence=sig.confidence,
-                explanation=sig.explanation,
-                metadata_json=json.dumps({"evidence_fields": sig.evidence_fields}),
-                created_at=now,
-            )
-            finding.signals.append(signal_model)
+            # Add child signals
+            for sig in signals:
+                signal_model = DetectionSignalRecord(
+                    finding_id=finding.id,
+                    signal_type=sig.signal_type,
+                    score=sig.severity_score,
+                    confidence=sig.confidence,
+                    explanation=sig.explanation,
+                    metadata_json=json.dumps({"evidence_fields": sig.evidence_fields}),
+                    created_at=now,
+                )
+                finding.signals.append(signal_model)
 
-        # Add child evidence
-        for ev in evidence_records:
-            evidence_model = EvidenceRecord(
-                finding_id=finding.id,
-                evidence_type=ev.get("evidence_type", "artifact"),
-                description=ev.get("description", ""),
-                source_reference=ev.get("source_reference"),
-                captured_at=now,
-                created_at=now,
-            )
-            finding.evidence.append(evidence_model)
+            # Add child evidence
+            for ev in evidence_records:
+                evidence_model = EvidenceRecord(
+                    finding_id=finding.id,
+                    evidence_type=ev.get("evidence_type", "artifact"),
+                    description=ev.get("description", ""),
+                    source_reference=ev.get("source_reference"),
+                    captured_at=now,
+                    created_at=now,
+                )
+                finding.evidence.append(evidence_model)
 
-        self.session.commit()
-        self.session.refresh(finding)
-        return finding
+            self.session.commit()
+            self.session.refresh(finding)
+            return finding
+        except Exception:
+            self.session.rollback()
+            raise
 
     def update_status(
         self,
@@ -255,30 +259,34 @@ class ThreatRepository:
         if not finding:
             return None
 
-        old_status = finding.review_status
-        now = datetime.now(timezone.utc)
-        finding.review_status = new_status.upper()
-        finding.updated_at = now
+        try:
+            old_status = finding.review_status
+            now = datetime.now(timezone.utc)
+            finding.review_status = new_status.upper()
+            finding.updated_at = now
 
-        # Record immutable audit trail in evidence records
-        analyst_label = analyst or "SecOps Analyst"
-        audit_desc = f"Status transitioned from {old_status} to {new_status.upper()} by {analyst_label}."
-        if note:
-            audit_desc += f" Note: {note.strip()}"
+            # Record immutable audit trail in evidence records
+            analyst_label = analyst or "SecOps Analyst"
+            audit_desc = f"Status transitioned from {old_status} to {new_status.upper()} by {analyst_label}."
+            if note:
+                audit_desc += f" Note: {note.strip()}"
 
-        audit_evidence = EvidenceRecord(
-            finding_id=finding.id,
-            evidence_type="analyst_triage_audit",
-            description=audit_desc,
-            source_reference=analyst_label,
-            captured_at=now,
-            created_at=now,
-        )
-        finding.evidence.append(audit_evidence)
+            audit_evidence = EvidenceRecord(
+                finding_id=finding.id,
+                evidence_type="analyst_triage_audit",
+                description=audit_desc,
+                source_reference=analyst_label,
+                captured_at=now,
+                created_at=now,
+            )
+            finding.evidence.append(audit_evidence)
 
-        self.session.commit()
-        self.session.refresh(finding)
-        return finding
+            self.session.commit()
+            self.session.refresh(finding)
+            return finding
+        except Exception:
+            self.session.rollback()
+            raise
 
 
     def get_metrics(

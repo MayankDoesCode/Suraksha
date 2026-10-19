@@ -93,7 +93,7 @@ export default function PlannedModuleView({ moduleId, brandCount, onSwitchToBran
           </div>
           <div>
             <div className="flex items-center gap-3">
-              <h2 className="text-xl font-bold text-white tracking-wide">
+              <h2 className="text-xl font-bold text-fg tracking-wide">
                 {current.title}
               </h2>
               <span className="text-[10px] font-mono px-2 py-0.5 rounded border border-cyber-amber/40 bg-cyber-amber/10 text-cyber-amber font-semibold uppercase">
@@ -108,7 +108,7 @@ export default function PlannedModuleView({ moduleId, brandCount, onSwitchToBran
 
         {/* Non-negotiable Transparency Notice */}
         <div className="p-4 rounded-xl bg-cyber-surface border border-cyber-border space-y-2">
-          <div className="flex items-center gap-2 text-xs font-mono text-white font-semibold">
+          <div className="flex items-center gap-2 text-xs font-mono text-fg font-semibold">
             <Lock className="w-4 h-4 text-cyber-accent" />
             <span>ARCHITECTURE INTEGRITY & ZERO-FABRICATION POLICY</span>
           </div>
@@ -122,7 +122,7 @@ export default function PlannedModuleView({ moduleId, brandCount, onSwitchToBran
           <div className="text-xs font-mono uppercase tracking-wider text-cyber-accent font-semibold mb-2">
             Module Architecture & Scope
           </div>
-          <p className="text-xs text-slate-300 leading-relaxed">
+          <p className="text-xs text-fgMuted leading-relaxed">
             {current.objective}
           </p>
         </div>
@@ -136,7 +136,7 @@ export default function PlannedModuleView({ moduleId, brandCount, onSwitchToBran
             {current.pipelineSteps.map((step, idx) => (
               <div
                 key={idx}
-                className="p-3 rounded-lg bg-cyber-darkest border border-cyber-border/80 text-xs font-mono text-slate-300 flex items-start gap-3"
+                className="p-3 rounded-lg bg-cyber-darkest border border-cyber-border/80 text-xs font-mono text-fgMuted flex items-start gap-3"
               >
                 <span className="text-cyber-accent font-bold">0{idx + 1}.</span>
                 <span>{step}</span>
@@ -148,7 +148,7 @@ export default function PlannedModuleView({ moduleId, brandCount, onSwitchToBran
         {/* Current Anchor Baseline */}
         <div className="pt-4 border-t border-cyber-border flex items-center justify-between">
           <div className="text-xs font-mono text-cyber-textMuted">
-            Anchor State: <span className="text-white">{current.readiness}</span>
+            Anchor State: <span className="text-fg">{current.readiness}</span>
           </div>
           <button
             onClick={onSwitchToBrands}

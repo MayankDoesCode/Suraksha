@@ -1,0 +1,148 @@
+{
+  "generated_at": "2026-10-19T07:29:28.439298+00:00",
+  "dataset_path": "backend\\app\\ml\\data\\phishing_dataset.parquet",
+  "sklearn_version": "1.9.1",
+  "split": {
+    "method": "GroupShuffleSplit by naive root domain (last two labels), same as url_pipeline.py",
+    "test_size": 0.2,
+    "random_state": 42,
+    "train_rows": 7790,
+    "test_rows": 2210,
+    "test_set_sha256": "40926d8ab50182b1596701bcffd50b0f7e600e896348b055b09c44c2590485c0"
+  },
+  "data_quality": {
+    "rows": 10000,
+    "exact_duplicate_indicators": 0,
+    "conflicting_label_indicators": 0,
+    "host_collisions_across_labels": 0,
+    "format_profile_by_label": {
+      "0": {
+        "rows": 5000,
+        "has_scheme_rate": 0.0,
+        "has_path_rate": 0.0,
+        "mean_length": 11.6
+      },
+      "1": {
+        "rows": 5000,
+        "has_scheme_rate": 0.4858,
+        "has_path_rate": 0.4812,
+        "mean_length": 40.4
+      }
+    }
+  },
+  "shipped_model": {
+    "path": "backend\\app\\ml\\models\\url_phishing_pipeline.joblib",
+    "status": "evaluated"
+  },
+  "results": {
+    "format_shortcut_baseline__raw": {
+      "threshold": 0.5,
+      "n": 2210,
+      "positives": 1190,
+      "precision": 0.8934,
+      "recall": 0.8521,
+      "f1": 0.8723,
+      "f1_ci95": [
+        0.8576,
+        0.8862
+      ],
+      "false_positive_rate": 0.1186,
+      "pr_auc": 0.9589,
+      "pr_auc_ci95": [
+        0.9525,
+        0.9653
+      ],
+      "roc_auc": 0.9439,
+      "confusion_matrix": {
+        "tn": 899,
+        "fp": 121,
+        "fn": 176,
+        "tp": 1014
+      }
+    },
+    "shipped_model__raw": {
+      "threshold": 0.5,
+      "n": 2210,
+      "positives": 1190,
+      "precision": 0.9736,
+      "recall": 0.8378,
+      "f1": 0.9006,
+      "f1_ci95": [
+        0.8878,
+        0.9139
+      ],
+      "false_positive_rate": 0.0265,
+      "pr_auc": 0.9718,
+      "pr_auc_ci95": [
+        0.9659,
+        0.977
+      ],
+      "roc_auc": 0.9563,
+      "confusion_matrix": {
+        "tn": 993,
+        "fp": 27,
+        "fn": 193,
+        "tp": 997
+      }
+    },
+    "shipped_model__host_only": {
+      "threshold": 0.5,
+      "n": 2210,
+      "positives": 1190,
+      "precision": 0.9488,
+      "recall": 0.4202,
+      "f1": 0.5824,
+      "f1_ci95": [
+        0.5541,
+        0.6078
+      ],
+      "false_positive_rate": 0.0265,
+      "pr_auc": 0.8793,
+      "pr_auc_ci95": [
+        0.8633,
+        0.8934
+      ],
+      "roc_auc": 0.8473,
+      "confusion_matrix": {
+        "tn": 993,
+        "fp": 27,
+        "fn": 690,
+        "tp": 500
+      }
+    },
+    "host_only_retrained__host_only": {
+      "threshold": 0.5,
+      "n": 2210,
+      "positives": 1190,
+      "precision": 0.8913,
+      "recall": 0.6958,
+      "f1": 0.7815,
+      "f1_ci95": [
+        0.7607,
+        0.8013
+      ],
+      "false_positive_rate": 0.099,
+      "pr_auc": 0.9036,
+      "pr_auc_ci95": [
+        0.8907,
+        0.9159
+      ],
+      "roc_auc": 0.8758,
+      "confusion_matrix": {
+        "tn": 919,
+        "fp": 101,
+        "fn": 362,
+        "tp": 828
+      }
+    }
+  },
+  "warnings": [
+    "FORMAT LEAKAGE: a content-free format baseline reaches F1 0.8723 vs shipped model 0.9006 on raw inputs. The raw-input metric mostly measures URL format, not phishing.",
+    "Class-dependent input format: scheme rate differs by label (benign 0.0, phishing 0.4858)."
+  ],
+  "notes": [
+    "Scores are uncalibrated predict_proba values; threshold 0.5.",
+    "CIs are percentile bootstrap over test rows (rows are not fully independent within a root domain).",
+    "Naive root-domain grouping mis-groups multi-part suffixes (e.g. co.uk) and shared hosts; treat as approximate."
+  ]
+}

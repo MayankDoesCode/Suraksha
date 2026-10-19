@@ -19,19 +19,19 @@ export default function DeleteConfirmModal({
           </div>
           <button
             onClick={onClose}
-            className="p-1 rounded text-cyber-textMuted hover:text-white transition-colors"
+            className="p-1 rounded text-cyber-textMuted hover:text-fg transition-colors"
           >
             <X className="w-5 h-5" />
           </button>
         </div>
 
         <div>
-          <h3 className="text-base font-bold text-white tracking-wide">
+          <h3 className="text-base font-bold text-fg tracking-wide">
             Delete Brand Profile?
           </h3>
           <p className="text-xs text-cyber-textMuted mt-1.5 leading-relaxed">
             You are about to permanently delete{' '}
-            <span className="text-white font-semibold font-mono">"{brand.name}"</span>.
+            <span className="text-fg font-semibold font-mono">"{brand.name}"</span>.
           </p>
           <div className="mt-3 p-3 rounded-lg bg-cyber-rose/10 border border-cyber-rose/20 text-[11px] text-cyber-rose leading-relaxed">
             <strong>Warning:</strong> Cascading relational deletion will automatically remove all{' '}
@@ -45,7 +45,7 @@ export default function DeleteConfirmModal({
           <button
             type="button"
             onClick={onClose}
-            className="px-4 py-2 rounded-lg text-xs font-semibold text-cyber-textMuted hover:text-white transition-colors"
+            className="px-4 py-2 rounded-lg text-xs font-semibold text-cyber-textMuted hover:text-fg transition-colors"
           >
             Cancel
           </button>
@@ -53,7 +53,7 @@ export default function DeleteConfirmModal({
             type="button"
             onClick={() => onConfirm(brand.id)}
             disabled={deleting}
-            className="flex items-center gap-2 px-4 py-2 rounded-lg bg-cyber-rose text-white text-xs font-semibold hover:bg-rose-600 transition-all shadow-glowRose disabled:opacity-50"
+            className="flex items-center gap-2 px-4 py-2 rounded-lg bg-cyber-rose text-fg text-xs font-semibold hover:bg-danger transition-all shadow-glowRose disabled:opacity-50"
           >
             <Trash2 className="w-4 h-4" />
             {deleting ? 'Deleting...' : 'Delete Permanently'}

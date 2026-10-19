@@ -25,6 +25,7 @@ class RiskClassifier:
     _pipeline = None
     _metadata: Optional[Dict[str, Any]] = None
     _load_error: Optional[str] = None
+    _artifact_compat: Optional[Dict[str, Any]] = None
 
     def __init__(self, model_path: Optional[Path] = None, metadata_path: Optional[Path] = None):
         self.model_path = Path(model_path) if model_path else DEFAULT_MODEL_FILE
@@ -42,7 +43,12 @@ class RiskClassifier:
             return False
 
         try:
-            self._pipeline = joblib.load(self.model_path)
+            from backend.app.ml.artifact_compat import load_artifact
+            pipeline, compat = load_artifact(self.model_path, "generic_risk_classifier")
+            self._artifact_compat = compat.to_dict()
+            if pipeline is None:
+                raise RuntimeError(compat.message)
+            self._pipeline = pipeline
             if self.metadata_path.exists():
                 with open(self.metadata_path, "r", encoding="utf-8") as f:
                     self._metadata = json.load(f)
@@ -79,6 +85,7 @@ class RiskClassifier:
             "model_type": "RandomForestClassifier + FeatureUnion (TF-IDF & Scaler)",
             "status": "operational" if available else "fallback_mode",
             "error": self._load_error,
+            "artifact_compatibility": self._artifact_compat,
         }
 
     def classify(

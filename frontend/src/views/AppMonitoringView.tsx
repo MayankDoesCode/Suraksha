@@ -22,7 +22,7 @@ import type { RiskLevel } from '../types';
 import api from '../api/client';
 
 export const AppMonitoringView: React.FC = () => {
-  const { brandProfile, addCandidate, setSelectedCandidateId, setActiveTab, selectedBackendBrandId, refreshBackendData } = useApp();
+  const { brandProfile, addCandidate, setSelectedCandidateId, setActiveTab, selectedBackendBrandId, refreshBackendData, isDemoMode } = useApp();
 
   const [activeMode, setActiveMode] = useState<'audit' | 'live_provider'>('audit');
 
@@ -247,76 +247,62 @@ export const AppMonitoringView: React.FC = () => {
   const officialApp = brandProfile.officialApps[0];
 
   return (
-    <div className="max-w-6xl mx-auto space-y-6 font-sans text-[#F1F5FF]">
-      {/* 1. Header Banner */}
-      <div className="bg-gradient-to-r from-[#030D22] via-[#06142D] to-[#0A1C3D] p-5 sm:p-6 rounded-2xl border border-[#123E78] shadow-2xl flex flex-col md:flex-row md:items-center justify-between gap-4 relative overflow-hidden">
-        <div className="absolute top-0 right-1/4 w-[320px] h-[180px] bg-[#8B5CF6]/10 rounded-full blur-[100px] pointer-events-none" />
-
-        <div className="relative z-10 space-y-1">
-          <div className="flex items-center gap-2 mb-1">
-            <span className="p-1 rounded-lg bg-[#8B5CF6]/20 text-[#8B5CF6] border border-[#8B5CF6]/30">
-              <Smartphone className="w-4 h-4" />
-            </span>
-            <span className="text-xs font-bold uppercase tracking-wider text-[#8B5CF6] font-mono">
-              Mobile Store Surveillance Matrix
-            </span>
-          </div>
-          <h2 className="text-xl sm:text-2xl font-bold text-white tracking-tight">
-            AI App Store &amp; Rogue APK Monitoring
-          </h2>
-          <p className="text-xs text-[#91ACD1] max-w-2xl leading-relaxed">
-            Identify rogue mobile applications, developer entity spoofing, predatory loan lures, and suspicious
-            permissions abuse designed to harvest customer SMS OTPs or banking credentials.
-          </p>
-        </div>
+    <div className="max-w-6xl mx-auto space-y-6 font-sans text-fg">
+      {/* 1. Intro and mode */}
+      <div className="flex flex-col gap-4 md:flex-row md:items-start md:justify-between">
+        <p className="max-w-2xl text-sm text-fgMuted">
+          Compare an app's title, publisher and package id with the verified apps of <span className="text-fg">{brandProfile.brandName}</span>. Assessments are rule-based;
+          there is no trained model for app impersonation yet. A missing publisher match is a reason to look closer, not proof of wrongdoing.
+        </p>
 
         {/* Mode Selector and Quick Pre-fills */}
         <div className="relative z-10 flex flex-col sm:flex-row items-start sm:items-center gap-2">
           {/* Mode Switcher */}
-          <div className="flex rounded-xl bg-[#06142D] p-1 border border-[#123E78]">
+          <div className="flex rounded-xl bg-surface p-1 border border-line">
             <button
               onClick={() => setActiveMode('audit')}
               className={`px-3 py-1.5 rounded-lg text-xs font-semibold transition-all cursor-pointer ${
-                activeMode === 'audit'
-                  ? 'bg-[#1265F8] text-white shadow-xs'
-                  : 'text-[#91ACD1] hover:text-white'
-              }`}
+ activeMode === 'audit'
+ ? 'bg-accent text-onAccent '
+ : 'text-fgMuted hover:text-fg'
+ }`}
             >
               Candidate Audit
             </button>
             <button
               onClick={() => setActiveMode('live_provider')}
               className={`px-3 py-1.5 rounded-lg text-xs font-semibold transition-all flex items-center gap-1.5 cursor-pointer ${
-                activeMode === 'live_provider'
-                  ? 'bg-[#8B5CF6] text-white shadow-xs'
-                  : 'text-[#91ACD1] hover:text-white'
-              }`}
+ activeMode === 'live_provider'
+ ? 'bg-ai text-onAccent '
+ : 'text-fgMuted hover:text-fg'
+ }`}
             >
-              <Radio className="w-3.5 h-3.5 text-[#00D9FF]" />
+              <Radio className="w-3.5 h-3.5 text-accent" />
               <span>Live Apple Store Scan</span>
             </button>
           </div>
 
-          {activeMode === 'audit' && (
-            <div className="flex flex-wrap gap-1.5">
+          {activeMode === 'audit' && isDemoMode && (
+            <div className="flex flex-wrap items-center gap-1.5 bg-surface3 p-1.5 rounded-xl border border-line">
+              <span className="text-xs font-medium text-fgSubtle px-1">Demo Benchmark:</span>
               <button
                 type="button"
                 onClick={() => loadScenario('rogue')}
-                className="px-2.5 py-1.5 rounded-lg bg-[#FF315B]/15 hover:bg-[#FF315B]/25 text-[#FF315B] text-xs font-semibold border border-[#FF315B]/40 transition-colors cursor-pointer"
+                className="px-2.5 py-1 rounded-lg bg-danger/15 hover:bg-danger/25 text-danger text-xs font-semibold border border-danger/40 transition-colors cursor-pointer"
               >
                 Rogue Loan APK
               </button>
               <button
                 type="button"
                 onClick={() => loadScenario('official')}
-                className="px-2.5 py-1.5 rounded-lg bg-[#1265F8]/20 hover:bg-[#1265F8]/30 text-[#00D9FF] text-xs font-semibold border border-[#00D9FF]/40 transition-colors cursor-pointer"
+                className="px-2.5 py-1 rounded-lg bg-accent/10 hover:bg-accent/20 text-accent text-xs font-semibold border border-accent/40 transition-colors cursor-pointer"
               >
                 Official App
               </button>
               <button
                 type="button"
                 onClick={() => loadScenario('partner')}
-                className="px-2.5 py-1.5 rounded-lg bg-[#00E5A0]/10 hover:bg-[#00E5A0]/20 text-[#00E5A0] text-xs font-semibold border border-[#00E5A0]/30 transition-colors cursor-pointer"
+                className="px-2.5 py-1 rounded-lg bg-ok/10 hover:bg-ok/20 text-ok text-xs font-semibold border border-ok/30 transition-colors cursor-pointer"
               >
                 Partner POS
               </button>
@@ -327,53 +313,53 @@ export const AppMonitoringView: React.FC = () => {
 
       {/* 2. MODE 1: LIVE APPLE APP STORE SCAN (ITUNES REST API) */}
       {activeMode === 'live_provider' && (
-        <div className="bg-gradient-to-r from-[#030D22] via-[#06142D] to-[#0A1C3D] rounded-2xl p-6 text-white shadow-2xl border border-[#123E78] space-y-5 animate-in fade-in duration-200">
-          <div className="flex flex-col md:flex-row md:items-center justify-between gap-4 pb-4 border-b border-[#123E78]">
+        <div className="bg-surface rounded-2xl p-6 text-fg border border-line space-y-5 animate-in fade-in duration-200">
+          <div className="flex flex-col md:flex-row md:items-center justify-between gap-4 pb-4 border-b border-line">
             <div className="flex items-center gap-3">
-              <div className="w-10 h-10 rounded-xl bg-[#8B5CF6]/20 border border-[#8B5CF6]/40 flex items-center justify-center text-[#8B5CF6]">
+              <div className="w-10 h-10 rounded-xl bg-ai/20 border border-ai/40 flex items-center justify-center text-ai">
                 <Globe className="w-5 h-5 animate-pulse" />
               </div>
               <div>
-                <div className="text-base font-bold text-white flex items-center gap-2">
+                <div className="text-base font-bold text-fg flex items-center gap-2">
                   <span>Apple App Store Intelligence (iTunes API)</span>
-                  <span className="text-[10px] font-mono px-2 py-0.5 rounded-md bg-[#00E5A0]/15 text-[#00E5A0] border border-[#00E5A0]/30 font-semibold">
+                  <span className="text-xs font-mono px-2 py-0.5 rounded-md bg-ok/15 text-ok border border-ok/30 font-semibold">
                     Live Connector Active
                   </span>
                 </div>
-                <p className="text-xs text-[#91ACD1]">
-                  Queries Apple's live public registry for <strong className="text-white">"{brandProfile.brandName}"</strong>, automatically excludes verified brand assets, and persists findings.
+                <p className="text-xs text-fgMuted">
+                  Queries Apple's live public registry for <strong className="text-fg">"{brandProfile.brandName}"</strong>, automatically excludes verified brand assets, and persists findings.
                 </p>
               </div>
             </div>
 
             {/* Run Controls */}
             <div className="flex items-center gap-2.5">
-              <div className="flex items-center gap-2 bg-[#06142D] px-3 py-1.5 rounded-xl border border-[#123E78] text-xs text-[#91ACD1]">
+              <div className="flex items-center gap-2 bg-surface px-3 py-1.5 rounded-xl border border-line text-xs text-fgMuted">
                 <span>Limit:</span>
                 <select
                   value={providerLimit}
                   onChange={(e) => setProviderLimit(Number(e.target.value))}
-                  className="bg-transparent text-white font-semibold focus:outline-hidden cursor-pointer"
+                  className="bg-transparent text-fg font-semibold focus:outline-hidden cursor-pointer"
                 >
-                  <option value={10} className="bg-[#06142D]">10 apps</option>
-                  <option value={25} className="bg-[#06142D]">25 apps</option>
-                  <option value={50} className="bg-[#06142D]">50 apps</option>
+                  <option value={10} className="bg-surface">10 apps</option>
+                  <option value={25} className="bg-surface">25 apps</option>
+                  <option value={50} className="bg-surface">50 apps</option>
                 </select>
               </div>
 
               <button
                 onClick={handleRunProviderScan}
                 disabled={providerScanning}
-                className="px-4 py-2 rounded-xl bg-[#8B5CF6] hover:bg-[#8B5CF6]/90 text-white font-semibold text-xs tracking-wider uppercase transition-all shadow-lg shadow-[#8B5CF6]/30 flex items-center gap-2 disabled:opacity-50 cursor-pointer"
+                className="px-4 py-2 rounded-xl bg-ai hover:bg-ai/90 text-onAccent font-semibold text-xs transition-all shadow-ai/30 flex items-center gap-2 disabled:opacity-50 cursor-pointer"
               >
                 {providerScanning ? (
                   <>
-                    <RefreshCw className="w-4 h-4 animate-spin text-[#00D9FF]" />
+                    <RefreshCw className="w-4 h-4 animate-spin text-accent" />
                     <span>Querying iTunes Feed...</span>
                   </>
                 ) : (
                   <>
-                    <Radio className="w-4 h-4 text-[#00D9FF]" />
+                    <Radio className="w-4 h-4 text-accent" />
                     <span>Launch Live Store Scan</span>
                   </>
                 )}
@@ -382,7 +368,7 @@ export const AppMonitoringView: React.FC = () => {
           </div>
 
           {providerError && (
-            <div className="p-3.5 rounded-xl bg-[#FF315B]/15 border border-[#FF315B]/40 text-xs text-[#FF315B] flex items-center gap-2">
+            <div className="p-3.5 rounded-xl bg-danger/15 border border-danger/40 text-xs text-danger flex items-center gap-2">
               <AlertCircle className="w-4 h-4 shrink-0" />
               <span>{providerError}</span>
             </div>
@@ -392,50 +378,50 @@ export const AppMonitoringView: React.FC = () => {
           {providerScanResult && (
             <div className="space-y-4 animate-in fade-in duration-300">
               <div className="grid grid-cols-2 sm:grid-cols-4 gap-3">
-                <div className="p-3.5 rounded-xl bg-[#06142D] border border-[#123E78] text-center">
-                  <div className="text-[10px] uppercase font-semibold text-[#91ACD1] font-mono">Total Retrieved</div>
-                  <div className="text-2xl font-bold font-mono text-white mt-1">
+                <div className="p-3.5 rounded-xl bg-surface border border-line text-center">
+                  <div className="text-xs font-semibold text-fgSubtle">Total Retrieved</div>
+                  <div className="text-2xl font-bold font-mono text-fg mt-1">
                     {providerScanResult.total_retrieved}
                   </div>
-                  <div className="text-[10px] text-[#00D9FF] font-mono">Live iTunes Records</div>
+                  <div className="text-xs text-accent font-mono">Live iTunes Records</div>
                 </div>
 
-                <div className="p-3.5 rounded-xl bg-[#00E5A0]/10 border border-[#00E5A0]/30 text-center">
-                  <div className="text-[10px] uppercase font-semibold text-[#00E5A0] font-mono">Official Excluded</div>
-                  <div className="text-2xl font-bold font-mono text-[#00E5A0] mt-1">
+                <div className="p-3.5 rounded-xl bg-ok/10 border border-ok/30 text-center">
+                  <div className="text-xs font-semibold text-fgSubtle">Official Excluded</div>
+                  <div className="text-2xl font-bold font-mono text-ok mt-1">
                     {providerScanResult.excluded_official_count}
                   </div>
-                  <div className="text-[10px] text-[#00E5A0] font-mono">Whitelist Filtered</div>
+                  <div className="text-xs text-ok font-mono">Whitelist Filtered</div>
                 </div>
 
-                <div className="p-3.5 rounded-xl bg-[#FF315B]/10 border border-[#FF315B]/30 text-center">
-                  <div className="text-[10px] uppercase font-semibold text-[#FF315B] font-mono">Threats Flagged</div>
-                  <div className="text-2xl font-bold font-mono text-[#FF315B] mt-1">
+                <div className="p-3.5 rounded-xl bg-danger/10 border border-danger/30 text-center">
+                  <div className="text-xs font-semibold text-fgSubtle">Threats Flagged</div>
+                  <div className="text-2xl font-bold font-mono text-danger mt-1">
                     {providerScanResult.persisted_findings_count}
                   </div>
-                  <div className="text-[10px] text-[#FF315B] font-mono">Saved to Threat DB</div>
+                  <div className="text-xs text-danger font-mono">Saved to Threat DB</div>
                 </div>
 
-                <div className="p-3.5 rounded-xl bg-[#06142D] border border-[#123E78] text-center">
-                  <div className="text-[10px] uppercase font-semibold text-[#91ACD1] font-mono">Benign Filtered</div>
-                  <div className="text-2xl font-bold font-mono text-[#F1F5FF] mt-1">
+                <div className="p-3.5 rounded-xl bg-surface border border-line text-center">
+                  <div className="text-xs font-semibold text-fgSubtle">Benign Filtered</div>
+                  <div className="text-2xl font-bold font-mono text-fg mt-1">
                     {providerScanResult.benign_unrelated_count}
                   </div>
-                  <div className="text-[10px] text-[#91ACD1] font-mono">Zero-Risk Noise</div>
+                  <div className="text-xs text-fgMuted font-mono">Zero-Risk Noise</div>
                 </div>
               </div>
 
               {/* Excluded Apps Banner */}
               {providerScanResult.excluded_official?.length > 0 && (
-                <div className="p-4 rounded-xl bg-[#00E5A0]/10 border border-[#00E5A0]/30 space-y-2">
-                  <div className="text-xs font-semibold text-[#00E5A0] flex items-center gap-2 font-mono">
+                <div className="p-4 rounded-xl bg-ok/10 border border-ok/30 space-y-2">
+                  <div className="text-xs font-semibold text-ok flex items-center gap-2 font-mono">
                     <ShieldCheck className="w-4 h-4" /> Official Brand Asset Whitelist Exclusion Active
                   </div>
                   <div className="space-y-1.5">
                     {providerScanResult.excluded_official.map((ex: any, idx: number) => (
-                      <div key={idx} className="p-2.5 rounded-lg bg-[#06142D] border border-[#123E78] text-xs text-[#91ACD1] flex items-center justify-between">
-                        <span className="font-semibold text-white">{ex.candidate_name} ({ex.package_id})</span>
-                        <span className="text-[11px] text-[#00E5A0] font-mono">{ex.exclusion_reason}</span>
+                      <div key={idx} className="p-2.5 rounded-lg bg-surface border border-line text-xs text-fgMuted flex items-center justify-between">
+                        <span className="font-semibold text-fg">{ex.candidate_name} ({ex.package_id})</span>
+                        <span className="text-xs text-ok font-mono">{ex.exclusion_reason}</span>
                       </div>
                     ))}
                   </div>
@@ -445,27 +431,27 @@ export const AppMonitoringView: React.FC = () => {
               {/* Detected candidates list */}
               {providerScanResult.findings?.length > 0 && (
                 <div className="space-y-2">
-                  <div className="text-xs uppercase tracking-wider text-[#91ACD1] font-semibold flex items-center justify-between font-mono">
+                  <div className="text-xs text-fgSubtle font-semibold flex items-center justify-between">
                     <span>Detected Threat Candidates ({providerScanResult.findings.length})</span>
-                    <span className="text-xs text-[#00D9FF]">Persisted into Database</span>
+                    <span className="text-xs text-accent">Persisted into Database</span>
                   </div>
                   <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
                     {providerScanResult.findings.map((f: any, idx: number) => (
-                      <div key={idx} className="p-4 rounded-xl bg-[#06142D] border border-[#123E78] hover:border-[#8B5CF6]/50 transition-all space-y-2">
+                      <div key={idx} className="p-4 rounded-xl bg-surface border border-line hover:border-ai/50 transition-all space-y-2">
                         <div className="flex items-start justify-between">
                           <div>
-                            <div className="text-xs font-bold text-white font-mono flex items-center gap-1.5">
+                            <div className="text-xs font-bold text-fg font-mono flex items-center gap-1.5">
                               {f.candidate_name}
                             </div>
-                            <div className="text-[11px] text-[#91ACD1] mt-0.5">
+                            <div className="text-xs text-fgMuted mt-0.5">
                               Source: {f.detection_source} • Live iTunes Feed
                             </div>
                           </div>
-                          <span className={`text-[10px] font-mono px-2 py-0.5 rounded-full font-bold uppercase border ${
-                            f.severity === 'CRITICAL' ? 'bg-[#FF315B]/15 border-[#FF315B]/40 text-[#FF315B]' :
-                            f.severity === 'HIGH' ? 'bg-[#FFB020]/15 border-[#FFB020]/40 text-[#FFB020]' :
-                            'bg-[#1265F8]/15 border-[#1265F8]/40 text-[#00D9FF]'
-                          }`}>
+                          <span className={`text-xs px-2 py-0.5 rounded-full font-medium border ${
+ f.severity === 'CRITICAL' ? 'bg-danger/15 border-danger/40 text-fgSubtle' :
+ f.severity === 'HIGH' ? 'bg-warn/15 border-warn/40 text-fgSubtle' :
+ 'bg-accent/15 border-accent/40 text-fgSubtle'
+ }`}>
                             {f.severity} ({f.risk_score})
                           </span>
                         </div>
@@ -474,7 +460,7 @@ export const AppMonitoringView: React.FC = () => {
                             href={f.source_url}
                             target="_blank"
                             rel="noopener noreferrer"
-                            className="text-[11px] text-[#00D9FF] hover:underline flex items-center gap-1 font-mono truncate"
+                            className="text-xs text-accent hover:underline flex items-center gap-1 font-mono truncate"
                           >
                             <ExternalLink className="w-3 h-3 shrink-0" />
                             <span>{f.source_url}</span>
@@ -493,18 +479,18 @@ export const AppMonitoringView: React.FC = () => {
       {/* 3. MODE 2: CANDIDATE AUDIT FORM & RESULTS */}
       <div className="grid grid-cols-1 lg:grid-cols-12 gap-6 items-start">
         {/* Candidate Input Form (5 cols) */}
-        <div className="lg:col-span-5 bg-[#06142D] p-5 sm:p-6 rounded-2xl border border-[#123E78] shadow-xl space-y-4">
-          <div className="flex items-center justify-between border-b border-[#123E78] pb-3">
-            <h3 className="text-sm font-bold text-white flex items-center gap-2">
-              <Package className="w-4 h-4 text-[#8B5CF6]" />
+        <div className="lg:col-span-5 bg-surface p-5 sm:p-6 rounded-2xl border border-line space-y-4">
+          <div className="flex items-center justify-between border-b border-line pb-3">
+            <h3 className="text-sm font-bold text-fg flex items-center gap-2">
+              <Package className="w-4 h-4 text-ai" />
               <span>Candidate Application Profile</span>
             </h3>
-            <span className="text-[11px] text-[#91ACD1] font-mono">Store Inspection</span>
+            <span className="text-xs text-fgMuted font-mono">Store Inspection</span>
           </div>
 
           <form onSubmit={handleAnalyze} className="space-y-4 text-xs">
             <div>
-              <label className="block text-xs font-semibold text-[#91ACD1] mb-1 font-mono uppercase tracking-wider">
+              <label className="block text-xs font-semibold text-fgSubtle mb-1">
                 Candidate Application Name *
               </label>
               <input
@@ -513,13 +499,13 @@ export const AppMonitoringView: React.FC = () => {
                 value={appName}
                 onChange={e => setAppName(e.target.value)}
                 placeholder="e.g. ApexPay Mobile Fast Loan"
-                className="w-full px-3 py-2 text-xs rounded-xl border border-[#123E78] bg-[#0A1C3D] text-[#F1F5FF] focus:outline-hidden focus:border-[#00D9FF] transition-all"
+                className="w-full px-3 py-2 text-xs rounded-xl border border-line bg-surface2 text-fg focus:outline-hidden focus:border-accent transition-all"
               />
             </div>
 
             <div className="grid grid-cols-2 gap-3">
               <div>
-                <label className="block text-xs font-semibold text-[#91ACD1] mb-1 font-mono uppercase tracking-wider">
+                <label className="block text-xs font-semibold text-fgSubtle mb-1">
                   Developer / Publisher *
                 </label>
                 <input
@@ -528,18 +514,18 @@ export const AppMonitoringView: React.FC = () => {
                   value={developer}
                   onChange={e => setDeveloper(e.target.value)}
                   placeholder="e.g. Apex Financial UK Ltd"
-                  className="w-full px-3 py-2 text-xs rounded-xl border border-[#123E78] bg-[#0A1C3D] text-[#F1F5FF] focus:outline-hidden focus:border-[#00D9FF] transition-all"
+                  className="w-full px-3 py-2 text-xs rounded-xl border border-line bg-surface2 text-fg focus:outline-hidden focus:border-accent transition-all"
                 />
               </div>
 
               <div>
-                <label className="block text-xs font-semibold text-[#91ACD1] mb-1 font-mono uppercase tracking-wider">
+                <label className="block text-xs font-semibold text-fgSubtle mb-1">
                   Store / Repository
                 </label>
                 <select
                   value={store}
                   onChange={e => setStore(e.target.value)}
-                  className="w-full px-3 py-2 text-xs rounded-xl border border-[#123E78] bg-[#0A1C3D] text-[#F1F5FF] focus:outline-hidden focus:border-[#00D9FF] font-medium cursor-pointer"
+                  className="w-full px-3 py-2 text-xs rounded-xl border border-line bg-surface2 text-fg focus:outline-hidden focus:border-accent font-medium cursor-pointer"
                 >
                   <option>Google Play Store</option>
                   <option>Apple App Store</option>
@@ -551,7 +537,7 @@ export const AppMonitoringView: React.FC = () => {
             </div>
 
             <div>
-              <label className="block text-xs font-semibold text-[#91ACD1] mb-1 font-mono uppercase tracking-wider">
+              <label className="block text-xs font-semibold text-fgSubtle mb-1">
                 Listing URL or Mirror Download Link
               </label>
               <input
@@ -559,12 +545,12 @@ export const AppMonitoringView: React.FC = () => {
                 value={storeUrl}
                 onChange={e => setStoreUrl(e.target.value)}
                 placeholder="https://play.google.com/store/apps/details?id=..."
-                className="w-full px-3 py-2 text-xs rounded-xl border border-[#123E78] bg-[#0A1C3D] text-[#F1F5FF] focus:outline-hidden focus:border-[#00D9FF] font-mono transition-all"
+                className="w-full px-3 py-2 text-xs rounded-xl border border-line bg-surface2 text-fg focus:outline-hidden focus:border-accent font-mono transition-all"
               />
             </div>
 
             <div>
-              <label className="block text-xs font-semibold text-[#91ACD1] mb-1 font-mono uppercase tracking-wider">
+              <label className="block text-xs font-semibold text-fgSubtle mb-1">
                 Store Listing Description
               </label>
               <textarea
@@ -572,12 +558,12 @@ export const AppMonitoringView: React.FC = () => {
                 value={description}
                 onChange={e => setDescription(e.target.value)}
                 placeholder="App description, advertised features, and financial claims..."
-                className="w-full px-3 py-2 text-xs rounded-xl border border-[#123E78] bg-[#0A1C3D] text-[#F1F5FF] focus:outline-hidden focus:border-[#00D9FF] resize-none leading-relaxed"
+                className="w-full px-3 py-2 text-xs rounded-xl border border-line bg-surface2 text-fg focus:outline-hidden focus:border-accent resize-none leading-relaxed"
               />
             </div>
 
             <div>
-              <label className="block text-xs font-semibold text-[#91ACD1] mb-1 font-mono uppercase tracking-wider">
+              <label className="block text-xs font-semibold text-fgSubtle mb-1">
                 Observed Branding &amp; Icon
               </label>
               <input
@@ -585,12 +571,12 @@ export const AppMonitoringView: React.FC = () => {
                 value={branding}
                 onChange={e => setBranding(e.target.value)}
                 placeholder="e.g. Copies authentic blue shield logo with gold PRO ribbon"
-                className="w-full px-3 py-2 text-xs rounded-xl border border-[#123E78] bg-[#0A1C3D] text-[#F1F5FF] focus:outline-hidden focus:border-[#00D9FF]"
+                className="w-full px-3 py-2 text-xs rounded-xl border border-line bg-surface2 text-fg focus:outline-hidden focus:border-accent"
               />
             </div>
 
             <div>
-              <label className="block text-xs font-semibold text-[#91ACD1] mb-1 font-mono uppercase tracking-wider">
+              <label className="block text-xs font-semibold text-fgSubtle mb-1">
                 Manifest Permissions &amp; Evidence
               </label>
               <textarea
@@ -598,12 +584,12 @@ export const AppMonitoringView: React.FC = () => {
                 value={evidence}
                 onChange={e => setEvidence(e.target.value)}
                 placeholder="Extracted manifest permissions, network calls, APK signatures..."
-                className="w-full px-3 py-2 text-xs rounded-xl border border-[#123E78] bg-[#0A1C3D] text-[#F1F5FF] focus:outline-hidden focus:border-[#00D9FF] resize-none font-mono text-[11px]"
+                className="w-full px-3 py-2 text-xs rounded-xl border border-line bg-surface2 text-fg focus:outline-hidden focus:border-accent resize-none font-mono text-xs"
               />
             </div>
 
             {errorMsg && (
-              <div className="p-3 rounded-xl bg-[#FF315B]/15 border border-[#FF315B]/40 text-xs text-[#FF315B] font-medium font-mono">
+              <div className="p-3 rounded-xl bg-danger/15 border border-danger/40 text-xs text-danger font-medium font-mono">
                 {errorMsg}
               </div>
             )}
@@ -611,16 +597,16 @@ export const AppMonitoringView: React.FC = () => {
             <button
               type="submit"
               disabled={isAnalyzing}
-              className="w-full flex items-center justify-center gap-2 px-4 py-2.5 rounded-xl bg-[#8B5CF6] hover:bg-[#8B5CF6]/90 text-white text-xs font-bold shadow-lg shadow-[#8B5CF6]/30 transition-all disabled:opacity-50 cursor-pointer hover:scale-[1.01] active:scale-95"
+              className="w-full flex items-center justify-center gap-2 px-4 py-2.5 rounded-xl bg-ai hover:bg-ai/90 text-onAccent text-xs font-bold shadow-ai/30 transition-all disabled:opacity-50 cursor-pointer hover:scale-[1.01] active:scale-95"
             >
               {isAnalyzing ? (
                 <>
-                  <Loader2 className="w-4 h-4 animate-spin text-[#00D9FF]" />
+                  <Loader2 className="w-4 h-4 animate-spin text-accent" />
                   <span>Auditing App Package Signatures...</span>
                 </>
               ) : (
                 <>
-                  <Sparkles className="w-4 h-4 text-[#00D9FF]" />
+                  <Sparkles className="w-4 h-4 text-accent" />
                   <span>Analyze App Package</span>
                 </>
               )}
@@ -629,15 +615,15 @@ export const AppMonitoringView: React.FC = () => {
 
           {/* Official Baseline Reference Card */}
           {officialApp && (
-            <div className="p-3.5 rounded-xl bg-[#0A1C3D] border border-[#123E78] text-xs space-y-1">
-              <span className="text-[10px] font-bold uppercase tracking-wider text-[#91ACD1] block font-mono">
+            <div className="p-3.5 rounded-xl bg-surface2 border border-line text-xs space-y-1">
+              <span className="text-xs font-medium text-fgSubtle block">
                 Protected Identity Reference
               </span>
-              <p className="font-semibold text-white">{officialApp.name}</p>
-              <p className="text-[#91ACD1] text-[11px]">
-                Authorized Developer: <strong className="text-[#00D9FF]">{officialApp.developer}</strong>
+              <p className="font-semibold text-fg">{officialApp.name}</p>
+              <p className="text-fgMuted text-xs">
+                Authorized Developer: <strong className="text-accent">{officialApp.developer}</strong>
               </p>
-              <p className="text-[#91ACD1] text-[10px] font-mono">Store: {officialApp.store}</p>
+              <p className="text-fgMuted text-xs font-mono">Store: {officialApp.store}</p>
             </div>
           )}
         </div>
@@ -645,12 +631,12 @@ export const AppMonitoringView: React.FC = () => {
         {/* Analysis Output & Reasoning (7 cols) */}
         <div className="lg:col-span-7 space-y-4">
           {!analysisResult && !isAnalyzing && (
-            <div className="bg-[#06142D] p-10 sm:p-12 rounded-2xl border border-[#123E78] text-center space-y-3 shadow-xl">
-              <div className="w-14 h-14 rounded-2xl bg-[#8B5CF6]/15 text-[#8B5CF6] flex items-center justify-center mx-auto border border-[#8B5CF6]/30 shadow-md">
+            <div className="bg-surface p-10 sm:p-12 rounded-2xl border border-line text-center space-y-3">
+              <div className="w-14 h-14 rounded-2xl bg-ai/15 text-ai flex items-center justify-center mx-auto border border-ai/30">
                 <Smartphone className="w-7 h-7" />
               </div>
-              <h4 className="text-sm font-bold text-white">No Application Candidate Selected</h4>
-              <p className="text-xs text-[#91ACD1] max-w-md mx-auto leading-relaxed">
+              <h4 className="text-sm font-bold text-fg">No Application Candidate Selected</h4>
+              <p className="text-xs text-fgMuted max-w-md mx-auto leading-relaxed">
                 Fill in the candidate form on the left or select a pre-configured scenario to trigger automated
                 inspection of developer signatures, authority lures, and permission risks.
               </p>
@@ -658,48 +644,48 @@ export const AppMonitoringView: React.FC = () => {
           )}
 
           {isAnalyzing && (
-            <div className="bg-[#06142D] p-12 rounded-2xl border border-[#123E78] text-center space-y-3 shadow-xl">
-              <div className="w-12 h-12 rounded-2xl bg-[#8B5CF6]/15 text-[#8B5CF6] flex items-center justify-center mx-auto">
-                <Loader2 className="w-6 h-6 animate-spin text-[#00D9FF]" />
+            <div className="bg-surface p-12 rounded-2xl border border-line text-center space-y-3">
+              <div className="w-12 h-12 rounded-2xl bg-ai/15 text-ai flex items-center justify-center mx-auto">
+                <Loader2 className="w-6 h-6 animate-spin text-accent" />
               </div>
-              <h4 className="text-sm font-bold text-white">Executing Deep App Package Analysis</h4>
-              <p className="text-xs text-[#91ACD1] max-w-md mx-auto font-mono">
+              <h4 className="text-sm font-bold text-fg">Executing Deep App Package Analysis</h4>
+              <p className="text-xs text-fgMuted max-w-md mx-auto font-mono">
                 Auditing developer certificate signatures, checking package naming distance, and evaluating manifest permissions against brand telemetry.
               </p>
             </div>
           )}
 
           {analysisResult && (
-            <div className="bg-[#06142D] p-5 sm:p-6 rounded-2xl border border-[#123E78] shadow-xl space-y-6 animate-in fade-in duration-200">
+            <div className="bg-surface p-5 sm:p-6 rounded-2xl border border-line space-y-6 animate-in fade-in duration-200">
               {/* Verdict Header */}
-              <div className="flex flex-col sm:flex-row sm:items-center justify-between pb-4 border-b border-[#123E78] gap-3">
+              <div className="flex flex-col sm:flex-row sm:items-center justify-between pb-4 border-b border-line gap-3">
                 <div>
                   <div className="flex items-center gap-2 mb-1">
                     <RiskBadge level={analysisResult.riskCategory} />
-                    <span className="text-xs font-mono text-[#91ACD1]">
+                    <span className="text-xs font-mono text-fgMuted">
                       Evaluated by {analysisResult.analysisEngine || 'SURAKSHA Engine'}
                     </span>
                   </div>
-                  <h3 className="text-base font-bold text-white">
+                  <h3 className="text-base font-bold text-fg">
                     {analysisResult.candidateName}
                   </h3>
-                  <p className="text-xs text-[#91ACD1] font-mono">Store: {analysisResult.store}</p>
+                  <p className="text-xs text-fgMuted font-mono">Store: {analysisResult.store}</p>
                 </div>
 
                 <div className="flex items-center gap-2">
                   <button
                     onClick={handleSendToInvestigation}
                     disabled={!!createdCandidateId}
-                    className="inline-flex items-center gap-1.5 px-3.5 py-2 rounded-xl bg-[#1265F8] hover:bg-[#1265F8]/90 text-white text-xs font-semibold shadow-md shadow-[#1265F8]/30 disabled:bg-[#00E5A0]/20 disabled:text-[#00E5A0] disabled:border disabled:border-[#00E5A0]/40 transition-all cursor-pointer"
+                    className="inline-flex items-center gap-1.5 px-3.5 py-2 rounded-xl bg-accent hover:bg-accent/90 text-onAccent text-xs font-semibold shadow-accent/30 disabled:bg-ok/20 disabled:text-ok disabled:border disabled:border-ok/40 transition-all cursor-pointer"
                   >
                     {createdCandidateId ? (
                       <>
-                        <CheckCircle2 className="w-3.5 h-3.5 text-[#00E5A0]" />
+                        <CheckCircle2 className="w-3.5 h-3.5 text-ok" />
                         <span>In Investigation Center</span>
                       </>
                     ) : (
                       <>
-                        <ArrowRight className="w-3.5 h-3.5 text-[#00D9FF]" />
+                        <ArrowRight className="w-3.5 h-3.5 text-accent" />
                         <span>Add to Investigation Center</span>
                       </>
                     )}
@@ -708,38 +694,38 @@ export const AppMonitoringView: React.FC = () => {
               </div>
 
               {/* Engine Telemetry & Explicit Deterministic Baseline Notice */}
-              <div className="p-4 rounded-xl bg-[#0A1C3D] border border-[#123E78] text-xs space-y-2">
+              <div className="p-4 rounded-xl bg-surface2 border border-line text-xs space-y-2">
                 <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-1.5">
-                  <span className="font-bold text-white flex items-center gap-1.5">
-                    <ShieldAlert className="w-3.5 h-3.5 text-[#8B5CF6]" />
+                  <span className="font-bold text-fg flex items-center gap-1.5">
+                    <ShieldAlert className="w-3.5 h-3.5 text-ai" />
                     <span>Active Engine: SURAKSHA Deterministic Rule &amp; Publisher Whitelist Engine</span>
                   </span>
-                  <span className="text-[10px] font-mono font-bold px-2 py-0.5 rounded-full bg-[#FFB020]/15 text-[#FFB020] border border-[#FFB020]/30 self-start sm:self-auto">
+                  <span className="text-xs font-mono font-bold px-2 py-0.5 rounded-full bg-warn/15 text-warn border border-warn/30 self-start sm:self-auto">
                     ML Status: Ground Truth Trained
                   </span>
                 </div>
-                <p className="text-[11px] text-[#91ACD1] leading-relaxed">
+                <p className="text-xs text-fgMuted leading-relaxed">
                   Threat score is evaluated strictly via verified publisher keystore matching, package syntax cross-referencing, and keyword lure detection.
                 </p>
               </div>
 
               {/* Exclusion Banner if Official */}
               {analysisResult.isExcluded && (
-                <div className="p-4 rounded-xl bg-[#00E5A0]/10 border border-[#00E5A0]/30 flex items-start gap-3">
-                  <ShieldCheck className="w-5 h-5 text-[#00E5A0] shrink-0 mt-0.5" />
+                <div className="p-4 rounded-xl bg-ok/10 border border-ok/30 flex items-start gap-3">
+                  <ShieldCheck className="w-5 h-5 text-ok shrink-0 mt-0.5" />
                   <div>
-                    <h4 className="text-xs font-bold text-[#00E5A0]">Official Brand Asset Verified — Excluded from Threats</h4>
-                    <p className="text-xs text-[#91ACD1] mt-0.5">{analysisResult.exclusionReason}</p>
+                    <h4 className="text-xs font-bold text-ok">Official Brand Asset Verified — Excluded from Threats</h4>
+                    <p className="text-xs text-fgMuted mt-0.5">{analysisResult.exclusionReason}</p>
                   </div>
                 </div>
               )}
 
               {/* Summary */}
               <div className="space-y-1">
-                <span className="text-xs font-bold uppercase tracking-wider text-[#91ACD1] font-mono">
+                <span className="text-xs font-medium text-fgSubtle">
                   Assessment Summary
                 </span>
-                <p className="text-xs text-[#F1F5FF] leading-relaxed font-medium">
+                <p className="text-xs text-fg leading-relaxed font-medium">
                   {analysisResult.summary}
                 </p>
               </div>
@@ -747,75 +733,75 @@ export const AppMonitoringView: React.FC = () => {
               {/* Key Indicators */}
               <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
                 {/* Developer Mismatch Alert */}
-                <div className="p-3.5 rounded-xl border border-[#123E78] bg-[#0A1C3D] space-y-1">
-                  <span className="text-[11px] font-semibold text-[#91ACD1] uppercase tracking-wider font-mono">
+                <div className="p-3.5 rounded-xl border border-line bg-surface2 space-y-1">
+                  <span className="text-xs font-semibold text-fgSubtle">
                     Developer Entity Verification
                   </span>
                   {analysisResult.developerMismatch ? (
-                    <div className="flex items-center gap-1.5 text-[#FF315B] text-xs font-bold font-mono">
-                      <AlertTriangle className="w-4 h-4 text-[#FF315B] shrink-0" />
+                    <div className="flex items-center gap-1.5 text-danger text-xs font-bold font-mono">
+                      <AlertTriangle className="w-4 h-4 text-danger shrink-0" />
                       <span>Publisher Mismatch Detected</span>
                     </div>
                   ) : (
-                    <div className="flex items-center gap-1.5 text-[#00E5A0] text-xs font-bold font-mono">
-                      <ShieldCheck className="w-4 h-4 text-[#00E5A0] shrink-0" />
+                    <div className="flex items-center gap-1.5 text-ok text-xs font-bold font-mono">
+                      <ShieldCheck className="w-4 h-4 text-ok shrink-0" />
                       <span>Publisher Matches Verified Entity</span>
                     </div>
                   )}
-                  <p className="text-[11px] text-[#91ACD1]">
-                    Candidate: <strong className="text-white">{developer}</strong>
+                  <p className="text-xs text-fgMuted">
+                    Candidate: <strong className="text-fg">{developer}</strong>
                   </p>
                 </div>
 
                 {/* Permissions Breakdown */}
-                <div className="p-3.5 rounded-xl border border-[#123E78] bg-[#0A1C3D] space-y-1">
-                  <span className="text-[11px] font-semibold text-[#91ACD1] uppercase tracking-wider font-mono">
+                <div className="p-3.5 rounded-xl border border-line bg-surface2 space-y-1">
+                  <span className="text-xs font-semibold text-fgSubtle">
                     Sensitive Device Permissions
                   </span>
                   {analysisResult.suspiciousPermissions?.length > 0 ? (
                     <div className="flex flex-wrap gap-1 mt-1">
                       {analysisResult.suspiciousPermissions.map((perm: string, i: number) => (
-                        <span key={i} className="text-[10px] font-mono px-2 py-0.5 rounded-md bg-[#FF315B]/15 text-[#FF315B] font-semibold border border-[#FF315B]/30">
+                        <span key={i} className="text-xs font-mono px-2 py-0.5 rounded-md bg-danger/15 text-danger font-semibold border border-danger/30">
                           {perm}
                         </span>
                       ))}
                     </div>
                   ) : (
-                    <p className="text-xs text-[#00E5A0] font-medium">No abusive permissions flagged in manifest</p>
+                    <p className="text-xs text-ok font-medium">No abusive permissions flagged in manifest</p>
                   )}
                 </div>
               </div>
 
               {/* Supporting Evidence vs Against */}
               <div className="grid grid-cols-1 md:grid-cols-2 gap-4 text-xs">
-                <div className="p-4 rounded-xl bg-[#0A1C3D] border border-[#123E78] space-y-2">
-                  <span className="text-xs font-bold text-[#FF315B] flex items-center gap-1.5 font-mono">
+                <div className="p-4 rounded-xl bg-surface2 border border-line space-y-2">
+                  <span className="text-xs font-bold text-danger flex items-center gap-1.5 font-mono">
                     <ShieldAlert className="w-3.5 h-3.5" />
                     <span>Evidence of Impersonation</span>
                   </span>
-                  <ul className="space-y-1 text-xs text-[#91ACD1] list-disc list-inside">
+                  <ul className="space-y-1 text-xs text-fgMuted list-disc list-inside">
                     {analysisResult.evidenceSupporting?.length > 0 ? (
                       analysisResult.evidenceSupporting.map((ev: string, i: number) => (
                         <li key={i}>{ev}</li>
                       ))
                     ) : (
-                      <li className="text-[#91ACD1] italic">No malicious indicators detected</li>
+                      <li className="text-fgMuted italic">No malicious indicators detected</li>
                     )}
                   </ul>
                 </div>
 
-                <div className="p-4 rounded-xl bg-[#0A1C3D] border border-[#123E78] space-y-2">
-                  <span className="text-xs font-bold text-[#00E5A0] flex items-center gap-1.5 font-mono">
+                <div className="p-4 rounded-xl bg-surface2 border border-line space-y-2">
+                  <span className="text-xs font-bold text-ok flex items-center gap-1.5 font-mono">
                     <ShieldCheck className="w-3.5 h-3.5" />
                     <span>Mitigating Factors / Counter-Evidence</span>
                   </span>
-                  <ul className="space-y-1 text-xs text-[#91ACD1] list-disc list-inside">
+                  <ul className="space-y-1 text-xs text-fgMuted list-disc list-inside">
                     {analysisResult.evidenceAgainst?.length > 0 ? (
                       analysisResult.evidenceAgainst.map((ev: string, i: number) => (
                         <li key={i}>{ev}</li>
                       ))
                     ) : (
-                      <li className="text-[#91ACD1] italic">No mitigating factors identified</li>
+                      <li className="text-fgMuted italic">No mitigating factors identified</li>
                     )}
                   </ul>
                 </div>
@@ -823,12 +809,12 @@ export const AppMonitoringView: React.FC = () => {
 
               {/* Recommended Next Steps */}
               {analysisResult.recommendedNextSteps?.length > 0 && (
-                <div className="p-4 rounded-xl bg-gradient-to-r from-[#030D22] via-[#06142D] to-[#0A1C3D] border border-[#123E78] space-y-2 shadow-lg">
-                  <span className="text-xs font-bold text-[#00D9FF] uppercase tracking-wider flex items-center gap-1.5 font-mono">
-                    <CheckCircle2 className="w-4 h-4 text-[#00D9FF]" />
+                <div className="p-4 rounded-xl bg-surface border border-line space-y-2">
+                  <span className="text-xs font-medium text-fgSubtle flex items-center gap-1.5">
+                    <CheckCircle2 className="w-4 h-4 text-accent" />
                     <span>Recommended Analyst Response</span>
                   </span>
-                  <ul className="space-y-1 text-xs text-[#91ACD1] list-disc list-inside">
+                  <ul className="space-y-1 text-xs text-fgMuted list-disc list-inside">
                     {analysisResult.recommendedNextSteps.map((step: string, i: number) => (
                       <li key={i}>{step}</li>
                     ))}

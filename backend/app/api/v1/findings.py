@@ -1,9 +1,10 @@
-from flask import Blueprint, request, jsonify, g
+from flask import Blueprint, request, jsonify, g, current_app
 from backend.app.repositories.threat_repository import ThreatRepository
 from backend.app.models.brand import Brand
 from backend.app.validation.threat_validator import VALID_REVIEW_STATUSES
 from backend.app.utils.errors import NotFoundError, ValidationError, ForbiddenError, UnauthorizedError
 from backend.app.utils.auth import require_auth, get_authenticated_user_optional, get_current_user
+from backend.app.utils.limiter import limiter
 
 findings_bp = Blueprint("findings", __name__)
 threat_repo = ThreatRepository()
@@ -278,6 +279,7 @@ def get_metrics():
 
 
 @findings_bp.route("/findings/<string:finding_id>/explain", methods=["GET"])
+@limiter.limit(lambda: current_app.config.get("RATELIMIT_AI", "15 per minute"))
 def explain_finding(finding_id: str):
     """
     Explainable AI Investigation Assistant:
@@ -348,6 +350,7 @@ def explain_finding(finding_id: str):
 
 
 @findings_bp.route("/findings/<string:finding_id>/ai-investigate", methods=["POST"])
+@limiter.limit(lambda: current_app.config.get("RATELIMIT_AI", "15 per minute"))
 def ai_investigate_finding(finding_id: str):
     """
     Dedicated Groq + LangSmith AI Investigation Pipeline:
@@ -420,6 +423,7 @@ def ai_investigate_finding(finding_id: str):
 
 
 @findings_bp.route("/findings/explain", methods=["POST"])
+@limiter.limit(lambda: current_app.config.get("RATELIMIT_AI", "15 per minute"))
 def explain_candidate():
     """
     On-demand candidate explainability:

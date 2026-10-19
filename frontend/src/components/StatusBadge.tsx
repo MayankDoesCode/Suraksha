@@ -15,27 +15,27 @@ export const StatusBadge: React.FC<StatusBadgeProps> = ({ status, size = 'md' })
 
   const config = {
     New: {
-      bg: 'bg-[#45C8E8]/10 text-[#45C8E8] border-[#45C8E8]/30',
+      bg: 'bg-accent/10 text-accent border-accent/30',
       icon: Clock,
       label: 'New Intake',
     },
     Investigating: {
-      bg: 'bg-[#F59E0B]/10 text-[#F59E0B] border-[#F59E0B]/30',
+      bg: 'bg-warn/10 text-warn border-warn/30',
       icon: Search,
       label: 'Under Investigation',
     },
     'Confirmed Suspicious': {
-      bg: 'bg-[#EF4444]/10 text-[#EF4444] border-[#EF4444]/30',
+      bg: 'bg-danger/10 text-danger border-danger/30',
       icon: ShieldAlert,
       label: 'Confirmed Incident',
     },
     Dismissed: {
-      bg: 'bg-[#10B981]/10 text-[#10B981] border-[#10B981]/30',
+      bg: 'bg-ok/10 text-ok border-ok/30',
       icon: CheckCircle2,
       label: 'Allowlisted / Benign',
     },
   }[status] || {
-    bg: 'bg-[#16253D] text-[#8EA2C6] border-[#1E314F]',
+    bg: 'bg-surface3 text-fgMuted border-line',
     icon: Clock,
     label: status,
   };

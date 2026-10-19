@@ -60,3 +60,8 @@ frontend/dist-ssr/
 *.swo
 .DS_Store
 Thumbs.db
+
+# Reviewer-annotated brand-impersonation data may contain personal profile data: keep out of Git.
+# Only the empty templates under backend/app/ml/data/annotations/templates/ are tracked.
+backend/app/ml/data/annotations/*.csv
+backend/app/ml/data/annotations/*.json

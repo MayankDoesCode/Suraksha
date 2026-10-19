@@ -2,10 +2,12 @@ from datetime import datetime, timezone
 from flask import Blueprint, jsonify, current_app
 from backend.app.database import check_db_connection
 from backend.app.ai.risk_classifier import risk_classifier
+from backend.app.utils.limiter import limiter
 
 health_bp = Blueprint("health", __name__)
 
 @health_bp.route("/health", methods=["GET"])
+@limiter.exempt
 def get_health():
     """
     System, database, and ML risk classification engine health check endpoint.

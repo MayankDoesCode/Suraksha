@@ -1,0 +1,13 @@
+SURAKSHA Dataset Research & Extraction Kit — validation
+
+Commands run in this environment:
+  python -m py_compile scripts/*.py
+  python -m unittest discover -s tests -v
+
+Result:
+  Python syntax compilation: PASS
+  Unit tests: 4 passed, 0 failed
+  Tests cover script syntax, required provenance fields in annotation templates, source-registry restrictions, and ZIP path-traversal protection.
+
+Not run:
+  Dataset downloads and model training/evaluation were NOT run because this execution environment could not resolve external download hosts. The archive does not contain raw dataset payloads. Run download scripts on a machine with Internet access. No model accuracy metrics are claimed.

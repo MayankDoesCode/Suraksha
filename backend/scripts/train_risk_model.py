@@ -21,6 +21,7 @@ if str(repo_root) not in sys.path:
     sys.path.insert(0, str(repo_root))
 
 import joblib
+from backend.app.ml.artifact_compat import runtime_versions
 import numpy as np
 from sklearn.model_selection import train_test_split
 from sklearn.metrics import (
@@ -148,6 +149,7 @@ def train_and_evaluate(
         "class_distribution": label_distribution,
         "feature_schema": ThreatFeatureExtractor.get_feature_names(),
         "random_state": random_state,
+        "runtime_versions": runtime_versions(),
         "evaluation_metrics": {
             "accuracy": round(acc, 4),
             "precision": round(prec, 4),

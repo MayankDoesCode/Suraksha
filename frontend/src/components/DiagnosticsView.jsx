@@ -74,7 +74,7 @@ export default function DiagnosticsView({ health, loading, onRefresh }) {
               {isHealthy ? 'ONLINE' : 'DEGRADED'}
             </span>
           </div>
-          <div className="text-xl font-bold font-mono text-white flex items-center gap-2">
+          <div className="text-xl font-bold font-mono text-fg flex items-center gap-2">
             <Server className="w-5 h-5 text-cyber-accent" />
             {health?.service || 'SURAKSHA API'}
           </div>
@@ -93,7 +93,7 @@ export default function DiagnosticsView({ health, loading, onRefresh }) {
               {health?.database?.connected ? 'OPERATIONAL' : 'FAILED'}
             </span>
           </div>
-          <div className="text-xl font-bold font-mono text-white flex items-center gap-2">
+          <div className="text-xl font-bold font-mono text-fg flex items-center gap-2">
             <Database className="w-5 h-5 text-cyber-accent" />
             SQLite 3 (SQLAlchemy ORM)
           </div>
@@ -109,12 +109,12 @@ export default function DiagnosticsView({ health, loading, onRefresh }) {
             <span className={`text-xs font-mono font-semibold px-2 py-0.5 rounded ${
               health?.ml_service?.available
                 ? 'bg-cyber-emerald/15 text-cyber-emerald border border-cyber-emerald/30'
-                : 'bg-amber-500/15 text-amber-400 border border-amber-500/30'
+                : 'bg-warn/15 text-warn border border-warn/30'
             }`}>
               {health?.ml_service?.available ? 'OPERATIONAL' : 'FALLBACK MODE'}
             </span>
           </div>
-          <div className="text-xl font-bold font-mono text-white flex items-center gap-2">
+          <div className="text-xl font-bold font-mono text-fg flex items-center gap-2">
             <Cpu className="w-5 h-5 text-cyber-accent" />
             RandomForest
           </div>
@@ -131,7 +131,7 @@ export default function DiagnosticsView({ health, loading, onRefresh }) {
               ALEMBIC 1.20
             </span>
           </div>
-          <div className="text-xl font-bold font-mono text-white flex items-center gap-2">
+          <div className="text-xl font-bold font-mono text-fg flex items-center gap-2">
             <Layers className="w-5 h-5 text-cyber-accent" />
             003_add_ml_risk_fields
           </div>
@@ -144,13 +144,13 @@ export default function DiagnosticsView({ health, loading, onRefresh }) {
       {/* PHASE 4: EXTERNAL INTEGRATIONS STATUS OVERVIEW */}
       <div className="cyber-panel rounded-xl border border-cyber-border overflow-hidden space-y-0">
         <div className="p-4 border-b border-cyber-border flex items-center justify-between bg-cyber-surface/40">
-          <h3 className="text-xs font-mono uppercase tracking-wider text-white font-semibold flex items-center gap-2">
+          <h3 className="text-xs font-mono uppercase tracking-wider text-fg font-semibold flex items-center gap-2">
             <Radio className="w-4 h-4 text-cyber-accent" /> External Data Provider Integrations (Phase 4)
           </h3>
           <button
             onClick={fetchIntegrations}
             disabled={integrationsLoading}
-            className="text-xs font-mono text-cyber-textMuted hover:text-white flex items-center gap-1.5"
+            className="text-xs font-mono text-cyber-textMuted hover:text-fg flex items-center gap-1.5"
           >
             <RefreshCw className={`w-3.5 h-3.5 ${integrationsLoading ? 'animate-spin' : ''}`} /> Refresh Providers
           </button>
@@ -160,7 +160,7 @@ export default function DiagnosticsView({ health, loading, onRefresh }) {
           {/* Apple App Store */}
           <div className="p-4 rounded-xl bg-cyber-darkest border border-cyber-border space-y-2">
             <div className="flex items-center justify-between">
-              <span className="text-xs font-mono font-bold text-white flex items-center gap-2">
+              <span className="text-xs font-mono font-bold text-fg flex items-center gap-2">
                 <Smartphone className="w-4 h-4 text-cyber-accent" /> Apple App Store (iTunes API)
               </span>
               <span className="text-[10px] font-mono px-2 py-0.5 rounded bg-cyber-emerald/15 text-cyber-emerald border border-cyber-emerald/30 font-bold uppercase">
@@ -170,7 +170,7 @@ export default function DiagnosticsView({ health, loading, onRefresh }) {
             <div className="text-xs text-cyber-textMuted font-mono">
               Auth: Authorized Public REST API • Rate: ~20 calls/min
             </div>
-            <div className="text-[11px] text-slate-300 font-mono">
+            <div className="text-[11px] text-fgMuted font-mono">
               Status: {integrations?.itunes_app_store?.message || 'Live connectivity ready'}
             </div>
           </div>
@@ -178,8 +178,8 @@ export default function DiagnosticsView({ health, loading, onRefresh }) {
           {/* Twitter / X API v2 */}
           <div className="p-4 rounded-xl bg-cyber-darkest border border-cyber-border space-y-2">
             <div className="flex items-center justify-between">
-              <span className="text-xs font-mono font-bold text-white flex items-center gap-2">
-                <Share2 className="w-4 h-4 text-blue-400" /> Twitter / X API v2
+              <span className="text-xs font-mono font-bold text-fg flex items-center gap-2">
+                <Share2 className="w-4 h-4 text-accent" /> Twitter / X API v2
               </span>
               <span className={`text-[10px] font-mono px-2 py-0.5 rounded font-bold uppercase border ${
                 integrations?.twitter_v2?.configured
@@ -192,7 +192,7 @@ export default function DiagnosticsView({ health, loading, onRefresh }) {
             <div className="text-xs text-cyber-textMuted font-mono">
               Auth: Bearer Token (OAuth 2.0) • Required: X_BEARER_TOKEN
             </div>
-            <div className="text-[11px] text-slate-300 font-mono">
+            <div className="text-[11px] text-fgMuted font-mono">
               {integrations?.twitter_v2?.configured
                 ? 'Authenticated with Twitter / X API v2'
                 : 'Awaiting developer.x.com Project Bearer Token'}
@@ -204,12 +204,12 @@ export default function DiagnosticsView({ health, loading, onRefresh }) {
       {/* Endpoints Directory */}
       <div className="cyber-panel rounded-xl border border-cyber-border overflow-hidden">
         <div className="p-4 border-b border-cyber-border flex items-center justify-between bg-cyber-surface/40">
-          <h3 className="text-xs font-mono uppercase tracking-wider text-white font-semibold flex items-center gap-2">
+          <h3 className="text-xs font-mono uppercase tracking-wider text-fg font-semibold flex items-center gap-2">
             <Terminal className="w-4 h-4 text-cyber-accent" /> Verified REST Endpoints (/api/v1)
           </h3>
           <button
             onClick={onRefresh}
-            className="text-xs font-mono text-cyber-textMuted hover:text-white flex items-center gap-1.5"
+            className="text-xs font-mono text-cyber-textMuted hover:text-fg flex items-center gap-1.5"
           >
             <RefreshCw className="w-3.5 h-3.5" /> Refresh Telemetry
           </button>
@@ -220,14 +220,14 @@ export default function DiagnosticsView({ health, loading, onRefresh }) {
             <div key={idx} className="p-3.5 flex items-center justify-between text-xs hover:bg-cyber-surface/30 transition-colors">
               <div className="flex items-center gap-3">
                 <span className={`px-2 py-0.5 rounded font-mono font-bold text-[10px] ${
-                  ep.method === 'GET' ? 'bg-blue-500/15 text-blue-400 border border-blue-500/30' :
-                  ep.method === 'POST' ? 'bg-emerald-500/15 text-cyber-emerald border border-emerald-500/30' :
-                  ep.method === 'PUT' ? 'bg-amber-500/15 text-amber-400 border border-amber-500/30' :
-                  'bg-rose-500/15 text-cyber-rose border border-rose-500/30'
+                  ep.method === 'GET' ? 'bg-accent/15 text-accent border border-accent/30' :
+                  ep.method === 'POST' ? 'bg-ok/15 text-cyber-emerald border border-ok/30' :
+                  ep.method === 'PUT' ? 'bg-warn/15 text-warn border border-warn/30' :
+                  'bg-danger/15 text-cyber-rose border border-danger/30'
                 }`}>
                   {ep.method}
                 </span>
-                <span className="font-mono text-white font-medium">{ep.path}</span>
+                <span className="font-mono text-fg font-medium">{ep.path}</span>
               </div>
               <span className="text-cyber-textMuted text-[11px]">{ep.desc}</span>
             </div>
@@ -238,7 +238,7 @@ export default function DiagnosticsView({ health, loading, onRefresh }) {
       {/* Raw Health Check JSON */}
       <div className="cyber-panel rounded-xl border border-cyber-border overflow-hidden">
         <div className="p-4 border-b border-cyber-border flex items-center justify-between bg-cyber-surface/40">
-          <h3 className="text-xs font-mono uppercase tracking-wider text-white font-semibold flex items-center gap-2">
+          <h3 className="text-xs font-mono uppercase tracking-wider text-fg font-semibold flex items-center gap-2">
             <Activity className="w-4 h-4 text-cyber-accent" /> Live Health Endpoint Output
           </h3>
           <button

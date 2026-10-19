@@ -99,6 +99,18 @@ def register_error_handlers(app):
             }
         }), 413
 
+    @app.errorhandler(429)
+    def handle_rate_limit_exceeded(error):
+        limit_desc = getattr(error, "description", "Rate limit exceeded")
+        return jsonify({
+            "success": False,
+            "error": {
+                "code": "RATE_LIMIT_EXCEEDED",
+                "message": "Too many requests. Rate limit exceeded. Please try again later.",
+                "details": [str(limit_desc)] if limit_desc else []
+            }
+        }), 429
+
     @app.errorhandler(500)
     def handle_internal_server_error(error):
         logger.error("Unhandled server exception: %s", str(error), exc_info=True)

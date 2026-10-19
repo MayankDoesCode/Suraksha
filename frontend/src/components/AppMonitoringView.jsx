@@ -172,7 +172,7 @@ export default function AppMonitoringView({ brands, onRefreshMetrics }) {
             <Smartphone className="w-6 h-6" />
           </div>
           <div>
-            <h2 className="text-base font-bold text-white flex items-center gap-2">
+            <h2 className="text-base font-bold text-fg flex items-center gap-2">
               Mobile Application Guard
               <span className="text-[10px] font-mono px-2 py-0.5 rounded bg-cyber-emerald/10 text-cyber-emerald border border-cyber-emerald/30">
                 Phase 4: Live Data Active
@@ -197,7 +197,7 @@ export default function AppMonitoringView({ brands, onRefreshMetrics }) {
                 setProviderScanResult(null);
                 setScanResult(null);
               }}
-              className="bg-cyber-surface border border-cyber-border rounded-lg px-3 py-2 text-xs font-mono text-white focus:outline-none focus:border-cyber-accent"
+              className="bg-cyber-surface border border-cyber-border rounded-lg px-3 py-2 text-xs font-mono text-fg focus:outline-none focus:border-cyber-accent"
             >
               {brands.map((b) => (
                 <option key={b.id} value={b.id}>
@@ -217,7 +217,7 @@ export default function AppMonitoringView({ brands, onRefreshMetrics }) {
               <Globe className="w-5 h-5 animate-pulse" />
             </div>
             <div>
-              <div className="text-sm font-bold font-mono text-white flex items-center gap-2">
+              <div className="text-sm font-bold font-mono text-fg flex items-center gap-2">
                 Live External Provider: Apple App Store (iTunes API)
                 <span className="text-[10px] font-mono px-2 py-0.5 rounded bg-cyber-emerald/15 text-cyber-emerald border border-cyber-emerald/30 flex items-center gap-1 font-semibold">
                   <span className="w-1.5 h-1.5 rounded-full bg-cyber-emerald animate-ping" />
@@ -232,12 +232,12 @@ export default function AppMonitoringView({ brands, onRefreshMetrics }) {
 
           {/* Trigger Scan Controls */}
           <div className="flex items-center gap-3">
-            <div className="flex items-center gap-2 bg-cyber-darkest px-3 py-1.5 rounded-lg border border-cyber-border text-xs font-mono text-slate-300">
+            <div className="flex items-center gap-2 bg-cyber-darkest px-3 py-1.5 rounded-lg border border-cyber-border text-xs font-mono text-fgMuted">
               <span>Limit:</span>
               <select
                 value={providerLimit}
                 onChange={(e) => setProviderLimit(Number(e.target.value))}
-                className="bg-transparent text-white focus:outline-none"
+                className="bg-transparent text-fg focus:outline-none"
               >
                 <option value={10}>10 apps</option>
                 <option value={25}>25 apps</option>
@@ -248,7 +248,7 @@ export default function AppMonitoringView({ brands, onRefreshMetrics }) {
             <button
               onClick={handleRunProviderScan}
               disabled={providerScanning || !selectedBrandId}
-              className="px-4 py-2 rounded-lg bg-cyber-accent hover:bg-cyber-accentHover text-cyber-darkest font-semibold text-xs tracking-wider uppercase transition-all shadow-glow flex items-center gap-2 disabled:opacity-50"
+              className="px-4 py-2 rounded-lg bg-cyber-accent hover:bg-cyber-accentHover text-onAccent font-semibold text-xs tracking-wider uppercase transition-all shadow-glow flex items-center gap-2 disabled:opacity-50"
             >
               {providerScanning ? (
                 <>
@@ -256,7 +256,7 @@ export default function AppMonitoringView({ brands, onRefreshMetrics }) {
                 </>
               ) : (
                 <>
-                  <Radio className="w-4 h-4 text-cyber-darkest" /> Run Live App Store Scan
+                  <Radio className="w-4 h-4 text-onAccent" /> Run Live App Store Scan
                 </>
               )}
             </button>
@@ -276,7 +276,7 @@ export default function AppMonitoringView({ brands, onRefreshMetrics }) {
             <div className="grid grid-cols-2 md:grid-cols-4 gap-3">
               <div className="p-3.5 rounded-xl bg-cyber-darkest border border-cyber-border text-center">
                 <div className="text-[10px] font-mono text-cyber-textMuted uppercase">Store Candidates</div>
-                <div className="text-xl font-bold font-mono text-white mt-0.5">
+                <div className="text-xl font-bold font-mono text-fg mt-0.5">
                   {providerScanResult.total_retrieved}
                 </div>
                 <div className="text-[10px] text-cyber-accent font-mono">Live iTunes Feed</div>
@@ -300,7 +300,7 @@ export default function AppMonitoringView({ brands, onRefreshMetrics }) {
 
               <div className="p-3.5 rounded-xl bg-cyber-darkest border border-cyber-border text-center">
                 <div className="text-[10px] font-mono text-cyber-textMuted uppercase">Benign Filtered</div>
-                <div className="text-xl font-bold font-mono text-slate-300 mt-0.5">
+                <div className="text-xl font-bold font-mono text-fgMuted mt-0.5">
                   {providerScanResult.benign_unrelated_count}
                 </div>
                 <div className="text-[10px] text-cyber-textMuted font-mono">Zero Risk Noise</div>
@@ -315,8 +315,8 @@ export default function AppMonitoringView({ brands, onRefreshMetrics }) {
                 </div>
                 <div className="space-y-1.5">
                   {providerScanResult.excluded_official.map((ex, idx) => (
-                    <div key={idx} className="p-2 rounded bg-cyber-darkest text-xs font-mono text-slate-300 flex items-center justify-between">
-                      <span className="font-semibold text-white">{ex.candidate_name} ({ex.package_id})</span>
+                    <div key={idx} className="p-2 rounded bg-cyber-darkest text-xs font-mono text-fgMuted flex items-center justify-between">
+                      <span className="font-semibold text-fg">{ex.candidate_name} ({ex.package_id})</span>
                       <span className="text-[11px] text-cyber-emerald">{ex.exclusion_reason}</span>
                     </div>
                   ))}
@@ -327,7 +327,7 @@ export default function AppMonitoringView({ brands, onRefreshMetrics }) {
             {/* List of Flagged Suspicious Findings */}
             {providerScanResult.findings?.length > 0 && (
               <div className="space-y-2">
-                <div className="text-xs font-mono uppercase tracking-wider text-white font-semibold flex items-center justify-between">
+                <div className="text-xs font-mono uppercase tracking-wider text-fg font-semibold flex items-center justify-between">
                   <span>Detected Candidates — Potential Risk / Needs Review ({providerScanResult.findings.length})</span>
                   <span className="text-[11px] font-mono text-cyber-accent">Awaiting Analyst Triage</span>
                 </div>
@@ -336,7 +336,7 @@ export default function AppMonitoringView({ brands, onRefreshMetrics }) {
                     <div key={idx} className="p-3.5 rounded-xl bg-cyber-darkest border border-cyber-border hover:border-cyber-accent/50 transition-all space-y-2">
                       <div className="flex items-start justify-between">
                         <div>
-                          <div className="text-xs font-bold text-white font-mono flex items-center gap-1.5">
+                          <div className="text-xs font-bold text-fg font-mono flex items-center gap-1.5">
                             {f.candidate_name}
                           </div>
                           <div className="text-[11px] text-cyber-textMuted font-mono">
@@ -344,13 +344,13 @@ export default function AppMonitoringView({ brands, onRefreshMetrics }) {
                           </div>
                         </div>
                         <div className="flex items-center gap-1.5">
-                          <span className="text-[9px] font-mono px-1.5 py-0.5 rounded bg-amber-500/15 border border-amber-500/40 text-amber-300 font-semibold uppercase">
+                          <span className="text-[9px] font-mono px-1.5 py-0.5 rounded bg-warn/15 border border-warn/40 text-warn font-semibold uppercase">
                             Needs Review
                           </span>
                           <span className={`text-[10px] font-mono px-2 py-0.5 rounded font-bold uppercase border ${
-                            f.severity === 'CRITICAL' ? 'bg-rose-500/15 border-rose-500/40 text-rose-400' :
-                            f.severity === 'HIGH' ? 'bg-amber-500/15 border-amber-500/40 text-amber-400' :
-                            'bg-blue-500/15 border-blue-500/40 text-blue-400'
+                            f.severity === 'CRITICAL' ? 'bg-danger/15 border-danger/40 text-danger' :
+                            f.severity === 'HIGH' ? 'bg-warn/15 border-warn/40 text-warn' :
+                            'bg-accent/15 border-accent/40 text-accent'
                           }`}>
                             {f.severity} ({f.risk_score})
                           </span>
@@ -380,7 +380,7 @@ export default function AppMonitoringView({ brands, onRefreshMetrics }) {
         {/* Left Form */}
         <div className="lg:col-span-5 cyber-panel p-6 rounded-2xl border border-cyber-border space-y-5">
           <div className="flex items-center justify-between pb-3 border-b border-cyber-border">
-            <div className="text-xs font-mono uppercase tracking-wider text-white font-semibold flex items-center gap-2">
+            <div className="text-xs font-mono uppercase tracking-wider text-fg font-semibold flex items-center gap-2">
               <Sliders className="w-4 h-4 text-cyber-accent" /> Custom App Candidate Ingestion
             </div>
             <span className="text-[10px] font-mono text-cyber-textMuted">Analyst Submission</span>
@@ -409,7 +409,7 @@ export default function AppMonitoringView({ brands, onRefreshMetrics }) {
               <button
                 type="button"
                 onClick={() => loadPreset('unrelated')}
-                className="px-2.5 py-1 text-[11px] rounded bg-slate-800 border border-slate-700 text-slate-300 hover:bg-slate-700 transition-all font-mono"
+                className="px-2.5 py-1 text-[11px] rounded bg-surface3 border border-line text-fgMuted hover:bg-surface3 transition-all font-mono"
               >
                 + Unrelated 3D Game
               </button>
@@ -418,7 +418,7 @@ export default function AppMonitoringView({ brands, onRefreshMetrics }) {
 
           <form onSubmit={handleRunScan} className="space-y-4">
             <div>
-              <label className="block text-xs font-mono text-slate-300 mb-1">
+              <label className="block text-xs font-mono text-fgMuted mb-1">
                 Application Title *
               </label>
               <input
@@ -426,13 +426,13 @@ export default function AppMonitoringView({ brands, onRefreshMetrics }) {
                 placeholder="e.g. Acme Mobile Quick Loan"
                 value={formData.candidate_name}
                 onChange={(e) => handleInputChange('candidate_name', e.target.value)}
-                className="w-full bg-cyber-darkest border border-cyber-border rounded-lg px-3 py-2 text-xs text-white placeholder-slate-600 focus:outline-none focus:border-cyber-accent font-medium"
+                className="w-full bg-cyber-darkest border border-cyber-border rounded-lg px-3 py-2 text-xs text-fg placeholder-slate-600 focus:outline-none focus:border-cyber-accent font-medium"
                 required
               />
             </div>
 
             <div>
-              <label className="block text-xs font-mono text-slate-300 mb-1">
+              <label className="block text-xs font-mono text-fgMuted mb-1">
                 Package / Bundle Identifier
               </label>
               <input
@@ -440,13 +440,13 @@ export default function AppMonitoringView({ brands, onRefreshMetrics }) {
                 placeholder="e.g. com.acme.quickloan.apk"
                 value={formData.package_id}
                 onChange={(e) => handleInputChange('package_id', e.target.value)}
-                className="w-full bg-cyber-darkest border border-cyber-border rounded-lg px-3 py-2 text-xs text-white placeholder-slate-600 focus:outline-none focus:border-cyber-accent font-mono"
+                className="w-full bg-cyber-darkest border border-cyber-border rounded-lg px-3 py-2 text-xs text-fg placeholder-slate-600 focus:outline-none focus:border-cyber-accent font-mono"
               />
             </div>
 
             <div className="grid grid-cols-2 gap-3">
               <div>
-                <label className="block text-xs font-mono text-slate-300 mb-1">
+                <label className="block text-xs font-mono text-fgMuted mb-1">
                   Developer / Publisher
                 </label>
                 <input
@@ -454,18 +454,18 @@ export default function AppMonitoringView({ brands, onRefreshMetrics }) {
                   placeholder="e.g. Apex Holdings"
                   value={formData.publisher_name}
                   onChange={(e) => handleInputChange('publisher_name', e.target.value)}
-                  className="w-full bg-cyber-darkest border border-cyber-border rounded-lg px-3 py-2 text-xs text-white placeholder-slate-600 focus:outline-none focus:border-cyber-accent font-mono"
+                  className="w-full bg-cyber-darkest border border-cyber-border rounded-lg px-3 py-2 text-xs text-fg placeholder-slate-600 focus:outline-none focus:border-cyber-accent font-mono"
                 />
               </div>
 
               <div>
-                <label className="block text-xs font-mono text-slate-300 mb-1">
+                <label className="block text-xs font-mono text-fgMuted mb-1">
                   Store Platform
                 </label>
                 <select
                   value={formData.platform}
                   onChange={(e) => handleInputChange('platform', e.target.value)}
-                  className="w-full bg-cyber-darkest border border-cyber-border rounded-lg px-3 py-2 text-xs text-white focus:outline-none focus:border-cyber-accent font-mono"
+                  className="w-full bg-cyber-darkest border border-cyber-border rounded-lg px-3 py-2 text-xs text-fg focus:outline-none focus:border-cyber-accent font-mono"
                 >
                   <option value="android_play_store">Google Play Store</option>
                   <option value="ios_app_store">Apple App Store</option>
@@ -475,7 +475,7 @@ export default function AppMonitoringView({ brands, onRefreshMetrics }) {
             </div>
 
             <div>
-              <label className="block text-xs font-mono text-slate-300 mb-1">
+              <label className="block text-xs font-mono text-fgMuted mb-1">
                 Store Listing URL
               </label>
               <input
@@ -483,12 +483,12 @@ export default function AppMonitoringView({ brands, onRefreshMetrics }) {
                 placeholder="https://play.google.com/store/apps/details?id=..."
                 value={formData.source_url}
                 onChange={(e) => handleInputChange('source_url', e.target.value)}
-                className="w-full bg-cyber-darkest border border-cyber-border rounded-lg px-3 py-2 text-xs text-white placeholder-slate-600 focus:outline-none focus:border-cyber-accent font-mono"
+                className="w-full bg-cyber-darkest border border-cyber-border rounded-lg px-3 py-2 text-xs text-fg placeholder-slate-600 focus:outline-none focus:border-cyber-accent font-mono"
               />
             </div>
 
             <div>
-              <label className="block text-xs font-mono text-slate-300 mb-1">
+              <label className="block text-xs font-mono text-fgMuted mb-1">
                 Listing Description
               </label>
               <textarea
@@ -496,7 +496,7 @@ export default function AppMonitoringView({ brands, onRefreshMetrics }) {
                 placeholder="Enter candidate description text to audit for authority keywords..."
                 value={formData.description}
                 onChange={(e) => handleInputChange('description', e.target.value)}
-                className="w-full bg-cyber-darkest border border-cyber-border rounded-lg px-3 py-2 text-xs text-white placeholder-slate-600 focus:outline-none focus:border-cyber-accent resize-none"
+                className="w-full bg-cyber-darkest border border-cyber-border rounded-lg px-3 py-2 text-xs text-fg placeholder-slate-600 focus:outline-none focus:border-cyber-accent resize-none"
               />
             </div>
 
@@ -509,7 +509,7 @@ export default function AppMonitoringView({ brands, onRefreshMetrics }) {
             <button
               type="submit"
               disabled={loading || !selectedBrandId}
-              className="w-full py-2.5 rounded-lg bg-cyber-accent text-cyber-darkest font-semibold text-xs tracking-wider uppercase hover:bg-cyber-accentHover transition-all shadow-glow flex items-center justify-center gap-2 disabled:opacity-50"
+              className="w-full py-2.5 rounded-lg bg-cyber-accent text-onAccent font-semibold text-xs tracking-wider uppercase hover:bg-cyber-accentHover transition-all shadow-glow flex items-center justify-center gap-2 disabled:opacity-50"
             >
               {loading ? (
                 <>
@@ -531,7 +531,7 @@ export default function AppMonitoringView({ brands, onRefreshMetrics }) {
               <div className="w-16 h-16 rounded-2xl bg-cyber-surface border border-cyber-border flex items-center justify-center text-cyber-textMuted mx-auto">
                 <Package className="w-8 h-8" />
               </div>
-              <h3 className="text-sm font-semibold text-white">
+              <h3 className="text-sm font-semibold text-fg">
                 No Custom Application Evaluated Yet
               </h3>
               <p className="text-xs text-cyber-textMuted max-w-sm mx-auto leading-relaxed">
@@ -558,7 +558,7 @@ export default function AppMonitoringView({ brands, onRefreshMetrics }) {
                       </div>
                     </div>
                   </div>
-                  <div className="p-3 rounded-lg bg-cyber-darkest border border-cyber-emerald/20 text-xs font-mono text-slate-300">
+                  <div className="p-3 rounded-lg bg-cyber-darkest border border-cyber-emerald/20 text-xs font-mono text-fgMuted">
                     {scanResult.exclusion_reason}
                   </div>
                 </div>
@@ -568,18 +568,18 @@ export default function AppMonitoringView({ brands, onRefreshMetrics }) {
                   <div className="flex items-start justify-between pb-4 border-b border-cyber-border">
                     <div>
                       <div className="flex items-center gap-2.5">
-                        <span className="text-base font-bold text-white font-mono">
+                        <span className="text-base font-bold text-fg font-mono">
                           {scanResult.candidate_name}
                         </span>
                         <span
                           className={`text-[10px] font-mono px-2 py-0.5 rounded font-bold uppercase border ${
                             scanResult.severity === 'CRITICAL'
-                              ? 'bg-rose-500/15 border-rose-500/40 text-rose-400'
+                              ? 'bg-danger/15 border-danger/40 text-danger'
                               : scanResult.severity === 'HIGH'
-                              ? 'bg-amber-500/15 border-amber-500/40 text-amber-400'
+                              ? 'bg-warn/15 border-warn/40 text-warn'
                               : scanResult.severity === 'MEDIUM'
-                              ? 'bg-blue-500/15 border-blue-500/40 text-blue-400'
-                              : 'bg-emerald-500/15 border-emerald-500/40 text-cyber-emerald'
+                              ? 'bg-accent/15 border-accent/40 text-accent'
+                              : 'bg-ok/15 border-ok/40 text-cyber-emerald'
                           }`}
                         >
                           {scanResult.severity} RISK
@@ -589,12 +589,12 @@ export default function AppMonitoringView({ brands, onRefreshMetrics }) {
                         </span>
                       </div>
                       <p className="text-xs text-cyber-textMuted mt-1 font-mono">
-                        Target Brand: <span className="text-white">{selectedBrand?.name}</span>
+                        Target Brand: <span className="text-fg">{selectedBrand?.name}</span>
                       </p>
                     </div>
 
                     <div className="text-right">
-                      <div className="text-2xl font-bold font-mono text-white">
+                      <div className="text-2xl font-bold font-mono text-fg">
                         {scanResult.risk_score}
                         <span className="text-xs text-cyber-textMuted">/100</span>
                       </div>
@@ -606,28 +606,28 @@ export default function AppMonitoringView({ brands, onRefreshMetrics }) {
                   <div className="grid grid-cols-2 gap-3 p-3 rounded-xl bg-cyber-darkest border border-cyber-border/70 text-xs font-mono">
                     <div>
                       <span className="text-[10px] text-cyber-textMuted uppercase block">Rule-Based Score</span>
-                      <span className="text-white font-bold text-sm">
+                      <span className="text-fg font-bold text-sm">
                         {scanResult.rule_based_score ?? scanResult.risk_score} <span className="text-[10px] text-cyber-textMuted">/ 100</span>
                       </span>
                     </div>
                     <div>
                       <span className="text-[10px] text-cyber-textMuted uppercase block">ML Risk Classifier</span>
                       <div className="flex items-center gap-1.5 mt-0.5">
-                        <span className="text-white font-bold text-sm">
+                        <span className="text-fg font-bold text-sm">
                           {scanResult.ml_risk_score !== null && scanResult.ml_risk_score !== undefined
                             ? `${scanResult.ml_risk_score} `
                             : 'N/A '}
                           <span className="text-[10px] text-cyber-textMuted">/ 100</span>
                         </span>
                         {scanResult.ml_fallback_used ? (
-                          <span className="px-1.5 py-0.5 text-[9px] rounded bg-amber-500/15 text-amber-300 border border-amber-500/30 font-semibold">
+                          <span className="px-1.5 py-0.5 text-[9px] rounded bg-warn/15 text-warn border border-warn/30 font-semibold">
                             Fallback
                           </span>
                         ) : scanResult.ml_predicted_class ? (
                           <span className={`px-1.5 py-0.5 text-[9px] rounded font-semibold border ${
                             scanResult.ml_predicted_class === 'SUSPICIOUS'
-                              ? 'bg-rose-500/15 text-rose-300 border-rose-500/30'
-                              : 'bg-emerald-500/15 text-cyber-emerald border-cyber-emerald/30'
+                              ? 'bg-danger/15 text-danger border-danger/30'
+                              : 'bg-ok/15 text-cyber-emerald border-cyber-emerald/30'
                           }`}>
                             {scanResult.ml_predicted_class}
                           </span>
@@ -644,7 +644,7 @@ export default function AppMonitoringView({ brands, onRefreshMetrics }) {
                     </div>
 
                     {scanResult.signals?.length === 0 ? (
-                      <div className="p-3 rounded-lg bg-cyber-darkest text-xs font-mono text-slate-400">
+                      <div className="p-3 rounded-lg bg-cyber-darkest text-xs font-mono text-fgSubtle">
                         No rogue mobile app or signature mismatch signals triggered.
                       </div>
                     ) : (
@@ -655,7 +655,7 @@ export default function AppMonitoringView({ brands, onRefreshMetrics }) {
                             className="p-3.5 rounded-lg bg-cyber-darkest border border-cyber-border space-y-1"
                           >
                             <div className="flex items-center justify-between">
-                              <span className="text-xs font-mono font-bold text-white flex items-center gap-2">
+                              <span className="text-xs font-mono font-bold text-fg flex items-center gap-2">
                                 <AlertTriangle className="w-3.5 h-3.5 text-cyber-amber" />
                                 {sig.signal_type}
                               </span>
@@ -663,7 +663,7 @@ export default function AppMonitoringView({ brands, onRefreshMetrics }) {
                                 Impact: +{sig.score} • Conf: {(sig.confidence * 100).toFixed(0)}%
                               </span>
                             </div>
-                            <p className="text-xs text-slate-300 leading-relaxed pt-1">
+                            <p className="text-xs text-fgMuted leading-relaxed pt-1">
                               {sig.explanation}
                             </p>
                           </div>
@@ -675,14 +675,14 @@ export default function AppMonitoringView({ brands, onRefreshMetrics }) {
                   {/* Evidence Records */}
                   {scanResult.evidence?.length > 0 && (
                     <div className="space-y-2 pt-2 border-t border-cyber-border">
-                      <div className="text-xs font-mono uppercase tracking-wider text-white font-semibold">
+                      <div className="text-xs font-mono uppercase tracking-wider text-fg font-semibold">
                         Preserved Evidentiary Artifacts
                       </div>
                       <div className="space-y-1.5">
                         {scanResult.evidence.map((ev, idx) => (
                           <div
                             key={idx}
-                            className="p-2.5 rounded bg-cyber-surface border border-cyber-border text-xs flex items-center justify-between text-slate-300 font-mono"
+                            className="p-2.5 rounded bg-cyber-surface border border-cyber-border text-xs flex items-center justify-between text-fgMuted font-mono"
                           >
                             <span>{ev.description}</span>
                             {ev.source_reference && (

@@ -5,6 +5,7 @@ from datetime import datetime, timezone
 from typing import Optional, Dict, Any, Tuple
 
 import joblib
+from backend.app.ml.artifact_compat import runtime_versions
 import numpy as np
 import pandas as pd
 from sklearn.pipeline import Pipeline
@@ -69,7 +70,12 @@ def extract_social_features(profile_data: Dict[str, Any]) -> pd.DataFrame:
         following = 0.0
     bio = str(profile_data.get("bio") or profile_data.get("biography") or "")
     bio_len = float(profile_data.get("userBiographyLength") or len(bio))
-    media_count = float(profile_data.get("media_count") or profile_data.get("userMediaCount") or 0)
+    media_count = float(
+        profile_data.get("media_count")
+        or profile_data.get("posts_count")
+        or profile_data.get("userMediaCount")
+        or 0
+    )
     has_pic = 1.0 if profile_data.get("has_profile_pic", profile_data.get("userHasProfilPic", True)) else 0.0
     is_priv = 1.0 if profile_data.get("is_private", profile_data.get("userIsPrivate", False)) else 0.0
 
@@ -90,6 +96,30 @@ def extract_social_features(profile_data: Dict[str, Any]) -> pd.DataFrame:
         "digit_ratio": digits / (username_len + 1e-5),
     }
     return pd.DataFrame([row])
+
+
+# Core count metadata the InstaFake model depends on. InstaFake has no missing
+# values, so the model never learned what "unknown" looks like: imputing 0 makes
+# an unobserved account look like an empty bot account.
+CORE_METADATA_ALIASES = {
+    "follower_count": ("follower_count", "followers_count", "userFollowerCount"),
+    "following_count": ("following_count", "followings_count", "userFollowingCount"),
+    "media_count": ("media_count", "posts_count", "userMediaCount"),
+}
+
+
+def get_missing_social_metadata(profile_data: Dict[str, Any]) -> list:
+    """Return the core metadata fields that were not supplied (or are not numeric)."""
+    missing = []
+    for field, aliases in CORE_METADATA_ALIASES.items():
+        value = next((profile_data.get(a) for a in aliases if profile_data.get(a) is not None), None)
+        try:
+            if value is None or str(value).strip() == "":
+                raise ValueError
+            float(value)
+        except (ValueError, TypeError):
+            missing.append(field)
+    return missing
 
 
 def create_social_pipeline(random_state: int = 42) -> Pipeline:
@@ -160,9 +190,9 @@ def train_and_evaluate_social_model(
     df = pd.concat([df_fake, df_real], ignore_index=True)
 
     # 2. Features and engineering
+    df["follower_following_ratio"] = df["userFollowerCount"] / (df["userFollowingCount"] + 1.0)
+    df["digit_ratio"] = df["usernameDigitCount"] / (df["usernameLength"] + 1e-5)
     X = df[FEATURE_COLS].copy()
-    X["follower_following_ratio"] = X["userFollowerCount"] / (X["userFollowingCount"] + 1.0)
-    X["digit_ratio"] = X["usernameDigitCount"] / (X["usernameLength"] + 1e-5)
     y = df["label"].values
 
     total_rows = len(df)
@@ -211,6 +241,7 @@ def train_and_evaluate_social_model(
         "task": "social_fake_account_detection",
         "model_version": "1.0.0",
         "model_artifact": SOCIAL_MODEL_FILENAME,
+        "runtime_versions": runtime_versions(),
         "timestamp": datetime.now(timezone.utc).isoformat(),
         "random_state": random_state,
         "dataset_metadata": {

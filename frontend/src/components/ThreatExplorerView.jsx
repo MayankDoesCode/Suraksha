@@ -93,30 +93,30 @@ export default function ThreatExplorerView({ brands, onRefreshMetrics }) {
   const getSeverityBadge = (severity) => {
     switch (severity) {
       case 'CRITICAL':
-        return 'bg-rose-500/15 border-rose-500/40 text-rose-400';
+        return 'bg-danger/15 border-danger/40 text-danger';
       case 'HIGH':
-        return 'bg-amber-500/15 border-amber-500/40 text-amber-400';
+        return 'bg-warn/15 border-warn/40 text-warn';
       case 'MEDIUM':
-        return 'bg-blue-500/15 border-blue-500/40 text-blue-400';
+        return 'bg-accent/15 border-accent/40 text-accent';
       default:
-        return 'bg-emerald-500/15 border-emerald-500/40 text-cyber-emerald';
+        return 'bg-ok/15 border-ok/40 text-cyber-emerald';
     }
   };
 
   const getStatusBadge = (status) => {
     switch (status) {
       case 'CONFIRMED_THREAT':
-        return 'bg-rose-500/20 text-rose-300 border-rose-500/40';
+        return 'bg-danger/20 text-danger border-danger/40';
       case 'UNDER_INVESTIGATION':
-        return 'bg-amber-500/20 text-amber-300 border-amber-500/40';
+        return 'bg-warn/20 text-warn border-warn/40';
       case 'FALSE_POSITIVE':
-        return 'bg-slate-700/50 text-slate-300 border-slate-600';
+        return 'bg-surface3/50 text-fgMuted border-line';
       case 'RESOLVED':
-        return 'bg-emerald-500/20 text-emerald-300 border-emerald-500/40';
+        return 'bg-ok/20 text-ok border-ok/40';
       case 'NEW':
-        return 'bg-amber-500/20 text-amber-300 border-amber-500/40';
+        return 'bg-warn/20 text-warn border-warn/40';
       default:
-        return 'bg-blue-500/20 text-blue-300 border-blue-500/40';
+        return 'bg-accent/20 text-accent border-accent/40';
     }
   };
 
@@ -140,7 +140,7 @@ export default function ThreatExplorerView({ brands, onRefreshMetrics }) {
             <Crosshair className="w-6 h-6" />
           </div>
           <div>
-            <h2 className="text-base font-bold text-white flex items-center gap-2">
+            <h2 className="text-base font-bold text-fg flex items-center gap-2">
               Threat Intelligence Explorer
               <span className="text-[10px] font-mono px-2 py-0.5 rounded bg-cyber-emerald/10 text-cyber-emerald border border-cyber-emerald/30">
                 Live Repository ({findings.length})
@@ -155,7 +155,7 @@ export default function ThreatExplorerView({ brands, onRefreshMetrics }) {
         <button
           onClick={fetchFindings}
           disabled={loading}
-          className="px-3.5 py-2 rounded-lg bg-cyber-surface border border-cyber-border text-xs font-mono text-white hover:border-cyber-accent transition-all flex items-center gap-2"
+          className="px-3.5 py-2 rounded-lg bg-cyber-surface border border-cyber-border text-xs font-mono text-fg hover:border-cyber-accent transition-all flex items-center gap-2"
         >
           <RefreshCw className={`w-3.5 h-3.5 ${loading ? 'animate-spin' : ''}`} /> Refresh Feed
         </button>
@@ -172,7 +172,7 @@ export default function ThreatExplorerView({ brands, onRefreshMetrics }) {
               placeholder="Search candidate name, URL, or handle..."
               value={search}
               onChange={(e) => setSearch(e.target.value)}
-              className="w-full bg-cyber-darkest border border-cyber-border rounded-lg pl-9 pr-3 py-2 text-xs text-white placeholder-slate-600 focus:outline-none focus:border-cyber-accent font-mono"
+              className="w-full bg-cyber-darkest border border-cyber-border rounded-lg pl-9 pr-3 py-2 text-xs text-fg placeholder-slate-600 focus:outline-none focus:border-cyber-accent font-mono"
             />
           </div>
 
@@ -181,7 +181,7 @@ export default function ThreatExplorerView({ brands, onRefreshMetrics }) {
             <select
               value={selectedBrand}
               onChange={(e) => setSelectedBrand(e.target.value)}
-              className="w-full bg-cyber-darkest border border-cyber-border rounded-lg px-2.5 py-2 text-xs text-white focus:outline-none focus:border-cyber-accent font-mono"
+              className="w-full bg-cyber-darkest border border-cyber-border rounded-lg px-2.5 py-2 text-xs text-fg focus:outline-none focus:border-cyber-accent font-mono"
             >
               <option value="">All Brands</option>
               {brands.map((b) => (
@@ -197,7 +197,7 @@ export default function ThreatExplorerView({ brands, onRefreshMetrics }) {
             <select
               value={selectedAssetType}
               onChange={(e) => setSelectedAssetType(e.target.value)}
-              className="w-full bg-cyber-darkest border border-cyber-border rounded-lg px-2.5 py-2 text-xs text-white focus:outline-none focus:border-cyber-accent font-mono"
+              className="w-full bg-cyber-darkest border border-cyber-border rounded-lg px-2.5 py-2 text-xs text-fg focus:outline-none focus:border-cyber-accent font-mono"
             >
               <option value="">All Asset Types</option>
               <option value="social">Social Media</option>
@@ -211,7 +211,7 @@ export default function ThreatExplorerView({ brands, onRefreshMetrics }) {
             <select
               value={selectedSeverity}
               onChange={(e) => setSelectedSeverity(e.target.value)}
-              className="w-full bg-cyber-darkest border border-cyber-border rounded-lg px-2.5 py-2 text-xs text-white focus:outline-none focus:border-cyber-accent font-mono"
+              className="w-full bg-cyber-darkest border border-cyber-border rounded-lg px-2.5 py-2 text-xs text-fg focus:outline-none focus:border-cyber-accent font-mono"
             >
               <option value="">All Severities</option>
               <option value="CRITICAL">Critical (&gt;=80)</option>
@@ -226,7 +226,7 @@ export default function ThreatExplorerView({ brands, onRefreshMetrics }) {
             <select
               value={selectedStatus}
               onChange={(e) => setSelectedStatus(e.target.value)}
-              className="w-full bg-cyber-darkest border border-cyber-border rounded-lg px-2.5 py-2 text-xs text-white focus:outline-none focus:border-cyber-accent font-mono"
+              className="w-full bg-cyber-darkest border border-cyber-border rounded-lg px-2.5 py-2 text-xs text-fg focus:outline-none focus:border-cyber-accent font-mono"
             >
               <option value="">All Review Statuses</option>
               <option value="NEW">New (Unreviewed)</option>
@@ -246,7 +246,7 @@ export default function ThreatExplorerView({ brands, onRefreshMetrics }) {
             className={`px-2.5 py-1 rounded text-[11px] transition-all ${
               provenanceFilter === 'all'
                 ? 'bg-cyber-accent/20 text-cyber-accent border border-cyber-accent/40 font-semibold'
-                : 'text-slate-400 hover:text-white'
+                : 'text-fgSubtle hover:text-fg'
             }`}
           >
             All Feeds ({findings.length})
@@ -256,7 +256,7 @@ export default function ThreatExplorerView({ brands, onRefreshMetrics }) {
             className={`px-2.5 py-1 rounded text-[11px] transition-all flex items-center gap-1.5 ${
               provenanceFilter === 'live'
                 ? 'bg-cyber-emerald/20 text-cyber-emerald border border-cyber-emerald/40 font-semibold'
-                : 'text-slate-400 hover:text-white'
+                : 'text-fgSubtle hover:text-fg'
             }`}
           >
             <span className="w-1.5 h-1.5 rounded-full bg-cyber-emerald" />
@@ -266,8 +266,8 @@ export default function ThreatExplorerView({ brands, onRefreshMetrics }) {
             onClick={() => setProvenanceFilter('sample')}
             className={`px-2.5 py-1 rounded text-[11px] transition-all ${
               provenanceFilter === 'sample'
-                ? 'bg-slate-700 text-slate-200 border border-slate-600 font-semibold'
-                : 'text-slate-400 hover:text-white'
+                ? 'bg-surface3 text-fgMuted border border-line font-semibold'
+                : 'text-fgSubtle hover:text-fg'
             }`}
           >
             Sample / Manual Feeds ({findings.filter((f) => f.is_sample).length})
@@ -285,7 +285,7 @@ export default function ThreatExplorerView({ brands, onRefreshMetrics }) {
         ) : findings.length === 0 ? (
           <div className="p-16 text-center space-y-3">
             <ShieldCheck className="w-12 h-12 text-cyber-accent/50 mx-auto" />
-            <h3 className="text-sm font-semibold text-white">No Threat Findings Observed</h3>
+            <h3 className="text-sm font-semibold text-fg">No Threat Findings Observed</h3>
             <p className="text-xs text-cyber-textMuted max-w-sm mx-auto">
               No matching records found. Use the Social Impersonation Watch or Mobile App Guard modules to evaluate candidates.
             </p>
@@ -319,7 +319,7 @@ export default function ThreatExplorerView({ brands, onRefreshMetrics }) {
                   >
                     {/* Candidate */}
                     <td className="py-3.5 px-4">
-                      <div className="font-mono font-medium text-white group-hover:text-cyber-accent transition-colors">
+                      <div className="font-mono font-medium text-fg group-hover:text-cyber-accent transition-colors">
                         {f.candidate_name}
                       </div>
                       {f.source_url && (
@@ -331,7 +331,7 @@ export default function ThreatExplorerView({ brands, onRefreshMetrics }) {
 
                     {/* Asset Type */}
                     <td className="py-3.5 px-4">
-                      <span className="inline-flex items-center gap-1.5 font-mono text-[11px] text-slate-300">
+                      <span className="inline-flex items-center gap-1.5 font-mono text-[11px] text-fgMuted">
                         {getAssetIcon(f.asset_type)}
                         {f.asset_type === 'mobile_app' ? 'App' : f.asset_type}
                       </span>
@@ -341,7 +341,7 @@ export default function ThreatExplorerView({ brands, onRefreshMetrics }) {
                     <td className="py-3.5 px-4 whitespace-nowrap">
                       <div className="space-y-1">
                         <div className="flex items-center gap-2">
-                          <span className="font-mono font-bold text-white text-sm">
+                          <span className="font-mono font-bold text-fg text-sm">
                             {f.final_risk_score ?? f.risk_score}
                           </span>
                           <span
@@ -354,14 +354,14 @@ export default function ThreatExplorerView({ brands, onRefreshMetrics }) {
                         </div>
                         <div className="flex items-center gap-1.5 text-[10px] font-mono">
                           {f.ml_fallback_used ? (
-                            <span className="px-1.5 py-0.5 rounded bg-amber-500/10 text-amber-400 border border-amber-500/30 text-[9px]">
+                            <span className="px-1.5 py-0.5 rounded bg-warn/10 text-warn border border-warn/30 text-[9px]">
                               Rule Fallback
                             </span>
                           ) : f.ml_predicted_class ? (
                             <span className={`px-1.5 py-0.5 rounded text-[9px] font-semibold border ${
                               f.ml_predicted_class === 'SUSPICIOUS'
-                                ? 'bg-rose-500/10 text-rose-400 border-rose-500/30'
-                                : 'bg-emerald-500/10 text-cyber-emerald border-cyber-emerald/30'
+                                ? 'bg-danger/10 text-danger border-danger/30'
+                                : 'bg-ok/10 text-cyber-emerald border-cyber-emerald/30'
                             }`}>
                               ML: {f.ml_predicted_class} ({f.ml_risk_score ?? 0})
                             </span>
@@ -372,7 +372,7 @@ export default function ThreatExplorerView({ brands, onRefreshMetrics }) {
 
                     {/* Top Signal */}
                     <td className="py-3.5 px-4">
-                      <div className="text-[11px] text-slate-300 font-mono truncate max-w-xs">
+                      <div className="text-[11px] text-fgMuted font-mono truncate max-w-xs">
                         {f.signals?.[0]?.explanation || 'No signals recorded'}
                       </div>
                     </td>
@@ -384,7 +384,7 @@ export default function ThreatExplorerView({ brands, onRefreshMetrics }) {
                           {f.detection_source === 'itunes_app_store' ? 'Apple Store' : f.detection_source || 'Live Feed'}
                         </span>
                       ) : (
-                        <span className="text-[10px] font-mono px-2 py-0.5 rounded bg-cyber-darkest border border-cyber-border text-slate-400">
+                        <span className="text-[10px] font-mono px-2 py-0.5 rounded bg-cyber-darkest border border-cyber-border text-fgSubtle">
                           Sample
                         </span>
                       )}
@@ -408,7 +408,7 @@ export default function ThreatExplorerView({ brands, onRefreshMetrics }) {
                           e.stopPropagation();
                           setActiveFinding(f);
                         }}
-                        className="px-2.5 py-1 rounded bg-cyber-surface border border-cyber-border text-[11px] font-mono text-white hover:border-cyber-accent hover:text-cyber-accent transition-all inline-flex items-center gap-1"
+                        className="px-2.5 py-1 rounded bg-cyber-surface border border-cyber-border text-[11px] font-mono text-fg hover:border-cyber-accent hover:text-cyber-accent transition-all inline-flex items-center gap-1"
                       >
                         <Eye className="w-3 h-3" /> Inspect
                       </button>
@@ -449,12 +449,12 @@ export default function ThreatExplorerView({ brands, onRefreshMetrics }) {
                         {activeFinding.detection_source === 'itunes_app_store' ? 'Apple App Store (Live)' : activeFinding.detection_source || 'Live Feed'}
                       </span>
                     ) : (
-                      <span className="text-[10px] font-mono px-2 py-0.5 rounded bg-cyber-surface border border-cyber-border text-slate-400">
+                      <span className="text-[10px] font-mono px-2 py-0.5 rounded bg-cyber-surface border border-cyber-border text-fgSubtle">
                         Sample Feed
                       </span>
                     )}
                   </div>
-                  <h3 className="text-lg font-bold text-white font-mono mt-2 flex items-center gap-2">
+                  <h3 className="text-lg font-bold text-fg font-mono mt-2 flex items-center gap-2">
                     {getAssetIcon(activeFinding.asset_type)}
                     {activeFinding.candidate_name}
                   </h3>
@@ -472,7 +472,7 @@ export default function ThreatExplorerView({ brands, onRefreshMetrics }) {
 
                 <button
                   onClick={() => setActiveFinding(null)}
-                  className="p-1.5 rounded-lg bg-cyber-surface border border-cyber-border text-slate-400 hover:text-white"
+                  className="p-1.5 rounded-lg bg-cyber-surface border border-cyber-border text-fgSubtle hover:text-fg"
                 >
                   <X className="w-5 h-5" />
                 </button>
@@ -493,7 +493,7 @@ export default function ThreatExplorerView({ brands, onRefreshMetrics }) {
                       <Cpu className="w-3.5 h-3.5 text-cyber-accent" />
                       Composite Hybrid Risk Score
                     </div>
-                    <div className="text-2xl font-bold font-mono text-white mt-1">
+                    <div className="text-2xl font-bold font-mono text-fg mt-1">
                       {activeFinding.final_risk_score ?? activeFinding.risk_score}{' '}
                       <span className="text-xs text-cyber-textMuted">/ 100</span>
                     </div>
@@ -511,11 +511,11 @@ export default function ThreatExplorerView({ brands, onRefreshMetrics }) {
                     <div className="text-[10px] font-mono uppercase text-cyber-textMuted">
                       Rule-Based Engine
                     </div>
-                    <div className="text-lg font-bold font-mono text-white mt-0.5">
+                    <div className="text-lg font-bold font-mono text-fg mt-0.5">
                       {activeFinding.rule_based_score ?? activeFinding.risk_score}{' '}
                       <span className="text-[10px] text-cyber-textMuted">/ 100</span>
                     </div>
-                    <div className="text-[9px] font-mono text-slate-400 mt-0.5">
+                    <div className="text-[9px] font-mono text-fgSubtle mt-0.5">
                       Deterministic Signals
                     </div>
                   </div>
@@ -524,13 +524,13 @@ export default function ThreatExplorerView({ brands, onRefreshMetrics }) {
                     <div className="text-[10px] font-mono uppercase text-cyber-textMuted">
                       ML Risk Classifier
                     </div>
-                    <div className="text-lg font-bold font-mono text-white mt-0.5">
+                    <div className="text-lg font-bold font-mono text-fg mt-0.5">
                       {activeFinding.ml_risk_score !== null && activeFinding.ml_risk_score !== undefined
                         ? `${activeFinding.ml_risk_score} `
                         : 'N/A '}
                       <span className="text-[10px] text-cyber-textMuted">/ 100</span>
                     </div>
-                    <div className="text-[9px] font-mono text-slate-400 mt-0.5">
+                    <div className="text-[9px] font-mono text-fgSubtle mt-0.5">
                       RandomForest v{activeFinding.ml_model_version || '1.0.0'}
                     </div>
                   </div>
@@ -539,20 +539,20 @@ export default function ThreatExplorerView({ brands, onRefreshMetrics }) {
                 {/* ML Status and Class Details */}
                 <div className="flex flex-wrap items-center gap-2 pt-1 text-[11px] font-mono">
                   {activeFinding.ml_fallback_used ? (
-                    <span className="px-2 py-0.5 rounded bg-amber-500/15 text-amber-300 border border-amber-500/30 flex items-center gap-1">
+                    <span className="px-2 py-0.5 rounded bg-warn/15 text-warn border border-warn/30 flex items-center gap-1">
                       <AlertTriangle className="w-3 h-3" /> Deterministic Fallback Active
                     </span>
                   ) : activeFinding.ml_predicted_class ? (
                     <>
                       <span className={`px-2 py-0.5 rounded font-semibold border ${
                         activeFinding.ml_predicted_class === 'SUSPICIOUS'
-                          ? 'bg-rose-500/15 text-rose-300 border-rose-500/30'
-                          : 'bg-emerald-500/15 text-cyber-emerald border-cyber-emerald/30'
+                          ? 'bg-danger/15 text-danger border-danger/30'
+                          : 'bg-ok/15 text-cyber-emerald border-cyber-emerald/30'
                       }`}>
                         Prediction: {activeFinding.ml_predicted_class}
                       </span>
                       {activeFinding.ml_confidence !== null && activeFinding.ml_confidence !== undefined && (
-                        <span className="text-slate-400">
+                        <span className="text-fgSubtle">
                           Confidence: {(activeFinding.ml_confidence * 100).toFixed(0)}%
                         </span>
                       )}
@@ -564,12 +564,12 @@ export default function ThreatExplorerView({ brands, onRefreshMetrics }) {
               {/* Triage Advisory Notice */}
               <div className={`p-3 rounded-xl border text-xs font-mono flex items-start gap-2.5 ${
                 activeFinding.review_status === 'CONFIRMED_THREAT'
-                  ? 'bg-rose-500/10 border-rose-500/30 text-rose-300'
+                  ? 'bg-danger/10 border-danger/30 text-danger'
                   : activeFinding.review_status === 'FALSE_POSITIVE'
-                  ? 'bg-slate-800 border-slate-700 text-slate-300'
+                  ? 'bg-surface3 border-line text-fgMuted'
                   : activeFinding.review_status === 'RESOLVED'
-                  ? 'bg-emerald-500/10 border-emerald-500/30 text-cyber-emerald'
-                  : 'bg-amber-500/10 border-amber-500/30 text-amber-300'
+                  ? 'bg-ok/10 border-ok/30 text-cyber-emerald'
+                  : 'bg-warn/10 border-warn/30 text-warn'
               }`}>
                 <AlertTriangle className="w-4 h-4 shrink-0 mt-0.5" />
                 <div>
@@ -582,7 +582,7 @@ export default function ThreatExplorerView({ brands, onRefreshMetrics }) {
                       ? 'Threat Resolved / Takedown Complete'
                       : 'Potential Risk / Needs Review'}
                   </div>
-                  <div className="text-[11px] text-slate-300 mt-0.5 leading-relaxed font-sans">
+                  <div className="text-[11px] text-fgMuted mt-0.5 leading-relaxed font-sans">
                     {activeFinding.review_status === 'CONFIRMED_THREAT'
                       ? 'This finding has been reviewed and verified as an active malicious impersonation attempt by a security analyst.'
                       : activeFinding.review_status === 'NEW'
@@ -594,14 +594,14 @@ export default function ThreatExplorerView({ brands, onRefreshMetrics }) {
 
               {/* Triage Actions Button Group */}
               <div className="space-y-2">
-                <div className="text-xs font-mono uppercase tracking-wider text-white font-semibold">
+                <div className="text-xs font-mono uppercase tracking-wider text-fg font-semibold">
                   Triage Review Status Actions
                 </div>
                 <div className="grid grid-cols-2 md:grid-cols-4 gap-2">
                   <button
                     disabled={updatingStatus || activeFinding.review_status === 'UNDER_INVESTIGATION'}
                     onClick={() => handleUpdateStatus(activeFinding.id, 'UNDER_INVESTIGATION')}
-                    className="py-2 px-3 rounded-lg bg-amber-500/10 border border-amber-500/30 text-amber-400 text-xs font-mono font-medium hover:bg-amber-500/20 disabled:opacity-40 transition-all text-center"
+                    className="py-2 px-3 rounded-lg bg-warn/10 border border-warn/30 text-warn text-xs font-mono font-medium hover:bg-warn/20 disabled:opacity-40 transition-all text-center"
                   >
                     Investigate
                   </button>
@@ -609,7 +609,7 @@ export default function ThreatExplorerView({ brands, onRefreshMetrics }) {
                   <button
                     disabled={updatingStatus || activeFinding.review_status === 'CONFIRMED_THREAT'}
                     onClick={() => handleUpdateStatus(activeFinding.id, 'CONFIRMED_THREAT')}
-                    className="py-2 px-3 rounded-lg bg-rose-500/10 border border-rose-500/30 text-rose-400 text-xs font-mono font-medium hover:bg-rose-500/20 disabled:opacity-40 transition-all text-center"
+                    className="py-2 px-3 rounded-lg bg-danger/10 border border-danger/30 text-danger text-xs font-mono font-medium hover:bg-danger/20 disabled:opacity-40 transition-all text-center"
                   >
                     Confirm Threat
                   </button>
@@ -617,7 +617,7 @@ export default function ThreatExplorerView({ brands, onRefreshMetrics }) {
                   <button
                     disabled={updatingStatus || activeFinding.review_status === 'FALSE_POSITIVE'}
                     onClick={() => handleUpdateStatus(activeFinding.id, 'FALSE_POSITIVE')}
-                    className="py-2 px-3 rounded-lg bg-slate-800 border border-slate-700 text-slate-300 text-xs font-mono font-medium hover:bg-slate-700 disabled:opacity-40 transition-all text-center"
+                    className="py-2 px-3 rounded-lg bg-surface3 border border-line text-fgMuted text-xs font-mono font-medium hover:bg-surface3 disabled:opacity-40 transition-all text-center"
                   >
                     False Positive
                   </button>
@@ -625,7 +625,7 @@ export default function ThreatExplorerView({ brands, onRefreshMetrics }) {
                   <button
                     disabled={updatingStatus || activeFinding.review_status === 'RESOLVED'}
                     onClick={() => handleUpdateStatus(activeFinding.id, 'RESOLVED')}
-                    className="py-2 px-3 rounded-lg bg-emerald-500/10 border border-emerald-500/30 text-cyber-emerald text-xs font-mono font-medium hover:bg-emerald-500/20 disabled:opacity-40 transition-all text-center"
+                    className="py-2 px-3 rounded-lg bg-ok/10 border border-ok/30 text-cyber-emerald text-xs font-mono font-medium hover:bg-ok/20 disabled:opacity-40 transition-all text-center"
                   >
                     Resolve
                   </button>
@@ -644,7 +644,7 @@ export default function ThreatExplorerView({ brands, onRefreshMetrics }) {
                       className="p-3.5 rounded-lg bg-cyber-darkest border border-cyber-border space-y-1.5"
                     >
                       <div className="flex items-center justify-between">
-                        <span className="text-xs font-mono font-bold text-white flex items-center gap-1.5">
+                        <span className="text-xs font-mono font-bold text-fg flex items-center gap-1.5">
                           <AlertTriangle className="w-3.5 h-3.5 text-cyber-amber" />
                           {sig.signal_type}
                         </span>
@@ -652,7 +652,7 @@ export default function ThreatExplorerView({ brands, onRefreshMetrics }) {
                           Score: +{sig.score} • Conf: {(sig.confidence * 100).toFixed(0)}%
                         </span>
                       </div>
-                      <p className="text-xs text-slate-300 leading-relaxed font-sans">
+                      <p className="text-xs text-fgMuted leading-relaxed font-sans">
                         {sig.explanation}
                       </p>
                     </div>
@@ -662,11 +662,11 @@ export default function ThreatExplorerView({ brands, onRefreshMetrics }) {
 
               {/* Evidentiary Records */}
               <div className="space-y-3">
-                <div className="text-xs font-mono uppercase tracking-wider text-white font-semibold">
+                <div className="text-xs font-mono uppercase tracking-wider text-fg font-semibold">
                   Evidence Records & Captured Artifacts
                 </div>
                 {activeFinding.evidence?.length === 0 ? (
-                  <div className="p-3 rounded-lg bg-cyber-darkest text-xs font-mono text-slate-400">
+                  <div className="p-3 rounded-lg bg-cyber-darkest text-xs font-mono text-fgSubtle">
                     No artifacts attached to this finding.
                   </div>
                 ) : (
@@ -677,7 +677,7 @@ export default function ThreatExplorerView({ brands, onRefreshMetrics }) {
                         className="p-3 rounded-lg bg-cyber-darkest border border-cyber-border text-xs font-mono space-y-1"
                       >
                         <div className="text-cyber-accent font-semibold">{ev.evidence_type}</div>
-                        <div className="text-slate-300 font-sans">{ev.description}</div>
+                        <div className="text-fgMuted font-sans">{ev.description}</div>
                         {ev.source_reference && (
                           <div className="text-[10px] text-cyber-textMuted truncate pt-1">
                             Ref: {ev.source_reference}

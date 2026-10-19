@@ -38,6 +38,10 @@ def test_scan_candidate_api_returns_ml_fields(client, app):
         "display_name": "Acme Fraud Desk",
         "description": "Urgent account verification portal",
         "website_url": "https://acme-phish.xyz",
+        "followers_count": 3,
+        "following_count": 2400,
+        "media_count": 0,
+        "has_profile_pic": False,
     }
 
     resp = client.post(f"/api/v1/brands/{brand['id']}/scan", json=payload)

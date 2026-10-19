@@ -7,6 +7,7 @@ from urllib.parse import urlparse
 from typing import Optional, Dict, Any, Tuple
 
 import joblib
+from backend.app.ml.artifact_compat import runtime_versions
 import numpy as np
 import pandas as pd
 from sklearn.pipeline import Pipeline
@@ -187,6 +188,7 @@ def train_and_evaluate_url_model(
         "task": "url_phishing_detection",
         "model_version": "1.0.0",
         "model_artifact": URL_MODEL_FILENAME,
+        "runtime_versions": runtime_versions(),
         "timestamp": datetime.now(timezone.utc).isoformat(),
         "random_state": random_state,
         "dataset_metadata": {

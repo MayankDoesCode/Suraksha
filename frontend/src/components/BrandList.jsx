@@ -67,7 +67,7 @@ export default function BrandList({
             <div className="text-[11px] font-mono uppercase tracking-wider text-cyber-textMuted">
               Monitored Brands
             </div>
-            <div className="text-2xl font-bold font-mono text-white mt-1">
+            <div className="text-2xl font-bold font-mono text-fg mt-1">
               {totalBrands}
             </div>
           </div>
@@ -95,11 +95,11 @@ export default function BrandList({
             <div className="text-[11px] font-mono uppercase tracking-wider text-cyber-textMuted">
               Critical & High Risks
             </div>
-            <div className="text-2xl font-bold font-mono text-rose-400 mt-1">
+            <div className="text-2xl font-bold font-mono text-danger mt-1">
               {criticalAndHigh}
             </div>
           </div>
-          <div className="w-10 h-10 rounded-lg bg-rose-500/10 border border-rose-500/30 flex items-center justify-center text-rose-400">
+          <div className="w-10 h-10 rounded-lg bg-danger/10 border border-danger/30 flex items-center justify-center text-danger">
             <Shield className="w-5 h-5" />
           </div>
         </div>
@@ -109,11 +109,11 @@ export default function BrandList({
             <div className="text-[11px] font-mono uppercase tracking-wider text-cyber-textMuted">
               Under Active Review
             </div>
-            <div className="text-2xl font-bold font-mono text-amber-400 mt-1">
+            <div className="text-2xl font-bold font-mono text-warn mt-1">
               {underInvestigation}
             </div>
           </div>
-          <div className="w-10 h-10 rounded-lg bg-amber-500/10 border border-amber-500/30 flex items-center justify-center text-amber-400">
+          <div className="w-10 h-10 rounded-lg bg-warn/10 border border-warn/30 flex items-center justify-center text-warn">
             <CheckCircle2 className="w-5 h-5" />
           </div>
         </div>
@@ -137,11 +137,11 @@ export default function BrandList({
             <div className="text-[11px] font-mono uppercase tracking-wider text-cyber-textMuted">
               Monitored Handles
             </div>
-            <div className="text-2xl font-bold font-mono text-white mt-1">
+            <div className="text-2xl font-bold font-mono text-fg mt-1">
               {totalSocial}
             </div>
           </div>
-          <div className="w-10 h-10 rounded-lg bg-blue-500/10 border border-blue-500/30 flex items-center justify-center text-blue-400">
+          <div className="w-10 h-10 rounded-lg bg-accent/10 border border-accent/30 flex items-center justify-center text-accent">
             <Share2 className="w-5 h-5" />
           </div>
         </div>
@@ -151,11 +151,11 @@ export default function BrandList({
             <div className="text-[11px] font-mono uppercase tracking-wider text-cyber-textMuted">
               Tracked App Signatures
             </div>
-            <div className="text-2xl font-bold font-mono text-white mt-1">
+            <div className="text-2xl font-bold font-mono text-fg mt-1">
               {totalApps}
             </div>
           </div>
-          <div className="w-10 h-10 rounded-lg bg-emerald-500/10 border border-emerald-500/30 flex items-center justify-center text-cyber-emerald">
+          <div className="w-10 h-10 rounded-lg bg-ok/10 border border-ok/30 flex items-center justify-center text-cyber-emerald">
             <Smartphone className="w-5 h-5" />
           </div>
         </div>
@@ -170,11 +170,11 @@ export default function BrandList({
             value={search}
             onChange={(e) => setSearch(e.target.value)}
             placeholder="Search by brand name, description, or domain..."
-            className="w-full bg-cyber-darkest border border-cyber-border rounded-lg pl-10 pr-4 py-2 text-xs text-white placeholder-cyber-textMuted focus:outline-none focus:border-cyber-accent focus:ring-1 focus:ring-cyber-accent transition-all"
+            className="w-full bg-cyber-darkest border border-cyber-border rounded-lg pl-10 pr-4 py-2 text-xs text-fg placeholder-cyber-textMuted focus:outline-none focus:border-cyber-accent focus:ring-1 focus:ring-cyber-accent transition-all"
           />
         </div>
         <div className="text-xs font-mono text-cyber-textMuted">
-          Showing <span className="text-white font-semibold">{brands.length}</span> brand profiles
+          Showing <span className="text-fg font-semibold">{brands.length}</span> brand profiles
         </div>
       </div>
 
@@ -203,10 +203,10 @@ export default function BrandList({
           <AlertTriangle className="w-6 h-6 shrink-0 mt-0.5" />
           <div className="space-y-2">
             <div className="font-semibold text-sm">Failed to load Brand Profiles</div>
-            <div className="text-xs text-white/80">{error}</div>
+            <div className="text-xs text-fg/80">{error}</div>
             <button
               onClick={onRefresh}
-              className="mt-2 px-3 py-1.5 rounded bg-cyber-rose text-white text-xs font-semibold hover:bg-rose-600 transition-colors"
+              className="mt-2 px-3 py-1.5 rounded bg-cyber-rose text-fg text-xs font-semibold hover:bg-danger transition-colors"
             >
               Retry Connection
             </button>
@@ -221,7 +221,7 @@ export default function BrandList({
             <Shield className="w-8 h-8" />
           </div>
           <div>
-            <h3 className="text-base font-bold text-white tracking-wide">
+            <h3 className="text-base font-bold text-fg tracking-wide">
               No Brand Profiles Registered
             </h3>
             <p className="text-xs text-cyber-textMuted mt-1.5 leading-relaxed max-w-md mx-auto">
@@ -230,7 +230,7 @@ export default function BrandList({
           </div>
           <button
             onClick={onOpenCreate}
-            className="inline-flex items-center gap-2 px-5 py-2.5 rounded-lg bg-cyber-accent text-cyber-darkest text-xs font-semibold hover:bg-cyber-accentHover transition-all shadow-glow"
+            className="inline-flex items-center gap-2 px-5 py-2.5 rounded-lg bg-cyber-accent text-onAccent text-xs font-semibold hover:bg-cyber-accentHover transition-all shadow-glow"
           >
             <Plus className="w-4 h-4" />
             REGISTER FIRST BRAND
@@ -268,7 +268,7 @@ export default function BrandList({
                     )}
                     <div>
                       <div className="flex items-center gap-2">
-                        <h3 className="text-sm font-bold text-white group-hover:text-cyber-accent transition-colors">
+                        <h3 className="text-sm font-bold text-fg group-hover:text-cyber-accent transition-colors">
                           {brand.name}
                         </h3>
                       </div>
@@ -277,7 +277,7 @@ export default function BrandList({
                         <button
                           onClick={(e) => copyToClipboard(brand.id, e)}
                           title="Copy Full UUID"
-                          className="hover:text-white"
+                          className="hover:text-fg"
                         >
                           <Copy className="w-3 h-3" />
                         </button>
@@ -290,7 +290,7 @@ export default function BrandList({
                     <button
                       onClick={() => onSelectBrand(brand)}
                       title="Inspect Profile"
-                      className="p-1.5 rounded hover:bg-cyber-surface text-cyber-textMuted hover:text-white transition-colors"
+                      className="p-1.5 rounded hover:bg-cyber-surface text-cyber-textMuted hover:text-fg transition-colors"
                     >
                       <Eye className="w-4 h-4" />
                     </button>
@@ -330,7 +330,7 @@ export default function BrandList({
                           className={`text-[11px] font-mono px-2 py-0.5 rounded border ${
                             dom.is_primary
                               ? 'bg-cyber-accent/10 border-cyber-accent/30 text-cyber-accent'
-                              : 'bg-cyber-surface border-cyber-border text-white'
+                              : 'bg-cyber-surface border-cyber-border text-fg'
                           }`}
                         >
                           {dom.domain}
@@ -350,15 +350,15 @@ export default function BrandList({
                   {/* Social Handles */}
                   <div className="flex items-center gap-2 flex-wrap">
                     <span className="text-[10px] font-mono text-cyber-textMuted uppercase flex items-center gap-1">
-                      <Share2 className="w-3 h-3 text-blue-400" /> Social:
+                      <Share2 className="w-3 h-3 text-accent" /> Social:
                     </span>
                     {brand.social_handles && brand.social_handles.length > 0 ? (
                       brand.social_handles.slice(0, 2).map((soc) => (
                         <span
                           key={soc.id || `${soc.platform}-${soc.handle}`}
-                          className="text-[11px] font-mono px-2 py-0.5 rounded bg-cyber-surface border border-cyber-border text-slate-300"
+                          className="text-[11px] font-mono px-2 py-0.5 rounded bg-cyber-surface border border-cyber-border text-fgMuted"
                         >
-                          @{soc.handle} <span className="text-slate-500 text-[10px]">({soc.platform})</span>
+                          @{soc.handle} <span className="text-fgSubtle text-[10px]">({soc.platform})</span>
                         </span>
                       ))
                     ) : (

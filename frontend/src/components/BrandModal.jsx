@@ -233,7 +233,7 @@ export default function BrandModal({
         {/* Header */}
         <div className="p-6 border-b border-cyber-border flex items-center justify-between bg-cyber-surface/50">
           <div>
-            <h2 className="text-base font-bold text-white flex items-center gap-2">
+            <h2 className="text-base font-bold text-fg flex items-center gap-2">
               {isEditing ? 'Edit Brand Profile' : 'Register Brand Profile'}
             </h2>
             <p className="text-xs text-cyber-textMuted mt-0.5">
@@ -242,7 +242,7 @@ export default function BrandModal({
           </div>
           <button
             onClick={onClose}
-            className="p-1.5 rounded-lg hover:bg-cyber-surface text-cyber-textMuted hover:text-white transition-colors"
+            className="p-1.5 rounded-lg hover:bg-cyber-surface text-cyber-textMuted hover:text-fg transition-colors"
           >
             <X className="w-5 h-5" />
           </button>
@@ -265,7 +265,7 @@ export default function BrandModal({
 
             <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
               <div>
-                <label className="block text-xs font-medium text-white mb-1.5">
+                <label className="block text-xs font-medium text-fg mb-1.5">
                   Brand Name <span className="text-cyber-rose">*</span>
                 </label>
                 <input
@@ -274,7 +274,7 @@ export default function BrandModal({
                   value={formData.name}
                   onChange={(e) => setFormData(prev => ({ ...prev, name: e.target.value }))}
                   placeholder="e.g., Acme Global Financial"
-                  className={`w-full bg-cyber-darkest border rounded-lg px-3.5 py-2 text-xs text-white placeholder-cyber-textMuted focus:outline-none focus:ring-1 ${
+                  className={`w-full bg-cyber-darkest border rounded-lg px-3.5 py-2 text-xs text-fg placeholder-cyber-textMuted focus:outline-none focus:ring-1 ${
                     validationErrors.name
                       ? 'border-cyber-rose focus:ring-cyber-rose'
                       : 'border-cyber-border focus:border-cyber-accent focus:ring-cyber-accent'
@@ -286,7 +286,7 @@ export default function BrandModal({
               </div>
 
               <div>
-                <label className="block text-xs font-medium text-white mb-1.5">
+                <label className="block text-xs font-medium text-fg mb-1.5">
                   Logo / Asset URL
                 </label>
                 <input
@@ -294,7 +294,7 @@ export default function BrandModal({
                   value={formData.logo_url}
                   onChange={(e) => setFormData(prev => ({ ...prev, logo_url: e.target.value }))}
                   placeholder="https://example.com/logo.png"
-                  className={`w-full bg-cyber-darkest border rounded-lg px-3.5 py-2 text-xs text-white placeholder-cyber-textMuted focus:outline-none focus:ring-1 ${
+                  className={`w-full bg-cyber-darkest border rounded-lg px-3.5 py-2 text-xs text-fg placeholder-cyber-textMuted focus:outline-none focus:ring-1 ${
                     validationErrors.logo_url
                       ? 'border-cyber-rose focus:ring-cyber-rose'
                       : 'border-cyber-border focus:border-cyber-accent focus:ring-cyber-accent'
@@ -307,7 +307,7 @@ export default function BrandModal({
             </div>
 
             <div>
-              <label className="block text-xs font-medium text-white mb-1.5">
+              <label className="block text-xs font-medium text-fg mb-1.5">
                 Corporate Description
               </label>
               <textarea
@@ -315,7 +315,7 @@ export default function BrandModal({
                 value={formData.description}
                 onChange={(e) => setFormData(prev => ({ ...prev, description: e.target.value }))}
                 placeholder="Enterprise summary, business sector, and primary brands..."
-                className="w-full bg-cyber-darkest border border-cyber-border rounded-lg px-3.5 py-2 text-xs text-white placeholder-cyber-textMuted focus:outline-none focus:border-cyber-accent focus:ring-1 focus:ring-cyber-accent"
+                className="w-full bg-cyber-darkest border border-cyber-border rounded-lg px-3.5 py-2 text-xs text-fg placeholder-cyber-textMuted focus:outline-none focus:border-cyber-accent focus:ring-1 focus:ring-cyber-accent"
               />
             </div>
           </div>
@@ -346,7 +346,7 @@ export default function BrandModal({
                     value={dom.domain}
                     onChange={(e) => handleDomainChange(idx, e.target.value)}
                     placeholder="e.g. acme.com or secure.acmepay.io"
-                    className="flex-1 bg-cyber-darkest border border-cyber-border rounded-lg px-3 py-1.5 text-xs text-white font-mono placeholder-cyber-textMuted focus:outline-none focus:border-cyber-accent"
+                    className="flex-1 bg-cyber-darkest border border-cyber-border rounded-lg px-3 py-1.5 text-xs text-fg font-mono placeholder-cyber-textMuted focus:outline-none focus:border-cyber-accent"
                   />
                   <label className="flex items-center gap-1.5 text-xs text-cyber-textMuted cursor-pointer select-none">
                     <input
@@ -397,7 +397,7 @@ export default function BrandModal({
                     <select
                       value={soc.platform}
                       onChange={(e) => handleSocialChange(idx, 'platform', e.target.value)}
-                      className="w-full bg-cyber-darkest border border-cyber-border rounded-lg px-2.5 py-1.5 text-xs text-white focus:outline-none focus:border-cyber-accent"
+                      className="w-full bg-cyber-darkest border border-cyber-border rounded-lg px-2.5 py-1.5 text-xs text-fg focus:outline-none focus:border-cyber-accent"
                     >
                       <option value="twitter">X / Twitter</option>
                       <option value="linkedin">LinkedIn</option>
@@ -415,7 +415,7 @@ export default function BrandModal({
                       value={soc.handle}
                       onChange={(e) => handleSocialChange(idx, 'handle', e.target.value)}
                       placeholder="Handle (without @)"
-                      className="w-full bg-cyber-darkest border border-cyber-border rounded-lg px-3 py-1.5 text-xs text-white font-mono placeholder-cyber-textMuted focus:outline-none focus:border-cyber-accent"
+                      className="w-full bg-cyber-darkest border border-cyber-border rounded-lg px-3 py-1.5 text-xs text-fg font-mono placeholder-cyber-textMuted focus:outline-none focus:border-cyber-accent"
                     />
                   </div>
                   <div className="col-span-4">
@@ -424,7 +424,7 @@ export default function BrandModal({
                       value={soc.url}
                       onChange={(e) => handleSocialChange(idx, 'url', e.target.value)}
                       placeholder="Profile URL (optional)"
-                      className="w-full bg-cyber-darkest border border-cyber-border rounded-lg px-3 py-1.5 text-xs text-white placeholder-cyber-textMuted focus:outline-none focus:border-cyber-accent"
+                      className="w-full bg-cyber-darkest border border-cyber-border rounded-lg px-3 py-1.5 text-xs text-fg placeholder-cyber-textMuted focus:outline-none focus:border-cyber-accent"
                     />
                   </div>
                   <div className="col-span-1 text-right">
@@ -468,7 +468,7 @@ export default function BrandModal({
                     <select
                       value={app.platform}
                       onChange={(e) => handleAppChange(idx, 'platform', e.target.value)}
-                      className="w-full bg-cyber-darkest border border-cyber-border rounded-lg px-2.5 py-1.5 text-xs text-white focus:outline-none focus:border-cyber-accent"
+                      className="w-full bg-cyber-darkest border border-cyber-border rounded-lg px-2.5 py-1.5 text-xs text-fg focus:outline-none focus:border-cyber-accent"
                     >
                       <option value="android_play_store">Google Play</option>
                       <option value="ios_app_store">Apple App Store</option>
@@ -480,7 +480,7 @@ export default function BrandModal({
                       value={app.identifier}
                       onChange={(e) => handleAppChange(idx, 'identifier', e.target.value)}
                       placeholder="com.company.app or ID"
-                      className="w-full bg-cyber-darkest border border-cyber-border rounded-lg px-3 py-1.5 text-xs text-white font-mono placeholder-cyber-textMuted focus:outline-none focus:border-cyber-accent"
+                      className="w-full bg-cyber-darkest border border-cyber-border rounded-lg px-3 py-1.5 text-xs text-fg font-mono placeholder-cyber-textMuted focus:outline-none focus:border-cyber-accent"
                     />
                   </div>
                   <div className="col-span-3">
@@ -489,7 +489,7 @@ export default function BrandModal({
                       value={app.app_name}
                       onChange={(e) => handleAppChange(idx, 'app_name', e.target.value)}
                       placeholder="Title (optional)"
-                      className="w-full bg-cyber-darkest border border-cyber-border rounded-lg px-3 py-1.5 text-xs text-white placeholder-cyber-textMuted focus:outline-none focus:border-cyber-accent"
+                      className="w-full bg-cyber-darkest border border-cyber-border rounded-lg px-3 py-1.5 text-xs text-fg placeholder-cyber-textMuted focus:outline-none focus:border-cyber-accent"
                     />
                   </div>
                   <div className="col-span-1 text-right">
@@ -531,7 +531,7 @@ export default function BrandModal({
                     value={pub.publisher_name}
                     onChange={(e) => handlePublisherChange(idx, 'publisher_name', e.target.value)}
                     placeholder="e.g. Acme Technologies Inc."
-                    className="flex-1 bg-cyber-darkest border border-cyber-border rounded-lg px-3 py-1.5 text-xs text-white placeholder-cyber-textMuted focus:outline-none focus:border-cyber-accent"
+                    className="flex-1 bg-cyber-darkest border border-cyber-border rounded-lg px-3 py-1.5 text-xs text-fg placeholder-cyber-textMuted focus:outline-none focus:border-cyber-accent"
                   />
                   {formData.publishers.length > 1 && (
                     <button
@@ -553,7 +553,7 @@ export default function BrandModal({
           <button
             type="button"
             onClick={onClose}
-            className="px-4 py-2 rounded-lg text-xs font-semibold text-cyber-textMuted hover:text-white transition-colors"
+            className="px-4 py-2 rounded-lg text-xs font-semibold text-cyber-textMuted hover:text-fg transition-colors"
           >
             Cancel
           </button>
@@ -561,7 +561,7 @@ export default function BrandModal({
             type="button"
             onClick={handleSubmit}
             disabled={saving}
-            className="px-5 py-2 rounded-lg bg-cyber-accent text-cyber-darkest text-xs font-semibold hover:bg-cyber-accentHover transition-all shadow-glow disabled:opacity-50"
+            className="px-5 py-2 rounded-lg bg-cyber-accent text-onAccent text-xs font-semibold hover:bg-cyber-accentHover transition-all shadow-glow disabled:opacity-50"
           >
             {saving ? 'Saving...' : isEditing ? 'Save Changes' : 'Register Profile'}
           </button>

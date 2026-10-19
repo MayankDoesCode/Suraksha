@@ -84,18 +84,30 @@ class BrandRepository:
 
     def create(self, brand: Brand) -> Brand:
         """Persist a new brand with attached relational assets."""
-        self.session.add(brand)
-        self.session.commit()
-        self.session.refresh(brand)
-        return brand
+        try:
+            self.session.add(brand)
+            self.session.commit()
+            self.session.refresh(brand)
+            return brand
+        except Exception:
+            self.session.rollback()
+            raise
 
     def update(self, brand: Brand) -> Brand:
         """Persist changes to an existing brand."""
-        self.session.commit()
-        self.session.refresh(brand)
-        return brand
+        try:
+            self.session.commit()
+            self.session.refresh(brand)
+            return brand
+        except Exception:
+            self.session.rollback()
+            raise
 
     def delete(self, brand: Brand) -> None:
         """Remove a brand from the database (cascading deletes will clean children)."""
-        self.session.delete(brand)
-        self.session.commit()
+        try:
+            self.session.delete(brand)
+            self.session.commit()
+        except Exception:
+            self.session.rollback()
+            raise

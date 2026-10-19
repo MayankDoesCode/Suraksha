@@ -123,6 +123,43 @@ class NameSimilarityService:
             result.append(LEET_MAP.get(char, char))
         return "".join(result)
 
+    @staticmethod
+    def resolve_confusables(text: Optional[str]) -> Tuple[str, List[Dict[str, Any]]]:
+        """
+        Identify non-ASCII Unicode confusable characters (Cyrillic, Greek, fullwidth, etc.)
+        and derive their Latin equivalents using standard UTS #39 confusables data.
+        Returns:
+            (resolved_latin_text, list_of_detected_confusables)
+        """
+        if not text:
+            return "", []
+        try:
+            import confusable_homoglyphs.confusables as confusables
+            substitutions = []
+            char_list = list(text)
+            for idx, char in enumerate(char_list):
+                if ord(char) > 127:
+                    char_conf = confusables.is_confusable(char, preferred_aliases=['latin'])
+                    if char_conf:
+                        for item in char_conf:
+                            for h in item.get('homoglyphs', []):
+                                rep = h.get('c', '')
+                                if rep and ord(rep[0]) <= 127 and rep[0].isalpha():
+                                    substitutions.append({
+                                        'character': char,
+                                        'codepoint': f"U+{ord(char):04X}",
+                                        'script': item.get('alias', 'UNKNOWN'),
+                                        'latin_replacement': rep,
+                                        'name': h.get('n', ''),
+                                    })
+                                    char_list[idx] = rep
+                                    break
+                            if substitutions and substitutions[-1]['character'] == char:
+                                break
+            return "".join(char_list), substitutions
+        except Exception:
+            return text, []
+
     @classmethod
     def extract_suspicious_keywords(cls, text: str) -> List[str]:
         """Detect presence of brand-squatting or customer support mimicry keywords."""
@@ -184,6 +221,13 @@ class NameSimilarityService:
         deleet_target = cls.apply_deleet(compact_target)
         is_leet_match = (deleet_cand == deleet_target and compact_cand != compact_target)
 
+        # Check Unicode confusable homoglyphs (UTS #39)
+        confusable_resolved, confusables_found = cls.resolve_confusables(compact_cand)
+        is_confusable_match = bool(
+            confusables_found and
+            (confusable_resolved == compact_target or cls.apply_deleet(confusable_resolved) == deleet_target)
+        )
+
         # 2. Levenshtein edit distance on compact strings
         max_len = max(len(compact_cand), len(compact_target))
         edit_dist = levenshtein_distance(compact_cand, compact_target)
@@ -195,7 +239,18 @@ class NameSimilarityService:
             norm_target in norm_candidate
         )
 
-        if is_leet_match:
+        if is_confusable_match:
+            score = 0.95
+            match_type = "CLOSE_VARIANT"
+            confusable_details = ", ".join(
+                f"{c['script']} '{c['character']}' ({c['codepoint']})->'{c['latin_replacement']}'"
+                for c in confusables_found[:3]
+            )
+            explanation = (
+                f"Candidate '{candidate}' employs deceptive Unicode/homoglyph character substitution "
+                f"({confusable_details}) to visually mimic '{target}'."
+            )
+        elif is_leet_match:
             score = 0.90
             match_type = "CLOSE_VARIANT"
             explanation = (

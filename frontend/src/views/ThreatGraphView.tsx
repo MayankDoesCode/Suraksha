@@ -1,479 +1,245 @@
-import React, { useState } from 'react';
+import React, { useMemo, useState } from 'react';
+import { ArrowRight, Network, ZoomIn, ZoomOut } from 'lucide-react';
 import { useApp } from '../context/AppContext';
-import type { ThreatNode, ThreatEdge } from '../types';
+import { deriveThreatGraph, type GraphEdge, type GraphNode } from '../utils/threatGraph';
 import { RiskBadge } from '../components/RiskBadge';
-import {
-  Network,
-  Shield,
-  Share2,
-  Smartphone,
-  Globe,
-  Server,
-  Filter,
-  Eye,
-  EyeOff,
-  Info,
-  Maximize2,
-  RefreshCw,
-  ExternalLink,
-  ZoomIn,
-  ZoomOut,
-  RotateCcw,
-} from 'lucide-react';
+import { StatusBadge } from '../components/StatusBadge';
+
+const W = 800;
+const H = 520;
+const CX = W / 2;
+const CY = H / 2;
+const RING: Record<string, number> = { Critical: 120, High: 165, Medium: 205, Low: 235 };
+const RANK: Record<string, number> = { Critical: 4, High: 3, Medium: 2, Low: 1 };
+const FILL: Record<string, string> = { Critical: 'fill-danger', High: 'fill-high', Medium: 'fill-warn', Low: 'fill-ok' };
+
+const Basis: React.FC<{ basis: GraphEdge['basis']; strength?: number }> = ({ basis, strength }) => (
+  <span className={`rounded-full px-2 py-0.5 text-xs font-medium ${basis === 'observed' ? 'bg-accent/15 text-accent' : 'bg-surface3 text-fgMuted'}`}>
+    {basis === 'observed' ? 'Observed' : `Inferred${strength !== undefined ? ` ${Math.round(strength * 100)}%` : ''}`}
+  </span>
+);
 
 export const ThreatGraphView: React.FC = () => {
-  const { threatNodes, threatEdges, setSelectedCandidateId, brandProfile } = useApp();
+  const { candidates, brandProfile, setSelectedCandidateId, setActiveTab } = useApp();
 
-  const [selectedNodeId, setSelectedNodeId] = useState<string>('node-brand');
-  const [showInferred, setShowInferred] = useState<boolean>(true);
-  const [filterType, setFilterType] = useState<string>('all');
-  const [zoomLevel, setZoomLevel] = useState<number>(1);
+  const [showInferred, setShowInferred] = useState(true);
+  const [includeDismissed, setIncludeDismissed] = useState(false);
+  const [zoom, setZoom] = useState(1);
+  const [selected, setSelected] = useState<string>('brand');
 
-  const selectedNode = threatNodes.find(n => n.id === selectedNodeId);
+  const { nodes, edges } = useMemo(
+    () => deriveThreatGraph(candidates, brandProfile.brandName, { includeDismissed }),
+    [candidates, brandProfile.brandName, includeDismissed],
+  );
+  const shownEdges = edges.filter((e) => showInferred || e.basis === 'observed');
+  const linkEdges = shownEdges.filter((e) => e.kind !== 'TARGETS_BRAND').sort((a, b) => (a.basis === b.basis ? 0 : a.basis === 'observed' ? -1 : 1));
 
-  // Nodes filtered by type
-  const visibleNodes = threatNodes.filter(n => {
-    if (filterType === 'all') return true;
-    if (filterType === 'official') return n.type === 'official_asset' || n.type === 'brand';
-    if (filterType === 'social') return n.type === 'social_candidate';
-    if (filterType === 'app') return n.type === 'app_candidate';
-    if (filterType === 'domain') return n.type === 'domain_candidate';
-    if (filterType === 'infra') return n.type === 'shared_infra';
-    return true;
-  });
+  // Deterministic layout: the brand at the centre, findings on rings by severity, spread evenly by angle.
+  const positions = useMemo(() => {
+    const findings = nodes.filter((n) => n.kind === 'finding').sort((a, b) => (RANK[b.risk || 'Low'] - RANK[a.risk || 'Low']) || a.id.localeCompare(b.id));
+    const pos: Record<string, { x: number; y: number }> = { brand: { x: CX, y: CY } };
+    findings.forEach((n, i) => {
+      const angle = (2 * Math.PI * i) / Math.max(findings.length, 1) - Math.PI / 2;
+      const r = RING[n.risk || 'Low'] ?? 220;
+      pos[n.id] = { x: CX + r * Math.cos(angle), y: CY + r * Math.sin(angle) };
+    });
+    return pos;
+  }, [nodes]);
 
-  const visibleNodeIds = new Set(visibleNodes.map(n => n.id));
+  const focus = useMemo(() => {
+    const near = new Set<string>([selected]);
+    if (selected !== 'brand') shownEdges.filter((e) => e.kind !== 'TARGETS_BRAND' && (e.source === selected || e.target === selected)).forEach((e) => { near.add(e.source); near.add(e.target); });
+    return near;
+  }, [selected, shownEdges]);
+  const dim = (id: string) => (selected === 'brand' || focus.has(id) || id === 'brand' ? 1 : 0.25);
+  const byId = new Map(nodes.map((n) => [n.id, n]));
+  const sel = byId.get(selected) || byId.get('brand')!;
+  const selEdges = shownEdges.filter((e) => e.kind !== 'TARGETS_BRAND' && (e.source === sel.id || e.target === sel.id));
+  const nameOf = (id: string) => byId.get(id)?.label || id;
 
-  // Edges filtered
-  const visibleEdges = threatEdges.filter(e => {
-    if (!showInferred && e.isInferred) return false;
-    return visibleNodeIds.has(e.source) && visibleNodeIds.has(e.target);
-  });
+  if (candidates.length === 0) {
+    return (
+      <div className="mx-auto max-w-md rounded-lg border border-line bg-surface p-8 text-center">
+        <Network className="mx-auto h-8 w-8 text-accent" />
+        <h2 className="mt-3 text-lg font-semibold">Nothing to connect yet</h2>
+        <p className="mt-1 text-sm text-fgMuted">The graph is built from your findings. Assess a suspected asset to create the first one.</p>
+        <button onClick={() => setActiveTab('lookalike-engine')} className="mt-5 inline-flex items-center gap-2 rounded-md bg-accent px-3 py-1.5 text-sm font-medium text-onAccent hover:bg-accentHover">
+          Assess a domain <ArrowRight className="h-4 w-4" />
+        </button>
+      </div>
+    );
+  }
 
-  // Helper node color & styling
-  const getNodeStyling = (node: ThreatNode) => {
-    const isSelected = node.id === selectedNodeId;
-
-    if (node.type === 'brand') {
-      return {
-        bg: 'fill-[#1265F8]',
-        stroke: isSelected ? 'stroke-[#00D9FF] stroke-[3]' : 'stroke-[#3B82F6] stroke-2',
-        glow: 'drop-shadow-[0_0_12px_rgba(18,101,248,0.6)]',
-        radius: 34,
-        icon: Shield,
-      };
-    }
-    if (node.type === 'official_asset') {
-      return {
-        bg: 'fill-emerald-600',
-        stroke: isSelected ? 'stroke-[#00E5A0] stroke-[3]' : 'stroke-emerald-400/80 stroke-2',
-        glow: 'drop-shadow-[0_0_8px_rgba(0,229,160,0.4)]',
-        radius: 26,
-        icon: Shield,
-      };
-    }
-    if (node.type === 'shared_infra') {
-      return {
-        bg: 'fill-purple-700',
-        stroke: isSelected ? 'stroke-purple-300 stroke-[3]' : 'stroke-purple-400 stroke-2',
-        glow: 'drop-shadow-[0_0_8px_rgba(168,85,247,0.4)]',
-        radius: 26,
-        icon: Server,
-      };
-    }
-    if (node.riskCategory === 'Critical' || node.riskCategory === 'High') {
-      return {
-        bg: 'fill-rose-600',
-        stroke: isSelected ? 'stroke-rose-300 stroke-[3]' : 'stroke-rose-400 stroke-2',
-        glow: 'drop-shadow-[0_0_10px_rgba(255,49,91,0.5)]',
-        radius: 28,
-        icon: node.type === 'app_candidate' ? Smartphone : node.type === 'domain_candidate' ? Globe : Share2,
-      };
-    }
-    if (node.riskCategory === 'Medium') {
-      return {
-        bg: 'fill-amber-500',
-        stroke: isSelected ? 'stroke-amber-200 stroke-[3]' : 'stroke-amber-400 stroke-2',
-        glow: 'drop-shadow-[0_0_8px_rgba(251,191,36,0.4)]',
-        radius: 26,
-        icon: Share2,
-      };
-    }
-    return {
-      bg: 'fill-[#0A1C3D]',
-      stroke: isSelected ? 'stroke-[#00D9FF] stroke-[3]' : 'stroke-[#123E78] stroke-2',
-      glow: '',
-      radius: 24,
-      icon: Share2,
-    };
-  };
+  const observedCount = linkEdges.filter((e) => e.basis === 'observed').length;
+  const inferredCount = linkEdges.length - observedCount;
 
   return (
-    <div className="space-y-6">
-      {/* Header */}
-      <div className="rounded-2xl border border-[#123E78] bg-gradient-to-r from-[#06142D] via-[#081B3B] to-[#06142D] p-6 shadow-xl relative overflow-hidden">
-        <div className="absolute top-0 right-0 w-80 h-40 bg-purple-500/10 rounded-full blur-3xl pointer-events-none" />
-        <div className="relative z-10 flex flex-col md:flex-row md:items-center justify-between gap-4">
-          <div>
-            <div className="flex items-center gap-2 mb-1.5">
-              <span className="p-1.5 rounded-lg bg-purple-500/10 text-purple-400 border border-purple-500/30">
-                <Network className="w-4 h-4" />
-              </span>
-              <span className="text-xs font-bold uppercase tracking-wider text-purple-400">
-                Correlated Threat Graph
-              </span>
-              <span className="text-[11px] px-2 py-0.5 rounded-full bg-blue-500/10 border border-blue-500/30 text-[#00D9FF] font-mono">
-                Dynamic Matrix
-              </span>
-            </div>
-            <h2 className="text-2xl font-bold text-[#F1F5FF] tracking-tight">
-              Threat Relationship & Infrastructure Graph
-            </h2>
-            <p className="text-xs text-[#91ACD1] max-w-2xl mt-1 leading-relaxed">
-              Visualize relationships between candidate accounts, mobile binaries, lookalike domains, and shared C2 infrastructure.
-              <strong className="text-[#F1F5FF]"> Note:</strong> Edges are strictly established via observed telemetry or verified indicators.
-            </p>
-          </div>
+    <div className="space-y-5">
+      <p className="max-w-3xl text-sm text-fgMuted">
+        Built from the findings loaded for <span className="text-fg">{brandProfile.brandName}</span>. A link is drawn only when the data supports it, and every
+        link says why. <span className="text-fg">Observed</span> links come from the finding data. <span className="text-fg">Inferred</span> links are guesses
+        and are dashed.
+      </p>
 
-          {/* Graph Controls */}
-          <div className="flex flex-wrap items-center gap-2.5 text-xs">
-            <button
-              onClick={() => setShowInferred(!showInferred)}
-              className={`px-3 py-1.5 rounded-xl border flex items-center gap-1.5 font-semibold transition-all ${
-                showInferred
-                  ? 'bg-purple-500/20 text-purple-300 border-purple-500/50 shadow-[0_0_12px_rgba(168,85,247,0.2)]'
-                  : 'bg-[#0A1C3D] text-[#91ACD1] border-[#123E78]'
-              }`}
-            >
-              {showInferred ? <Eye className="w-3.5 h-3.5 text-purple-300" /> : <EyeOff className="w-3.5 h-3.5 text-[#91ACD1]" />}
-              <span>{showInferred ? 'Inferred Links: ON' : 'Inferred Links: OFF'}</span>
-            </button>
-
-            <div className="flex items-center gap-1.5 bg-[#0A1C3D] px-2.5 py-1.5 rounded-xl border border-[#123E78]">
-              <Filter className="w-3.5 h-3.5 text-[#91ACD1]" />
-              <select
-                value={filterType}
-                onChange={e => setFilterType(e.target.value)}
-                className="bg-transparent text-[#F1F5FF] text-xs font-semibold focus:outline-hidden cursor-pointer"
-              >
-                <option value="all" className="bg-[#0A1C3D] text-[#F1F5FF]">All Entities</option>
-                <option value="official" className="bg-[#0A1C3D] text-[#F1F5FF]">Official Brand Assets</option>
-                <option value="social" className="bg-[#0A1C3D] text-[#F1F5FF]">Social Candidates</option>
-                <option value="app" className="bg-[#0A1C3D] text-[#F1F5FF]">Mobile Apps</option>
-                <option value="domain" className="bg-[#0A1C3D] text-[#F1F5FF]">Lookalike Domains</option>
-                <option value="infra" className="bg-[#0A1C3D] text-[#F1F5FF]">Shared Infrastructure</option>
-              </select>
-            </div>
-          </div>
-        </div>
+      <div className="flex flex-wrap items-center gap-x-5 gap-y-2 text-sm">
+        <label className="flex items-center gap-2 text-fgMuted">
+          <input type="checkbox" checked={showInferred} onChange={(e) => setShowInferred(e.target.checked)} className="h-4 w-4 accent-[rgb(var(--c-accent))]" />
+          Show inferred links
+        </label>
+        <label className="flex items-center gap-2 text-fgMuted">
+          <input type="checkbox" checked={includeDismissed} onChange={(e) => setIncludeDismissed(e.target.checked)} className="h-4 w-4 accent-[rgb(var(--c-accent))]" />
+          Include dismissed findings
+        </label>
+        <span className="text-fgSubtle">{nodes.length - 1} findings · {observedCount} observed · {inferredCount} inferred links between findings</span>
+        <span className="ml-auto flex items-center gap-1">
+          <button onClick={() => setZoom((z) => Math.max(0.6, +(z - 0.2).toFixed(1)))} aria-label="Zoom out" className="rounded-md border border-line p-1.5 text-fgMuted hover:bg-surface3"><ZoomOut className="h-4 w-4" /></button>
+          <button onClick={() => setZoom(1)} className="rounded-md border border-line px-2 py-1 text-xs text-fgMuted hover:bg-surface3" aria-label="Reset zoom">{Math.round(zoom * 100)}%</button>
+          <button onClick={() => setZoom((z) => Math.min(2, +(z + 0.2).toFixed(1)))} aria-label="Zoom in" className="rounded-md border border-line p-1.5 text-fgMuted hover:bg-surface3"><ZoomIn className="h-4 w-4" /></button>
+        </span>
       </div>
 
-      <div className="grid grid-cols-1 lg:grid-cols-12 gap-6">
-        {/* Interactive SVG Canvas Area (8 Cols) */}
-        <div className="lg:col-span-8 bg-[#030D22] rounded-2xl border border-[#123E78] shadow-2xl overflow-hidden relative min-h-[560px] flex flex-col justify-between">
-          {/* Canvas Legend Overlay */}
-          <div className="absolute top-3 left-3 z-10 bg-[#06142D]/90 backdrop-blur-md p-3 rounded-xl border border-[#123E78] text-[10px] text-[#91ACD1] space-y-1.5 shadow-xl">
-            <span className="font-bold text-[#F1F5FF] uppercase tracking-wider block border-b border-[#123E78] pb-1">
-              Topology Legend
-            </span>
-            <div className="flex items-center gap-2">
-              <span className="w-2.5 h-2.5 rounded-full bg-[#1265F8] inline-block shadow-[0_0_6px_#1265F8]" />
-              <span className="text-[#F1F5FF]">Brand Core</span>
-            </div>
-            <div className="flex items-center gap-2">
-              <span className="w-2.5 h-2.5 rounded-full bg-emerald-500 inline-block shadow-[0_0_6px_#10B981]" />
-              <span className="text-[#F1F5FF]">Verified Official Asset</span>
-            </div>
-            <div className="flex items-center gap-2">
-              <span className="w-2.5 h-2.5 rounded-full bg-rose-500 inline-block shadow-[0_0_6px_#F43F5E]" />
-              <span className="text-[#F1F5FF]">High / Critical Threat</span>
-            </div>
-            <div className="flex items-center gap-2">
-              <span className="w-2.5 h-2.5 rounded-full bg-purple-600 inline-block shadow-[0_0_6px_#9333EA]" />
-              <span className="text-[#F1F5FF]">Shared Infra / C2</span>
-            </div>
-            <div className="flex items-center gap-2 pt-1.5 border-t border-[#123E78]">
-              <span className="w-4 h-0.5 bg-[#475569] inline-block" />
-              <span>Observed Link</span>
-            </div>
-            <div className="flex items-center gap-2">
-              <span className="w-4 h-0.5 border-t border-dashed border-purple-400 inline-block" />
-              <span className="text-purple-300">Inferred Correlation</span>
-            </div>
-          </div>
+      <ul className="flex flex-wrap gap-x-5 gap-y-1 text-xs text-fgMuted" aria-label="Legend">
+        <li className="flex items-center gap-1.5"><svg width="22" height="6" aria-hidden><line x1="0" y1="3" x2="22" y2="3" className="stroke-accent" strokeWidth="2" /></svg> Observed link</li>
+        <li className="flex items-center gap-1.5"><svg width="22" height="6" aria-hidden><line x1="0" y1="3" x2="22" y2="3" className="stroke-fgSubtle" strokeWidth="2" strokeDasharray="4 3" /></svg> Inferred link</li>
+        {(['Critical', 'High', 'Medium', 'Low'] as const).map((k) => (<li key={k} className="flex items-center gap-1.5"><span className={`h-2 w-2 rounded-full ${k === 'Critical' ? 'bg-danger' : k === 'High' ? 'bg-high' : k === 'Medium' ? 'bg-warn' : 'bg-ok'}`} aria-hidden />{k}</li>))}
+        <li className="flex items-center gap-1.5"><span className="h-2.5 w-2.5 rounded-full bg-accent" aria-hidden />Brand</li>
+      </ul>
 
-          {/* Zoom / Reset Controls Overlay */}
-          <div className="absolute top-3 right-3 z-10 flex items-center gap-1.5 bg-[#06142D]/90 backdrop-blur-md p-1.5 rounded-xl border border-[#123E78] shadow-lg">
-            <button
-              onClick={() => setZoomLevel(prev => Math.min(prev + 0.15, 1.6))}
-              className="p-1.5 rounded-lg text-[#91ACD1] hover:text-[#00D9FF] hover:bg-[#0A1C3D] transition-colors"
-              title="Zoom In"
-            >
-              <ZoomIn className="w-4 h-4" />
-            </button>
-            <button
-              onClick={() => setZoomLevel(prev => Math.max(prev - 0.15, 0.7))}
-              className="p-1.5 rounded-lg text-[#91ACD1] hover:text-[#00D9FF] hover:bg-[#0A1C3D] transition-colors"
-              title="Zoom Out"
-            >
-              <ZoomOut className="w-4 h-4" />
-            </button>
-            <button
-              onClick={() => setZoomLevel(1)}
-              className="p-1.5 rounded-lg text-[#91ACD1] hover:text-[#00D9FF] hover:bg-[#0A1C3D] transition-colors"
-              title="Reset Zoom"
-            >
-              <RotateCcw className="w-4 h-4" />
-            </button>
-            <span className="text-[10px] font-mono text-[#91ACD1] px-1.5">
-              {Math.round(zoomLevel * 100)}%
-            </span>
-          </div>
-
-          {/* SVG Diagram Canvas */}
-          <div className="w-full h-[520px] overflow-hidden flex items-center justify-center">
-            <svg
-              className="w-full h-full select-none transition-transform duration-300"
-              style={{ transform: `scale(${zoomLevel})` }}
-              viewBox="0 0 820 600"
-            >
-              <defs>
-                <marker id="arrow" viewBox="0 0 10 10" refX="28" refY="5" markerWidth="6" markerHeight="6" orient="auto-start-reverse">
-                  <path d="M 0 1 L 10 5 L 0 9 z" fill="#475569" />
-                </marker>
-                <marker id="arrow-inferred" viewBox="0 0 10 10" refX="28" refY="5" markerWidth="6" markerHeight="6" orient="auto-start-reverse">
-                  <path d="M 0 1 L 10 5 L 0 9 z" fill="#c084fc" />
-                </marker>
-                {/* Cyber grid pattern */}
-                <pattern id="cyber-grid" width="40" height="40" patternUnits="userSpaceOnUse">
-                  <path d="M 40 0 L 0 0 0 40" fill="none" stroke="#123E78" strokeWidth="0.5" strokeOpacity="0.4" />
-                  <circle cx="0" cy="0" r="1" fill="#00D9FF" fillOpacity="0.3" />
-                </pattern>
-              </defs>
-
-              {/* Grid Backdrop */}
-              <rect width="820" height="600" fill="url(#cyber-grid)" />
-
-              {/* Central Radar Rings Background Accent */}
-              <circle cx="410" cy="300" r="120" fill="none" stroke="#123E78" strokeWidth="1" strokeDasharray="3,6" strokeOpacity="0.4" />
-              <circle cx="410" cy="300" r="220" fill="none" stroke="#123E78" strokeWidth="1" strokeDasharray="4,8" strokeOpacity="0.25" />
-
-              {/* Render Edges */}
-              {visibleEdges.map(edge => {
-                const src = threatNodes.find(n => n.id === edge.source);
-                const tgt = threatNodes.find(n => n.id === edge.target);
-                if (!src || !tgt) return null;
-
-                const x1 = src.x || 410;
-                const y1 = src.y || 300;
-                const x2 = tgt.x || 410;
-                const y2 = tgt.y || 300;
-
-                const midX = (x1 + x2) / 2;
-                const midY = (y1 + y2) / 2;
-
-                return (
-                  <g key={edge.id} className="cursor-pointer group">
-                    <line
-                      x1={x1}
-                      y1={y1}
-                      x2={x2}
-                      y2={y2}
-                      stroke={edge.isInferred ? '#a855f7' : '#334155'}
-                      strokeWidth={edge.isInferred ? 2 : 2}
-                      strokeDasharray={edge.isInferred ? '6,4' : 'none'}
-                      markerEnd={edge.isInferred ? 'url(#arrow-inferred)' : 'url(#arrow)'}
-                      className="transition-all hover:stroke-[#00D9FF] hover:stroke-[3]"
+      <div className="grid gap-4 lg:grid-cols-3">
+        <div className="overflow-auto rounded-lg border border-line bg-surface lg:col-span-2" style={{ maxHeight: 560 }}>
+          <svg
+            width={W * zoom}
+            height={H * zoom}
+            viewBox={`0 0 ${W} ${H}`}
+            role="group"
+            aria-label="Relationship graph. Use the relationships table below for a text version."
+            className="block"
+          >
+            {shownEdges.map((e) => {
+              const a = positions[e.source];
+              const b = positions[e.target];
+              if (!a || !b) return null;
+              const isBrand = e.kind === 'TARGETS_BRAND';
+              const hot = selected === e.source || selected === e.target;
+              return (
+                <g key={e.id}>
+                  {isBrand ? (
+                    <line x1={a.x} y1={a.y} x2={b.x} y2={b.y} className="stroke-line" strokeWidth={1} opacity={0.5 * dim(e.target)} />
+                  ) : (
+                    // Curved so a link between findings never runs through the brand node in the middle.
+                    <path
+                      d={`M ${a.x} ${a.y} Q ${(a.x + b.x) / 2 - (b.y - a.y) * 0.3} ${(a.y + b.y) / 2 + (b.x - a.x) * 0.3} ${b.x} ${b.y}`}
+                      fill="none"
+                      className={e.basis === 'observed' ? 'stroke-accent' : 'stroke-fgSubtle'}
+                      strokeWidth={hot ? 3 : 2}
+                      strokeDasharray={e.basis === 'inferred' ? '6 5' : undefined}
+                      opacity={selected === 'brand' || hot ? 1 : 0.2}
                     />
-                    {/* Edge Label Badge */}
-                    <rect
-                      x={midX - 58}
-                      y={midY - 10}
-                      width="116"
-                      height="20"
-                      rx="5"
-                      fill="#06142D"
-                      stroke={edge.isInferred ? '#a855f7' : '#123E78'}
-                      strokeWidth="1"
-                    />
-                    <text
-                      x={midX}
-                      y={midY + 3.5}
-                      textAnchor="middle"
-                      fill={edge.isInferred ? '#c084fc' : '#91ACD1'}
-                      fontSize="9"
-                      fontWeight="600"
-                      fontFamily="monospace"
-                    >
-                      {edge.label}
-                    </text>
-                  </g>
-                );
-              })}
-
-              {/* Render Nodes */}
-              {visibleNodes.map(node => {
-                const x = node.x || 410;
-                const y = node.y || 300;
-                const styling = getNodeStyling(node);
-                const isSelected = node.id === selectedNodeId;
-
-                return (
-                  <g
-                    key={node.id}
-                    onClick={() => setSelectedNodeId(node.id)}
-                    className="cursor-pointer group transition-transform"
-                  >
-                    {/* Outer selection ring */}
-                    {isSelected && (
-                      <circle
-                        cx={x}
-                        cy={y}
-                        r={styling.radius + 8}
-                        fill="none"
-                        stroke="#00D9FF"
-                        strokeWidth="2"
-                        strokeDasharray="4,4"
-                        className="animate-spin"
-                      />
-                    )}
-
-                    {/* Main Node Circle */}
-                    <circle
-                      cx={x}
-                      cy={y}
-                      r={styling.radius}
-                      className={`${styling.bg} ${styling.stroke} ${styling.glow} transition-all group-hover:scale-105`}
-                    />
-
-                    {/* Node Title Text */}
-                    <text
-                      x={x}
-                      y={y + styling.radius + 15}
-                      textAnchor="middle"
-                      fill={isSelected ? '#00D9FF' : '#F1F5FF'}
-                      fontSize="10"
-                      fontWeight="700"
-                      fontFamily="sans-serif"
-                      className="drop-shadow-md select-none"
-                    >
-                      {node.label}
-                    </text>
-                  </g>
-                );
-              })}
-            </svg>
-
-            {threatNodes.length === 0 && (
-              <div className="absolute inset-0 flex flex-col items-center justify-center p-6 text-center bg-[#030D22]/85 backdrop-blur-xs z-20">
-                <Network className="w-12 h-12 text-[#91ACD1]/40 mb-3" />
-                <h4 className="text-sm font-bold text-white">No Threat Graph Nodes Recorded</h4>
-                <p className="text-xs text-[#91ACD1] max-w-sm mt-1 leading-relaxed">
-                  Your workspace does not have any active threat relationships yet. As candidates are detected and analyzed, relational clusters will map here automatically.
-                </p>
-              </div>
-            )}
-          </div>
-
-          {/* Bottom helper bar */}
-          <div className="bg-[#06142D] px-4 py-2.5 border-t border-[#123E78] text-[11px] text-[#91ACD1] flex items-center justify-between">
-            <span className="flex items-center gap-1.5">
-              <span className="w-1.5 h-1.5 rounded-full bg-[#00D9FF] animate-pulse" />
-              Click any node to inspect telemetry, shared indicators, and forensic evidence.
-            </span>
-            <span className="font-mono text-[#00D9FF] font-semibold">
-              {visibleNodes.length} Nodes • {visibleEdges.length} Edges Active
-            </span>
-          </div>
-        </div>
-
-        {/* Node Details Inspection Drawer (4 Cols) */}
-        <div className="lg:col-span-4 bg-[#06142D] rounded-2xl border border-[#123E78] p-5 shadow-xl space-y-4">
-          <div className="border-b border-[#123E78] pb-3 flex items-center justify-between">
-            <h3 className="text-sm font-bold text-[#F1F5FF] flex items-center gap-2">
-              <Info className="w-4 h-4 text-purple-400" />
-              Node Metadata & Evidence
-            </h3>
-            {selectedNode && (
-              <span className="text-[10px] font-mono text-[#00D9FF] bg-[#0A1C3D] px-2 py-0.5 rounded-md border border-[#123E78]">
-                {selectedNode.type}
-              </span>
-            )}
-          </div>
-
-          {selectedNode ? (
-            <div className="space-y-4 text-xs">
-              <div>
-                <span className="text-[#91ACD1] font-semibold block">Selected Entity:</span>
-                <h4 className="font-bold text-[#F1F5FF] text-base mt-0.5">{selectedNode.label}</h4>
-                <p className="text-[#91ACD1] text-[11px] mt-1 leading-relaxed">{selectedNode.details}</p>
-              </div>
-
-              <div>
-                <span className="text-[#91ACD1] font-semibold block mb-1">Threat Classification:</span>
-                <RiskBadge
-                  level={selectedNode.riskCategory === 'Safe' ? 'Safe' : selectedNode.riskCategory}
-                  size="md"
-                />
-              </div>
-
-              {/* Connected Relationships list */}
-              <div className="space-y-2 pt-2 border-t border-[#123E78]">
-                <span className="font-bold text-[#F1F5FF] uppercase tracking-wider text-[11px] block">
-                  Active Connections ({threatEdges.filter(e => e.source === selectedNode.id || e.target === selectedNode.id).length})
-                </span>
-
-                <div className="space-y-2 max-h-60 overflow-y-auto pr-1">
-                  {threatEdges
-                    .filter(e => e.source === selectedNode.id || e.target === selectedNode.id)
-                    .map(edge => {
-                      const otherId = edge.source === selectedNode.id ? edge.target : edge.source;
-                      const otherNode = threatNodes.find(n => n.id === otherId);
-
-                      return (
-                        <div key={edge.id} className="p-3 rounded-xl bg-[#0A1C3D] border border-[#123E78] text-xs">
-                          <div className="flex items-center justify-between mb-1.5">
-                            <span className="font-bold text-purple-300 font-mono text-[11px]">
-                              {edge.label}
-                            </span>
-                            <span
-                              className={`text-[9px] px-2 py-0.5 rounded font-semibold ${
-                                edge.isInferred
-                                  ? 'bg-purple-500/20 text-purple-300 border border-purple-500/30'
-                                  : 'bg-[#123E78]/50 text-[#91ACD1] border border-[#123E78]'
-                              }`}
-                            >
-                              {edge.isInferred ? 'Inferred' : 'Observed Link'}
-                            </span>
-                          </div>
-                          <p className="text-[#F1F5FF] font-medium text-[11px]">
-                            Connected to: <span className="text-[#00D9FF]">{otherNode?.label || otherId}</span>
-                          </p>
-                          <p className="text-[#91ACD1] text-[11px] mt-1.5 leading-relaxed italic bg-[#030D22] p-2 rounded-lg border border-[#123E78]/40">
-                            {edge.evidenceDetail}
-                          </p>
-                        </div>
-                      );
-                    })}
-                </div>
-              </div>
-
-              {/* Quick jump to candidate dossier if applicable */}
-              {selectedNode.id.startsWith('node-cand-') && (
-                <button
-                  onClick={() => setSelectedCandidateId(selectedNode.id.replace('node-', ''))}
-                  className="w-full py-2.5 px-3 rounded-xl bg-gradient-to-r from-blue-600 to-indigo-600 hover:from-blue-500 hover:to-indigo-500 text-white font-semibold text-xs flex items-center justify-center gap-1.5 transition-all shadow-md shadow-blue-500/20"
+                  )}
+                </g>
+              );
+            })}
+            {nodes.map((n: GraphNode) => {
+              const p = positions[n.id];
+              if (!p) return null;
+              const isBrand = n.kind === 'brand';
+              const active = n.id === selected;
+              return (
+                <g
+                  key={n.id}
+                  transform={`translate(${p.x} ${p.y})`}
+                  tabIndex={0}
+                  role="button"
+                  aria-label={`${isBrand ? 'Brand' : 'Finding'} ${n.label}`}
+                  aria-pressed={active}
+                  onClick={() => setSelected(n.id)}
+                  onKeyDown={(e) => { if (e.key === 'Enter' || e.key === ' ') { e.preventDefault(); setSelected(n.id); } }}
+                  className="cursor-pointer outline-none"
+                  opacity={dim(n.id)}
                 >
-                  <span>Open Full Forensic Dossier</span>
-                  <ExternalLink className="w-3.5 h-3.5" />
-                </button>
-              )}
-            </div>
-          ) : (
-            <p className="text-xs text-[#91ACD1] italic py-8 text-center">Select any node on the canvas to inspect relationship telemetry.</p>
-          )}
+                  <circle r={isBrand ? 20 : 11} className={isBrand ? 'fill-accent' : FILL[n.risk || 'Low']} stroke="currentColor" strokeWidth={active ? 3 : 0} style={{ color: 'rgb(var(--c-fg))' }} />
+                  <text y={isBrand ? 36 : 25} textAnchor="middle" className="fill-fgMuted" fontSize={11}>
+                    {n.label.length > 22 ? `${n.label.slice(0, 20)}…` : n.label}
+                  </text>
+                </g>
+              );
+            })}
+          </svg>
         </div>
+
+        <aside className="space-y-4 rounded-lg border border-line bg-surface p-5" aria-live="polite">
+          <div>
+            <p className="text-xs font-medium uppercase tracking-wider text-fgSubtle">{sel.kind === 'brand' ? 'Brand' : 'Selected finding'}</p>
+            <p className="mt-1 break-words text-base font-medium">{sel.label}</p>
+            {sel.sub && <p className="break-all font-mono text-xs text-fgMuted">{sel.sub}</p>}
+          </div>
+          {sel.kind === 'finding' ? (
+            <>
+              <div className="flex flex-wrap items-center gap-2">
+                {sel.risk && <RiskBadge level={sel.risk} size="sm" />}
+                {sel.status && <StatusBadge status={sel.status} size="sm" />}
+                <span className="text-xs capitalize text-fgSubtle">{sel.type}</span>
+              </div>
+              <div>
+                <p className="text-xs font-medium uppercase tracking-wider text-fgSubtle">Links to other findings</p>
+                {selEdges.length === 0 ? (
+                  <p className="mt-1.5 text-sm text-fgMuted">None found. It is linked only to the brand it was recorded against.</p>
+                ) : (
+                  <ul className="mt-2 space-y-3">
+                    {selEdges.map((e) => (
+                      <li key={e.id} className="text-sm">
+                        <div className="flex flex-wrap items-center gap-2">
+                          <Basis basis={e.basis} strength={e.strength} />
+                          <span className="text-fg">{e.label}</span>
+                        </div>
+                        <p className="mt-1 text-fgMuted">with {nameOf(e.source === sel.id ? e.target : e.source)}</p>
+                        <p className="mt-0.5 text-xs text-fgSubtle">{e.evidence}</p>
+                      </li>
+                    ))}
+                  </ul>
+                )}
+              </div>
+              <button onClick={() => sel.candidateId && setSelectedCandidateId(sel.candidateId)} className="rounded-md border border-line px-3 py-1 text-[13px] hover:bg-surface3">
+                Open finding
+              </button>
+            </>
+          ) : (
+            <p className="text-sm text-fgMuted">Select a finding to see why it is linked to others.</p>
+          )}
+        </aside>
       </div>
+
+      <section className="rounded-lg border border-line bg-surface">
+        <h2 className="px-5 pt-4 text-sm font-semibold">Relationships between findings</h2>
+        {linkEdges.length === 0 ? (
+          <p className="px-5 pb-5 pt-2 text-sm text-fgMuted">None. Findings are linked only when their evidence supports it (shared developer or host, or an explicit reference).</p>
+        ) : (
+          <div className="overflow-x-auto">
+            <table className="mt-2 w-full min-w-[36rem] text-left text-sm">
+              <thead className="border-y border-line bg-surface2 text-xs text-fgMuted">
+                <tr><th className="px-5 py-2 font-medium">Basis</th><th className="px-3 py-2 font-medium">Relationship</th><th className="px-3 py-2 font-medium">Between</th><th className="px-3 py-2 font-medium">Why</th></tr>
+              </thead>
+              <tbody className="divide-y divide-line align-top">
+                {linkEdges.map((e) => (
+                  <tr key={e.id}>
+                    <td className="px-5 py-2.5"><Basis basis={e.basis} strength={e.strength} /></td>
+                    <td className="px-3 py-2.5 text-fg">{e.label}</td>
+                    <td className="px-3 py-2.5 text-fgMuted">{nameOf(e.source)} ↔ {nameOf(e.target)}</td>
+                    <td className="px-3 py-2.5 text-xs text-fgSubtle">{e.evidence}</td>
+                  </tr>
+                ))}
+              </tbody>
+            </table>
+          </div>
+        )}
+      </section>
+
+      <p className="text-xs text-fgSubtle">
+        Links are recomputed from the current findings each time and are not stored. The “recorded against brand” links are shown faintly because every finding has one.
+        An inferred link is a lead for an analyst to check, not evidence.
+      </p>
     </div>
   );
 };
+
+export default ThreatGraphView;

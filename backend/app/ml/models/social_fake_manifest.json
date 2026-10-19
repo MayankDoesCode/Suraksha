@@ -4,7 +4,7 @@
   "task": "social_fake_account_detection",
   "model_version": "1.0.0",
   "model_artifact": "social_fake_pipeline.joblib",
-  "timestamp": "2026-10-13T17:07:33.195771+00:00",
+  "timestamp": "2026-10-19T05:54:20.045083+00:00",
   "random_state": 42,
   "dataset_metadata": {
     "source": "InstaFake Dataset (fcakyon/instafake-dataset fake-v1.0)",

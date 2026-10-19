@@ -1,6 +1,7 @@
 import logging
-from flask import Blueprint, jsonify, request
+from flask import Blueprint, jsonify, request, current_app
 from backend.app.ml import get_ml_service
+from backend.app.utils.limiter import limiter
 
 logger = logging.getLogger(__name__)
 
@@ -8,6 +9,7 @@ ml_bp = Blueprint("ml", __name__, url_prefix="/ml")
 
 
 @ml_bp.route("/status", methods=["GET"])
+@limiter.exempt
 def get_ml_status():
     """
     Expose ML model availability, architecture, and validation metrics.
@@ -22,6 +24,7 @@ def get_ml_status():
 
 
 @ml_bp.route("/predict", methods=["POST"])
+@limiter.limit(lambda: current_app.config.get("RATELIMIT_ML", "30 per minute"))
 def predict_candidate_risk():
     """
     Run assistive ML inference on candidate metadata.
@@ -52,6 +55,7 @@ def predict_candidate_risk():
 
 
 @ml_bp.route("/predict-url", methods=["POST"])
+@limiter.limit(lambda: current_app.config.get("RATELIMIT_ML", "30 per minute"))
 def predict_url_phishing():
     """
     Dedicated endpoint for URL and lookalike domain phishing risk classification.
@@ -77,6 +81,7 @@ def predict_url_phishing():
 
 
 @ml_bp.route("/predict-social", methods=["POST"])
+@limiter.limit(lambda: current_app.config.get("RATELIMIT_ML", "30 per minute"))
 def predict_social_account():
     """
     Dedicated endpoint for Social Profile threat classification.

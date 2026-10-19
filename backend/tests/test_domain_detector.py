@@ -115,3 +115,97 @@ def test_homoglyph_substitution_domain(app, brand_with_domain):
     assert outcome.is_official is False
     sig_types = [s.signal_type for s in outcome.risk_evaluation.signals]
     assert "HOMOGLYPH_SUBSTITUTION" in sig_types
+
+
+def test_cyrillic_punycode_lookalike_detection(app, brand_with_domain):
+    """Punycode or Unicode domain with Cyrillic look-alikes triggers UNICODE_HOMOGLYPH_IMPERSONATION."""
+    detector = DomainDetector()
+    brand_profile = {
+        "name": "Acme Bank",
+        "domains": [{"domain": "acmebank.com"}],
+    }
+    # \u0430 is Cyrillic Small Letter A, punycode: xn--cmebank-1fg.com
+    candidate = {
+        "candidate_name": "xn--cmebank-1fg.com",
+        "source_url": "https://xn--cmebank-1fg.com/login",
+    }
+    outcome = detector.evaluate_full(candidate, brand_profile)
+    assert outcome.is_official is False
+    sig_types = [s.signal_type for s in outcome.risk_evaluation.signals]
+    assert "UNICODE_HOMOGLYPH_IMPERSONATION" in sig_types
+    # Verify original input preserved in evidence
+    evidence_refs = [e["source_reference"] for e in outcome.evidence_records]
+    assert "xn--cmebank-1fg.com" in evidence_refs or "https://xn--cmebank-1fg.com/login" in evidence_refs
+
+
+def test_greek_lookalike_detection(app, brand_with_domain):
+    """Domain with Greek lookalike characters (e.g. Greek alpha \u03b1 or omicron \u03bf) is flagged."""
+    detector = DomainDetector()
+    brand_profile = {
+        "name": "Acme Bank",
+        "domains": [{"domain": "acmebank.com"}],
+    }
+    # \u03b1 is Greek small letter alpha -> mimics Latin 'a' in 'acmebank'
+    candidate = {
+        "candidate_name": "\u03b1cmebank.com",
+        "source_url": "https://\u03b1cmebank.com",
+    }
+    outcome = detector.evaluate_full(candidate, brand_profile)
+    assert outcome.is_official is False
+    sig_types = [s.signal_type for s in outcome.risk_evaluation.signals]
+    assert "UNICODE_HOMOGLYPH_IMPERSONATION" in sig_types
+
+
+def test_malformed_and_invalid_unicode_handling():
+    """Malformed domains and invalid IDNA strings are handled safely without crashing."""
+    c1 = extract_domain_components("xn--invalid%%--.com")
+    assert c1["hostname"] == "xn--invalid%%--.com"
+    assert c1["sld"] == "xn--invalid%%--"
+
+    c2 = extract_domain_components("test\x00nullbyte.com")
+    assert "\x00" not in c2["hostname"]
+
+    c3 = extract_domain_components("")
+    assert c3["hostname"] == ""
+    assert c3["sld"] == ""
+
+    # Should not raise exception
+    detector = DomainDetector()
+    res = detector.evaluate_full({"candidate_name": "xn--invalid%%--.com"}, {"name": "Test", "domains": []})
+    assert res.is_official is False
+
+
+def test_legitimate_non_ascii_not_falsely_flagged():
+    """Legitimate non-Latin domain not mimicking the brand is not flagged as homoglyph impersonation."""
+    detector = DomainDetector()
+    brand_profile = {
+        "name": "Acme Bank",
+        "domains": [{"domain": "acmebank.com"}],
+    }
+    # Chinese IDN for China (xn--fiqs8s.cn / \u4e2d\u56fd.cn)
+    candidate = {
+        "candidate_name": "xn--fiqs8s.cn",
+        "source_url": "https://xn--fiqs8s.cn",
+    }
+    outcome = detector.evaluate_full(candidate, brand_profile)
+    sig_types = [s.signal_type for s in outcome.risk_evaluation.signals]
+    assert "UNICODE_HOMOGLYPH_IMPERSONATION" not in sig_types
+
+
+def test_international_official_domain_exclusion(app):
+    """Internationalized official domain (e.g. b\u00e4cker.de) is excluded when matched in Punycode or Unicode."""
+    detector = DomainDetector()
+    brand_profile = {
+        "name": "B\u00e4cker",
+        "domains": [{"domain": "b\u00e4cker.de"}],
+    }
+    # Exact match in Punycode (xn--bcker-gra.de)
+    res_puny = detector.evaluate_full({"candidate_name": "xn--bcker-gra.de"}, brand_profile)
+    assert res_puny.is_official is True
+    assert "Exact match against verified official domain" in res_puny.exclusion_reason
+
+    # Subdomain in Unicode
+    res_sub = detector.evaluate_full({"candidate_name": "auth.b\u00e4cker.de"}, brand_profile)
+    assert res_sub.is_official is True
+    assert "Authorized subdomain" in res_sub.exclusion_reason
+

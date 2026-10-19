@@ -1,6 +1,7 @@
-from flask import Blueprint, request, jsonify, g
+from flask import Blueprint, request, jsonify, g, current_app
 from backend.app.services.brand_service import BrandService
 from backend.app.utils.auth import require_auth, get_authenticated_user_optional, get_current_user
+from backend.app.utils.limiter import limiter
 
 brands_bp = Blueprint("brands", __name__)
 brand_service = BrandService()
@@ -161,6 +162,7 @@ def delete_brand(brand_id: str):
 
 @brands_bp.route("/brands/<string:brand_id>/scan", methods=["POST"])
 @require_auth(allowed_roles=["admin", "lead", "analyst"])
+@limiter.limit(lambda: current_app.config.get("RATELIMIT_SCAN", "10 per minute"))
 def scan_candidate(brand_id: str):
     """
     Evaluate candidate asset against brand profile or run provider-based scan.
@@ -204,6 +206,7 @@ def scan_candidate(brand_id: str):
 
 @brands_bp.route("/brands/<string:brand_id>/scan-provider", methods=["POST"])
 @require_auth(allowed_roles=["admin", "lead", "analyst"])
+@limiter.limit(lambda: current_app.config.get("RATELIMIT_SCAN", "10 per minute"))
 def scan_brand_provider(brand_id: str):
     """
     Retrieve genuine candidates from configured external provider,

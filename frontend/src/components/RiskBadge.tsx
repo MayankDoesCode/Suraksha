@@ -17,40 +17,40 @@ export const RiskBadge: React.FC<RiskBadgeProps> = ({ level, size = 'md', showIc
 
   const config = {
     Critical: {
-      bg: 'bg-[#EF4444]/10 text-[#EF4444] border-[#EF4444]/30',
+      bg: 'bg-danger/10 text-danger border-danger/30',
       icon: ShieldAlert,
       label: 'Critical Risk',
-      dot: 'bg-[#EF4444]',
+      dot: 'bg-danger',
     },
     High: {
-      bg: 'bg-[#F97316]/10 text-[#F97316] border-[#F97316]/30',
+      bg: 'bg-high/10 text-high border-high/30',
       icon: AlertTriangle,
       label: 'High Risk',
-      dot: 'bg-[#F97316]',
+      dot: 'bg-high',
     },
     Medium: {
-      bg: 'bg-[#F59E0B]/10 text-[#F59E0B] border-[#F59E0B]/30',
+      bg: 'bg-warn/10 text-warn border-warn/30',
       icon: AlertCircle,
       label: 'Medium Risk',
-      dot: 'bg-[#F59E0B]',
+      dot: 'bg-warn',
     },
     Low: {
-      bg: 'bg-[#10B981]/10 text-[#10B981] border-[#10B981]/30',
+      bg: 'bg-ok/10 text-ok border-ok/30',
       icon: ShieldCheck,
       label: 'Low Risk',
-      dot: 'bg-[#10B981]',
+      dot: 'bg-ok',
     },
     Safe: {
-      bg: 'bg-[#45C8E8]/10 text-[#45C8E8] border-[#45C8E8]/30',
+      bg: 'bg-accent/10 text-accent border-accent/30',
       icon: ShieldCheck,
       label: 'Verified Official',
-      dot: 'bg-[#45C8E8]',
+      dot: 'bg-accent',
     },
   }[level] || {
-    bg: 'bg-[#16253D] text-[#8EA2C6] border-[#1E314F]',
+    bg: 'bg-surface3 text-fgMuted border-line',
     icon: AlertCircle,
     label: level,
-    dot: 'bg-[#8EA2C6]',
+    dot: 'bg-fgMuted',
   };
 
   const Icon = config.icon;

@@ -160,7 +160,7 @@ export default function SocialMonitoringView({ brands, onRefreshMetrics }) {
             <Share2 className="w-6 h-6" />
           </div>
           <div>
-            <h2 className="text-base font-bold text-white flex items-center gap-2">
+            <h2 className="text-base font-bold text-fg flex items-center gap-2">
               Social Media Impersonation Watch
               <span className="text-[10px] font-mono px-2 py-0.5 rounded bg-cyber-emerald/10 text-cyber-emerald border border-cyber-emerald/30">
                 Phase 4: Provider Integration
@@ -181,7 +181,7 @@ export default function SocialMonitoringView({ brands, onRefreshMetrics }) {
             <select
               value={selectedBrandId}
               onChange={(e) => setSelectedBrandId(e.target.value)}
-              className="bg-cyber-surface border border-cyber-border rounded-lg px-3 py-2 text-xs font-mono text-white focus:outline-none focus:border-cyber-accent"
+              className="bg-cyber-surface border border-cyber-border rounded-lg px-3 py-2 text-xs font-mono text-fg focus:outline-none focus:border-cyber-accent"
             >
               {brands.map((b) => (
                 <option key={b.id} value={b.id}>
@@ -198,7 +198,7 @@ export default function SocialMonitoringView({ brands, onRefreshMetrics }) {
         <div className="flex items-center justify-between pb-3 border-b border-cyber-border">
           <div className="flex items-center gap-2">
             <Radio className="w-4 h-4 text-cyber-accent" />
-            <span className="text-xs font-mono uppercase tracking-wider text-white font-semibold">
+            <span className="text-xs font-mono uppercase tracking-wider text-fg font-semibold">
               Live Social Provider Status & Policy Compliance
             </span>
           </div>
@@ -210,8 +210,8 @@ export default function SocialMonitoringView({ brands, onRefreshMetrics }) {
           <div className="p-4 rounded-xl bg-cyber-darkest border border-cyber-border space-y-3">
             <div className="flex items-start justify-between">
               <div>
-                <div className="text-xs font-bold font-mono text-white flex items-center gap-2">
-                  <Share2 className="w-4 h-4 text-blue-400" /> Twitter / X API v2
+                <div className="text-xs font-bold font-mono text-fg flex items-center gap-2">
+                  <Share2 className="w-4 h-4 text-accent" /> Twitter / X API v2
                 </div>
                 <div className="text-[11px] text-cyber-textMuted font-mono mt-0.5">
                   Official OAuth 2.0 Bearer Token Access
@@ -226,7 +226,7 @@ export default function SocialMonitoringView({ brands, onRefreshMetrics }) {
               </span>
             </div>
 
-            <p className="text-xs text-slate-300 leading-relaxed font-mono text-[11px]">
+            <p className="text-xs text-fgMuted leading-relaxed font-mono text-[11px]">
               {twitterStatus?.configured
                 ? 'Valid X_BEARER_TOKEN detected in environment. Authorized to query official v2 recent tweets and users.'
                 : 'SURAKSHA strictly enforces platform terms of service. Real social monitoring requires an authorized Twitter Developer Portal App with OAuth 2.0 Bearer Token. Scraping protected pages or bypassing access restrictions is blocked.'}
@@ -252,7 +252,7 @@ export default function SocialMonitoringView({ brands, onRefreshMetrics }) {
               <button
                 onClick={handleTestTwitter}
                 disabled={testingTwitter}
-                className="px-3 py-1 text-[11px] rounded bg-cyber-surface hover:bg-slate-700 border border-cyber-border text-white font-mono flex items-center gap-1.5 transition-all"
+                className="px-3 py-1 text-[11px] rounded bg-cyber-surface hover:bg-surface3 border border-cyber-border text-fg font-mono flex items-center gap-1.5 transition-all"
               >
                 {testingTwitter ? <RefreshCw className="w-3 h-3 animate-spin" /> : <Radio className="w-3 h-3" />}
                 Test Connectivity
@@ -274,19 +274,19 @@ export default function SocialMonitoringView({ brands, onRefreshMetrics }) {
           <div className="p-4 rounded-xl bg-cyber-darkest border border-cyber-border space-y-3">
             <div className="flex items-start justify-between">
               <div>
-                <div className="text-xs font-bold font-mono text-white flex items-center gap-2">
-                  <Globe className="w-4 h-4 text-orange-400" /> Reddit API Platform
+                <div className="text-xs font-bold font-mono text-fg flex items-center gap-2">
+                  <Globe className="w-4 h-4 text-high" /> Reddit API Platform
                 </div>
                 <div className="text-[11px] text-cyber-textMuted font-mono mt-0.5">
                   Official Script App OAuth Credentials
                 </div>
               </div>
-              <span className="text-[10px] font-mono px-2 py-0.5 rounded font-bold uppercase border bg-slate-800 border-slate-700 text-slate-400">
+              <span className="text-[10px] font-mono px-2 py-0.5 rounded font-bold uppercase border bg-surface3 border-line text-fgSubtle">
                 PLANNED EXTENSION
               </span>
             </div>
 
-            <p className="text-xs text-slate-300 leading-relaxed font-mono text-[11px]">
+            <p className="text-xs text-fgMuted leading-relaxed font-mono text-[11px]">
               Requires verified Reddit Developer account and registered Script application at reddit.com/prefs/apps.
               Unauthenticated scraping is prohibited by Reddit robots.txt and user-agent policy.
             </p>
@@ -295,7 +295,7 @@ export default function SocialMonitoringView({ brands, onRefreshMetrics }) {
               <div className="text-cyber-textMuted flex items-center gap-1.5">
                 <Key className="w-3 h-3 text-cyber-accent" /> Required Environment Variables:
               </div>
-              <code className="text-slate-400">REDDIT_CLIENT_ID, REDDIT_CLIENT_SECRET</code>
+              <code className="text-fgSubtle">REDDIT_CLIENT_ID, REDDIT_CLIENT_SECRET</code>
             </div>
 
             <div className="pt-1">
@@ -312,7 +312,7 @@ export default function SocialMonitoringView({ brands, onRefreshMetrics }) {
         {/* Left Column: Evaluation Form */}
         <div className="lg:col-span-5 cyber-panel p-6 rounded-2xl border border-cyber-border space-y-5">
           <div className="flex items-center justify-between pb-3 border-b border-cyber-border">
-            <div className="text-xs font-mono uppercase tracking-wider text-white font-semibold flex items-center gap-2">
+            <div className="text-xs font-mono uppercase tracking-wider text-fg font-semibold flex items-center gap-2">
               <Sliders className="w-4 h-4 text-cyber-accent" /> Candidate Ingestion Form
             </div>
             <span className="text-[10px] font-mono text-cyber-textMuted">Analyst / Sample Feed</span>
@@ -341,7 +341,7 @@ export default function SocialMonitoringView({ brands, onRefreshMetrics }) {
               <button
                 type="button"
                 onClick={() => loadPreset('unrelated')}
-                className="px-2.5 py-1 text-[11px] rounded bg-slate-800 border border-slate-700 text-slate-300 hover:bg-slate-700 transition-all font-mono"
+                className="px-2.5 py-1 text-[11px] rounded bg-surface3 border border-line text-fgMuted hover:bg-surface3 transition-all font-mono"
               >
                 + Unrelated Handle
               </button>
@@ -351,7 +351,7 @@ export default function SocialMonitoringView({ brands, onRefreshMetrics }) {
           {/* Form */}
           <form onSubmit={handleRunScan} className="space-y-4">
             <div>
-              <label className="block text-xs font-mono text-slate-300 mb-1">
+              <label className="block text-xs font-mono text-fgMuted mb-1">
                 Candidate Handle / Username *
               </label>
               <input
@@ -359,13 +359,13 @@ export default function SocialMonitoringView({ brands, onRefreshMetrics }) {
                 placeholder="e.g. @acmebank_support"
                 value={formData.candidate_name}
                 onChange={(e) => handleInputChange('candidate_name', e.target.value)}
-                className="w-full bg-cyber-darkest border border-cyber-border rounded-lg px-3 py-2 text-xs text-white placeholder-slate-600 focus:outline-none focus:border-cyber-accent font-mono"
+                className="w-full bg-cyber-darkest border border-cyber-border rounded-lg px-3 py-2 text-xs text-fg placeholder-slate-600 focus:outline-none focus:border-cyber-accent font-mono"
                 required
               />
             </div>
 
             <div>
-              <label className="block text-xs font-mono text-slate-300 mb-1">
+              <label className="block text-xs font-mono text-fgMuted mb-1">
                 Display Name
               </label>
               <input
@@ -373,19 +373,19 @@ export default function SocialMonitoringView({ brands, onRefreshMetrics }) {
                 placeholder="e.g. Acme Bank Official Customer Helpdesk"
                 value={formData.display_name}
                 onChange={(e) => handleInputChange('display_name', e.target.value)}
-                className="w-full bg-cyber-darkest border border-cyber-border rounded-lg px-3 py-2 text-xs text-white placeholder-slate-600 focus:outline-none focus:border-cyber-accent font-medium"
+                className="w-full bg-cyber-darkest border border-cyber-border rounded-lg px-3 py-2 text-xs text-fg placeholder-slate-600 focus:outline-none focus:border-cyber-accent font-medium"
               />
             </div>
 
             <div className="grid grid-cols-2 gap-3">
               <div>
-                <label className="block text-xs font-mono text-slate-300 mb-1">
+                <label className="block text-xs font-mono text-fgMuted mb-1">
                   Social Platform
                 </label>
                 <select
                   value={formData.platform}
                   onChange={(e) => handleInputChange('platform', e.target.value)}
-                  className="w-full bg-cyber-darkest border border-cyber-border rounded-lg px-3 py-2 text-xs text-white focus:outline-none focus:border-cyber-accent font-mono"
+                  className="w-full bg-cyber-darkest border border-cyber-border rounded-lg px-3 py-2 text-xs text-fg focus:outline-none focus:border-cyber-accent font-mono"
                 >
                   <option value="twitter">Twitter / X</option>
                   <option value="instagram">Instagram</option>
@@ -396,13 +396,13 @@ export default function SocialMonitoringView({ brands, onRefreshMetrics }) {
               </div>
 
               <div>
-                <label className="block text-xs font-mono text-slate-300 mb-1">
+                <label className="block text-xs font-mono text-fgMuted mb-1">
                   Data Feed Tag
                 </label>
                 <select
                   value={formData.is_sample ? 'sample' : 'analyst'}
                   onChange={(e) => handleInputChange('is_sample', e.target.value === 'sample')}
-                  className="w-full bg-cyber-darkest border border-cyber-border rounded-lg px-3 py-2 text-xs text-white focus:outline-none focus:border-cyber-accent font-mono"
+                  className="w-full bg-cyber-darkest border border-cyber-border rounded-lg px-3 py-2 text-xs text-fg focus:outline-none focus:border-cyber-accent font-mono"
                 >
                   <option value="sample">Sample Feed</option>
                   <option value="analyst">Analyst Submission</option>
@@ -411,7 +411,7 @@ export default function SocialMonitoringView({ brands, onRefreshMetrics }) {
             </div>
 
             <div>
-              <label className="block text-xs font-mono text-slate-300 mb-1">
+              <label className="block text-xs font-mono text-fgMuted mb-1">
                 Profile URL
               </label>
               <input
@@ -419,12 +419,12 @@ export default function SocialMonitoringView({ brands, onRefreshMetrics }) {
                 placeholder="https://twitter.com/acmebank_support"
                 value={formData.source_url}
                 onChange={(e) => handleInputChange('source_url', e.target.value)}
-                className="w-full bg-cyber-darkest border border-cyber-border rounded-lg px-3 py-2 text-xs text-white placeholder-slate-600 focus:outline-none focus:border-cyber-accent font-mono"
+                className="w-full bg-cyber-darkest border border-cyber-border rounded-lg px-3 py-2 text-xs text-fg placeholder-slate-600 focus:outline-none focus:border-cyber-accent font-mono"
               />
             </div>
 
             <div>
-              <label className="block text-xs font-mono text-slate-300 mb-1">
+              <label className="block text-xs font-mono text-fgMuted mb-1">
                 External Website / Link in Bio
               </label>
               <input
@@ -432,7 +432,7 @@ export default function SocialMonitoringView({ brands, onRefreshMetrics }) {
                 placeholder="e.g. acmebank-verify-login.xyz"
                 value={formData.website_url}
                 onChange={(e) => handleInputChange('website_url', e.target.value)}
-                className="w-full bg-cyber-darkest border border-cyber-border rounded-lg px-3 py-2 text-xs text-white placeholder-slate-600 focus:outline-none focus:border-cyber-accent font-mono"
+                className="w-full bg-cyber-darkest border border-cyber-border rounded-lg px-3 py-2 text-xs text-fg placeholder-slate-600 focus:outline-none focus:border-cyber-accent font-mono"
               />
               <span className="text-[10px] text-cyber-textMuted font-mono">
                 Compared against verified brand official domain whitelist.
@@ -448,7 +448,7 @@ export default function SocialMonitoringView({ brands, onRefreshMetrics }) {
             <button
               type="submit"
               disabled={loading || !selectedBrandId}
-              className="w-full py-2.5 rounded-lg bg-cyber-accent text-cyber-darkest font-semibold text-xs tracking-wider uppercase hover:bg-cyber-accentHover transition-all shadow-glow flex items-center justify-center gap-2 disabled:opacity-50"
+              className="w-full py-2.5 rounded-lg bg-cyber-accent text-onAccent font-semibold text-xs tracking-wider uppercase hover:bg-cyber-accentHover transition-all shadow-glow flex items-center justify-center gap-2 disabled:opacity-50"
             >
               {loading ? (
                 <>
@@ -470,7 +470,7 @@ export default function SocialMonitoringView({ brands, onRefreshMetrics }) {
               <div className="w-16 h-16 rounded-2xl bg-cyber-surface border border-cyber-border flex items-center justify-center text-cyber-textMuted mx-auto">
                 <Search className="w-8 h-8" />
               </div>
-              <h3 className="text-sm font-semibold text-white">
+              <h3 className="text-sm font-semibold text-fg">
                 No Social Candidate Evaluated Yet
               </h3>
               <p className="text-xs text-cyber-textMuted max-w-sm mx-auto leading-relaxed">
@@ -497,7 +497,7 @@ export default function SocialMonitoringView({ brands, onRefreshMetrics }) {
                       </div>
                     </div>
                   </div>
-                  <div className="p-3 rounded-lg bg-cyber-darkest border border-cyber-emerald/20 text-xs font-mono text-slate-300">
+                  <div className="p-3 rounded-lg bg-cyber-darkest border border-cyber-emerald/20 text-xs font-mono text-fgMuted">
                     {scanResult.exclusion_reason}
                   </div>
                 </div>
@@ -507,18 +507,18 @@ export default function SocialMonitoringView({ brands, onRefreshMetrics }) {
                   <div className="flex items-start justify-between pb-4 border-b border-cyber-border">
                     <div>
                       <div className="flex items-center gap-2.5">
-                        <span className="text-base font-bold text-white font-mono">
+                        <span className="text-base font-bold text-fg font-mono">
                           {scanResult.candidate_name}
                         </span>
                         <span
                           className={`text-[10px] font-mono px-2 py-0.5 rounded font-bold uppercase border ${
                             scanResult.severity === 'CRITICAL'
-                              ? 'bg-rose-500/15 border-rose-500/40 text-rose-400'
+                              ? 'bg-danger/15 border-danger/40 text-danger'
                               : scanResult.severity === 'HIGH'
-                              ? 'bg-amber-500/15 border-amber-500/40 text-amber-400'
+                              ? 'bg-warn/15 border-warn/40 text-warn'
                               : scanResult.severity === 'MEDIUM'
-                              ? 'bg-blue-500/15 border-blue-500/40 text-blue-400'
-                              : 'bg-emerald-500/15 border-emerald-500/40 text-cyber-emerald'
+                              ? 'bg-accent/15 border-accent/40 text-accent'
+                              : 'bg-ok/15 border-ok/40 text-cyber-emerald'
                           }`}
                         >
                           {scanResult.severity} RISK
@@ -528,12 +528,12 @@ export default function SocialMonitoringView({ brands, onRefreshMetrics }) {
                         </span>
                       </div>
                       <p className="text-xs text-cyber-textMuted mt-1 font-mono">
-                        Target Brand: <span className="text-white">{selectedBrand?.name}</span>
+                        Target Brand: <span className="text-fg">{selectedBrand?.name}</span>
                       </p>
                     </div>
 
                     <div className="text-right">
-                      <div className="text-2xl font-bold font-mono text-white">
+                      <div className="text-2xl font-bold font-mono text-fg">
                         {scanResult.risk_score}
                         <span className="text-xs text-cyber-textMuted">/100</span>
                       </div>
@@ -545,28 +545,28 @@ export default function SocialMonitoringView({ brands, onRefreshMetrics }) {
                   <div className="grid grid-cols-2 gap-3 p-3 rounded-xl bg-cyber-darkest border border-cyber-border/70 text-xs font-mono">
                     <div>
                       <span className="text-[10px] text-cyber-textMuted uppercase block">Rule-Based Score</span>
-                      <span className="text-white font-bold text-sm">
+                      <span className="text-fg font-bold text-sm">
                         {scanResult.rule_based_score ?? scanResult.risk_score} <span className="text-[10px] text-cyber-textMuted">/ 100</span>
                       </span>
                     </div>
                     <div>
                       <span className="text-[10px] text-cyber-textMuted uppercase block">ML Risk Classifier</span>
                       <div className="flex items-center gap-1.5 mt-0.5">
-                        <span className="text-white font-bold text-sm">
+                        <span className="text-fg font-bold text-sm">
                           {scanResult.ml_risk_score !== null && scanResult.ml_risk_score !== undefined
                             ? `${scanResult.ml_risk_score} `
                             : 'N/A '}
                           <span className="text-[10px] text-cyber-textMuted">/ 100</span>
                         </span>
                         {scanResult.ml_fallback_used ? (
-                          <span className="px-1.5 py-0.5 text-[9px] rounded bg-amber-500/15 text-amber-300 border border-amber-500/30 font-semibold">
+                          <span className="px-1.5 py-0.5 text-[9px] rounded bg-warn/15 text-warn border border-warn/30 font-semibold">
                             Fallback
                           </span>
                         ) : scanResult.ml_predicted_class ? (
                           <span className={`px-1.5 py-0.5 text-[9px] rounded font-semibold border ${
                             scanResult.ml_predicted_class === 'SUSPICIOUS'
-                              ? 'bg-rose-500/15 text-rose-300 border-rose-500/30'
-                              : 'bg-emerald-500/15 text-cyber-emerald border-cyber-emerald/30'
+                              ? 'bg-danger/15 text-danger border-danger/30'
+                              : 'bg-ok/15 text-cyber-emerald border-cyber-emerald/30'
                           }`}>
                             {scanResult.ml_predicted_class}
                           </span>
@@ -583,7 +583,7 @@ export default function SocialMonitoringView({ brands, onRefreshMetrics }) {
                     </div>
 
                     {scanResult.signals?.length === 0 ? (
-                      <div className="p-3 rounded-lg bg-cyber-darkest text-xs font-mono text-slate-400">
+                      <div className="p-3 rounded-lg bg-cyber-darkest text-xs font-mono text-fgSubtle">
                         No suspicious impersonation signals triggered for this profile.
                       </div>
                     ) : (
@@ -594,7 +594,7 @@ export default function SocialMonitoringView({ brands, onRefreshMetrics }) {
                             className="p-3.5 rounded-lg bg-cyber-darkest border border-cyber-border space-y-1"
                           >
                             <div className="flex items-center justify-between">
-                              <span className="text-xs font-mono font-bold text-white flex items-center gap-2">
+                              <span className="text-xs font-mono font-bold text-fg flex items-center gap-2">
                                 <AlertTriangle className="w-3.5 h-3.5 text-cyber-amber" />
                                 {sig.signal_type}
                               </span>
@@ -602,7 +602,7 @@ export default function SocialMonitoringView({ brands, onRefreshMetrics }) {
                                 Impact: +{sig.score} • Conf: {(sig.confidence * 100).toFixed(0)}%
                               </span>
                             </div>
-                            <p className="text-xs text-slate-300 leading-relaxed pt-1">
+                            <p className="text-xs text-fgMuted leading-relaxed pt-1">
                               {sig.explanation}
                             </p>
                           </div>
@@ -614,14 +614,14 @@ export default function SocialMonitoringView({ brands, onRefreshMetrics }) {
                   {/* Evidence Records */}
                   {scanResult.evidence?.length > 0 && (
                     <div className="space-y-2 pt-2 border-t border-cyber-border">
-                      <div className="text-xs font-mono uppercase tracking-wider text-white font-semibold">
+                      <div className="text-xs font-mono uppercase tracking-wider text-fg font-semibold">
                         Preserved Evidentiary Artifacts
                       </div>
                       <div className="space-y-1.5">
                         {scanResult.evidence.map((ev, idx) => (
                           <div
                             key={idx}
-                            className="p-2.5 rounded bg-cyber-surface border border-cyber-border text-xs flex items-center justify-between text-slate-300 font-mono"
+                            className="p-2.5 rounded bg-cyber-surface border border-cyber-border text-xs flex items-center justify-between text-fgMuted font-mono"
                           >
                             <span>{ev.description}</span>
                             {ev.source_reference && (
