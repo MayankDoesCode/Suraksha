@@ -289,6 +289,69 @@ class ThreatRepository:
             raise
 
 
+    def apply_enrichment(
+        self,
+        finding_id: str,
+        evidence_records: List[Dict[str, Any]],
+        signals: List[Any],
+        replace_evidence_types: Tuple[str, ...],
+        replace_signal_types: Tuple[str, ...],
+    ) -> Optional[Finding]:
+        """
+        Attach passive-intelligence evidence and rule signals to a finding, idempotently.
+
+        Previously attached enrichment (same evidence/signal types) is replaced, and the rule score is
+        recomputed from the score *without* the old enrichment plus the new enrichment, so repeated
+        enrichment never double counts. ML output is untouched and still does not set severity.
+        """
+        finding = self.get_by_id(finding_id)
+        if not finding:
+            return None
+        try:
+            now = datetime.now(timezone.utc)
+            old = [s for s in finding.signals if s.signal_type in replace_signal_types]
+            old_total = sum(float(s.score or 0.0) * float(s.confidence or 1.0) for s in old)
+            for s in old:
+                finding.signals.remove(s)
+            for e in [e for e in finding.evidence if e.evidence_type in replace_evidence_types]:
+                finding.evidence.remove(e)
+
+            added = 0.0
+            for sig in signals:
+                finding.signals.append(DetectionSignalRecord(
+                    finding_id=finding.id,
+                    signal_type=sig.signal_type,
+                    score=sig.severity_score,
+                    confidence=sig.confidence,
+                    explanation=sig.explanation,
+                    metadata_json=json.dumps({"evidence_fields": sig.evidence_fields, "source": "passive_intel"}),
+                    created_at=now,
+                ))
+                added += float(sig.severity_score) * float(sig.confidence)
+            for ev in evidence_records:
+                finding.evidence.append(EvidenceRecord(
+                    finding_id=finding.id,
+                    evidence_type=ev["evidence_type"],
+                    description=ev["description"],
+                    source_reference=ev.get("source_reference"),
+                    captured_at=now,
+                    created_at=now,
+                ))
+
+            base = float(finding.rule_based_score if finding.rule_based_score is not None else finding.risk_score or 0.0) - old_total
+            total = round(min(100.0, max(0.0, base + added)), 1)
+            finding.rule_based_score = total
+            finding.risk_score = total
+            finding.final_risk_score = total
+            finding.severity = "CRITICAL" if total >= 80 else "HIGH" if total >= 50 else "MEDIUM" if total >= 25 else "LOW"
+            finding.updated_at = now
+            self.session.commit()
+            self.session.refresh(finding)
+            return finding
+        except Exception:
+            self.session.rollback()
+            raise
+
     def get_metrics(
         self,
         brand_ids: Optional[List[str]] = None,

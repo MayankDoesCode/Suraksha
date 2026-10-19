@@ -550,3 +550,37 @@ def ai_investigate_candidate():
             "investigation": ai_result,
         }
     }), 200
+
+
+def _owned_finding(finding_id: str):
+    """Fetch a finding the caller may act on (owner or admin); sample findings are not actionable."""
+    user_info = get_current_user() or {}
+    finding = threat_repo.get_by_id(finding_id)
+    if not finding:
+        raise NotFoundError(f"Finding with ID '{finding_id}' not found.")
+    is_admin = user_info.get("role") == "admin"
+    if finding.is_sample or (finding.brand and finding.brand.owner_id and finding.brand.owner_id != user_info.get("uid") and not is_admin):
+        raise ForbiddenError("You do not have access to this finding.")
+    return finding, user_info
+
+
+@findings_bp.route("/findings/<string:finding_id>/enrich", methods=["POST"])
+@require_auth(allowed_roles=["admin", "lead", "analyst"])
+@limiter.limit(lambda: current_app.config.get("RATELIMIT_DISCOVER", "3 per minute"))
+def enrich_finding(finding_id: str):
+    """Passive DNS / RDAP / TLS observation recorded as evidence (idempotent)."""
+    _owned_finding(finding_id)
+    from backend.app.services.enrichment_service import EnrichmentService
+    return jsonify({"success": True, "data": EnrichmentService().enrich_finding(finding_id)}), 200
+
+
+@findings_bp.route("/findings/<string:finding_id>/report", methods=["GET"])
+@require_auth(allowed_roles=["admin", "lead", "analyst"])
+def finding_report(finding_id: str):
+    """Draft (never sent) takedown/abuse report for registrar, hosting, platform, app store or internal use."""
+    finding, user_info = _owned_finding(finding_id)
+    from backend.app.services.report_service import build_report
+    data = finding.to_dict(include_relations=True)
+    brand_name = finding.brand.name if finding.brand else "the brand"
+    report = build_report(data, brand_name, request.args.get("audience", "registrar"), analyst=user_info.get("email") or user_info.get("uid"))
+    return jsonify({"success": True, "data": report}), 200

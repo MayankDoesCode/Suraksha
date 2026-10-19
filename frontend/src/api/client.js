@@ -164,6 +164,19 @@ class ApiClient {
     });
   }
 
+  async discoverLookalikes(brandId, payload = {}) {
+    return this.request(`/brands/${encodeURIComponent(brandId)}/discover`, { method: 'POST', body: JSON.stringify(payload) });
+  }
+  async enrichFinding(findingId) {
+    return this.request(`/findings/${encodeURIComponent(findingId)}/enrich`, { method: 'POST', body: '{}' });
+  }
+  async getFindingReport(findingId, audience) {
+    return this.request(`/findings/${encodeURIComponent(findingId)}/report?audience=${encodeURIComponent(audience)}`);
+  }
+  async getBrandGraph(brandId) {
+    return this.request(`/brands/${encodeURIComponent(brandId)}/graph`);
+  }
+
   // External Data Providers & Monitoring (Phase 4)
   async getIntegrationsStatus() {
     return this.request('/integrations/status');

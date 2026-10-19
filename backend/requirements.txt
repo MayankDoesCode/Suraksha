@@ -22,3 +22,4 @@ langsmith>=0.1.0
 Flask-Limiter>=4.1.0
 confusable-homoglyphs>=3.3.0
 idna>=3.10
+dnspython==2.9.0

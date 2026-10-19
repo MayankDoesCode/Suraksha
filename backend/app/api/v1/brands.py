@@ -325,3 +325,32 @@ def get_brand_watchtower_summary(brand_id: str):
 
 
 
+
+
+@brands_bp.route("/brands/<string:brand_id>/discover", methods=["POST"])
+@require_auth(allowed_roles=["admin", "lead", "analyst"])
+@limiter.limit(lambda: current_app.config.get("RATELIMIT_DISCOVER", "3 per minute"))
+def discover_lookalikes(brand_id: str):
+    """Generate likely lookalike registrations for the brand's verified domains, check which exist, and evaluate them."""
+    user_info = get_current_user() or {}
+    brand_service.get_brand(brand_id, requesting_user_id=user_info.get("uid"), is_admin=(user_info.get("role") == "admin"))
+    payload = request.get_json(silent=True) or {}
+    from backend.app.services.discovery_service import DiscoveryService
+    result = DiscoveryService().discover(
+        brand_id,
+        limit=payload.get("limit", 150),
+        techniques=payload.get("techniques") or None,
+        enrich=bool(payload.get("enrich", False)),
+    )
+    return jsonify({"success": True, "data": result}), 200
+
+
+@brands_bp.route("/brands/<string:brand_id>/graph", methods=["GET"])
+@require_auth(allowed_roles=["admin", "lead", "analyst", "viewer"])
+def brand_graph(brand_id: str):
+    """Relationship graph built only from indicators recorded on two or more findings."""
+    user_info = get_current_user() or {}
+    brand = brand_service.get_brand(brand_id, requesting_user_id=user_info.get("uid"), is_admin=(user_info.get("role") == "admin"))
+    from backend.app.services.graph_service import GraphService
+    name = brand.get("name", "") if isinstance(brand, dict) else getattr(brand, "name", "")
+    return jsonify({"success": True, "data": GraphService().for_brand(brand_id, name)}), 200

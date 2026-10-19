@@ -2,6 +2,7 @@ import React, { useEffect, useMemo, useRef, useState } from 'react';
 import { ArrowLeft, Check, Copy, ExternalLink, FolderSearch, Search } from 'lucide-react';
 import { useApp } from '../context/AppContext';
 import { bySeverityThenNewest } from '../components/FindingsTable';
+import { FindingIntelPanel } from '../components/FindingIntelPanel';
 import { deriveThreatGraph, type GraphEdge } from '../utils/threatGraph';
 import type { CandidateAsset, InvestigationStatus, RiskLevel } from '../types';
 
@@ -47,7 +48,7 @@ const Section: React.FC<{ title: string; items?: string[]; empty: string; limit?
 export const InvestigationCenterView: React.FC = () => {
   const {
     candidates, brandProfile, updateCandidateStatus, addAnalystNote, setSelectedCandidateId, deleteCandidate,
-    focusedFindingId, setFocusedFindingId, isDemoMode, setActiveTab,
+    focusedFindingId, setFocusedFindingId, isDemoMode, setActiveTab, refreshBackendData,
   } = useApp();
 
   const [status, setStatus] = useState<'all' | InvestigationStatus>('all');
@@ -261,6 +262,9 @@ export const InvestigationCenterView: React.FC = () => {
                 </>
               )}
 
+              {tab === 'Evidence' && !isDemoMode && current.type && (
+                <FindingIntelPanel findingId={current.id} assetType={current.type === 'app' ? 'mobile_app' : String(current.type)} onChanged={refreshBackendData} />
+              )}
               {tab === 'Evidence' && (
                 <>
                   {current.url && (
