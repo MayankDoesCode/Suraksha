@@ -1,0 +1,8 @@
+title = "Suraksha gitleaks config"
+
+[extend]
+useDefault = true
+
+[allowlist]
+description = "Firebase web API keys are public client identifiers (restrict them in the Firebase console); everything else is scanned."
+paths = ['''frontend/firebase-applet-config\.json''']

@@ -7,7 +7,6 @@ import {
 } from '../utils/lookalikeEngine';
 import { RiskBadge } from '../components/RiskBadge';
 import api from '../api/client';
-import { DiscoverPanel } from '../components/DiscoverPanel';
 import {
   Binary,
   Search,
@@ -1008,7 +1007,6 @@ ${analysisResult.recommendedNextSteps.map((s, i) => `${i + 1}. ${s}`).join('\n')
           </div>
         </div>
       )}
-      {!isDemoMode && backendOnline && selectedBackendBrandId && <DiscoverPanel brandId={selectedBackendBrandId} onDone={refreshBackendData} />}
     </div>
   );
 };

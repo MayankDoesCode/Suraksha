@@ -4,6 +4,7 @@ from dataclasses import dataclass, field
 
 from backend.app.detection.base import DetectionSignal, RiskEvaluation, RiskScoreEngine, BaseDetector
 from backend.app.detection.similarity import NameSimilarityService
+from backend.app.detection import visual
 
 @dataclass
 class DetectionOutcome:
@@ -12,6 +13,23 @@ class DetectionOutcome:
     exclusion_reason: Optional[str]
     risk_evaluation: RiskEvaluation
     evidence_records: List[Dict[str, Any]] = field(default_factory=list)
+
+_SCAM_CUE_PATTERNS = [
+    ("OTP request", r"\botp\b"),
+    ("refund/claim lure", r"\b(refund|claim|reward|cashback|lottery|giveaway|prize)\b"),
+    ("KYC/verification lure", r"\b(kyc|verify your|update your|account (blocked|suspended))\b"),
+    ("off-platform contact", r"(wa\.me|t\.me|whatsapp|telegram|dm (us|me)|inbox us)"),
+    ("shortened link", r"(bit\.ly|tinyurl|cutt\.ly|rb\.gy|shorturl)"),
+    ("phone number", r"(\+?\d[\d\s-]{8,}\d)"),
+    ("urgency", r"\b(urgent|immediately|limited time|act now)\b"),
+]
+
+
+def _find_scam_cues(text: str) -> List[str]:
+    import re
+    low = (text or "").lower()
+    return [name for name, pat in _SCAM_CUE_PATTERNS if re.search(pat, low)]
+
 
 class SocialDetector(BaseDetector):
     """
@@ -52,7 +70,11 @@ class SocialDetector(BaseDetector):
 
             # Exact handle match (on same platform or platform unspecified)
             same_platform = not candidate_platform or not off_platform or (candidate_platform == off_platform)
-            if off_handle and norm_candidate_handle == off_handle and same_platform:
+            # Exact handle only: "acme_bank" / "acme.bank" / "acme bank" collapse to the same compact
+            # form as the official "acmebank" but are DIFFERENT accounts (classic spacing lookalikes).
+            raw_cand = candidate_name.strip().lstrip("@").lower()
+            raw_off = (handle_obj.get("handle") or "").strip().lstrip("@").lower()
+            if off_handle and raw_cand == raw_off and same_platform:
                 return DetectionOutcome(
                     is_official=True,
                     exclusion_reason=(
@@ -167,6 +189,81 @@ class SocialDetector(BaseDetector):
                     "description": f"External link redirects to unverified destination: {bio_website}",
                     "source_reference": bio_website,
                 })
+
+        # Signal D: Avatar / logo similarity to the official brand logo
+        avatar_ref = (
+            candidate.get("avatar_url") or candidate.get("avatar")
+            or candidate.get("profile_image_url") or candidate.get("image_url")
+        )
+        visual_result = visual.compare_to_brand_logo(avatar_ref, brand_profile)
+        logo_sim = visual_result.similarity if visual_result.available else 0.0
+        if visual_result.available and logo_sim >= visual.MATCH_LIKELY:
+            strong = logo_sim >= visual.MATCH_STRONG
+            signals.append(
+                DetectionSignal(
+                    signal_type="LOGO_SIMILARITY",
+                    severity_score=45.0 if strong else 30.0,
+                    confidence=0.90 if strong else 0.80,
+                    explanation=(
+                        f"Profile image is {'nearly identical' if strong else 'visually very similar'} "
+                        f"to the brand's official logo (visual similarity {logo_sim:.0%})."
+                    ),
+                    evidence_fields=["avatar_url", "logo_similarity"]
+                )
+            )
+            evidence.append({
+                "evidence_type": "logo_similarity",
+                "description": f"Avatar matches official logo at {logo_sim:.0%} perceptual similarity.",
+                "source_reference": candidate_url or None,
+            })
+        elif avatar_ref and not visual_result.available:
+            evidence.append({
+                "evidence_type": "visual_check_unavailable",
+                "description": f"Logo comparison skipped: {visual_result.reason}",
+                "source_reference": candidate_url or None,
+            })
+
+        bio_text = " ".join(str(candidate.get(k) or "") for k in ("bio", "description", "about"))
+        brand_compact = NameSimilarityService.normalize_compact(brand_name)
+        brand_in_text = len(brand_compact) >= 4 and brand_compact in NameSimilarityService.normalize_compact(
+            f"{bio_text} {display_name}"
+        )
+        associated = best_sim.similarity_score >= 0.50 or logo_sim >= visual.MATCH_LIKELY or brand_in_text
+
+        # Signal E: Scam cues in the bio (only when the profile is brand-associated)
+        scam_cues = _find_scam_cues(f"{bio_text} {display_name}")
+        if scam_cues and associated:
+            signals.append(
+                DetectionSignal(
+                    signal_type="SCAM_CUES",
+                    severity_score=min(40.0, 15.0 * len(scam_cues)),
+                    confidence=0.85,
+                    explanation=(
+                        "Brand-associated profile uses scam-style wording / contact channels: "
+                        + ", ".join(scam_cues) + "."
+                    ),
+                    evidence_fields=["bio", "scam_cues"]
+                )
+            )
+            evidence.append({
+                "evidence_type": "scam_language",
+                "description": f"Scam cues in profile text: {', '.join(scam_cues)}",
+                "source_reference": candidate_url or None,
+            })
+
+        # Signal F: Brand-associated but brand-new, unverified account
+        age_days = candidate.get("account_age_days")
+        if (associated and candidate.get("is_verified") is not True
+                and isinstance(age_days, (int, float)) and age_days < 90):
+            signals.append(
+                DetectionSignal(
+                    signal_type="NEW_UNVERIFIED_ACCOUNT",
+                    severity_score=15.0,
+                    confidence=0.80,
+                    explanation=f"Account is only {int(age_days)} days old and not verified, yet uses brand identity.",
+                    evidence_fields=["account_age_days", "is_verified"]
+                )
+            )
 
         # -------------------------------------------------------------
         # 3. Explainable Risk Score Aggregation

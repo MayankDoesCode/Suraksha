@@ -20,6 +20,9 @@ import {
 } from 'lucide-react';
 import type { RiskLevel } from '../types';
 import api from '../api/client';
+import { analyzeAppCandidate } from '../utils/appEngine';
+import { compareToOfficialLogo, fileToDataUrl } from '../utils/imageHash';
+import { ACME_LOGO, ACME_LOGO_COPY, OTHER_LOGO } from '../data/demoLogos';
 
 export const AppMonitoringView: React.FC = () => {
   const { brandProfile, addCandidate, setSelectedCandidateId, setActiveTab, selectedBackendBrandId, refreshBackendData, isDemoMode } = useApp();
@@ -34,6 +37,9 @@ export const AppMonitoringView: React.FC = () => {
   const [description, setDescription] = useState('');
   const [branding, setBranding] = useState('');
   const [evidence, setEvidence] = useState('');
+  const [packageId, setPackageId] = useState('');
+  const [iconData, setIconData] = useState('');
+  const [iconError, setIconError] = useState('');
 
   const [isAnalyzing, setIsAnalyzing] = useState(false);
   const [errorMsg, setErrorMsg] = useState<string | null>(null);
@@ -59,6 +65,8 @@ export const AppMonitoringView: React.FC = () => {
       setStoreUrl('https://apkpure.example/com.acmepro.fastloan');
       setDescription('Fast loans up to $5,000 in 5 minutes! Borrow against your balance with no credit check. Instant approval and same-day direct payout.');
       setBranding('Copies authentic blue shield logo with gold PRO ribbon.');
+      setIconData(ACME_LOGO_COPY);
+      setPackageId('com.acmepro.fastloan');
       setEvidence('Manifest requests excessive permissions: READ_SMS, READ_CONTACTS, ACCESS_FINE_LOCATION, SYSTEM_ALERT_WINDOW. Hosted outside Google Play.');
     } else if (type === 'official') {
       const off = brandProfile.officialApps[0] || {
@@ -72,6 +80,8 @@ export const AppMonitoringView: React.FC = () => {
       setStoreUrl('https://play.google.com/store/apps/details?id=com.acme.wallet');
       setDescription('Official digital wallet for Acme Corp. Manage enterprise payments, virtual debit cards, and send peer-to-peer transfers securely.');
       setBranding('High-definition verified corporate icon with SVG vector assets.');
+      setIconData(ACME_LOGO);
+      setPackageId('');
       setEvidence('Signed with corporate Play Store keystore certificate. Zero abusive permissions.');
     } else if (type === 'partner') {
       setAppName('Acme Corp POS Merchant Terminal Companion');
@@ -80,14 +90,16 @@ export const AppMonitoringView: React.FC = () => {
       setStoreUrl('https://play.google.com/store/apps/details?id=com.veripay.acme.pos');
       setDescription('Companion hardware driver for retail POS terminals integrating Acme Corp QR and NFC merchant payment rails.');
       setBranding('Hardware manufacturer logo with certified "Works with Acme Corp" badge.');
+      setIconData(OTHER_LOGO);
+      setPackageId('');
       setEvidence('Signed under certified partner merchant program #POS-998. Requests standard USB & Bluetooth permissions only.');
     }
   };
 
   const handleAnalyze = async (e: React.FormEvent) => {
     e.preventDefault();
-    if (!appName.trim() || !developer.trim()) {
-      setErrorMsg('Candidate App Name and Developer/Publisher are required.');
+    if (!appName.trim()) {
+      setErrorMsg('Candidate App Name is required (developer is optional; missing data is reported, not guessed).');
       return;
     }
 
@@ -108,79 +120,18 @@ export const AppMonitoringView: React.FC = () => {
     };
 
     try {
-      // 1. Client-side evaluation
-      const lowerCandidate = appName.toLowerCase();
-      const lowerDev = developer.toLowerCase();
-
-      // Check if matches official allowlist
-      const isOfficialMatch = brandProfile.officialApps.some(
-        a => a.name.toLowerCase() === lowerCandidate && a.developer.toLowerCase() === lowerDev
-      );
-
-      // Check for rogue signals
-      const hasRogueKeywords = /loan|instant|cash|fast|credit|free/i.test(appName);
-      const isThirdParty = store.includes('Third-Party') || store.includes('Direct APK');
-      const hasAbusivePerms = /read_sms|read_contacts|system_alert_window/i.test(evidence);
-
-      let riskCategory: RiskLevel = 'Low';
-      let score = 15;
-      let summary = 'Standard mobile application profile.';
-      const supporting: string[] = [];
-      const against: string[] = [];
-      const suspiciousPerms: string[] = [];
-
-      if (isOfficialMatch) {
-        riskCategory = 'Low';
-        score = 5;
-        summary = 'Matches verified official application catalog entry. Safe corporate asset.';
-        against.push('Verified corporate keystore signature on file.');
-        against.push('Publisher matches official brand identity.');
-      } else {
-        if (hasRogueKeywords) {
-          supporting.push('App title incorporates high-risk financial lure terms ("Loan", "Instant Cash").');
-          score += 35;
-        }
-        if (isThirdParty) {
-          supporting.push(`Distributed via untrusted channel: ${store}`);
-          score += 25;
-        }
-        if (hasAbusivePerms) {
-          supporting.push('Manifest requests critical high-privilege device permissions (SMS/Contacts interception).');
-          score += 30;
-          if (/read_sms/i.test(evidence)) suspiciousPerms.push('android.permission.READ_SMS');
-          if (/read_contacts/i.test(evidence)) suspiciousPerms.push('android.permission.READ_CONTACTS');
-          if (/system_alert_window/i.test(evidence)) suspiciousPerms.push('android.permission.SYSTEM_ALERT_WINDOW');
-        }
-
-        if (score >= 70) riskCategory = 'Critical';
-        else if (score >= 45) riskCategory = 'High';
-        else if (score >= 25) riskCategory = 'Medium';
-
-        summary = `Detected ${riskCategory.toLowerCase()} risk mobile package mimicking brand tokens with unverified developer certificate.`;
+      // 1. Client-side evaluation: official-asset exclusion first, then explainable signals
+      let logoSimilarity: number | undefined;
+      let logoNote: string | undefined;
+      if (iconData) {
+        const cmp = await compareToOfficialLogo(iconData, brandProfile.logoUrl);
+        if (cmp.available) logoSimilarity = cmp.similarity; else logoNote = cmp.reason;
       }
-
-      setAnalysisResult({
-        candidateName: appName,
-        developer,
-        store,
-        riskCategory,
-        heuristicScore: Math.min(score, 100),
-        summary,
-        developerMismatch: !isOfficialMatch,
-        suspiciousPermissions: suspiciousPerms,
-        evidenceSupporting: supporting,
-        evidenceAgainst: against,
-        isExcluded: isOfficialMatch,
-        exclusionReason: isOfficialMatch ? 'Allowlisted in Official Brand Profile' : undefined,
-        recommendedNextSteps: isOfficialMatch
-          ? ['Maintain continuous monitoring of store listing for version updates']
-          : [
-              'Issue formal trademark and publisher impersonation takedown to store operator',
-              'Extract APK signing certificate hash and block on corporate MDM / EDR profiles',
-              'Publish threat advisory on official security channel warning against unofficial APK mirrors',
-            ],
-        analysisEngine: 'Suraksha Mobile Threat Analyzer v1.0',
-      });
+      const result = analyzeAppCandidate(
+        { name: appName, developer, store, storeUrl, packageId, description, observedBranding: branding, evidence, logoSimilarity, logoNote },
+        brandProfile
+      );
+      setAnalysisResult({ ...result, iconSimilarity: logoSimilarity });
     } catch (err: any) {
       setErrorMsg(err.message || 'Analysis failed');
     } finally {
@@ -575,6 +526,38 @@ export const AppMonitoringView: React.FC = () => {
                 placeholder="e.g. Copies authentic blue shield logo with gold PRO ribbon"
                 className="w-full px-3 py-2 text-xs rounded-md border border-line bg-surface2 text-fg focus:outline-none focus:ring-1 focus:ring-accent"
               />
+            </div>
+
+            <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
+              <div>
+                <label className="block text-xs font-medium text-fgSubtle mb-1">Package ID / Bundle ID <span className="font-normal">(optional)</span></label>
+                <input
+                  type="text"
+                  value={packageId}
+                  onChange={e => setPackageId(e.target.value)}
+                  placeholder="e.g. com.acmepro.fastloan"
+                  className="w-full px-3 py-2 text-xs rounded-md border border-line bg-surface2 text-fg focus:outline-none focus:ring-1 focus:ring-accent font-mono"
+                />
+              </div>
+              <div>
+                <label className="block text-xs font-medium text-fgSubtle mb-1">App Icon <span className="font-normal">(optional, compared with the official logo)</span></label>
+                <div className="flex items-center gap-2">
+                  {iconData && <img src={iconData} alt="Candidate icon" className="w-8 h-8 rounded-md object-cover border border-line" />}
+                  <input
+                    type="file"
+                    accept="image/*"
+                    onChange={async e => {
+                      const f = e.target.files?.[0];
+                      setIconError('');
+                      if (!f) { setIconData(''); return; }
+                      try { setIconData(await fileToDataUrl(f)); } catch (err: any) { setIconData(''); setIconError(err.message); }
+                    }}
+                    className="text-xs text-fgMuted file:mr-2 file:px-2.5 file:py-1.5 file:rounded-md file:border file:border-line file:bg-surface2 file:text-fg"
+                  />
+                </div>
+                {iconError && <p className="text-[11px] text-danger mt-1">{iconError}</p>}
+                {!brandProfile.logoUrl && <p className="text-[11px] text-fgSubtle mt-1">Upload an official logo in Brand Profile to enable icon matching.</p>}
+              </div>
             </div>
 
             <div>

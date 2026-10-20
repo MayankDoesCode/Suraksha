@@ -327,14 +327,25 @@ export const BrandProfileView: React.FC = () => {
     };
     setSaveStatus({ kind: 'saving' });
     try {
-      if (selectedBackendBrandId) {
-        await api.updateBrand(selectedBackendBrandId, payload);
+      let savedId = selectedBackendBrandId;
+      if (savedId) {
+        await api.updateBrand(savedId, payload);
       } else {
         const res = await api.createBrand(payload);
         if (res?.success === false) throw new Error(res?.error?.message || 'The server rejected the brand.');
+        savedId = res?.data?.id || null;
         await refreshBackendData();
       }
-      setSaveStatus({ kind: 'ok', message: 'Saved to the backend. These assets are now excluded from findings.' });
+      let logoNote = '';
+      if (savedId && logoPreview.startsWith('data:')) {
+        try {
+          await api.uploadBrandLogo(savedId, logoPreview);
+          await refreshBackendData();
+        } catch (logoErr: any) {
+          logoNote = ` Logo not saved: ${logoErr?.message || 'upload failed'}.`;
+        }
+      }
+      setSaveStatus({ kind: 'ok', message: `Saved to the backend. These assets are now excluded from findings.${logoNote}` });
     } catch (err: any) {
       setSaveStatus({ kind: 'error', message: `Not saved to the backend: ${err?.message || 'request failed'}. Your edits are still on this page.` });
     }
@@ -554,7 +565,7 @@ export const BrandProfileView: React.FC = () => {
                       <span>{logoPreview ? 'Change' : 'Upload'}</span>
                       <input type="file" accept="image/*" onChange={handleLogoUpload} className="hidden" />
                     </label>
-                    <p className="text-[11px] text-fgSubtle font-mono">PNG, JPG, SVG ≤ 2MB</p>
+                    <p className="text-[11px] text-fgSubtle font-mono">PNG, JPG, WEBP, GIF ≤ 2MB · used for logo matching</p>
                   </div>
                 )}
               </div>

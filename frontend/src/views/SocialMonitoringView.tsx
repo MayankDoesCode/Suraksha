@@ -28,6 +28,8 @@ import {
   Sparkles,
 } from 'lucide-react';
 import api from '../api/client';
+import { compareToOfficialLogo, fileToDataUrl } from '../utils/imageHash';
+import { ACME_LOGO, ACME_LOGO_COPY, OTHER_LOGO } from '../data/demoLogos';
 import {
   analyzeSocialCandidate,
   SocialCandidateInput,
@@ -49,6 +51,8 @@ export const SocialMonitoringView: React.FC = () => {
   const [creationDate, setCreationDate] = useState<string>('');
   const [observedBranding, setObservedBranding] = useState('');
   const [evidence, setEvidence] = useState('');
+  const [avatar, setAvatar] = useState('');
+  const [avatarError, setAvatarError] = useState('');
 
   // Execution & UI State
   const [isAnalyzing, setIsAnalyzing] = useState(false);
@@ -75,6 +79,7 @@ export const SocialMonitoringView: React.FC = () => {
       data: {
         name: 'Acme Corp Official',
         username: '@acme_official',
+        avatarDataUrl: ACME_LOGO,
         platform: 'X',
         url: 'https://x.com/acme_official',
         bio: 'The official handle for Acme Corp Global. Fast, secure enterprise infrastructure and smart digital solutions. Managed by Acme Corp Technologies Inc.',
@@ -92,6 +97,7 @@ export const SocialMonitoringView: React.FC = () => {
       data: {
         name: 'Acme Corp 24/7 Official Helpdesk & Refund Support',
         username: '@acme_support_claims',
+        avatarDataUrl: ACME_LOGO_COPY,
         platform: 'X',
         url: 'https://x.com/acme_support_claims',
         bio: '🚨 Official Acme Corp Customer Care 24/7. Having stuck transactions or locked wallets? DM us your registered phone & OTP verification code. Instant gas rebates!',
@@ -109,6 +115,7 @@ export const SocialMonitoringView: React.FC = () => {
       data: {
         name: 'Acme Corp Announcements',
         username: '@аcme_official', // Cyrillic 'а'
+        avatarDataUrl: ACME_LOGO_COPY,
         platform: 'X',
         url: 'https://x.com/аcme_official',
         bio: 'Corporate announcements, product updates, and executive briefings for the Acme Corp ecosystem.',
@@ -126,6 +133,7 @@ export const SocialMonitoringView: React.FC = () => {
       data: {
         name: 'FinTech Daily - Acme Corp Partner Network',
         username: '@fintech_daily_acme_partner',
+        avatarDataUrl: OTHER_LOGO,
         platform: 'X',
         url: 'https://x.com/fintech_daily_acme_partner',
         bio: 'Independent financial journalism covering merchant payment rails. Authorized media affiliate of Acme Corp Global under PMA-2025.',
@@ -143,6 +151,7 @@ export const SocialMonitoringView: React.FC = () => {
       data: {
         name: 'Broke with Acme Corp (Parody)',
         username: '@acme_memes_fan',
+        avatarDataUrl: OTHER_LOGO,
         platform: 'X',
         url: 'https://x.com/acme_memes_fan',
         bio: 'Unofficial parody & memes about enterprise fee schedules. Not affiliated with Acme Corp Technologies Inc. Just satirical commentary!',
@@ -164,6 +173,8 @@ export const SocialMonitoringView: React.FC = () => {
     setCreationDate(scenarioData.creationDate || '');
     setObservedBranding(scenarioData.observedBranding || '');
     setEvidence(scenarioData.evidence || '');
+    setAvatar(scenarioData.avatarDataUrl || '');
+    setAvatarError('');
     setValidationErrors([]);
     setAnalysisResult(null);
     setMlSocialResult(null);
@@ -204,7 +215,17 @@ export const SocialMonitoringView: React.FC = () => {
 
     setIsAnalyzing(true);
 
+    let logoSimilarity: number | undefined;
+    let logoNote: string | undefined;
+    if (avatar) {
+      const cmp = await compareToOfficialLogo(avatar, brandProfile.logoUrl);
+      if (cmp.available) logoSimilarity = cmp.similarity; else logoNote = cmp.reason;
+    }
+
     const candidateInput: SocialCandidateInput = {
+      avatarDataUrl: avatar || undefined,
+      logoSimilarity,
+      logoNote,
       name: name.trim(),
       username: username.trim(),
       platform,
@@ -491,6 +512,29 @@ export const SocialMonitoringView: React.FC = () => {
                 placeholder="Paste account bio, slogans, statements, or customer care claims..."
                 className="w-full px-3 py-2 border border-line rounded-md focus:outline-none focus:ring-1 focus:ring-accent bg-surface2 text-fg transition-colors leading-relaxed"
               />
+            </div>
+
+            {/* Profile image for logo matching */}
+            <div>
+              <label className="font-medium text-fgSubtle block mb-1 text-xs">
+                Profile Image <span className="text-fgSubtle font-normal">(optional, compared with the official logo)</span>
+              </label>
+              <div className="flex items-center gap-3">
+                {avatar && <img src={avatar} alt="Candidate profile" className="w-10 h-10 rounded-full object-cover border border-line" />}
+                <input
+                  type="file"
+                  accept="image/*"
+                  onChange={async e => {
+                    const f = e.target.files?.[0];
+                    setAvatarError('');
+                    if (!f) { setAvatar(''); return; }
+                    try { setAvatar(await fileToDataUrl(f)); } catch (err: any) { setAvatar(''); setAvatarError(err.message); }
+                  }}
+                  className="text-xs text-fgMuted file:mr-2 file:px-2.5 file:py-1.5 file:rounded-md file:border file:border-line file:bg-surface2 file:text-fg"
+                />
+              </div>
+              {avatarError && <p className="text-[11px] text-danger mt-1">{avatarError}</p>}
+              {!brandProfile.logoUrl && <p className="text-[11px] text-fgSubtle mt-1">Upload an official logo in Brand Profile to enable logo matching.</p>}
             </div>
 
             {/* Metadata: Followers & Creation Date */}

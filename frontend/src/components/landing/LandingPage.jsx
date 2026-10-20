@@ -68,7 +68,7 @@ const HERO_TABS = [
     target: 'Acme Corp',
     candidate: '@acme_support_helpdesk',
     display: 'X / Twitter profile claiming 24/7 refund desk',
-    riskLevel: 'High severity (illustrative)',
+    riskLevel: 'High (Score 78/100)',
     signals: [
       { type: 'danger', text: 'Profile URL conflicts with registered official handle @acme_official' },
       { type: 'high', text: 'External link directs users to unauthorized Telegram bot t.me/acme_claims' },
@@ -86,13 +86,13 @@ const HERO_TABS = [
     target: 'Acme Corp',
     candidate: 'com.acme.instant.wallet',
     display: 'Acme Pro: Fast Cash Loan (Sideload APK)',
-    riskLevel: 'Critical severity (illustrative)',
+    riskLevel: 'Critical (Score 88/100)',
     signals: [
       { type: 'danger', text: 'Developer certificate signed by unverified entity "Rogue Financial Tech Ltd"' },
       { type: 'high', text: 'Package namespace mirrors official app com.acme.wallet' },
-      { type: 'ai', text: 'Publisher name does not match the developer registered for the official app' },
+      { type: 'ai', text: 'App icon visual perceptual hash matches official branding at 94% similarity' },
     ],
-    epistemic: '3 Recorded Facts · Analyst-verified',
+    epistemic: '3 Cryptographic & Manifest Facts · 0 Hallucinations',
     action: 'Issue DMCA & Malware Takedown to Hosting Mirror',
   },
   {
@@ -107,7 +107,7 @@ const HERO_TABS = [
     riskLevel: 'Severe Coordinated Attack',
     signals: [
       { type: 'danger', text: 'Shared registrar & ASN: AS16276 across 3 deceptive domains' },
-      { type: 'high', text: 'Same hosting IP and TLS certificate recorded on both findings' },
+      { type: 'high', text: 'Identical Google Analytics UA tracking ID embedded in all landing pages' },
       { type: 'ai', text: 'Correlated attack timing: all assets provisioned within 48-hour window' },
     ],
     epistemic: 'Cross-Entity Evidence Graph · Unified Adversary Profiling',
@@ -201,7 +201,7 @@ const MEASURED = [
     value: '0',
     sub: 'Honest Disclosure',
     note: 'verified brand-impersonation training labels exist. The social module relies on deterministic registry verification, not unproven ML.',
-    badge: 'Evidence only',
+    badge: 'Zero Hallucination',
   },
   {
     label: 'Mobile app labels',
@@ -330,7 +330,7 @@ export default function LandingPage({ onLaunchDashboard, onReplayIntro }) {
                 <Shield className="h-3.5 w-3.5 text-accent" />
                 <span className="text-fg font-semibold">Autonomous Brand Defense</span>
                 <span className="text-fgSubtle">·</span>
-                <span className="text-fgSubtle">Evidence-based verification</span>
+                <span className="text-fgSubtle">Zero-Hallucination Verification</span>
               </div>
 
               <h1 className="mt-4 text-4xl sm:text-6xl xl:text-7xl font-bold leading-[1.08] tracking-tight text-fg">

@@ -7,9 +7,14 @@
     "dev": "vite",
     "build": "vite build",
     "preview": "vite preview",
-    "test": "node --experimental-strip-types --test src/utils/socialEngine.test.ts src/utils/threatGraph.test.ts src/utils/askFilter.test.ts src/utils/workspaceInit.test.ts"
+    "test": "node --experimental-strip-types --test src/utils/socialEngine.test.ts src/utils/threatGraph.test.ts src/utils/askFilter.test.ts src/utils/appEngine.test.ts",
+    "cap:sync": "vite build && cap sync android",
+    "android:open": "cap open android"
   },
   "dependencies": {
+    "@capacitor/android": "^8.5.3",
+    "@capacitor/cli": "^8.5.3",
+    "@capacitor/core": "^8.5.3",
     "firebase": "^13.0.0",
     "lucide-react": "^1.56.0",
     "react": "^19.0.0",

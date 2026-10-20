@@ -1,3 +1,4 @@
+import { ACME_LOGO } from './demoLogos';
 import type { BrandProfile, CandidateAsset, ThreatEdge, ThreatNode } from '../types';
 
 export const INITIAL_BRAND_PROFILE: BrandProfile = {
@@ -64,7 +65,7 @@ export const INITIAL_BRAND_PROFILE: BrandProfile = {
   ],
   brandDescription:
     'Acme Corp is an enterprise technology provider facilitating cloud security infrastructure, digital authentication, and secure merchant systems.',
-  logoUrl: '',
+  logoUrl: ACME_LOGO,
   protectedKeywords: ['Acme Corp', 'Acme', 'acme wallet', 'acme portal'],
   lastUpdated: new Date().toISOString(),
   isCustomBrand: false,

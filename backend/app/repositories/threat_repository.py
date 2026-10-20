@@ -408,7 +408,32 @@ class ThreatRepository:
         app_count = finding_query.filter(Finding.asset_type == "mobile_app").count()
         domain_count = finding_query.filter(Finding.asset_type == "domain").count()
 
+        from datetime import timedelta
+        from backend.app.models.threat import EvidenceRecord
+        day_ago = datetime.now(timezone.utc).replace(tzinfo=None) - timedelta(hours=24)
+        flagged_24h = finding_query.filter(Finding.created_at >= day_ago, Finding.severity.in_(("MEDIUM", "HIGH", "CRITICAL"))).count()
+        ids = [r[0] for r in finding_query.with_entities(Finding.id).limit(2000).all()]
+        takedowns = self.session.query(EvidenceRecord).filter(EvidenceRecord.finding_id.in_(ids), EvidenceRecord.evidence_type == "takedown_drafted").count() if ids else 0
+        lags = []
+        if ids:
+            created = {fid: c for fid, c in finding_query.with_entities(Finding.id, Finding.created_at).limit(2000).all()}
+            for fid, desc in self.session.query(EvidenceRecord.finding_id, EvidenceRecord.description).filter(
+                    EvidenceRecord.finding_id.in_(ids), EvidenceRecord.evidence_type == "tls_certificate").all():
+                nb = next((p.split("=", 1)[1] for p in (desc or "").split("; ") if p.startswith("not_before=")), None)
+                try:
+                    issued = datetime.fromisoformat(nb.replace("Z", "+00:00")).replace(tzinfo=None) if nb else None
+                except ValueError:
+                    issued = None
+                if issued and created.get(fid) and created[fid] >= issued:
+                    lags.append((created[fid] - issued).total_seconds() / 3600.0)
+        lags.sort()
+        median_lag = round(lags[len(lags) // 2], 1) if lags else None
+
         return {
+            "flagged_last_24h": flagged_24h,
+            "takedowns_drafted": takedowns,
+            "median_hours_cert_to_detection": median_lag,
+            "median_sample_size": len(lags),
             "total_brands": total_brands,
             "total_findings": total_findings,
             "critical_findings": critical_count,

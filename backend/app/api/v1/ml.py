@@ -147,3 +147,17 @@ def predict_mobile_app():
         "data": result
     }), 200
 
+
+
+@ml_bp.route("/predict-lookalike", methods=["POST"])
+@limiter.limit(lambda: current_app.config.get("RATELIMIT_ML", "30 per minute"))
+def predict_lookalike_name():
+    """Advisory look-alike name probability (handles / app names). Official assets are excluded first."""
+    from backend.app.ml.lookalike_service import predict_lookalike
+    payload = request.get_json(silent=True) or {}
+    cand = payload.get("candidate") or payload.get("username") or payload.get("name")
+    brand = payload.get("brand") or payload.get("brand_name")
+    if not cand or not brand:
+        return jsonify({"success": False, "error": {"code": "VALIDATION_ERROR",
+                        "message": "Fields 'candidate' and 'brand' are required."}}), 422
+    return jsonify({"success": True, "data": predict_lookalike(str(cand), str(brand), payload.get("official") or [])}), 200

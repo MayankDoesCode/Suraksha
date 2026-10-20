@@ -45,3 +45,15 @@ def test_takedown_endpoint(client, monkeypatch):
     assert j["to"] == "abuse@reg.test" and j["eml_base64"] and j["pdf_base64"]
     assert client.post(f"/api/v1/findings/{fid}/takedown", json={"format": "pdf"}).data.startswith(b"%PDF")
     assert client.post(f"/api/v1/findings/{fid}/takedown", json={"notice": "zzz"}).status_code == 422
+
+
+def test_metrics_count_takedowns_and_report_none_when_no_certs(client, monkeypatch):
+    client.application.config["RATELIMIT_DISCOVER"] = "1000 per minute"  # the shared limiter would otherwise throttle repeated test calls
+    from backend.app.intel import rdap as rdap_mod
+    from backend.app.intel.rdap import RdapRecord
+    monkeypatch.setattr(rdap_mod, "fetch_rdap", lambda d: RdapRecord(domain=d, found=False, observed_at=0))
+    bid = client.post("/api/v1/brands", json={"name": "Acme", "domains": [{"domain": "acmefinance.com", "is_primary": True}]}).get_json()["data"]["id"]
+    fid = client.post(f"/api/v1/brands/{bid}/scan", json={"asset_type": "domain", "candidate_name": "acmefinanc.com", "source_url": "https://acmefinanc.com"}).get_json()["data"]["finding"]["id"]
+    tk = client.post(f"/api/v1/findings/{fid}/takedown", json={"notice": "registrar"}); assert tk.status_code == 200, tk.get_json()
+    m = client.get("/api/v1/metrics").get_json()["data"]
+    assert m["takedowns_drafted"] == 1 and m["median_hours_cert_to_detection"] is None and m["flagged_last_24h"] >= 1

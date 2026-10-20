@@ -1,4 +1,3 @@
-import { CtFeedPanel } from '../components/CtFeedPanel';
 import React, { useEffect, useState } from 'react';
 import { AlertCircle, ArrowRight, CheckCircle2, ShieldCheck } from 'lucide-react';
 import { useApp } from '../context/AppContext';
@@ -350,7 +349,6 @@ export const WatchtowerView: React.FC = () => {
           </ul>
         </details>
       )}
-      {!isDemoMode && backendOnline && <CtFeedPanel onDone={refreshBackendData} />}
     </div>
   );
 };

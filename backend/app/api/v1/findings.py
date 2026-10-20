@@ -598,6 +598,7 @@ def finding_takedown(finding_id: str):
     body = request.get_json(silent=True) or {}
     n = rs.generate_takedown(finding_id, body.get("notice", "registrar"), analyst=user_info.get("email") or user_info.get("uid"))
     fmt = body.get("format", "json")
+    threat_repo.apply_enrichment(finding_id, [{"evidence_type": "takedown_drafted", "description": f"notice={n['notice']}; to={n['to']}; manifest={n['manifest_sha256'][:16]}", "source_reference": "takedown_endpoint"}], [], (), ())
     if fmt == "eml":
         return Response(rs.to_eml(n), mimetype="message/rfc822", headers={"Content-Disposition": "attachment; filename=takedown-" + finding_id + ".eml"})
     if fmt == "pdf":

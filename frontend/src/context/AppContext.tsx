@@ -15,7 +15,6 @@ import {
   INITIAL_THREAT_EDGES,
 } from '../data/demoData';
 import api from '../api/client';
-import { loadWorkspaceState } from '../utils/workspaceInit';
 
 export interface BackendBrandOption {
   id: string;
@@ -220,47 +219,47 @@ export const AppProvider: React.FC<{ children: React.ReactNode }> = ({ children 
   };
 
   const [brandProfile, setBrandProfile] = useState<BrandProfile>(() => {
-    let saved: string | null = null;
     try {
-      saved = sessionStorage.getItem(`suraksha_user_${currentUser?.uid || 'guest'}_profile`);
-    } catch {
-      saved = null;
-    }
-    // Demo data only for the demo user; everyone else gets their own saved state or an empty workspace.
-    return loadWorkspaceState<BrandProfile>(currentUser?.uid === 'analyst-demo-001', saved, INITIAL_BRAND_PROFILE, EMPTY_BRAND_PROFILE, (v) => !!v && typeof v === 'object' && !!(v as { brandName?: string }).brandName);
+      const saved = sessionStorage.getItem(`suraksha_user_${currentUser?.uid || 'guest'}_profile`);
+      if (saved) {
+        const parsed = JSON.parse(saved);
+        if (parsed && parsed.brandName) return parsed;
+      }
+    } catch {}
+    return INITIAL_BRAND_PROFILE;
   });
 
   const [candidates, setCandidates] = useState<CandidateAsset[]>(() => {
-    let saved: string | null = null;
     try {
-      saved = sessionStorage.getItem(`suraksha_user_${currentUser?.uid || 'guest'}_candidates`);
-    } catch {
-      saved = null;
-    }
-    // Demo data only for the demo user; everyone else gets their own saved state or an empty workspace.
-    return loadWorkspaceState<CandidateAsset[]>(currentUser?.uid === 'analyst-demo-001', saved, DEMO_CANDIDATES, [], Array.isArray);
+      const saved = sessionStorage.getItem(`suraksha_user_${currentUser?.uid || 'guest'}_candidates`);
+      if (saved) {
+        const parsed = JSON.parse(saved);
+        if (Array.isArray(parsed) && parsed.length > 0) return parsed;
+      }
+    } catch {}
+    return DEMO_CANDIDATES;
   });
 
   const [threatNodes, setThreatNodes] = useState<ThreatNode[]>(() => {
-    let saved: string | null = null;
     try {
-      saved = sessionStorage.getItem(`suraksha_user_${currentUser?.uid || 'guest'}_nodes`);
-    } catch {
-      saved = null;
-    }
-    // Demo data only for the demo user; everyone else gets their own saved state or an empty workspace.
-    return loadWorkspaceState<ThreatNode[]>(currentUser?.uid === 'analyst-demo-001', saved, INITIAL_THREAT_NODES, [], Array.isArray);
+      const saved = sessionStorage.getItem(`suraksha_user_${currentUser?.uid || 'guest'}_nodes`);
+      if (saved) {
+        const parsed = JSON.parse(saved);
+        if (Array.isArray(parsed) && parsed.length > 0) return parsed;
+      }
+    } catch {}
+    return INITIAL_THREAT_NODES;
   });
 
   const [threatEdges, setThreatEdges] = useState<ThreatEdge[]>(() => {
-    let saved: string | null = null;
     try {
-      saved = sessionStorage.getItem(`suraksha_user_${currentUser?.uid || 'guest'}_edges`);
-    } catch {
-      saved = null;
-    }
-    // Demo data only for the demo user; everyone else gets their own saved state or an empty workspace.
-    return loadWorkspaceState<ThreatEdge[]>(currentUser?.uid === 'analyst-demo-001', saved, INITIAL_THREAT_EDGES, [], Array.isArray);
+      const saved = sessionStorage.getItem(`suraksha_user_${currentUser?.uid || 'guest'}_edges`);
+      if (saved) {
+        const parsed = JSON.parse(saved);
+        if (Array.isArray(parsed) && parsed.length > 0) return parsed;
+      }
+    } catch {}
+    return INITIAL_THREAT_EDGES;
   });
 
   const [activeTab, setActiveTab] = useState<string>('overview');

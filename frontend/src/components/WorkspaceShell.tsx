@@ -2,6 +2,7 @@ import React from 'react';
 import { AuthProvider, useAuth } from '../context/AuthContext';
 import { AppProvider, useApp } from '../context/AppContext';
 import { Sidebar } from './Sidebar';
+import { BottomNav } from './BottomNav';
 import { Header } from './Header';
 import { CandidateModal } from './CandidateModal';
 import { CommandPalette } from './CommandPalette';
@@ -120,7 +121,7 @@ const WorkspaceContent: React.FC<WorkspaceShellProps> = ({ onNavigateHome, initi
             />
           </div>
 
-          <main className="relative z-10 flex-1 overflow-y-auto p-4 sm:p-6 lg:p-8">
+          <main className="relative z-10 flex-1 overflow-y-auto p-4 pb-24 sm:p-6 sm:pb-24 lg:p-8">
             <div key={activeTab} className="sk-fade-in mx-auto w-full max-w-[1720px]">
               {renderActiveView()}
             </div>
@@ -128,6 +129,7 @@ const WorkspaceContent: React.FC<WorkspaceShellProps> = ({ onNavigateHome, initi
         </div>
       </div>
 
+      <BottomNav />
       <CommandPalette open={paletteOpen} onClose={() => setPaletteOpen(false)} />
 
       {/* Investigation Dossier Modal */}

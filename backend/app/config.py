@@ -18,6 +18,8 @@ class BaseConfig:
         for origin in os.getenv("CORS_ORIGINS", "http://localhost:5173,http://127.0.0.1:5173,http://localhost:3000").split(",")
         if origin.strip()
     ]
+    # Android (Capacitor) app webview origins
+    CORS_ORIGINS = list(dict.fromkeys(CORS_ORIGINS + ["https://localhost", "capacitor://localhost"]))
     
     # Request limits (5MB)
     MAX_CONTENT_LENGTH = int(os.getenv("MAX_CONTENT_LENGTH", 5 * 1024 * 1024))
@@ -93,6 +95,8 @@ class ProductionConfig(BaseConfig):
         for origin in os.getenv("CORS_ORIGINS", "https://suraksha-platform.onrender.com").split(",")
         if origin.strip()
     ]
+    # Android (Capacitor) app webview origins
+    CORS_ORIGINS = list(dict.fromkeys(CORS_ORIGINS + ["https://localhost", "capacitor://localhost"]))
     ALLOW_DEV_TOKENS = os.getenv("ALLOW_DEV_TOKENS", "false").lower() in ("true", "1")
     # In production, use Redis storage if provided, else fallback to memory:// with warning
     RATELIMIT_STORAGE_URI = os.getenv("RATELIMIT_STORAGE_URI", os.getenv("REDIS_URL", "memory://"))

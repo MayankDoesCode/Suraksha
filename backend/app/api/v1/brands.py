@@ -1,4 +1,5 @@
-from flask import Blueprint, request, jsonify, g, current_app
+from flask import Blueprint, request, jsonify, g, current_app, Response
+from backend.app.utils.errors import ValidationError, NotFoundError
 from backend.app.services.brand_service import BrandService
 from backend.app.utils.auth import require_auth, get_authenticated_user_optional, get_current_user
 from backend.app.utils.limiter import limiter
@@ -354,3 +355,60 @@ def brand_graph(brand_id: str):
     from backend.app.services.graph_service import GraphService
     name = brand.get("name", "") if isinstance(brand, dict) else getattr(brand, "name", "")
     return jsonify({"success": True, "data": GraphService().for_brand(brand_id, name)}), 200
+
+
+@brands_bp.route("/brands/<string:brand_id>/logo", methods=["POST"])
+@require_auth(allowed_roles=["admin", "lead", "analyst"])
+def upload_brand_logo(brand_id: str):
+    """Upload the official brand logo (PNG/JPEG/WEBP/GIF, max 2 MB) used for visual impersonation checks."""
+    import os
+    from backend.app.detection import visual
+
+    user_info = get_current_user() or {}
+    user_id = user_info.get("uid")
+    is_admin = (user_info.get("role") == "admin")
+    brand_service.get_brand(brand_id, requesting_user_id=user_id, is_admin=is_admin)  # tenant check
+
+    upload = request.files.get("file")
+    if upload is None:
+        raise ValidationError("Logo file is required.", details=[{"field": "file", "message": "Attach a multipart 'file'."}])
+    data = upload.read(visual.MAX_IMAGE_BYTES + 1)
+    error = visual.validate_image_bytes(data)
+    if error:
+        raise ValidationError(error, details=[{"field": "file", "message": error}])
+
+    os.makedirs(visual.LOGO_DIR, exist_ok=True)
+    with open(visual.logo_path_for(brand_id), "wb") as fh:
+        fh.write(data)
+    brand = brand_service.update_brand(
+        brand_id,
+        {"logo_url": f"/api/v1/brands/{brand_id}/logo"},
+        requesting_user_id=user_id,
+        is_admin=is_admin,
+    )
+    return jsonify({"success": True, "message": "Official logo saved", "data": brand}), 200
+
+
+@brands_bp.route("/brands/<string:brand_id>/logo", methods=["GET"])
+def get_brand_logo(brand_id: str):
+    """Serve the uploaded official logo (public: it is the brand's public mark)."""
+    import io
+    import os
+    from backend.app.detection import visual
+
+    path = visual.logo_path_for(brand_id)
+    if not os.path.isfile(path):
+        raise NotFoundError("No uploaded logo for this brand.")
+    with open(path, "rb") as fh:
+        data = fh.read()
+    mimetype = "image/png"
+    if visual.Image is not None:
+        try:
+            with visual.Image.open(io.BytesIO(data)) as img:
+                mimetype = Image_MIME.get(img.format, "image/png")
+        except Exception:
+            pass
+    return Response(data, mimetype=mimetype, headers={"Cache-Control": "public, max-age=300"})
+
+
+Image_MIME = {"PNG": "image/png", "JPEG": "image/jpeg", "WEBP": "image/webp", "GIF": "image/gif"}

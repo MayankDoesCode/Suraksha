@@ -46,7 +46,11 @@ class BrandValidator:
                 cleaned["description"] = desc
 
         # 3. Logo URL
-        if "logo_url" in data:
+        if "logo_url" in data and isinstance(data["logo_url"], str) and re.fullmatch(
+            r"/api/v1/brands/[A-Za-z0-9_-]{1,64}/logo", data["logo_url"].strip()
+        ):
+            cleaned["logo_url"] = data["logo_url"].strip()  # uploaded official logo
+        elif "logo_url" in data:
             logo = str(data["logo_url"]).strip() if data["logo_url"] is not None else ""
             if logo:
                 if len(logo) > 1024:

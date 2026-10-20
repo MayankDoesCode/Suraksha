@@ -12,6 +12,10 @@ export interface SocialCandidateInput {
   creationDate?: string;
   observedBranding?: string;
   evidence?: string;
+  avatarDataUrl?: string;
+  /** 0..1 avatar-vs-official-logo visual similarity, when both images were readable. */
+  logoSimilarity?: number;
+  logoNote?: string;
 }
 
 export type SocialSignalCategory = 
@@ -703,6 +707,25 @@ export function analyzeSocialCandidate(
     });
   }
 
+  // 9b. Avatar / logo similarity to the official brand logo (visual impersonation)
+  const logoSim = typeof candidate.logoSimilarity === 'number' ? candidate.logoSimilarity : undefined;
+  const logoStrong = logoSim !== undefined && logoSim >= 0.88;
+  const logoLikely = logoSim !== undefined && logoSim >= 0.80;
+  if (logoLikely && !isAuthorizedPartner && !isParodyOrCommentary) {
+    const detail = `Profile image is ${logoStrong ? 'nearly identical' : 'visually very similar'} to the official brand logo (${Math.round((logoSim as number) * 100)}% visual similarity).`;
+    signals.push({
+      id: 'sig-logo-similarity',
+      category: 'Identity & Handle',
+      type: 'LOGO_SIMILARITY',
+      title: 'Avatar Copies Official Logo',
+      detail,
+      severity: logoStrong ? 'high' : 'medium'
+    });
+    evidenceSupporting.push(detail);
+  } else if (logoSim !== undefined && logoSim < 0.6) {
+    evidenceAgainst.push(`Profile image does not resemble the official logo (${Math.round(logoSim * 100)}% similarity).`);
+  }
+
   // 10. SCORING & RISK LEVEL AGGREGATION
   let score = 0;
 
@@ -749,6 +772,12 @@ export function analyzeSocialCandidate(
   if (isUnrelatedEntity && !signals.some(s => s.severity === 'critical')) {
     riskCategory = 'Low';
     score = Math.min(score, 18);
+  }
+
+  // A near-identical copy of the official logo is impersonation even when the name is unrelated.
+  if (logoStrong && !isAuthorizedPartner && !isParodyOrCommentary && (riskCategory === 'Low' || riskCategory === 'Medium')) {
+    riskCategory = 'High';
+    score = Math.max(score, 55);
   }
 
   // Determine Recommended Action & Next Steps

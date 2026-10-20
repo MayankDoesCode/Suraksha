@@ -118,6 +118,25 @@ class ApiClient {
     });
   }
 
+  async uploadBrandLogo(id, dataUrl) {
+    // Multipart upload of the official logo (PNG/JPEG/WEBP/GIF, max 2 MB); used for visual impersonation checks.
+    const blob = await (await fetch(dataUrl)).blob();
+    const form = new FormData();
+    form.append('file', blob, 'logo');
+    let token = null;
+    if (this.tokenProvider) {
+      try { token = await this.tokenProvider(); } catch (err) { console.warn('Token unavailable for logo upload:', err); }
+    }
+    const res = await fetch(`${this.baseUrl}/brands/${encodeURIComponent(id)}/logo`, {
+      method: 'POST',
+      body: form,
+      headers: token ? { Authorization: `Bearer ${token}` } : {},
+    });
+    const data = await res.json().catch(() => null);
+    if (!res.ok) throw new Error(data?.error?.message || `Logo upload failed (${res.status})`);
+    return data;
+  }
+
   async deleteBrand(id) {
     return this.request(`/brands/${encodeURIComponent(id)}`, {
       method: 'DELETE',
@@ -162,22 +181,6 @@ class ApiClient {
       method: 'POST',
       body: JSON.stringify(payload),
     });
-  }
-
-  async discoverLookalikes(brandId, payload = {}) {
-    return this.request(`/brands/${encodeURIComponent(brandId)}/discover`, { method: 'POST', body: JSON.stringify(payload) });
-  }
-  async enrichFinding(findingId) {
-    return this.request(`/findings/${encodeURIComponent(findingId)}/enrich`, { method: 'POST', body: '{}' });
-  }
-  async getFindingReport(findingId, audience) {
-    return this.request(`/findings/${encodeURIComponent(findingId)}/report?audience=${encodeURIComponent(audience)}`);
-  }
-  async createTakedown(findingId, notice) {
-    return this.request(`/findings/${encodeURIComponent(findingId)}/takedown`, { method: 'POST', body: JSON.stringify({ notice }) });
-  }
-  async getBrandGraph(brandId) {
-    return this.request(`/brands/${encodeURIComponent(brandId)}/graph`);
   }
 
   // External Data Providers & Monitoring (Phase 4)
