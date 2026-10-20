@@ -22,7 +22,7 @@ def upgrade() -> None:
 
     # Mark pre-existing synthetic/sample records as is_sample=True if owner_id is NULL
     op.execute(
-        sa.text("UPDATE brands SET is_sample = 1 WHERE owner_id IS NULL AND name IN ('Acme FinTech', 'Microsoft Verification Test', 'ApexPay Global')")
+        sa.text("UPDATE brands SET is_sample = :is_sample WHERE owner_id IS NULL AND name IN ('Acme FinTech', 'Microsoft Verification Test', 'ApexPay Global')").bindparams(is_sample=True)
     )
 
 
