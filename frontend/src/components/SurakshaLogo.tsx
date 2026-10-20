@@ -34,7 +34,7 @@ export const SurakshaLogo: React.FC<SurakshaLogoProps> = ({
           style={{
             width: size * 1.5,
             height: size * 1.5,
-            background: 'radial-gradient(circle, rgba(0, 240, 255, 0.35) 0%, rgba(79, 70, 229, 0.15) 50%, transparent 70%)',
+            background: 'radial-gradient(circle, rgba(255, 194, 75, 0.35) 0%, rgba(226, 98, 27, 0.15) 50%, transparent 70%)',
           }}
         />
       )}
@@ -51,30 +51,30 @@ export const SurakshaLogo: React.FC<SurakshaLogoProps> = ({
         <defs>
           {/* Primary Cyber Cyan Gradient */}
           <linearGradient id="sk-cyan-grad" x1="8" y1="4" x2="56" y2="64" gradientUnits="userSpaceOnUse">
-            <stop offset="0%" stopColor="#00F0FF" />
-            <stop offset="45%" stopColor="#00B4D8" />
-            <stop offset="100%" stopColor="#4F46E5" />
+            <stop offset="0%" stopColor="#FFC24B" />
+            <stop offset="45%" stopColor="#F5A524" />
+            <stop offset="100%" stopColor="#E2621B" />
           </linearGradient>
 
           {/* Deep Armor Plate Gradient */}
           <linearGradient id="sk-plate-grad" x1="16" y1="8" x2="48" y2="60" gradientUnits="userSpaceOnUse">
-            <stop offset="0%" stopColor="#1E293B" stopOpacity="0.85" />
-            <stop offset="100%" stopColor="#0B132B" stopOpacity="0.95" />
+            <stop offset="0%" stopColor="#1E2440" stopOpacity="0.85" />
+            <stop offset="100%" stopColor="#0B0E1A" stopOpacity="0.95" />
           </linearGradient>
 
           {/* Reverse Blade Gradient */}
           <linearGradient id="sk-reverse-grad" x1="56" y1="64" x2="8" y2="4" gradientUnits="userSpaceOnUse">
-            <stop offset="0%" stopColor="#00F0FF" />
-            <stop offset="55%" stopColor="#6366F1" />
-            <stop offset="100%" stopColor="#3B82F6" />
+            <stop offset="0%" stopColor="#FFC24B" />
+            <stop offset="55%" stopColor="#EA7A1E" />
+            <stop offset="100%" stopColor="#F08C1A" />
           </linearGradient>
 
           {/* Core Radar Beacon Radial Gradient */}
           <radialGradient id="sk-core-grad" cx="50%" cy="50%" r="50%">
             <stop offset="0%" stopColor="#FFFFFF" />
-            <stop offset="35%" stopColor="#00F0FF" />
-            <stop offset="70%" stopColor="#0284C7" />
-            <stop offset="100%" stopColor="#0284C7" stopOpacity="0" />
+            <stop offset="35%" stopColor="#FFC24B" />
+            <stop offset="70%" stopColor="#C2570C" />
+            <stop offset="100%" stopColor="#C2570C" stopOpacity="0" />
           </radialGradient>
 
           {/* Ambient Glow Filter */}
@@ -136,10 +136,10 @@ export const SurakshaLogo: React.FC<SurakshaLogoProps> = ({
         </g>
 
         {/* 6. Precision Corner Telemetry Accents */}
-        <line x1="32" y1="4" x2="32" y2="7.5" stroke="#00F0FF" strokeWidth="2" strokeLinecap="round" />
-        <line x1="7" y1="14.5" x2="10" y2="16" stroke="#00F0FF" strokeWidth="1.5" strokeLinecap="round" />
-        <line x1="57" y1="14.5" x2="54" y2="16" stroke="#00F0FF" strokeWidth="1.5" strokeLinecap="round" />
-        <circle cx="32" cy="65" r="1" fill="#00F0FF" />
+        <line x1="32" y1="4" x2="32" y2="7.5" stroke="#FFC24B" strokeWidth="2" strokeLinecap="round" />
+        <line x1="7" y1="14.5" x2="10" y2="16" stroke="#FFC24B" strokeWidth="1.5" strokeLinecap="round" />
+        <line x1="57" y1="14.5" x2="54" y2="16" stroke="#FFC24B" strokeWidth="1.5" strokeLinecap="round" />
+        <circle cx="32" cy="65" r="1" fill="#FFC24B" />
       </svg>
     </div>
   );

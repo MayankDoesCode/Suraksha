@@ -11,49 +11,50 @@
  *   ok     = low / verified safe         accent = primary action  ai = AI- or ML-derived content
  */
 /*
- * Palette: "night watch". A blue-black ink canvas, one signal-cyan accent that matches the shield logo,
- * and the fixed severity colours below. Text on a solid accent fill is dark ink (on-accent), never white.
+ * Palette: "saffron night". A deep indigo-navy canvas with one saffron accent; the severity colours are
+ * tuned away from it (high leans coral, medium leans lemon) so a button never reads as a warning.
+ * Text on a solid accent fill is dark ink in the dark theme (on-accent).
  */
 :root {
   color-scheme: dark;
-  --c-canvas: 6 10 17;
-  --c-surface: 12 18 28;
-  --c-surface-2: 9 14 22;
-  --c-surface-3: 21 29 43;
-  --c-line: 29 39 56;
-  --c-fg: 230 237 245;
-  --c-fg-muted: 150 164 184;
-  --c-fg-subtle: 120 135 156;
-  --c-accent: 56 200 240;
-  --c-accent-hover: 110 218 248;
-  --c-on-accent: 3 16 26;
+  --c-canvas: 11 14 26;
+  --c-surface: 19 24 41;
+  --c-surface-2: 15 19 33;
+  --c-surface-3: 30 36 58;
+  --c-line: 39 46 72;
+  --c-fg: 236 238 246;
+  --c-fg-muted: 162 168 192;
+  --c-fg-subtle: 130 137 164;
+  --c-accent: 245 165 36;
+  --c-accent-hover: 255 190 80;
+  --c-on-accent: 26 16 2;
   --c-ai: 167 139 250;
   --c-ok: 74 196 140;
-  --c-warn: 240 200 80;
-  --c-high: 245 150 70;
-  --c-danger: 244 90 96;
-  --shadow: 0 4 12;
+  --c-warn: 232 214 72;
+  --c-high: 251 126 72;
+  --c-danger: 240 68 104;
+  --shadow: 3 5 15;
 }
 
 :root[data-theme='light'] {
   color-scheme: light;
-  --c-canvas: 244 247 251;
+  --c-canvas: 245 246 251;
   --c-surface: 255 255 255;
-  --c-surface-2: 240 244 249;
-  --c-surface-3: 229 235 243;
-  --c-line: 219 227 238;
-  --c-fg: 12 20 33;
-  --c-fg-muted: 72 86 107;
-  --c-fg-subtle: 96 110 130;
-  --c-accent: 3 120 170;
-  --c-accent-hover: 2 101 145;
+  --c-surface-2: 239 241 248;
+  --c-surface-3: 227 231 241;
+  --c-line: 216 221 234;
+  --c-fg: 14 18 36;
+  --c-fg-muted: 74 80 104;
+  --c-fg-subtle: 98 104 128;
+  --c-accent: 176 92 0;
+  --c-accent-hover: 150 78 0;
   --c-on-accent: 255 255 255;
   --c-ai: 109 40 217;
   --c-ok: 21 118 73;
-  --c-warn: 150 92 4;
-  --c-high: 190 70 10;
-  --c-danger: 200 30 45;
-  --shadow: 15 30 60;
+  --c-warn: 133 100 0;
+  --c-high: 196 64 20;
+  --c-danger: 200 30 70;
+  --shadow: 20 24 50;
 }
 
 /* Density: a slightly smaller root makes every rem-based size and gap tighter. */
