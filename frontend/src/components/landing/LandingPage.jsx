@@ -30,6 +30,7 @@ import {
   Compass,
 } from 'lucide-react';
 import { ShieldMark } from '../ShieldMark';
+import GetApp from './GetApp';
 import { Reveal, CountUp } from './Reveal';
 import { runFullLookalikeAnalysis } from '../../utils/lookalikeEngine';
 import { INITIAL_BRAND_PROFILE } from '../../data/demoData';
@@ -367,6 +368,8 @@ export default function LandingPage({ onLaunchDashboard, onReplayIntro }) {
                   View Login Portal
                 </a>
               </div>
+
+              <GetApp />
 
               {/* Trust Indicators */}
               <div className="mt-10 grid grid-cols-3 gap-4 border-t border-line/70 pt-6">
