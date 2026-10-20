@@ -8,6 +8,8 @@ import { CandidateModal } from './CandidateModal';
 import { CommandPalette } from './CommandPalette';
 import { AuthView } from '../views/AuthView';
 import { ThemeProvider } from '../context/ThemeContext';
+import { ErrorBoundary } from './ErrorBoundary';
+import { pageInfo } from './navigation';
 
 import { OverviewDashboard } from '../views/OverviewDashboard';
 import { BrandProfileView } from '../views/BrandProfileView';
@@ -22,7 +24,7 @@ import { WatchtowerView } from '../views/WatchtowerView';
 
 interface WorkspaceShellProps {
   onNavigateHome?: () => void;
-  initialAuthMode?: 'login' | 'signup' | 'forgot';
+  initialAuthMode?: 'login' | 'signup' | 'forgot' | 'demo';
   initialTab?: string;
 }
 
@@ -94,12 +96,15 @@ const WorkspaceContent: React.FC<WorkspaceShellProps> = ({ onNavigateHome, initi
   };
 
   return (
-    <div className="flex h-screen w-screen overflow-hidden bg-canvas font-sans text-fg">
+    <div className="flex h-[100dvh] w-full overflow-hidden bg-canvas font-sans text-fg">
+      <a href="#workspace-main" className="sr-only z-50 rounded-xl bg-accent px-4 py-2 font-semibold text-onAccent focus:not-sr-only focus:fixed focus:left-4 focus:top-4">
+        Skip to content
+      </a>
       <Sidebar onNavigateHome={onNavigateHome} isOpen={mobileMenuOpen} onClose={() => setMobileMenuOpen(false)} />
 
       {/* Content sits in an inset panel so the navigation recedes (Linear-style). */}
       <div className="flex min-w-0 flex-1 lg:p-2 lg:pl-0">
-        <div className="flex min-w-0 flex-1 flex-col overflow-hidden bg-surface lg:rounded-lg lg:border lg:border-line">
+        <div className="relative flex min-w-0 flex-1 flex-col overflow-hidden bg-surface2 lg:rounded-2xl lg:border lg:border-line">
           <Header
             onNavigateHome={onNavigateHome}
             onToggleMobileMenu={() => setMobileMenuOpen(!mobileMenuOpen)}
@@ -108,10 +113,8 @@ const WorkspaceContent: React.FC<WorkspaceShellProps> = ({ onNavigateHome, initi
 
           {/* Subtle Cybernetic Ambient Background in Dashboard Shell */}
           <div aria-hidden className="pointer-events-none absolute inset-0 overflow-hidden z-0 select-none">
-            <div className="absolute -top-32 right-1/4 h-[420px] w-[420px] rounded-full bg-accent/[0.05] blur-[140px]" />
-            <div className="absolute top-1/3 -left-20 h-[500px] w-[500px] rounded-full bg-ai/[0.04] blur-[150px]" />
-            <div className="absolute -bottom-24 right-1/3 h-96 w-96 rounded-full bg-ok/[0.035] blur-[130px]" />
-            <div className="absolute inset-0 bg-[radial-gradient(ellipse_80%_80%_at_50%_-20%,rgba(104,116,220,0.07),transparent_70%)]" />
+            <div className="absolute -top-40 right-[10%] h-[460px] w-[560px] rounded-full bg-accent/[0.05] blur-[150px]" />
+            <div className="absolute inset-0 bg-[radial-gradient(ellipse_70%_60%_at_50%_-25%,rgb(var(--c-accent)/0.06),transparent_70%)]" />
             <div
               className="absolute inset-0 opacity-[0.03] dark:opacity-[0.04]"
               style={{
@@ -121,9 +124,11 @@ const WorkspaceContent: React.FC<WorkspaceShellProps> = ({ onNavigateHome, initi
             />
           </div>
 
-          <main className="relative z-10 flex-1 overflow-y-auto p-4 pb-24 sm:p-6 sm:pb-24 lg:p-8">
+          <main id="workspace-main" tabIndex={-1} className="relative z-10 flex-1 overflow-y-auto focus:outline-none p-4 pb-24 sm:p-6 sm:pb-24 lg:p-8">
             <div key={activeTab} className="sk-fade-in mx-auto w-full max-w-[1720px]">
-              {renderActiveView()}
+              <ErrorBoundary key={activeTab} label={pageInfo(activeTab)?.label} onReset={() => setActiveTab('overview')}>
+                {renderActiveView()}
+              </ErrorBoundary>
             </div>
           </main>
         </div>
@@ -150,6 +155,16 @@ const MainContent: React.FC<WorkspaceShellProps> = ({
 }) => {
   const { currentUser, loading, signInAsDemoAnalyst } = useAuth();
   const [loadTimedOut, setLoadTimedOut] = React.useState(false);
+
+  // "Open the live demo" on the landing page skips the sign-in screen. Fires once, so signing out
+  // of the demo returns to the sign-in screen instead of re-entering the demo.
+  const demoStarted = React.useRef(false);
+  React.useEffect(() => {
+    if (initialAuthMode === 'demo' && !demoStarted.current && !loading && !currentUser) {
+      demoStarted.current = true;
+      signInAsDemoAnalyst();
+    }
+  }, [initialAuthMode, loading, currentUser, signInAsDemoAnalyst]);
 
   React.useEffect(() => {
     let timer: any;
@@ -207,7 +222,10 @@ const MainContent: React.FC<WorkspaceShellProps> = ({
   }
 
   if (!currentUser) {
-    return <AuthView onNavigateHome={onNavigateHome} initialMode={initialAuthMode} />;
+    if (initialAuthMode === 'demo' && !demoStarted.current) {
+      return <div className="min-h-[100dvh] w-full bg-canvas" aria-busy="true" />;
+    }
+    return <AuthView onNavigateHome={onNavigateHome} initialMode={initialAuthMode === 'demo' ? 'login' : initialAuthMode} />;
   }
 
   return (

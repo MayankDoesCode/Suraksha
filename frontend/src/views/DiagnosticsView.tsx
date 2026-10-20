@@ -35,7 +35,15 @@ export const DiagnosticsView: React.FC = () => {
     await Promise.all([
       ask(() => api.getHealth(), (r) => r, setHealth),
       ask(() => api.getMLStatus(), (r) => r?.data ?? r, setMl),
-      ask(() => api.getIntegrationsStatus(), (r) => r?.providers ?? [], setIntegrations),
+      ask(
+        () => api.getIntegrationsStatus(),
+        // The API returns providers keyed by id ({ itunes_app_store: {...} }); older builds sent an array.
+        (r) => {
+          const p = r?.providers ?? r?.data?.providers ?? [];
+          return Array.isArray(p) ? p : Object.entries(p).map(([id, v]: [string, any]) => ({ id, ...v }));
+        },
+        setIntegrations
+      ),
     ]);
   }, []);
   useEffect(() => { load(); }, [load]);

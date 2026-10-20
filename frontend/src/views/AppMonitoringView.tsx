@@ -1,7 +1,9 @@
 import React, { useState } from 'react';
 import { useApp } from '../context/AppContext';
+import { ScoreRing } from '../components/visuals/ScoreRing';
 import { RiskBadge } from '../components/RiskBadge';
 import {
+  AlertCircle,
   Smartphone,
   ShieldAlert,
   ShieldCheck,
@@ -26,7 +28,7 @@ import { compareToOfficialLogo, fileToDataUrl } from '../utils/imageHash';
 import { ACME_LOGO, ACME_LOGO_COPY, OTHER_LOGO } from '../data/demoLogos';
 
 export const AppMonitoringView: React.FC = () => {
-  const { brandProfile, addCandidate, setSelectedCandidateId, setActiveTab, selectedBackendBrandId, refreshBackendData, isDemoMode } = useApp();
+  const { brandProfile, addCandidate, setSelectedCandidateId, setActiveTab, selectedBackendBrandId, backendBrands, refreshBackendData, isDemoMode } = useApp();
 
   const [activeMode, setActiveMode] = useState<'audit' | 'live_provider'>('audit');
 
@@ -143,7 +145,11 @@ export const AppMonitoringView: React.FC = () => {
   const handleRunProviderScan = async () => {
     const targetBrandId = selectedBackendBrandId || (backendBrands[0]?.id);
     if (!targetBrandId) {
-      setProviderError('Please select a target brand to scan.');
+      setProviderError(
+        isDemoMode
+          ? 'Live store scans run against a brand saved on the server. The demo brand lives only in this browser, so sign in and add your brand under Protected assets first.'
+          : 'Add your brand under Protected assets first, then run the live scan.'
+      );
       return;
     }
 
@@ -221,7 +227,7 @@ export const AppMonitoringView: React.FC = () => {
                   : 'text-fgMuted hover:text-fg'
               }`}
             >
-              Candidate Audit
+              Check an app
             </button>
             <button
               onClick={() => setActiveMode('live_provider')}
@@ -232,13 +238,13 @@ export const AppMonitoringView: React.FC = () => {
               }`}
             >
               <Radio className="w-3.5 h-3.5" />
-              <span>Live Apple Store Scan</span>
+              <span>Scan the App Store</span>
             </button>
           </div>
 
           {activeMode === 'audit' && isDemoMode && (
             <div className="flex flex-wrap items-center gap-1.5 bg-surface2 p-1 rounded-lg border border-line">
-              <span className="text-[11px] font-medium text-fgSubtle px-1">Demo Scenarios:</span>
+              <span className="text-[11px] font-medium text-fgSubtle px-1">Examples:</span>
               <button
                 type="button"
                 onClick={() => loadScenario('rogue')}
@@ -277,9 +283,9 @@ export const AppMonitoringView: React.FC = () => {
               </div>
               <div>
                 <div className="text-sm font-semibold text-fg flex items-center gap-2">
-                  <span>Apple App Store Intelligence (iTunes API)</span>
-                  <span className="text-[10px] font-mono px-1.5 py-0.5 rounded bg-ok/10 text-ok border border-ok/30 font-medium">
-                    Live Connector Active
+                  <span>Apple App Store search</span>
+                  <span className="text-[11px] px-2 py-0.5 rounded-full bg-surface3 text-fgMuted border border-line font-medium">
+                    Public API, no key needed
                   </span>
                 </div>
                 <p className="text-xs text-fgMuted mt-0.5">
@@ -311,12 +317,12 @@ export const AppMonitoringView: React.FC = () => {
                 {providerScanning ? (
                   <>
                     <RefreshCw className="w-3.5 h-3.5 animate-spin text-onAccent" />
-                    <span>Querying iTunes Feed...</span>
+                    <span>Searching…</span>
                   </>
                 ) : (
                   <>
                     <Radio className="w-3.5 h-3.5 text-onAccent" />
-                    <span>Launch Live Store Scan</span>
+                    <span>Scan now</span>
                   </>
                 )}
               </button>
@@ -363,7 +369,7 @@ export const AppMonitoringView: React.FC = () => {
                   <div className="text-xl font-semibold font-mono text-fg mt-0.5">
                     {providerScanResult.benign_unrelated_count}
                   </div>
-                  <div className="text-[11px] text-fgMuted font-mono">Zero-Risk Filtered</div>
+                  <div className="text-[11px] text-fgMuted font-mono">Below threshold</div>
                 </div>
               </div>
 
@@ -371,7 +377,7 @@ export const AppMonitoringView: React.FC = () => {
               {providerScanResult.excluded_official?.length > 0 && (
                 <div className="p-3.5 rounded-lg bg-ok/10 border border-ok/30 space-y-2">
                   <div className="text-xs font-medium text-ok flex items-center gap-2 font-mono">
-                    <ShieldCheck className="w-4 h-4 text-ok" /> Official Brand Asset Allowlist Exclusion Active
+                    <ShieldCheck className="w-4 h-4 text-ok" /> Official apps are excluded before scoring
                   </div>
                   <div className="space-y-1">
                     {providerScanResult.excluded_official.map((ex: any, idx: number) => (
@@ -439,15 +445,15 @@ export const AppMonitoringView: React.FC = () => {
           <div className="flex items-center justify-between border-b border-line pb-3">
             <h3 className="text-sm font-semibold text-fg flex items-center gap-2">
               <Package className="w-4 h-4 text-accent" />
-              <span>Candidate Application Profile</span>
+              <span>App to check</span>
             </h3>
-            <span className="text-xs text-fgMuted font-mono">Store Inspection</span>
+            <span className="text-xs text-fgMuted font-mono">Manual entry</span>
           </div>
 
           <form onSubmit={handleAnalyze} className="space-y-3.5 text-xs">
             <div>
               <label className="block text-xs font-medium text-fgSubtle mb-1">
-                Candidate Application Name <span className="text-danger">*</span>
+                App name <span className="text-danger">*</span>
               </label>
               <input
                 type="text"
@@ -590,12 +596,12 @@ export const AppMonitoringView: React.FC = () => {
               {isAnalyzing ? (
                 <>
                   <Loader2 className="w-4 h-4 animate-spin text-onAccent" />
-                  <span>Auditing App Package Signatures...</span>
+                  <span>Checking…</span>
                 </>
               ) : (
                 <>
                   <Sparkles className="w-4 h-4 text-onAccent" />
-                  <span>Analyze App Package</span>
+                  <span>Check app</span>
                 </>
               )}
             </button>
@@ -605,7 +611,7 @@ export const AppMonitoringView: React.FC = () => {
           {officialApp && (
             <div className="p-3.5 rounded-lg bg-surface2 border border-line text-xs space-y-1">
               <span className="text-xs font-medium text-fgSubtle block">
-                Protected Identity Reference
+                Your official app
               </span>
               <p className="font-semibold text-fg">{officialApp.name}</p>
               <p className="text-fgMuted text-xs">
@@ -623,7 +629,7 @@ export const AppMonitoringView: React.FC = () => {
               <div className="w-12 h-12 rounded-lg bg-surface2 text-accent flex items-center justify-center mx-auto border border-line">
                 <Smartphone className="w-6 h-6" />
               </div>
-              <h4 className="text-sm font-medium text-fg">No Application Candidate Selected</h4>
+              <h4 className="text-sm font-medium text-fg">No app checked yet</h4>
               <p className="text-xs text-fgMuted max-w-md mx-auto leading-relaxed">
                 Fill in the candidate form on the left or select a pre-configured scenario to trigger automated
                 inspection of developer signatures, authority lures, and permission risks.
@@ -636,9 +642,9 @@ export const AppMonitoringView: React.FC = () => {
               <div className="w-10 h-10 rounded-lg bg-surface2 text-accent flex items-center justify-center mx-auto border border-line">
                 <Loader2 className="w-5 h-5 animate-spin text-accent" />
               </div>
-              <h4 className="text-sm font-medium text-fg">Executing Deep App Package Analysis</h4>
+              <h4 className="text-sm font-medium text-fg">Checking the app</h4>
               <p className="text-xs text-fgMuted max-w-md mx-auto font-mono">
-                Auditing developer certificate signatures, checking package naming distance, and evaluating manifest permissions against brand telemetry.
+                Comparing the publisher, package id, name and permissions with your official app.
               </p>
             </div>
           )}
@@ -647,6 +653,10 @@ export const AppMonitoringView: React.FC = () => {
             <div className="bg-surface p-5 rounded-xl border border-line space-y-5">
               {/* Verdict Header */}
               <div className="flex flex-col sm:flex-row sm:items-center justify-between pb-4 border-b border-line gap-3">
+                <div className="flex items-center gap-4">
+                  {typeof analysisResult.heuristicScore === 'number' && (
+                    <ScoreRing score={analysisResult.heuristicScore} level={analysisResult.riskCategory} size={64} />
+                  )}
                 <div>
                   <div className="flex items-center gap-2 mb-1">
                     <RiskBadge level={analysisResult.riskCategory} />
@@ -659,6 +669,7 @@ export const AppMonitoringView: React.FC = () => {
                   </h3>
                   <p className="text-xs text-fgMuted font-mono">Store: {analysisResult.store}</p>
                 </div>
+                </div>
 
                 <div className="flex items-center gap-2">
                   <button
@@ -669,12 +680,12 @@ export const AppMonitoringView: React.FC = () => {
                     {createdCandidateId ? (
                       <>
                         <CheckCircle2 className="w-3.5 h-3.5 text-ok" />
-                        <span>In Investigation Center</span>
+                        <span>In investigations</span>
                       </>
                     ) : (
                       <>
                         <ArrowRight className="w-3.5 h-3.5 text-onAccent" />
-                        <span>Add to Investigation Center</span>
+                        <span>Send to investigations</span>
                       </>
                     )}
                   </button>
@@ -686,7 +697,7 @@ export const AppMonitoringView: React.FC = () => {
                 <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-1.5">
                   <span className="font-semibold text-fg flex items-center gap-1.5">
                     <ShieldAlert className="w-3.5 h-3.5 text-accent" />
-                    <span>Active Engine: Suraksha Rule &amp; Publisher Allowlist Heuristics</span>
+                    <span>Assessed by the rule engine and your publisher allowlist</span>
                   </span>
                   <span className="text-[10px] font-mono font-medium px-2 py-0.5 rounded border bg-surface text-fgMuted border-line self-start sm:self-auto">
                     Engine: Deterministic Heuristics
@@ -702,7 +713,7 @@ export const AppMonitoringView: React.FC = () => {
                 <div className="p-3.5 rounded-lg bg-ok/10 border border-ok/30 flex items-start gap-3">
                   <ShieldCheck className="w-4 h-4 text-ok shrink-0 mt-0.5" />
                   <div>
-                    <h4 className="text-xs font-semibold text-ok">Official Brand Asset Verified — Excluded from Threats</h4>
+                    <h4 className="text-xs font-semibold text-ok">Official app, excluded from findings</h4>
                     <p className="text-xs text-fgMuted mt-0.5">{analysisResult.exclusionReason}</p>
                   </div>
                 </div>
@@ -765,7 +776,7 @@ export const AppMonitoringView: React.FC = () => {
                 <div className="p-3.5 rounded-lg bg-surface2 border border-line space-y-2">
                   <span className="text-xs font-semibold text-danger flex items-center gap-1.5 font-mono">
                     <ShieldAlert className="w-3.5 h-3.5" />
-                    <span>Evidence Supporting Threat</span>
+                    <span>Evidence of impersonation</span>
                   </span>
                   <ul className="space-y-1 text-xs text-fgMuted list-disc list-inside">
                     {analysisResult.evidenceSupporting?.length > 0 ? (
@@ -781,7 +792,7 @@ export const AppMonitoringView: React.FC = () => {
                 <div className="p-3.5 rounded-lg bg-surface2 border border-line space-y-2">
                   <span className="text-xs font-semibold text-ok flex items-center gap-1.5 font-mono">
                     <ShieldCheck className="w-3.5 h-3.5" />
-                    <span>Mitigating Factors / Counter-Evidence</span>
+                    <span>Counter-evidence</span>
                   </span>
                   <ul className="space-y-1 text-xs text-fgMuted list-disc list-inside">
                     {analysisResult.evidenceAgainst?.length > 0 ? (
@@ -800,7 +811,7 @@ export const AppMonitoringView: React.FC = () => {
                 <div className="p-3.5 rounded-lg bg-surface border border-line space-y-2">
                   <span className="text-xs font-medium text-fgSubtle flex items-center gap-1.5">
                     <CheckCircle2 className="w-4 h-4 text-accent" />
-                    <span>Recommended Analyst Response</span>
+                    <span>What to do next</span>
                   </span>
                   <ul className="space-y-1 text-xs text-fgMuted list-disc list-inside">
                     {analysisResult.recommendedNextSteps.map((step: string, i: number) => (

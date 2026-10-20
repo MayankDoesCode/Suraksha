@@ -2,6 +2,7 @@ import React, { useEffect, useState } from 'react';
 import { AlertCircle, ArrowRight, CheckCircle2, ShieldCheck } from 'lucide-react';
 import { useApp } from '../context/AppContext';
 import { apiClient } from '../api/client';
+import { RadarScope } from '../components/visuals/RadarScope';
 
 type AssetKind = 'domain' | 'social' | 'mobile_app';
 const KINDS: { id: AssetKind; label: string; placeholder: string }[] = [
@@ -129,29 +130,31 @@ export const WatchtowerView: React.FC = () => {
   // ---- States where the check cannot run at all
   if (isDemoMode || !brandId) {
     return (
-      <div className="mx-auto max-w-lg rounded-xl border border-line bg-surface p-8 text-center shadow-panel">
-        <div className="mx-auto mb-4 inline-flex h-12 w-12 items-center justify-center rounded-xl border border-line bg-surface2 text-accent">
-          <Activity className="h-6 w-6" />
+      <div className="mx-auto grid max-w-4xl items-center gap-8 overflow-hidden rounded-3xl border border-line bg-surface p-8 sm:p-10 md:grid-cols-[1fr,auto]">
+        <div>
+          <h2 className="text-2xl font-semibold tracking-tight text-fg">Watchtower runs on the server</h2>
+          <p className="mt-3 max-w-[52ch] text-sm leading-relaxed text-fgMuted">
+            {isDemoMode
+              ? 'It checks a suspected domain, profile or app against a brand saved on the backend, and saves the result as a finding. The demo brand lives only in this browser, so use the checks under Detect instead.'
+              : 'It checks a suspected domain, profile or app against a brand saved on the backend, and saves the result as a finding. Save your brand under Protected assets to start.'}
+          </p>
+          <div className="mt-6 flex flex-wrap gap-2">
+            <button
+              onClick={() => setActiveTab('lookalike-engine')}
+              className="inline-flex items-center gap-2 rounded-xl bg-accent px-4 py-2.5 text-sm font-semibold text-onAccent transition-colors hover:bg-accentHover"
+            >
+              Check a domain
+              <ArrowRight className="h-4 w-4" strokeWidth={1.75} />
+            </button>
+            <button
+              onClick={() => setActiveTab('brand-profile')}
+              className="inline-flex items-center gap-2 rounded-xl border border-line px-4 py-2.5 text-sm font-medium text-fg transition-colors hover:bg-surface3"
+            >
+              Protected assets
+            </button>
+          </div>
         </div>
-        <h2 className="text-base font-semibold text-fg">Watchtower Continuous Perimeter Monitoring</h2>
-        <p className="mt-2 text-xs text-fgMuted leading-relaxed">
-          Watchtower continuously audits corporate digital touchpoints, lookalike domains, and rogue store packages against verified allowlists. You can launch real-time similarity checks or sync live endpoints.
-        </p>
-        <div className="mt-5 flex flex-wrap items-center justify-center gap-3">
-          <button
-            onClick={() => setActiveTab('lookalike-engine')}
-            className="inline-flex items-center gap-1.5 rounded-md bg-accent px-4 py-2 text-xs font-medium text-onAccent hover:bg-accentHover transition-colors cursor-pointer focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-accent"
-          >
-            <span>Launch Lookalike Engine</span>
-            <ArrowRight className="h-3.5 w-3.5" />
-          </button>
-          <button
-            onClick={() => setActiveTab('brand-profile')}
-            className="inline-flex items-center gap-1.5 rounded-md border border-line bg-surface px-4 py-2 text-xs font-medium text-fg hover:bg-surface2 transition-colors cursor-pointer"
-          >
-            <span>Configure Protected Assets</span>
-          </button>
-        </div>
+        <RadarScope size={200} className="mx-auto hidden sm:block" label="Watchtower radar, idle" />
       </div>
     );
   }

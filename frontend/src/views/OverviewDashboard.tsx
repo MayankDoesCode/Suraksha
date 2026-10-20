@@ -16,6 +16,7 @@ import {
 import { useApp } from '../context/AppContext';
 import { useAuth } from '../context/AuthContext';
 import { Donut } from '../components/dashboard/charts';
+import { ThreatRadarCard, FunnelCard, ChannelCard, ActivityCard } from '../components/dashboard/ExposureVisuals';
 import { CountUp } from '../components/landing/Reveal';
 import { deriveThreatGraph } from '../utils/threatGraph';
 import type { CandidateAsset, InvestigationStatus, RiskLevel } from '../types';
@@ -158,36 +159,35 @@ export const OverviewDashboard: React.FC = () => {
       {/* Executive Telemetry Header */}
       <header className="flex flex-wrap items-end justify-between gap-4 border-b border-line/60 pb-5">
         <div>
-          <div className="flex items-center gap-2">
-            <span className="h-2 w-2 rounded-full bg-ok animate-pulse" />
-            <span className="text-xs font-semibold uppercase tracking-wider text-ok font-mono">
-              Enterprise SOC Active
-            </span>
-          </div>
-          <h1 className="mt-1 text-2xl sm:text-3xl font-extrabold tracking-tight text-fg">
+          <p className="flex items-center gap-2 text-sm text-fgMuted">
+            <span className={`h-2 w-2 rounded-full ${isDemoMode ? 'bg-warn' : backendOnline ? 'bg-ok' : 'bg-fgSubtle'}`} aria-hidden />
+            {brandProfile.brandName || 'Acme Corp'}
+            <span className="text-fgSubtle">{isDemoMode ? 'demo workspace' : 'workspace active'}</span>
+          </p>
+          <h1 className="mt-2 text-3xl font-semibold tracking-[-0.03em] text-fg sm:text-[2.4rem] sm:leading-[1.1]">
             {first ? `${greeting()}, ${first}` : greeting()}
           </h1>
-          <p className="mt-1 text-xs sm:text-sm text-fgMuted leading-relaxed max-w-2xl">
+          <p className="mt-2 text-sm sm:text-base text-fgMuted leading-relaxed max-w-2xl">
             {candidates.length === 0
-              ? `Perimeter clean for ${brandProfile.brandName || 'Acme Corp'}. No unauthorized brand lookalikes detected.`
+              ? `Nothing open for ${brandProfile.brandName || 'Acme Corp'}. Check a profile, app or domain to start.`
               : waiting === 0
-              ? `All open threat findings for ${brandProfile.brandName || 'Acme Corp'} have been triaged.`
-              : `${waiting} open brand lookalike ${waiting === 1 ? 'threat requires' : 'threats require'} analyst verification.`}
+              ? `Every open finding for ${brandProfile.brandName || 'Acme Corp'} has been triaged.`
+              : `${waiting} ${waiting === 1 ? 'impostor is' : 'impostors are'} waiting for an analyst decision.`}
           </p>
         </div>
         <div className="flex items-center gap-2.5">
           <button
             onClick={() => setActiveTab('watchtower')}
-            className="inline-flex items-center gap-2 rounded-xl border border-line bg-surface px-4 py-2 text-xs sm:text-sm font-medium text-fgMuted transition-all hover:bg-surface2 hover:text-fg hover:border-fgSubtle shadow-xs cursor-pointer"
+            className="inline-flex items-center gap-2 rounded-xl border border-line bg-surface px-4 py-2.5 text-sm font-medium text-fg transition-colors hover:border-fgSubtle/60 hover:bg-surface3 cursor-pointer"
           >
-            <Activity className="h-4 w-4 text-accent" />
-            <span>Watchtower Feed</span>
+            <Activity className="h-4 w-4 text-accent" strokeWidth={1.75} />
+            <span>Watchtower</span>
           </button>
           <button
             onClick={() => setActiveTab('lookalike-engine')}
-            className="group inline-flex items-center gap-2 rounded-xl bg-accent px-4 py-2 text-xs sm:text-sm font-semibold text-onAccent shadow-md transition-all hover:bg-accentHover active:scale-[0.98] cursor-pointer"
+            className="group inline-flex items-center gap-2 rounded-xl bg-accent px-4 py-2.5 text-sm font-semibold text-onAccent transition-[transform,background-color] hover:bg-accentHover active:scale-[0.98] cursor-pointer"
           >
-            <span>Scan Domain</span>
+            <span>Check a domain</span>
             <ArrowRight className="h-4 w-4 transition-transform group-hover:translate-x-0.5" />
           </button>
         </div>
@@ -198,7 +198,7 @@ export const OverviewDashboard: React.FC = () => {
         {/* Left Section: Exposure Ring + Breakdown */}
         <section
           aria-label="Threat exposure"
-          className="xl:col-span-8 rounded-2xl border border-line/90 bg-surface/90 p-6 sm:p-7 shadow-xl backdrop-blur-sm flex flex-col justify-between"
+          className="xl:col-span-8 relative overflow-hidden rounded-3xl border border-line bg-surface p-6 sm:p-8 flex flex-col justify-between"
         >
           <div className="flex flex-col items-center gap-6 sm:flex-row sm:items-center sm:gap-10 lg:gap-12">
             <Donut
@@ -206,7 +206,7 @@ export const OverviewDashboard: React.FC = () => {
               thickness={13}
               parts={bySev.map((s) => ({ label: s.label, value: s.value, color: s.color }))}
               centre={
-                <span className="text-4xl sm:text-5xl font-extrabold tabular-nums tracking-tight text-fg">
+                <span className="text-4xl sm:text-5xl font-semibold tabular-nums tracking-tight text-fg">
                   <CountUp value={String(open.length)} />
                 </span>
               }
@@ -232,7 +232,7 @@ export const OverviewDashboard: React.FC = () => {
                   ['Verified assets', verifiedAssets, 'text-fg'],
                 ].map(([label, value, tone], i) => (
                   <div key={label as string} className={i === 0 ? 'pr-2 sm:pr-4' : 'px-2 sm:px-4'}>
-                    <dd className={`text-2xl sm:text-3xl font-extrabold tabular-nums tracking-tight ${tone}`}>
+                    <dd className={`text-2xl sm:text-3xl font-semibold tabular-nums tracking-tight ${tone}`}>
                       <CountUp value={String(value)} />
                     </dd>
                     <dt className="mt-1 text-[11px] sm:text-xs text-fgSubtle leading-snug font-medium">
@@ -282,32 +282,26 @@ export const OverviewDashboard: React.FC = () => {
         </section>
 
         {/* Right Section: Brand Vectors Quick Launcher */}
-        <section className="xl:col-span-4 rounded-2xl border border-line/90 bg-surface/90 p-6 shadow-xl backdrop-blur-sm flex flex-col justify-between">
+        <section className="xl:col-span-4 rounded-3xl border border-line bg-surface p-6 flex flex-col justify-between">
           <div>
             <div className="flex items-center justify-between border-b border-line/80 pb-3">
-              <span className="text-xs font-bold uppercase tracking-wider text-fgSubtle font-mono">
-                Brand Vectors
-              </span>
-              <span className="inline-flex items-center gap-1.5 rounded-full bg-ok/10 border border-ok/30 px-2 py-0.5 text-[10px] font-medium text-ok">
-                <span className="h-1.5 w-1.5 rounded-full bg-ok animate-pulse" />
-                Active Monitoring
-              </span>
+              <span className="text-sm font-semibold text-fg">Check something new</span>
             </div>
 
             <div className="mt-3.5 space-y-2.5">
               <button
                 onClick={() => setActiveTab('lookalike-engine')}
-                className="w-full flex items-center justify-between rounded-xl border border-line bg-surface2/60 p-3 text-left transition-all hover:bg-surface2 hover:border-accent/40 group cursor-pointer"
+                className="w-full flex items-center justify-between rounded-2xl border border-line bg-surface2/60 p-3.5 text-left transition-colors hover:bg-surface3/60 hover:border-accent/40 group cursor-pointer"
               >
                 <div className="flex items-center gap-3">
                   <div className="h-8 w-8 rounded-lg bg-accent/15 border border-accent/25 flex items-center justify-center text-accent">
                     <Globe className="h-4 w-4" />
                   </div>
                   <div>
-                    <span className="block text-xs font-semibold text-fg group-hover:text-accent transition-colors">
-                      Domain Lookalikes
+                    <span className="block text-sm font-semibold text-fg group-hover:text-accent transition-colors">
+                      Look-alike domain
                     </span>
-                    <span className="block text-[11px] text-fgSubtle">Homoglyphs, punycode &amp; combosquats</span>
+                    <span className="block text-xs text-fgSubtle">Homoglyphs, typos and combos</span>
                   </div>
                 </div>
                 <ChevronRight className="h-4 w-4 text-fgSubtle group-hover:text-fg group-hover:translate-x-0.5 transition-transform" />
@@ -315,17 +309,17 @@ export const OverviewDashboard: React.FC = () => {
 
               <button
                 onClick={() => setActiveTab('social-monitoring')}
-                className="w-full flex items-center justify-between rounded-xl border border-line bg-surface2/60 p-3 text-left transition-all hover:bg-surface2 hover:border-high/40 group cursor-pointer"
+                className="w-full flex items-center justify-between rounded-2xl border border-line bg-surface2/60 p-3.5 text-left transition-colors hover:bg-surface3/60 hover:border-high/40 group cursor-pointer"
               >
                 <div className="flex items-center gap-3">
                   <div className="h-8 w-8 rounded-lg bg-high/15 border border-high/25 flex items-center justify-center text-high">
                     <Share2 className="h-4 w-4" />
                   </div>
                   <div>
-                    <span className="block text-xs font-semibold text-fg group-hover:text-high transition-colors">
-                      Social Impersonation
+                    <span className="block text-sm font-semibold text-fg group-hover:text-high transition-colors">
+                      Social profile
                     </span>
-                    <span className="block text-[11px] text-fgSubtle">Handle conflicts &amp; phishing profiles</span>
+                    <span className="block text-xs text-fgSubtle">Fake support and copied logos</span>
                   </div>
                 </div>
                 <ChevronRight className="h-4 w-4 text-fgSubtle group-hover:text-fg group-hover:translate-x-0.5 transition-transform" />
@@ -333,17 +327,17 @@ export const OverviewDashboard: React.FC = () => {
 
               <button
                 onClick={() => setActiveTab('app-monitoring')}
-                className="w-full flex items-center justify-between rounded-xl border border-line bg-surface2/60 p-3 text-left transition-all hover:bg-surface2 hover:border-ai/40 group cursor-pointer"
+                className="w-full flex items-center justify-between rounded-2xl border border-line bg-surface2/60 p-3.5 text-left transition-colors hover:bg-surface3/60 hover:border-ai/40 group cursor-pointer"
               >
                 <div className="flex items-center gap-3">
                   <div className="h-8 w-8 rounded-lg bg-ai/15 border border-ai/25 flex items-center justify-center text-ai">
                     <Smartphone className="h-4 w-4" />
                   </div>
                   <div>
-                    <span className="block text-xs font-semibold text-fg group-hover:text-ai transition-colors">
-                      Rogue Mobile APKs
+                    <span className="block text-sm font-semibold text-fg group-hover:text-ai transition-colors">
+                      Mobile app
                     </span>
-                    <span className="block text-[11px] text-fgSubtle">Certificate mismatches &amp; side-loads</span>
+                    <span className="block text-xs text-fgSubtle">Copycat listings and packages</span>
                   </div>
                 </div>
                 <ChevronRight className="h-4 w-4 text-fgSubtle group-hover:text-fg group-hover:translate-x-0.5 transition-transform" />
@@ -351,17 +345,17 @@ export const OverviewDashboard: React.FC = () => {
 
               <button
                 onClick={() => setActiveTab('threat-graph')}
-                className="w-full flex items-center justify-between rounded-xl border border-line bg-surface2/60 p-3 text-left transition-all hover:bg-surface2 hover:border-accent/40 group cursor-pointer"
+                className="w-full flex items-center justify-between rounded-2xl border border-line bg-surface2/60 p-3.5 text-left transition-colors hover:bg-surface3/60 hover:border-accent/40 group cursor-pointer"
               >
                 <div className="flex items-center gap-3">
                   <div className="h-8 w-8 rounded-lg bg-surface3 border border-line flex items-center justify-center text-fg">
                     <Network className="h-4 w-4" />
                   </div>
                   <div>
-                    <span className="block text-xs font-semibold text-fg group-hover:text-accent transition-colors">
-                      Correlation Graph
+                    <span className="block text-sm font-semibold text-fg group-hover:text-accent transition-colors">
+                      Threat graph
                     </span>
-                    <span className="block text-[11px] text-fgSubtle">Infrastructure clusters &amp; shared hosts</span>
+                    <span className="block text-xs text-fgSubtle">How findings connect</span>
                   </div>
                 </div>
                 <ChevronRight className="h-4 w-4 text-fgSubtle group-hover:text-fg group-hover:translate-x-0.5 transition-transform" />
@@ -377,22 +371,40 @@ export const OverviewDashboard: React.FC = () => {
               onClick={() => setActiveTab('brand-profile')}
               className="text-accent hover:underline font-medium cursor-pointer"
             >
-              Configure Assets →
+              Protected assets
             </button>
           </div>
         </section>
       </div>
 
+      {/* Exposure: where impostors are, how the queue narrows, and recent activity. Drawn from the findings only. */}
+      {candidates.length > 0 && (
+        <div className="grid grid-cols-1 gap-6 md:grid-cols-2 xl:grid-cols-12">
+          <div className="md:row-span-2 xl:col-span-4">
+            <ThreatRadarCard open={open} onOpen={() => setActiveTab('threat-graph')} />
+          </div>
+          <div className="xl:col-span-4">
+            <ChannelCard open={open} onPick={() => setActiveTab('reports')} />
+          </div>
+          <div className="xl:col-span-4">
+            <FunnelCard candidates={candidates} />
+          </div>
+          <div className="md:col-span-2 xl:col-span-8">
+            <ActivityCard candidates={candidates} />
+          </div>
+        </div>
+      )}
+
       {/* Full-Width "Needs Attention" Triage Table / Queue */}
       <section aria-labelledby="queue-h" className="space-y-3">
         <div className="flex items-center justify-between">
           <div className="flex items-center gap-2">
-            <h2 id="queue-h" className="text-sm font-bold text-fg">
-              Needs Attention Queue
+            <h2 id="queue-h" className="text-lg font-semibold tracking-tight text-fg">
+              Needs a decision
             </h2>
             {queue.length > 0 && (
               <span className="rounded-full bg-surface2 border border-line px-2 py-0.5 text-[11px] font-mono font-medium tabular-nums text-fgSubtle">
-                {queue.length} Open
+                {queue.length} open
               </span>
             )}
           </div>
@@ -401,7 +413,7 @@ export const OverviewDashboard: React.FC = () => {
               onClick={() => setActiveTab('investigation-center')}
               className="text-xs font-semibold text-accent hover:underline cursor-pointer transition-colors"
             >
-              All investigations →
+              All investigations
             </button>
           )}
         </div>
@@ -419,7 +431,7 @@ export const OverviewDashboard: React.FC = () => {
             </p>
           </div>
         ) : (
-          <ul className="overflow-hidden rounded-2xl border border-line/90 bg-surface/90 shadow-xl divide-y divide-line/70">
+          <ul className="overflow-hidden rounded-3xl border border-line bg-surface divide-y divide-line/70">
             {queue.map(({ c, link }: { c: CandidateAsset; link?: { n: number; first?: string } }) => {
               const sev = SEV.find((s) => s.key === c.riskCategory) || SEV[3];
               return (
@@ -458,7 +470,7 @@ export const OverviewDashboard: React.FC = () => {
                       {c.riskCategory}
                     </span>
                     <span className="hidden w-24 shrink-0 whitespace-nowrap text-right text-xs text-fgSubtle sm:block font-medium">
-                      {c.status === 'Investigating' ? 'In Progress' : 'New Triage'}
+                      {c.status === 'Investigating' ? 'Investigating' : 'New'}
                     </span>
                     <span className="w-12 shrink-0 text-right font-mono text-xs tabular-nums text-fgSubtle">
                       {ago(c.createdDate)}
@@ -472,13 +484,13 @@ export const OverviewDashboard: React.FC = () => {
         )}
       </section>
 
-      <footer className="text-xs text-fgSubtle flex items-center justify-between border-t border-line/60 pt-4 font-mono">
-        <span>Metrics reflect verified brand perimeter telemetry. Deterministic heuristic rules · 0% hallucination</span>
+      <footer className="flex flex-wrap items-center justify-between gap-3 border-t border-line/60 pt-4 text-xs text-fgSubtle">
+        <span>Severity comes from named rules. Model scores are shown as context only.</span>
         <button
           onClick={() => setActiveTab('reports')}
           className="text-accent hover:underline font-sans cursor-pointer font-medium"
         >
-          View Full Findings Matrix →
+          All findings
         </button>
       </footer>
     </div>

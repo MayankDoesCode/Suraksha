@@ -1,5 +1,6 @@
 import React, { useState } from 'react';
 import { useApp } from '../context/AppContext';
+import { ScoreRing } from '../components/visuals/ScoreRing';
 import {
   runFullLookalikeAnalysis,
   LookalikeAnalysisResult,
@@ -312,7 +313,7 @@ ${analysisResult.recommendedNextSteps.map((s, i) => `${i + 1}. ${s}`).join('\n')
       {/* Header */}
       <div className="flex flex-wrap items-start justify-between gap-4">
         <div>
-          <h2 className="text-xl font-semibold tracking-tight text-fg">Domain similarity assessment</h2>
+          <h2 className="text-xl font-semibold tracking-tight text-fg">Check a domain</h2>
           <p className="mt-1 max-w-2xl text-xs sm:text-sm text-fgMuted leading-relaxed">
             Compare a suspected name or domain with verified assets of <span className="text-fg font-medium">{brandProfile.brandName || 'Acme Corp'}</span>:
             Levenshtein edit distance, homoglyphs, subdomain abuse, lure keywords, and counter-evidence. Analysis runs locally in your browser.
@@ -364,7 +365,7 @@ ${analysisResult.recommendedNextSteps.map((s, i) => `${i + 1}. ${s}`).join('\n')
         <div role="alert" className="p-3.5 rounded-md bg-danger/10 border border-danger/30 text-danger text-xs flex items-start gap-2.5">
           <AlertCircle className="w-4 h-4 text-danger shrink-0 mt-0.5" />
           <div>
-            <strong className="block font-semibold">Input Validation Notice:</strong>
+            <strong className="block font-semibold">Check the input:</strong>
             <p className="mt-0.5">{validationError}</p>
           </div>
         </div>
@@ -374,7 +375,7 @@ ${analysisResult.recommendedNextSteps.map((s, i) => `${i + 1}. ${s}`).join('\n')
         <div role="alert" className="p-3.5 rounded-md bg-danger/10 border border-danger/30 text-danger text-xs flex items-start gap-2.5">
           <AlertOctagon className="w-4 h-4 text-danger shrink-0 mt-0.5" />
           <div>
-            <strong className="block font-semibold">Analysis Execution Error:</strong>
+            <strong className="block font-semibold">Analysis failed:</strong>
             <p className="mt-0.5">{analysisError}</p>
           </div>
         </div>
@@ -390,16 +391,16 @@ ${analysisResult.recommendedNextSteps.map((s, i) => `${i + 1}. ${s}`).join('\n')
               <div className="flex items-center gap-2">
                 <ShieldCheck className="w-4 h-4 text-ok" />
                 <span className="text-xs font-medium text-fgSubtle">
-                  Protected baseline
+                  Your official assets
                 </span>
               </div>
-              <span className="text-[11px] bg-ok/10 text-ok border border-ok/30 px-2 py-0.5 rounded-full font-mono">
+              <span className="text-[11px] bg-ok/10 text-ok border border-ok/30 px-2 py-0.5 rounded-full">
                 Allowlisted
               </span>
             </div>
 
             <div>
-              <span className="text-xs text-fgMuted block font-mono">Monitored Brand:</span>
+              <span className="text-xs text-fgMuted block">Brand</span>
               <span className="text-lg font-semibold text-fg tracking-tight">{brandProfile.brandName || 'Acme Corp'}</span>
               <p className="text-xs text-fgMuted mt-1 line-clamp-2 leading-relaxed">
                 {brandProfile.brandDescription || 'Primary enterprise brand baseline with verified domains and monitored digital assets.'}
@@ -407,7 +408,7 @@ ${analysisResult.recommendedNextSteps.map((s, i) => `${i + 1}. ${s}`).join('\n')
             </div>
 
             <div>
-              <span className="text-xs text-fgMuted block mb-1.5 font-mono">Registered Official Domains:</span>
+              <span className="text-xs text-fgMuted block mb-1.5">Official domains</span>
               <div className="flex flex-wrap gap-1.5">
                 {(brandProfile.officialDomains?.length ? brandProfile.officialDomains : ['acme.com', 'acme.io']).map((dom, i) => (
                   <span
@@ -423,7 +424,7 @@ ${analysisResult.recommendedNextSteps.map((s, i) => `${i + 1}. ${s}`).join('\n')
 
             {brandProfile.authorizedPartners && brandProfile.authorizedPartners.length > 0 && (
               <div>
-                <span className="text-xs text-fgMuted block mb-1.5 font-mono">Registered Authorized Partners:</span>
+                <span className="text-xs text-fgMuted block mb-1.5">Authorised partners</span>
                 <div className="space-y-1">
                   {brandProfile.authorizedPartners.slice(0, 2).map((p, i) => (
                     <div
@@ -431,7 +432,7 @@ ${analysisResult.recommendedNextSteps.map((s, i) => `${i + 1}. ${s}`).join('\n')
                       className="text-xs bg-surface2 px-2.5 py-1 rounded-md border border-line text-fgMuted flex items-center justify-between"
                     >
                       <span className="text-fg font-medium">{p.name}</span>
-                      <span className="font-mono text-accent text-[11px]">{p.relationshipType}</span>
+                      <span className="text-accent text-xs">{p.relationshipType}</span>
                     </div>
                   ))}
                 </div>
@@ -452,7 +453,7 @@ ${analysisResult.recommendedNextSteps.map((s, i) => `${i + 1}. ${s}`).join('\n')
           <div className="flex items-center justify-between border-b border-line pb-3">
             <h3 className="text-sm font-semibold text-fg flex items-center gap-2">
               <Search className="w-4 h-4 text-accent" />
-              Candidate Asset Test Bench
+              Domain to check
             </h3>
             <div className="flex items-center gap-2">
               <button
@@ -479,7 +480,7 @@ ${analysisResult.recommendedNextSteps.map((s, i) => `${i + 1}. ${s}`).join('\n')
           <div className="grid grid-cols-1 md:grid-cols-2 gap-3.5 text-xs">
             <div>
               <label className="font-medium text-fgSubtle block mb-1 text-xs">
-                Candidate Brand Name <span className="text-danger">*</span>
+                Name shown on the site <span className="text-danger">*</span>
               </label>
               <input
                 type="text"
@@ -495,7 +496,7 @@ ${analysisResult.recommendedNextSteps.map((s, i) => `${i + 1}. ${s}`).join('\n')
 
             <div>
               <label className="font-medium text-fgSubtle block mb-1 text-xs">
-                Candidate Domain / URL <span className="text-danger">*</span>
+                Domain or URL <span className="text-danger">*</span>
               </label>
               <input
                 type="text"
@@ -512,7 +513,7 @@ ${analysisResult.recommendedNextSteps.map((s, i) => `${i + 1}. ${s}`).join('\n')
 
           <div>
             <label className="font-medium text-fgSubtle block mb-1 text-xs">
-              Candidate Description &amp; Observed Context <span className="text-fgMuted/60 font-normal">(Optional)</span>
+              What the site says <span className="text-fgMuted/60 font-normal">(Optional)</span>
             </label>
             <input
               type="text"
@@ -548,7 +549,7 @@ ${analysisResult.recommendedNextSteps.map((s, i) => `${i + 1}. ${s}`).join('\n')
             <div>
               <div className="flex items-center gap-2 mb-1">
                 <span className="text-[11px] font-medium text-accent bg-accent/10 border border-accent/20 px-2 py-0.5 rounded">
-                  Completed Analysis
+                  Checked
                 </span>
                 <span className="text-xs text-fgMuted font-mono flex items-center gap-1">
                   <Clock className="w-3 h-3 text-fgSubtle" />
@@ -556,7 +557,7 @@ ${analysisResult.recommendedNextSteps.map((s, i) => `${i + 1}. ${s}`).join('\n')
                 </span>
               </div>
               <h3 className="text-base font-semibold text-fg flex items-center gap-2 flex-wrap">
-                <span>Candidate Evaluation:</span>
+                <span>Result for</span>
                 <span className="font-mono text-accent">"{analysisResult.candidateName}"</span>
                 <span className="text-fgMuted text-xs font-normal">vs</span>
                 <span className="font-mono text-fg">"{analysisResult.officialBrand}"</span>
@@ -580,41 +581,15 @@ ${analysisResult.recommendedNextSteps.map((s, i) => `${i + 1}. ${s}`).join('\n')
 
           {/* 4 Metric Cards Banner */}
           <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
-            {/* 1. Overall Heuristic Score */}
+            {/* 1. Overall Risk score */}
             <div className="bg-surface p-4 sm:p-5 rounded-xl border border-line flex items-center justify-between shadow-panel">
               <div>
-                <span className="text-xs font-medium text-fgSubtle block">Heuristic Score</span>
-                <div className="mt-1 flex items-baseline gap-1.5">
-                  <span className="text-2xl font-semibold tabular-nums font-mono text-fg">
-                    {analysisResult.overallScore}
-                  </span>
-                  <span className="text-xs text-fgMuted font-mono">/ 100</span>
-                </div>
+                <span className="text-xs font-medium text-fgSubtle block">Risk score</span>
                 <span className="text-xs text-fgMuted block mt-1 leading-tight">
-                  Heuristic threat score out of 100.
+                  Out of 100, from named rules.
                 </span>
               </div>
-              <div
-                className={`p-2.5 rounded-lg shrink-0 ${
-                  analysisResult.overallRiskCategory === 'Critical'
-                  ? 'bg-danger/15 text-danger border border-danger/30'
-                  : analysisResult.overallRiskCategory === 'High'
-                  ? 'bg-warn/15 text-warn border border-warn/30'
-                  : analysisResult.overallRiskCategory === 'Medium'
-                  ? 'bg-accent/15 text-accent border border-accent/30'
-                  : 'bg-ok/10 text-ok border border-ok/30'
-                }`}
-              >
-                {analysisResult.overallRiskCategory === 'Critical' ? (
-                  <AlertOctagon className="w-5 h-5" />
-                ) : analysisResult.overallRiskCategory === 'High' ? (
-                  <ShieldAlert className="w-5 h-5" />
-                ) : analysisResult.overallRiskCategory === 'Medium' ? (
-                  <AlertTriangle className="w-5 h-5" />
-                ) : (
-                  <ShieldCheck className="w-5 h-5" />
-                )}
-              </div>
+              <ScoreRing score={analysisResult.overallScore} level={analysisResult.overallRiskCategory} size={64} />
             </div>
 
             {/* 2. Damerau-Levenshtein Edit Distance & Name Similarity */}
@@ -689,7 +664,7 @@ ${analysisResult.recommendedNextSteps.map((s, i) => `${i + 1}. ${s}`).join('\n')
               <div className="flex items-center gap-2">
                 <Layers className="w-4 h-4 text-accent" />
                 <h3 className="text-sm font-semibold text-fg">
-                  Visual Glyph Decomposition &amp; Homoglyph Highlighting
+                  Character by character
                 </h3>
               </div>
               <span className="text-xs text-fgMuted font-mono">
@@ -750,7 +725,7 @@ ${analysisResult.recommendedNextSteps.map((s, i) => `${i + 1}. ${s}`).join('\n')
               {analysisResult.characterDiffs.length > 0 && (
                 <div className="pt-2 border-t border-line space-y-1">
                   <span className="text-xs font-medium text-fgSubtle block">
-                    Character Discrepancy Diagnostics:
+                    What differs
                   </span>
                   {analysisResult.characterDiffs.map((diff, i) => (
                     <div key={i} className="text-xs text-danger flex items-center gap-2">
@@ -778,14 +753,14 @@ ${analysisResult.recommendedNextSteps.map((s, i) => `${i + 1}. ${s}`).join('\n')
                   <ShieldAlert className="w-4 h-4 text-accent" />
                   Reasons for Assessment &amp; Detection Signals ({analysisResult.signals.length})
                 </h4>
-                <span className="text-xs text-fgMuted font-mono">Heuristic Signal Breakdown</span>
+                <span className="text-xs text-fgMuted font-mono">Signals</span>
               </div>
 
               {analysisResult.signals.length === 0 ? (
                 <div className="p-5 rounded-lg bg-ok/10 border border-ok/30 text-ok text-xs flex items-center gap-3">
                   <CheckCircle2 className="w-5 h-5 text-ok shrink-0" />
                   <div>
-                    <strong className="block font-medium">No Adverse Typo-Squatting Signals</strong>
+                    <strong className="block font-medium">No look-alike signals</strong>
                     <p className="mt-0.5 text-fgMuted">
                       The candidate name and domain do not trigger homoglyph substitutions, lure keyword combosquatting,
                       subdomain abuse, or suspicious edit distance thresholds against "{brandProfile.brandName}".
@@ -891,11 +866,11 @@ ${analysisResult.recommendedNextSteps.map((s, i) => `${i + 1}. ${s}`).join('\n')
                 )}
               </div>
 
-              {/* Recommended Analyst Action & Next Steps */}
+              {/* What to do next & Next Steps */}
               <div className="bg-surface p-5 rounded-xl border border-line space-y-3 shadow-panel">
                 <h5 className="text-xs font-semibold text-fgSubtle flex items-center gap-2">
                   <ArrowRight className="w-3.5 h-3.5 text-accent" />
-                  Recommended Analyst Action
+                  What to do next
                 </h5>
 
                 <div className="p-3 rounded-lg bg-surface2 border border-line">
@@ -909,7 +884,7 @@ ${analysisResult.recommendedNextSteps.map((s, i) => `${i + 1}. ${s}`).join('\n')
 
                 <div className="space-y-2 pt-1">
                   <span className="text-xs font-medium text-fgMuted block font-mono">
-                    Prescribed Playbook Steps:
+                    Steps
                   </span>
                   <ol className="space-y-1.5 text-xs text-fgMuted list-decimal list-inside">
                     {analysisResult.recommendedNextSteps.map((step, idx) => (
@@ -927,7 +902,7 @@ ${analysisResult.recommendedNextSteps.map((s, i) => `${i + 1}. ${s}`).join('\n')
                     className="w-full py-2 px-3 text-xs font-medium text-center text-onAccent bg-accent hover:bg-accentHover rounded-md transition-colors shadow-sm flex items-center justify-center gap-2 cursor-pointer focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-accent"
                   >
                     <FolderPlus className="w-3.5 h-3.5 text-onAccent" />
-                    <span>Ingest into Investigation Center</span>
+                    <span>Send to investigations</span>
                   </button>
                 </div>
               </div>
@@ -941,7 +916,7 @@ ${analysisResult.recommendedNextSteps.map((s, i) => `${i + 1}. ${s}`).join('\n')
             <Search className="w-6 h-6" />
           </div>
           <div>
-            <h4 className="text-sm font-medium text-fg">No Candidate Analysis Loaded</h4>
+            <h4 className="text-sm font-medium text-fg">No domain checked yet</h4>
             <p className="text-xs text-fgMuted max-w-md mx-auto mt-1 leading-relaxed">
               Enter a candidate brand name and domain above and click <strong>Analyze Similarity</strong>, or pick a scenario from the Benchmark Validation Suite below to run deterministic heuristics.
             </p>
@@ -953,7 +928,7 @@ ${analysisResult.recommendedNextSteps.map((s, i) => `${i + 1}. ${s}`).join('\n')
               className="inline-flex items-center gap-1.5 px-3 py-1.5 bg-surface2 hover:bg-surface3 text-fg border border-line text-xs font-medium rounded-md transition-colors cursor-pointer focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-accent"
             >
               <RotateCcw className="w-3.5 h-3.5 text-fgMuted" />
-              <span>Load Demo Candidate</span>
+              <span>Load an example</span>
             </button>
           )}
         </div>
@@ -970,7 +945,7 @@ ${analysisResult.recommendedNextSteps.map((s, i) => `${i + 1}. ${s}`).join('\n')
               </h3>
             </div>
             <span className="text-xs text-fgMuted hidden sm:inline">
-              Click any scenario to populate inputs and immediately execute analysis
+              Each example fills the form and runs the check
             </span>
           </div>
 

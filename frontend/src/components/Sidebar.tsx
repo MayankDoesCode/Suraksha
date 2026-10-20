@@ -48,21 +48,28 @@ export const Sidebar: React.FC<SidebarProps> = ({ onNavigateHome, isOpen, onClos
   const body = (mobile: boolean) => (
     <div className="flex h-full flex-col text-fg">
       {/* Workspace / brand switcher */}
-      <div className="px-3 pb-2 pt-3">
-        <div className="flex items-center gap-2">
+      <div className="px-3 pb-3 pt-4">
+        <div className="flex items-center justify-between gap-2 px-1.5">
           <button
             onClick={() => (onNavigateHome ? onNavigateHome() : (window.location.href = '/'))}
             title="Back to site"
-            className="flex h-7 w-7 shrink-0 items-center justify-center rounded-lg bg-surface2 border border-line hover:border-accent/40 hover:bg-surface3 transition-all"
+            className="flex items-center gap-2 rounded-lg py-1 transition-opacity hover:opacity-80"
           >
-            <SurakshaLogo size={19} />
+            <SurakshaLogo size={22} />
+            <span className="text-[15px] font-semibold tracking-tight">Suraksha</span>
           </button>
+          {mobile && <button onClick={onClose} className="rounded-md px-2 py-1 text-xs text-fgMuted hover:bg-surface3">Close</button>}
+        </div>
+        <div className="mt-4 flex items-center gap-2 rounded-xl border border-line bg-surface/70 px-2 py-1.5">
+          <span className="flex h-6 w-6 shrink-0 items-center justify-center rounded-md bg-accent/15 text-[11px] font-semibold text-accent" aria-hidden>
+            {(hasBrand ? brandProfile.brandName : 'B')[0].toUpperCase()}
+          </span>
           <div className="relative min-w-0 flex-1">
             <select
               aria-label="Brand"
               value={isDemoMode ? 'demo' : selectedBackendBrandId || ''}
               onChange={(e) => (e.target.value === 'demo' ? enterDemoMode() : e.target.value && selectBrandById(e.target.value))}
-              className="w-full cursor-pointer appearance-none truncate rounded-md bg-transparent py-1 pl-1.5 pr-6 text-[13px] font-medium text-fg hover:bg-surface3 focus:bg-surface3"
+              className="w-full cursor-pointer appearance-none truncate rounded-md bg-transparent py-0.5 pl-0.5 pr-6 text-[13px] font-medium text-fg"
             >
               {backendBrands.length === 0 && !isDemoMode && <option value="">{hasBrand ? brandProfile.brandName : 'No brand yet'}</option>}
               {backendBrands.map((b) => <option key={b.id} value={b.id}>{b.name}</option>)}
@@ -70,16 +77,15 @@ export const Sidebar: React.FC<SidebarProps> = ({ onNavigateHome, isOpen, onClos
             </select>
             <ChevronDown className="pointer-events-none absolute right-1.5 top-1/2 h-3 w-3 -translate-y-1/2 text-fgSubtle" />
           </div>
-          {mobile && <button onClick={onClose} className="rounded-md px-2 py-1 text-xs text-fgMuted hover:bg-surface3">Close</button>}
         </div>
-        <p className="mt-1 pl-1.5 text-[11px] text-fgSubtle">{isDemoMode ? 'Demo data (synthetic)' : 'Live workspace'}</p>
+        <p className="mt-1.5 pl-2 text-[11px] text-fgSubtle">{isDemoMode ? 'Demo data (synthetic)' : 'Live workspace'}</p>
       </div>
 
       <nav className="flex-1 overflow-y-auto px-2 pb-3" aria-label="Primary">
         {NAV_GROUPS.map((group) => {
           const folded = !!(group.title && collapsed[group.id]);
           return (
-            <div key={group.id} className={group.title ? 'mt-3' : 'mt-1'}>
+            <div key={group.id} className={group.title ? 'mt-4' : 'mt-1'}>
               {group.title && (
                 <button
                   onClick={() => toggle(group.id)}
@@ -101,11 +107,12 @@ export const Sidebar: React.FC<SidebarProps> = ({ onNavigateHome, isOpen, onClos
                         <button
                           onClick={() => go(item.id)}
                           aria-current={active ? 'page' : undefined}
-                          className={`flex w-full items-center gap-2 rounded-md px-2 py-1.5 text-[13px] transition-colors ${
+                          className={`relative flex w-full items-center gap-2.5 rounded-lg px-2.5 py-[7px] text-[13px] transition-colors ${
                             active ? 'bg-surface3 font-medium text-fg' : 'text-fgMuted hover:bg-surface3/60 hover:text-fg'
                           }`}
                         >
-                          <Icon className="h-3.5 w-3.5 shrink-0" />
+                          {active && <span className="absolute inset-y-1.5 -left-2 w-[3px] rounded-r-full bg-accent" aria-hidden />}
+                          <Icon className={`h-4 w-4 shrink-0 ${active ? 'text-accent' : ''}`} strokeWidth={1.75} />
                           <span className="truncate">{item.label}</span>
                           {count && (
                             <span className={`ml-auto text-[11px] tabular-nums ${count.tone === 'danger' ? 'text-danger' : 'text-warn'}`}>{count.n}</span>
@@ -148,10 +155,10 @@ export const Sidebar: React.FC<SidebarProps> = ({ onNavigateHome, isOpen, onClos
 
   return (
     <>
-      <aside className="hidden w-56 shrink-0 lg:block">{body(false)}</aside>
+      <aside className="hidden w-60 shrink-0 lg:block">{body(false)}</aside>
       {isOpen && (
         <div className="fixed inset-0 z-50 flex lg:hidden" role="dialog" aria-modal="true" aria-label="Navigation">
-          <div className="fixed inset-0 bg-black/50" onClick={onClose} />
+          <div className="fixed inset-0 bg-canvas/70 backdrop-blur-sm" onClick={onClose} />
           <aside className="relative z-50 h-full w-64 max-w-[85vw] border-r border-line bg-canvas">{body(true)}</aside>
         </div>
       )}

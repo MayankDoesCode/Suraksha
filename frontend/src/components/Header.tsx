@@ -16,7 +16,7 @@ export const Header: React.FC<HeaderProps> = ({ onToggleMobileMenu, onOpenSearch
   const isMac = typeof navigator !== 'undefined' && /mac/i.test(navigator.platform);
 
   return (
-    <header className="flex h-11 shrink-0 items-center gap-2 border-b border-line px-3 sm:px-4">
+    <header className="relative z-20 flex h-12 shrink-0 items-center gap-2 border-b border-line bg-surface2/80 px-3 backdrop-blur-md sm:px-5">
       {onToggleMobileMenu && (
         <button onClick={onToggleMobileMenu} className="rounded-md p-1.5 text-fgMuted hover:bg-surface3 hover:text-fg lg:hidden" aria-label="Open navigation menu">
           <Menu className="h-4 w-4" />
@@ -34,12 +34,12 @@ export const Header: React.FC<HeaderProps> = ({ onToggleMobileMenu, onOpenSearch
       <div className="ml-auto flex items-center gap-1.5">
         <button
           onClick={onOpenSearch}
-          className="flex items-center gap-2 rounded-md border border-line px-2 py-1 text-xs text-fgSubtle hover:bg-surface3 hover:text-fgMuted"
+          className="flex items-center gap-2 rounded-lg border border-line bg-surface/60 px-2.5 py-1.5 text-xs text-fgSubtle transition-colors hover:bg-surface3 hover:text-fgMuted sm:min-w-[200px]"
           aria-label="Search pages and findings"
         >
           <Search className="h-3.5 w-3.5" />
           <span className="hidden sm:inline">Search</span>
-          <kbd className="hidden rounded border border-line px-1 text-[10px] sm:inline">{isMac ? '⌘' : 'Ctrl'} K</kbd>
+          <kbd className="ml-auto hidden rounded border border-line px-1 text-[10px] sm:inline">{isMac ? '⌘' : 'Ctrl'} K</kbd>
         </button>
         <ThemeToggle />
       </div>

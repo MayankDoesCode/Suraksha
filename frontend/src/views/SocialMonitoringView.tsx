@@ -1,5 +1,6 @@
 import React, { useState } from 'react';
 import { useApp } from '../context/AppContext';
+import { ScoreRing } from '../components/visuals/ScoreRing';
 import { RiskBadge } from '../components/RiskBadge';
 import {
   Share2,
@@ -206,8 +207,8 @@ export const SocialMonitoringView: React.FC = () => {
     setMlSocialResult(null);
 
     const errors: string[] = [];
-    if (!name.trim()) errors.push('Candidate Display Name is required.');
-    if (!username.trim()) errors.push('Username / Handle is required.');
+    if (!name.trim()) errors.push('Display name is required.');
+    if (!username.trim()) errors.push('Handle is required.');
 
     if (errors.length > 0) {
       setValidationErrors(errors);
@@ -309,7 +310,7 @@ export const SocialMonitoringView: React.FC = () => {
       ``,
       `[CANDIDATE ASSET PROFILE]`,
       `Display Name: ${analysisResult.candidate.name}`,
-      `Username / Handle: ${analysisResult.candidate.username}`,
+      `Handle: ${analysisResult.candidate.username}`,
       `Platform: ${analysisResult.candidate.platform}`,
       `Profile URL: ${analysisResult.candidate.url || 'N/A'}`,
       `Bio: ${analysisResult.candidate.bio || 'N/A'}`,
@@ -388,10 +389,10 @@ export const SocialMonitoringView: React.FC = () => {
           <div className="flex items-center justify-between">
             <span className="text-xs font-medium text-fg flex items-center gap-1.5">
               <Activity className="w-3.5 h-3.5 text-accent" />
-              Quick-Load Benchmark Scenarios (Demo Sandbox):
+              Try a scenario
             </span>
             <span className="text-xs text-fgMuted hidden sm:inline">
-              Click any scenario to populate the test bench with verified test cases
+              Each one fills the form with a realistic example
             </span>
           </div>
 
@@ -424,7 +425,7 @@ export const SocialMonitoringView: React.FC = () => {
           <div className="flex items-center justify-between border-b border-line pb-3">
             <h2 className="text-sm font-semibold text-fg flex items-center gap-2">
               <Share2 className="w-4 h-4 text-accent" />
-              Candidate Profile Test Bench
+              Profile to check
             </h2>
             <button
               type="button"
@@ -441,7 +442,7 @@ export const SocialMonitoringView: React.FC = () => {
             {/* Display Name */}
             <div>
               <label className="font-medium text-fgSubtle block mb-1 text-xs">
-                Candidate Display Name <span className="text-danger">*</span>
+                Display name <span className="text-danger">*</span>
               </label>
               <input
                 type="text"
@@ -456,7 +457,7 @@ export const SocialMonitoringView: React.FC = () => {
             <div className="grid grid-cols-1 sm:grid-cols-2 gap-2.5">
               <div>
                 <label className="font-medium text-fgSubtle block mb-1 text-xs">
-                  Username / Handle <span className="text-danger">*</span>
+                  Handle <span className="text-danger">*</span>
                 </label>
                 <input
                   type="text"
@@ -469,7 +470,7 @@ export const SocialMonitoringView: React.FC = () => {
 
               <div>
                 <label className="font-medium text-fgSubtle block mb-1 text-xs">
-                  Social Platform
+                  Platform
                 </label>
                 <select
                   value={platform}
@@ -506,7 +507,7 @@ export const SocialMonitoringView: React.FC = () => {
             {/* Bio */}
             <div>
               <label className="font-medium text-fgSubtle block mb-1 text-xs">
-                Bio or Profile Description
+                Bio
               </label>
               <textarea
                 rows={3}
@@ -545,7 +546,7 @@ export const SocialMonitoringView: React.FC = () => {
               <div>
                 <label className="font-medium text-fgSubtle flex items-center gap-1 mb-1 text-xs">
                   <Users className="w-3.5 h-3.5 text-accent" />
-                  Follower Count (Optional)
+                  Followers (optional)
                 </label>
                 <input
                   type="text"
@@ -559,7 +560,7 @@ export const SocialMonitoringView: React.FC = () => {
               <div>
                 <label className="font-medium text-fgSubtle flex items-center gap-1 mb-1 text-xs">
                   <Calendar className="w-3.5 h-3.5 text-accent" />
-                  Creation Date (Optional)
+                  Account created (optional)
                 </label>
                 <input
                   type="date"
@@ -573,7 +574,7 @@ export const SocialMonitoringView: React.FC = () => {
             {/* Optional Observed Branding & Evidence */}
             <div>
               <label className="font-medium text-fgSubtle block mb-1 text-xs">
-                Observed Branding &amp; Imagery (Optional)
+                Branding you saw (optional)
               </label>
               <input
                 type="text"
@@ -586,7 +587,7 @@ export const SocialMonitoringView: React.FC = () => {
 
             <div>
               <label className="font-medium text-fgSubtle block mb-1 text-xs">
-                Observed Evidence &amp; Actions (Optional)
+                Other evidence (optional)
               </label>
               <textarea
                 rows={2}
@@ -622,7 +623,7 @@ export const SocialMonitoringView: React.FC = () => {
                 {isAnalyzing ? (
                   <>
                     <Loader2 className="w-4 h-4 animate-spin text-onAccent" />
-                    <span>Analyzing Multi-Signal Evidence...</span>
+                    <span>Checking…</span>
                   </>
                 ) : (
                   <>
@@ -651,7 +652,7 @@ export const SocialMonitoringView: React.FC = () => {
               <div className="w-12 h-12 rounded-lg bg-surface2 text-accent flex items-center justify-center mx-auto mb-3 border border-line">
                 <Share2 className="w-6 h-6" />
               </div>
-              <h3 className="text-sm font-medium text-fg">Awaiting Profile Analysis</h3>
+              <h3 className="text-sm font-medium text-fg">No profile checked yet</h3>
               <p className="text-xs text-fgMuted max-w-md mx-auto mt-1 leading-relaxed">
                 Enter candidate profile details on the left or select a pre-configured
                 benchmark scenario above to evaluate impersonation risks against registered brand assets.
@@ -662,14 +663,14 @@ export const SocialMonitoringView: React.FC = () => {
                   onClick={() => loadScenario(scenarios[1].data)}
                   className="px-3 py-1.5 rounded-md bg-danger/10 text-danger hover:bg-danger/20 font-medium text-xs border border-danger/30 transition-colors cursor-pointer focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-accent"
                 >
-                  Test High-Risk Scam Lure →
+                  Try a scam account
                 </button>
                 <button
                   type="button"
                   onClick={() => loadScenario(scenarios[0].data)}
                   className="px-3 py-1.5 rounded-md bg-ok/10 text-ok hover:bg-ok/20 font-medium text-xs border border-ok/30 transition-colors cursor-pointer focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-accent"
                 >
-                  Test Official Account →
+                  Try the official account
                 </button>
               </div>
             </div>
@@ -679,7 +680,7 @@ export const SocialMonitoringView: React.FC = () => {
           {isAnalyzing && (
             <div className="bg-surface rounded-xl border border-line p-10 text-center space-y-3">
               <Loader2 className="w-6 h-6 text-accent animate-spin mx-auto" />
-              <h3 className="text-sm font-medium text-fg">Evaluating Social Profile Candidates</h3>
+              <h3 className="text-sm font-medium text-fg">Checking the profile</h3>
               <div className="text-xs text-fgMuted space-y-1.5 max-w-sm mx-auto font-mono">
                 <p className="flex items-center justify-center gap-1.5">
                   <span className="w-1.5 h-1.5 rounded-full bg-accent" />
@@ -709,7 +710,7 @@ export const SocialMonitoringView: React.FC = () => {
                 <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3 border-b border-line pb-4">
                   <div>
                     <span className="text-xs font-medium text-fgSubtle block">
-                      Threat Assessment Verdict
+                      Verdict
                     </span>
                     <h3 className="text-base font-semibold text-fg flex items-center gap-2">
                       {analysisResult.candidate.name}
@@ -725,15 +726,7 @@ export const SocialMonitoringView: React.FC = () => {
                   </div>
 
                   <div className="flex items-center gap-3">
-                    <div className="text-right">
-                      <span className="text-xs font-medium text-fgSubtle block">
-                        Threat Index
-                      </span>
-                      <div className="text-xl font-mono font-semibold text-fg">
-                        {analysisResult.heuristicScore}
-                        <span className="text-xs font-normal text-fgMuted">/100</span>
-                      </div>
-                    </div>
+                    <ScoreRing score={analysisResult.heuristicScore} level={analysisResult.riskCategory} size={64} />
                     <RiskBadge level={analysisResult.riskCategory} size="lg" />
                   </div>
                 </div>
@@ -819,7 +812,7 @@ export const SocialMonitoringView: React.FC = () => {
 
                   <div>
                     <span className="text-xs font-medium text-fgSubtle block mb-1">
-                      Allowlist Registry Match
+                      Official account check
                     </span>
                     {analysisResult.isExactOfficialMatch ? (
                       <div className="text-ok font-medium flex items-center gap-1.5 font-mono">
@@ -834,7 +827,7 @@ export const SocialMonitoringView: React.FC = () => {
                     ) : (
                       <div className="text-fgMuted font-medium flex items-center gap-1.5 font-mono">
                         <BadgeAlert className="w-4 h-4 text-fgMuted" />
-                        <span>No match in official allowlist registry</span>
+                        <span>Not one of your official accounts</span>
                       </div>
                     )}
                     <div className="text-[11px] text-fgMuted mt-0.5 font-mono">
@@ -846,7 +839,7 @@ export const SocialMonitoringView: React.FC = () => {
                 {/* Candidate Profile Details Snapshot */}
                 <div className="p-3.5 rounded-lg bg-surface2 border border-line text-xs space-y-2">
                   <span className="text-xs font-medium text-fgSubtle block">
-                    Candidate Profile Summary
+                    Profile
                   </span>
                   <div className="grid grid-cols-1 sm:grid-cols-3 gap-2 text-xs">
                     <div>
@@ -884,9 +877,9 @@ export const SocialMonitoringView: React.FC = () => {
                   )}
                 </div>
 
-                {/* Executive Summary */}
+                {/* Summary */}
                 <div className="p-3.5 rounded-lg bg-accent/10 border border-accent/20 text-xs">
-                  <span className="font-medium text-accent block mb-1 font-mono">Executive Summary</span>
+                  <span className="font-medium text-accent block mb-1 font-mono">Summary</span>
                   <p className="text-fg leading-relaxed text-xs">
                     {analysisResult.executiveSummary}
                   </p>
@@ -899,7 +892,7 @@ export const SocialMonitoringView: React.FC = () => {
                       Recommended Action
                     </span>
                     <span className="px-2 py-0.5 rounded bg-surface2 text-fgMuted font-mono text-[11px] border border-line">
-                      Playbook Execution
+                      Next steps
                     </span>
                   </div>
                   <div className="text-sm font-semibold text-fg flex items-center gap-2">
@@ -1068,12 +1061,12 @@ export const SocialMonitoringView: React.FC = () => {
                     {copiedReport ? (
                       <>
                         <Check className="w-3.5 h-3.5 text-ok" />
-                        <span className="text-ok">Copied to Clipboard!</span>
+                        <span className="text-ok">Copied</span>
                       </>
                     ) : (
                       <>
                         <Copy className="w-3.5 h-3.5 text-accent" />
-                        <span>Export Intelligence Dossier</span>
+                        <span>Copy report</span>
                       </>
                     )}
                   </button>
@@ -1091,7 +1084,7 @@ export const SocialMonitoringView: React.FC = () => {
                   {createdCandidateId ? (
                     <div className="flex items-center gap-2 text-xs text-ok font-medium bg-ok/10 px-3 py-1.5 rounded-md border border-ok/30">
                       <CheckCircle2 className="w-4 h-4 text-ok" />
-                      <span>Case created in Investigation Center!</span>
+                      <span>Case created in Investigations</span>
                       <button
                         type="button"
                         onClick={() => {
@@ -1100,7 +1093,7 @@ export const SocialMonitoringView: React.FC = () => {
                         }}
                         className="text-accent underline font-semibold hover:text-fg ml-1.5 cursor-pointer"
                       >
-                        Open Dossier →
+                        Open case
                       </button>
                     </div>
                   ) : (
@@ -1109,7 +1102,7 @@ export const SocialMonitoringView: React.FC = () => {
                       onClick={handleSendToInvestigation}
                       className="px-3.5 py-1.5 rounded-md bg-accent hover:bg-accent/90 text-onAccent text-xs font-medium transition-colors flex items-center gap-1.5 cursor-pointer focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-accent"
                     >
-                      <span>Escalate to Investigation Center</span>
+                      <span>Send to investigations</span>
                       <ArrowRight className="w-3.5 h-3.5 text-onAccent" />
                     </button>
                   )}

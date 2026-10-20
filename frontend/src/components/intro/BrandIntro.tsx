@@ -58,20 +58,20 @@ export const BrandIntro: React.FC<BrandIntroProps> = ({ onComplete }) => {
           <defs>
             <clipPath id="bi-clip"><path d={OUTLINE} /></clipPath>
             <linearGradient id="bi-steel" x1="0" y1="0" x2="1" y2="1">
-              <stop offset="0" stopColor="#f2f4ff" stopOpacity="0.9" />
-              <stop offset="1" stopColor="#8b93b8" stopOpacity="0.55" />
+              <stop offset="0" stopColor="#fff6e8" stopOpacity="0.9" />
+              <stop offset="1" stopColor="#b9ad94" stopOpacity="0.55" />
             </linearGradient>
             <linearGradient id="bi-steel-dark" x1="0" y1="0" x2="1" y2="1">
-              <stop offset="0" stopColor="#aab0d0" stopOpacity="0.6" />
+              <stop offset="0" stopColor="#d6c8ab" stopOpacity="0.6" />
               <stop offset="1" stopColor="#3a3f5c" stopOpacity="0.7" />
             </linearGradient>
             <linearGradient id="bi-indigo" x1="1" y1="0" x2="0" y2="1">
-              <stop offset="0" stopColor="#a8b1ff" />
-              <stop offset="1" stopColor="#5e6ad2" />
+              <stop offset="0" stopColor="#ffd27a" />
+              <stop offset="1" stopColor="#f5a524" />
             </linearGradient>
             <linearGradient id="bi-indigo-dark" x1="1" y1="0" x2="0" y2="1">
-              <stop offset="0" stopColor="#6f7be0" />
-              <stop offset="1" stopColor="#2b3278" />
+              <stop offset="0" stopColor="#f0932b" />
+              <stop offset="1" stopColor="#7a3d06" />
             </linearGradient>
             <linearGradient id="bi-glint" x1="0" y1="0" x2="1" y2="0">
               <stop offset="0" stopColor="#fff" stopOpacity="0" />

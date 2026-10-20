@@ -5,7 +5,7 @@
   display: flex;
   align-items: center;
   justify-content: center;
-  background: radial-gradient(85% 75% at 50% 46%, #0b0c16 0%, #030305 100%);
+  background: radial-gradient(85% 75% at 50% 46%, #0d1020 0%, #05060c 100%);
   color: #fff;
   opacity: 1;
   transition: opacity 0.4s ease;
@@ -18,8 +18,8 @@
   position: absolute;
   inset: 0;
   background-image: 
-    linear-gradient(to right, rgba(104, 116, 220, 0.05) 1px, transparent 1px),
-    linear-gradient(to bottom, rgba(104, 116, 220, 0.05) 1px, transparent 1px);
+    linear-gradient(to right, rgba(245, 165, 36, 0.05) 1px, transparent 1px),
+    linear-gradient(to bottom, rgba(245, 165, 36, 0.05) 1px, transparent 1px);
   background-size: 38px 38px;
   mask-image: radial-gradient(circle at 50% 50%, rgba(0, 0, 0, 0.8) 0%, transparent 75%);
   pointer-events: none;
@@ -37,7 +37,7 @@
   background: linear-gradient(
     to bottom,
     transparent 0%,
-    rgba(104, 116, 220, 0.08) 50%,
+    rgba(245, 165, 36, 0.08) 50%,
     transparent 100%
   );
   height: 120px;
@@ -56,7 +56,7 @@
   width: 320px;
   height: 320px;
   border-radius: 50%;
-  background: radial-gradient(circle, rgba(104, 116, 220, 0.22) 0%, rgba(167, 139, 250, 0.1) 40%, transparent 70%);
+  background: radial-gradient(circle, rgba(245, 165, 36, 0.22) 0%, rgba(255, 194, 75, 0.1) 40%, transparent 70%);
   filter: blur(40px);
   pointer-events: none;
   animation: bi-aura-breathe 2.4s ease-in-out infinite alternate;
@@ -80,19 +80,19 @@
 /* Interactive Hover Effects on the lockup */
 .bi__lockup:hover {
   transform: scale(1.04);
-  filter: drop-shadow(0 0 28px rgba(104, 116, 220, 0.5));
+  filter: drop-shadow(0 0 28px rgba(245, 165, 36, 0.5));
   cursor: pointer;
 }
 .bi__lockup:hover .bi__word {
-  text-shadow: 0 0 22px rgba(167, 139, 250, 0.8);
+  text-shadow: 0 0 22px rgba(255, 194, 75, 0.8);
 }
 .bi__lockup:hover .bi__rule {
-  background: linear-gradient(90deg, #6874dc, #a78bfa, transparent);
-  box-shadow: 0 0 12px rgba(104, 116, 220, 0.85);
+  background: linear-gradient(90deg, #f5a524, #ffc24b, transparent);
+  box-shadow: 0 0 12px rgba(245, 165, 36, 0.85);
 }
 .bi__lockup:hover .bi__outline {
   stroke: rgba(255, 255, 255, 0.95);
-  filter: drop-shadow(0 0 8px rgba(104, 116, 220, 0.8));
+  filter: drop-shadow(0 0 8px rgba(245, 165, 36, 0.8));
 }
 
 .bi__shield {
@@ -115,7 +115,7 @@
   animation: bi-fly 0.7s cubic-bezier(0.2, 0.85, 0.2, 1) forwards;
 }
 .bi__gem {
-  fill: #c7ceff;
+  fill: #ffe2a8;
   stroke: rgba(0, 0, 0, 0.8);
   stroke-width: 0.6;
   stroke-linejoin: round;
@@ -197,8 +197,8 @@
   bottom: 0;
   height: 2px;
   width: 0;
-  background: linear-gradient(90deg, rgba(104, 116, 220, 0.7), rgba(167, 139, 250, 0.95));
-  box-shadow: 0 0 10px rgba(104, 116, 220, 0.8);
+  background: linear-gradient(90deg, rgba(245, 165, 36, 0.7), rgba(255, 194, 75, 0.95));
+  box-shadow: 0 0 10px rgba(245, 165, 36, 0.8);
   animation: bi-bar 3.2s linear forwards;
 }
 

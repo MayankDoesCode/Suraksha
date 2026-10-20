@@ -20,10 +20,11 @@ function useInView(ref, threshold = 0.15) {
       if (r.height > 0 && visible >= Math.min(r.height * threshold, window.innerHeight * 0.3)) setSeen(true);
     };
     check();
-    window.addEventListener('scroll', check, { passive: true });
+    // Capture phase so scrolling inside any container (the workspace scrolls its own <main>) is seen too.
+    document.addEventListener('scroll', check, { passive: true, capture: true });
     window.addEventListener('resize', check);
     return () => {
-      window.removeEventListener('scroll', check);
+      document.removeEventListener('scroll', check, { capture: true });
       window.removeEventListener('resize', check);
     };
   }, [ref, seen, threshold]);

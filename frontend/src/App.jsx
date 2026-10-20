@@ -1,6 +1,18 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, lazy, Suspense } from 'react';
 import LandingPage from './components/landing/LandingPage';
-import WorkspaceShell from './components/WorkspaceShell';
+import { ErrorBoundary } from './components/ErrorBoundary';
+
+// The workspace (Firebase, charts, every console view) loads only when it is opened,
+// so the landing page ships a much smaller first bundle.
+const loadWorkspace = () => import('./components/WorkspaceShell');
+const WorkspaceShell = lazy(loadWorkspace);
+
+// Fetch the workspace chunk once the landing page is idle: the demo opens instantly, and the
+// service worker caches it so the installed app still opens the demo offline.
+if (typeof window !== 'undefined') {
+  const warm = () => loadWorkspace().catch(() => {});
+  window.addEventListener('load', () => (window.requestIdleCallback ? window.requestIdleCallback(warm, { timeout: 4000 }) : setTimeout(warm, 2000)), { once: true });
+}
 import BrandIntro from './components/intro/BrandIntro';
 
 /**
@@ -13,7 +25,13 @@ export default function App() {
   const [route, setRoute] = useState(() => {
     return window.location.pathname.startsWith('/dashboard') ? '/dashboard' : '/';
   });
-  const [navOptions, setNavOptions] = useState(null);
+  // /dashboard?demo opens the demo workspace directly (shareable link for judges and QR codes);
+  // add &tab=<page id> to land on a specific page.
+  const [navOptions, setNavOptions] = useState(() => {
+    if (typeof window === 'undefined' || !window.location.pathname.startsWith('/dashboard')) return null;
+    const params = new URLSearchParams(window.location.search);
+    return params.has('demo') ? { mode: 'demo', tab: params.get('tab') || undefined } : null;
+  });
 
   // Play brand intro every time landing page is opened
   const [showIntro, setShowIntro] = useState(() => {
@@ -56,21 +74,25 @@ export default function App() {
 
   if (route === '/dashboard') {
     return (
-      <WorkspaceShell
-        onNavigateHome={() => navigate('/')}
-        initialAuthMode={navOptions?.mode}
-        initialTab={navOptions?.tab}
-      />
+      <ErrorBoundary fullscreen>
+      <Suspense fallback={<div className="min-h-[100dvh] w-full bg-canvas" aria-busy="true" />}>
+        <WorkspaceShell
+          onNavigateHome={() => navigate('/')}
+          initialAuthMode={navOptions?.mode}
+          initialTab={navOptions?.tab}
+        />
+      </Suspense>
+      </ErrorBoundary>
     );
   }
 
   return (
-    <>
+    <ErrorBoundary fullscreen>
       {showIntro && <BrandIntro onComplete={handleIntroComplete} />}
       <LandingPage
         onLaunchDashboard={(options) => navigate('/dashboard', options)}
         onReplayIntro={handleReplayIntro}
       />
-    </>
+    </ErrorBoundary>
   );
 }
