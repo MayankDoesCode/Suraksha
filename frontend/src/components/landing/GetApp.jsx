@@ -35,7 +35,7 @@ export default function GetApp() {
   };
 
   return (
-    <div className="rounded-3xl border border-line bg-surface p-6 sm:p-7" id="get-app">
+    <div className="rounded-3xl border border-line bg-surface p-6 sm:p-7" id="get-app-card">
       <p className="flex items-center gap-2.5 text-base font-semibold text-fg">
         <span className="flex h-9 w-9 items-center justify-center rounded-xl border border-accent/25 bg-accent/10 text-accent">
           <Smartphone className="h-4 w-4" strokeWidth={1.75} />
@@ -68,7 +68,7 @@ export default function GetApp() {
         </p>
       )}
       <p className="mt-4 text-xs leading-relaxed text-fgSubtle">
-        Android: open the downloaded file and allow installs from this source.
+        Android: open the downloaded file and allow installs from this source. If the download is not available yet, install the web app instead.
       </p>
     </div>
   );

@@ -4,8 +4,27 @@
     {
       "name": "frontend",
       "runtimeExecutable": "npm",
-      "runtimeArgs": ["--prefix", "frontend", "run", "preview", "--", "--port", "5173", "--host", "127.0.0.1"],
+      "runtimeArgs": [
+        "--prefix",
+        "frontend",
+        "run",
+        "preview",
+        "--",
+        "--port",
+        "5173",
+        "--host",
+        "127.0.0.1"
+      ],
       "port": 5173
+    },
+    {
+      "name": "backend",
+      "runtimeExecutable": ".venv/Scripts/python.exe",
+      "runtimeArgs": [
+        "-m",
+        "backend.run"
+      ],
+      "port": 5000
     }
   ]
 }

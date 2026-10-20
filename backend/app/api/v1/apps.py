@@ -24,7 +24,7 @@ def monitor_apps():
     brand = {**brand, "name": name}
 
     queries = list(dict.fromkeys([name, f"{name} app", f"{name} wallet", *[str(q) for q in (p.get("queries") or [])]]))[:4]
-    wanted = [s for s in (p.get("sources") or list(app_sources.SOURCES)) if s in app_sources.SOURCES]
+    wanted = [s for s in (p["sources"] if isinstance(p.get("sources"), list) else list(app_sources.SOURCES)) if s in app_sources.SOURCES]
     candidates, statuses = [], []
     for src in wanted:
         for q in queries:

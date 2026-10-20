@@ -16,6 +16,7 @@
     "@capacitor/cli": "^8.5.3",
     "@capacitor/core": "^8.5.3",
     "firebase": "^13.0.0",
+    "framer-motion": "^14.4.0",
     "lucide-react": "^1.56.0",
     "react": "^19.0.0",
     "react-dom": "^19.0.0"

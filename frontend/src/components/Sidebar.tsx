@@ -1,4 +1,5 @@
 import React from 'react';
+import { motion } from 'framer-motion';
 import { ArrowLeft, ChevronDown, LogOut, RefreshCw } from 'lucide-react';
 import { SurakshaLogo } from './SurakshaLogo';
 import { useApp } from '../context/AppContext';
@@ -108,12 +109,13 @@ export const Sidebar: React.FC<SidebarProps> = ({ onNavigateHome, isOpen, onClos
                           onClick={() => go(item.id)}
                           aria-current={active ? 'page' : undefined}
                           className={`relative flex w-full items-center gap-2.5 rounded-lg px-2.5 py-[7px] text-[13px] transition-colors ${
-                            active ? 'bg-surface3 font-medium text-fg' : 'text-fgMuted hover:bg-surface3/60 hover:text-fg'
+                            active ? 'font-medium text-fg' : 'text-fgMuted hover:bg-surface3/60 hover:text-fg'
                           }`}
                         >
-                          {active && <span className="absolute inset-y-1.5 -left-2 w-[3px] rounded-r-full bg-accent" aria-hidden />}
-                          <Icon className={`h-4 w-4 shrink-0 ${active ? 'text-accent' : ''}`} strokeWidth={1.75} />
-                          <span className="truncate">{item.label}</span>
+                          {active && <motion.span layoutId="nav-pill" className="absolute inset-0 rounded-lg bg-surface3" transition={{ type: 'spring', stiffness: 420, damping: 34 }} aria-hidden />}
+                          {active && <motion.span layoutId="nav-bar" className="absolute inset-y-1.5 -left-2 w-[3px] rounded-r-full bg-accent" transition={{ type: 'spring', stiffness: 420, damping: 34 }} aria-hidden />}
+                          <Icon className={`relative h-4 w-4 shrink-0 transition-colors ${active ? 'text-accent' : ''}`} strokeWidth={1.75} />
+                          <span className="relative truncate">{item.label}</span>
                           {count && (
                             <span className={`ml-auto text-[11px] tabular-nums ${count.tone === 'danger' ? 'text-danger' : 'text-warn'}`}>{count.n}</span>
                           )}

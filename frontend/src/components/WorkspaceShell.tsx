@@ -125,7 +125,7 @@ const WorkspaceContent: React.FC<WorkspaceShellProps> = ({ onNavigateHome, initi
           </div>
 
           <main id="workspace-main" tabIndex={-1} className="relative z-10 flex-1 overflow-y-auto focus:outline-none p-4 pb-24 sm:p-6 sm:pb-24 lg:p-8">
-            <div key={activeTab} className="sk-fade-in mx-auto w-full max-w-[1720px]">
+            <div key={activeTab} className="page-enter mx-auto w-full max-w-[1720px]">
               <ErrorBoundary key={activeTab} label={pageInfo(activeTab)?.label} onReset={() => setActiveTab('overview')}>
                 {renderActiveView()}
               </ErrorBoundary>

@@ -33,7 +33,7 @@ def monitor():
         return jsonify({"success": False, "error": {"code": "VALIDATION_ERROR", "message": "brand_profile.name is required."}}), 422
     brand = {**brand, "name": name}
 
-    wanted = [s for s in (p.get("sources") or list(social_sources.SOURCES)) if s in social_sources.SOURCES]
+    wanted = [s for s in (p["sources"] if isinstance(p.get("sources"), list) else list(social_sources.SOURCES)) if s in social_sources.SOURCES]
     candidates, statuses = [], []
     for src in wanted:
         for q in _queries(name, p.get("queries")):

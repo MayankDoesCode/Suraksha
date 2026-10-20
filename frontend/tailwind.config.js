@@ -74,6 +74,7 @@ export default {
       },
       fontFamily: {
         sans: ['Geist', 'Noto Sans Devanagari', 'system-ui', '-apple-system', 'BlinkMacSystemFont', 'Segoe UI', 'Roboto', 'sans-serif'],
+        display: ['Funnel Display', 'Geist', 'system-ui', 'sans-serif'],
         mono: ['Geist Mono', 'JetBrains Mono', 'SFMono-Regular', 'Menlo', 'Consolas', 'monospace'],
         deva: ['Noto Sans Devanagari', 'Geist', 'sans-serif'],
       },

@@ -2,7 +2,7 @@ import React from 'react';
 import { Moon, Sun } from 'lucide-react';
 
 export type ThemePreference = 'light' | 'dark' | 'system';
-const STORAGE_KEY = 'suraksha.theme'; // UI preference only; nothing sensitive is stored.
+const STORAGE_KEY = 'suraksha.theme.v3'; // UI preference only; nothing sensitive is stored.
 
 const readPreference = (): ThemePreference => {
   try {
