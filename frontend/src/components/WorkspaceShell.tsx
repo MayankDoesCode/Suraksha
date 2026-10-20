@@ -8,6 +8,8 @@ import { CandidateModal } from './CandidateModal';
 import { CommandPalette } from './CommandPalette';
 import { AuthView } from '../views/AuthView';
 import { ThemeProvider } from '../context/ThemeContext';
+import { ErrorBoundary } from './ErrorBoundary';
+import { pageInfo } from './navigation';
 
 import { OverviewDashboard } from '../views/OverviewDashboard';
 import { BrandProfileView } from '../views/BrandProfileView';
@@ -124,7 +126,9 @@ const WorkspaceContent: React.FC<WorkspaceShellProps> = ({ onNavigateHome, initi
 
           <main id="workspace-main" tabIndex={-1} className="relative z-10 flex-1 overflow-y-auto focus:outline-none p-4 pb-24 sm:p-6 sm:pb-24 lg:p-8">
             <div key={activeTab} className="sk-fade-in mx-auto w-full max-w-[1720px]">
-              {renderActiveView()}
+              <ErrorBoundary key={activeTab} label={pageInfo(activeTab)?.label} onReset={() => setActiveTab('overview')}>
+                {renderActiveView()}
+              </ErrorBoundary>
             </div>
           </main>
         </div>

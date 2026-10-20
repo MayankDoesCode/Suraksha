@@ -517,11 +517,11 @@ export const BrandProfileView: React.FC = () => {
           <div className="flex items-center justify-between border-b border-line pb-3">
             <h3 className="text-sm font-semibold text-fg flex items-center gap-2">
               <Building2 className="w-4 h-4 text-accent" />
-              Brand Identity &amp; Primary Web Presence
+              Brand identity
             </h3>
             {brandName ? (
               <span className="text-xs text-ok font-medium flex items-center gap-1 font-mono">
-                <Check className="w-3.5 h-3.5" /> Active Protected Entity
+                <Check className="w-3.5 h-3.5" /> Protected
               </span>
             ) : (
               <span className="text-xs text-warn font-mono">Empty Profile State</span>
@@ -532,7 +532,7 @@ export const BrandProfileView: React.FC = () => {
             {/* Logo Upload & Preview */}
             <div className="space-y-2">
               <label className="text-xs font-medium text-fgSubtle block">
-                Brand Logo / Official Seal
+                Logo
               </label>
               <div className="flex items-center gap-3">
                 <div className="w-20 h-20 rounded-lg border border-dashed border-line flex items-center justify-center bg-surface2 overflow-hidden shrink-0 relative group">
@@ -612,7 +612,7 @@ export const BrandProfileView: React.FC = () => {
 
               <div>
                 <label className="text-xs font-medium text-fgSubtle block mb-1">
-                  Brand Commercial Description &amp; Scope
+                  Description
                 </label>
                 <textarea
                   rows={2}
@@ -627,7 +627,7 @@ export const BrandProfileView: React.FC = () => {
               {/* Protected Keyword Chips */}
               <div>
                 <label className="text-xs font-medium text-fgSubtle block mb-1">
-                  Protected Trademark Keywords &amp; Variants
+                  Protected names and variants
                 </label>
                 <div className="flex flex-wrap gap-1.5 mb-2">
                   {protectedKeywords.map((kw, idx) => (
@@ -1095,7 +1095,7 @@ export const BrandProfileView: React.FC = () => {
               </p>
             </div>
             <span className="text-[11px] text-warn font-mono bg-warn/10 px-2 py-0.5 rounded-md border border-warn/30">
-              Co-Marketing Directory
+              Partners
             </span>
           </div>
 

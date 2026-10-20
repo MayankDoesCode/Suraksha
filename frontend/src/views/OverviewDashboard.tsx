@@ -16,6 +16,7 @@ import {
 import { useApp } from '../context/AppContext';
 import { useAuth } from '../context/AuthContext';
 import { Donut } from '../components/dashboard/charts';
+import { ThreatRadarCard, FunnelCard, ChannelCard, ActivityCard } from '../components/dashboard/ExposureVisuals';
 import { CountUp } from '../components/landing/Reveal';
 import { deriveThreatGraph } from '../utils/threatGraph';
 import type { CandidateAsset, InvestigationStatus, RiskLevel } from '../types';
@@ -375,6 +376,24 @@ export const OverviewDashboard: React.FC = () => {
           </div>
         </section>
       </div>
+
+      {/* Exposure: where impostors are, how the queue narrows, and recent activity. Drawn from the findings only. */}
+      {candidates.length > 0 && (
+        <div className="grid grid-cols-1 gap-6 md:grid-cols-2 xl:grid-cols-12">
+          <div className="md:row-span-2 xl:col-span-4">
+            <ThreatRadarCard open={open} onOpen={() => setActiveTab('threat-graph')} />
+          </div>
+          <div className="xl:col-span-4">
+            <ChannelCard open={open} onPick={() => setActiveTab('reports')} />
+          </div>
+          <div className="xl:col-span-4">
+            <FunnelCard candidates={candidates} />
+          </div>
+          <div className="md:col-span-2 xl:col-span-8">
+            <ActivityCard candidates={candidates} />
+          </div>
+        </div>
+      )}
 
       {/* Full-Width "Needs Attention" Triage Table / Queue */}
       <section aria-labelledby="queue-h" className="space-y-3">

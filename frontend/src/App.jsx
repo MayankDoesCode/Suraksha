@@ -1,5 +1,6 @@
 import React, { useState, useEffect, lazy, Suspense } from 'react';
 import LandingPage from './components/landing/LandingPage';
+import { ErrorBoundary } from './components/ErrorBoundary';
 
 // The workspace (Firebase, charts, every console view) loads only when it is opened,
 // so the landing page ships a much smaller first bundle.
@@ -73,6 +74,7 @@ export default function App() {
 
   if (route === '/dashboard') {
     return (
+      <ErrorBoundary fullscreen>
       <Suspense fallback={<div className="min-h-[100dvh] w-full bg-canvas" aria-busy="true" />}>
         <WorkspaceShell
           onNavigateHome={() => navigate('/')}
@@ -80,16 +82,17 @@ export default function App() {
           initialTab={navOptions?.tab}
         />
       </Suspense>
+      </ErrorBoundary>
     );
   }
 
   return (
-    <>
+    <ErrorBoundary fullscreen>
       {showIntro && <BrandIntro onComplete={handleIntroComplete} />}
       <LandingPage
         onLaunchDashboard={(options) => navigate('/dashboard', options)}
         onReplayIntro={handleReplayIntro}
       />
-    </>
+    </ErrorBoundary>
   );
 }
