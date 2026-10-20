@@ -10,59 +10,63 @@
  *   danger = critical / destructive      high = high severity     warn = medium / caution
  *   ok     = low / verified safe         accent = primary action  ai = AI- or ML-derived content
  */
+/*
+ * Palette: "night watch". A blue-black ink canvas, one signal-cyan accent that matches the shield logo,
+ * and the fixed severity colours below. Text on a solid accent fill is dark ink (on-accent), never white.
+ */
 :root {
   color-scheme: dark;
-  --c-canvas: 10 10 11;
-  --c-surface: 19 19 21;
-  --c-surface-2: 14 14 16;
-  --c-surface-3: 30 30 34;
-  --c-line: 36 36 41;
-  --c-fg: 247 248 248;
-  --c-fg-muted: 140 144 153;
-  --c-fg-subtle: 114 118 127;
-  --c-accent: 104 116 220;
-  --c-accent-hover: 126 136 232;
-  --c-on-accent: 255 255 255;
+  --c-canvas: 6 10 17;
+  --c-surface: 12 18 28;
+  --c-surface-2: 9 14 22;
+  --c-surface-3: 21 29 43;
+  --c-line: 29 39 56;
+  --c-fg: 230 237 245;
+  --c-fg-muted: 150 164 184;
+  --c-fg-subtle: 120 135 156;
+  --c-accent: 56 200 240;
+  --c-accent-hover: 110 218 248;
+  --c-on-accent: 3 16 26;
   --c-ai: 167 139 250;
-  --c-ok: 76 183 130;
-  --c-warn: 242 201 76;
-  --c-high: 242 153 74;
-  --c-danger: 235 87 87;
-  --shadow: 0 0 0;
+  --c-ok: 74 196 140;
+  --c-warn: 240 200 80;
+  --c-high: 245 150 70;
+  --c-danger: 244 90 96;
+  --shadow: 0 4 12;
 }
 
 :root[data-theme='light'] {
   color-scheme: light;
-  --c-canvas: 251 251 252;
+  --c-canvas: 244 247 251;
   --c-surface: 255 255 255;
-  --c-surface-2: 245 246 247;
-  --c-surface-3: 236 237 240;
-  --c-line: 230 231 235;
-  --c-fg: 28 29 33;
-  --c-fg-muted: 92 96 105;
-  --c-fg-subtle: 112 116 125;
-  --c-accent: 94 106 210;
-  --c-accent-hover: 78 90 196;
+  --c-surface-2: 240 244 249;
+  --c-surface-3: 229 235 243;
+  --c-line: 219 227 238;
+  --c-fg: 12 20 33;
+  --c-fg-muted: 72 86 107;
+  --c-fg-subtle: 96 110 130;
+  --c-accent: 3 120 170;
+  --c-accent-hover: 2 101 145;
   --c-on-accent: 255 255 255;
-  --c-ai: 124 58 237;
-  --c-ok: 22 120 74;
-  --c-warn: 161 98 7;
-  --c-high: 194 65 12;
-  --c-danger: 207 34 46;
-  --shadow: 15 23 42;
+  --c-ai: 109 40 217;
+  --c-ok: 21 118 73;
+  --c-warn: 150 92 4;
+  --c-high: 190 70 10;
+  --c-danger: 200 30 45;
+  --shadow: 15 30 60;
 }
 
 /* Density: a slightly smaller root makes every rem-based size and gap tighter. */
 html { font-size: 15px; }
 
-h1, h2, h3 { letter-spacing: -0.02em; }
+h1, h2, h3 { letter-spacing: -0.025em; }
 
 body {
   margin: 0;
   min-height: 100vh;
   background-color: rgb(var(--c-canvas));
   color: rgb(var(--c-fg));
-  font-feature-settings: 'cv02', 'cv03', 'cv04', 'cv11';
+  font-feature-settings: 'ss01', 'tnum' 0;
   font-size: 0.9rem;
   -webkit-font-smoothing: antialiased;
   -moz-osx-font-smoothing: grayscale;
@@ -71,7 +75,10 @@ body {
 :focus-visible {
   outline: 2px solid rgb(var(--c-accent));
   outline-offset: 2px;
+  border-radius: 4px;
 }
+
+::selection { background: rgb(var(--c-accent) / 0.28); color: rgb(var(--c-fg)); }
 
 ::-webkit-scrollbar { width: 8px; height: 8px; }
 ::-webkit-scrollbar-track { background: transparent; }
@@ -83,10 +90,10 @@ body {
 .cyber-panel-elevated {
   background: rgb(var(--c-surface));
   border: 1px solid rgb(var(--c-line));
-  border-radius: 0.5rem;
-  box-shadow: none;
+  border-radius: 0.625rem;
+  box-shadow: inset 0 1px 0 rgb(255 255 255 / 0.03);
 }
-.cyber-panel-elevated { box-shadow: 0 6px 18px -4px rgb(var(--shadow) / 0.25); }
+.cyber-panel-elevated { box-shadow: inset 0 1px 0 rgb(255 255 255 / 0.04), 0 12px 32px -12px rgb(var(--shadow) / 0.45); }
 .cyber-panel-subsurface {
   background: rgb(var(--c-surface-2));
   border: 1px solid rgb(var(--c-line));
@@ -100,9 +107,10 @@ body {
   background-color: rgb(var(--c-accent));
   color: rgb(var(--c-on-accent));
   font-weight: 600;
-  transition: background-color 0.15s ease;
+  transition: background-color 0.15s ease, transform 0.15s ease;
 }
 .btn-cyber-primary:hover { background-color: rgb(var(--c-accent-hover)); }
+.btn-cyber-primary:active { transform: scale(0.98); }
 .btn-cyber-secondary {
   background-color: rgb(var(--c-surface));
   color: rgb(var(--c-fg));
@@ -184,6 +192,58 @@ input::placeholder, textarea::placeholder { color: rgb(var(--c-fg-subtle)); }
 @keyframes sk-node { from { opacity: 0; transform: scale(0.3); } to { opacity: 1; transform: scale(1); } }
 .sk-pop { animation: sk-node 0.5s cubic-bezier(0.2, 0.7, 0.2, 1) both; }
 @media (prefers-reduced-motion: reduce) { .sk-seg, .sk-grow, .sk-fade, .sk-pop { animation: none !important; } }
+/* ---------- Landing ("night watch") ---------- */
+
+/* Faint measurement grid behind the hero. Static, fixed to its section, never on a scrolling layer. */
+.lp-grid {
+  background-image:
+    linear-gradient(rgb(var(--c-line) / 0.55) 1px, transparent 1px),
+    linear-gradient(90deg, rgb(var(--c-line) / 0.55) 1px, transparent 1px);
+  background-size: 56px 56px;
+  -webkit-mask-image: radial-gradient(ellipse 70% 60% at 60% 40%, #000 30%, transparent 75%);
+  mask-image: radial-gradient(ellipse 70% 60% at 60% 40%, #000 30%, transparent 75%);
+}
+
+/* Film grain on a fixed, non-interactive layer. */
+.lp-grain::after {
+  content: '';
+  position: fixed;
+  inset: 0;
+  pointer-events: none;
+  z-index: 60;
+  opacity: 0.035;
+  background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='160' height='160'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='2' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)'/%3E%3C/svg%3E");
+}
+
+/* The scanner beam that sweeps across the specimen. */
+@keyframes lp-sweep { 0% { transform: translateX(-10%); opacity: 0; } 12% { opacity: 1; } 88% { opacity: 1; } 100% { transform: translateX(1000%); opacity: 0; } }
+.lp-beam { animation: lp-sweep 1.6s cubic-bezier(0.45, 0, 0.25, 1) both; }
+
+/* A glyph being unmasked: it flickers, then locks into the danger state. */
+@keyframes lp-unmask {
+  0% { color: rgb(var(--c-fg)); text-shadow: none; }
+  20% { color: rgb(var(--c-danger)); transform: translateY(-2px); }
+  30% { color: rgb(var(--c-fg)); transform: none; }
+  45%, 100% { color: rgb(var(--c-danger)); }
+}
+.lp-unmask { animation: lp-unmask 0.9s steps(1, end) both; }
+@keyframes lp-tag-in { from { opacity: 0; transform: translateY(6px) scale(0.96); } to { opacity: 1; transform: none; } }
+.lp-tag-in { animation: lp-tag-in 0.35s cubic-bezier(0.2, 0.7, 0.2, 1) both; }
+
+/* Detections ticker. One marquee on the page, paused on hover. */
+@keyframes lp-marquee { from { transform: translateX(0); } to { transform: translateX(-50%); } }
+.lp-marquee { animation: lp-marquee 48s linear infinite; }
+.lp-marquee:hover, .lp-marquee:focus-within { animation-play-state: paused; }
+
+/* Radar sweep used in the coverage bento. */
+@keyframes lp-rotate { to { transform: rotate(360deg); } }
+.lp-radar { animation: lp-rotate 6s linear infinite; transform-origin: 50% 50%; }
+
+@media (prefers-reduced-motion: reduce) {
+  .lp-beam, .lp-unmask, .lp-tag-in, .lp-marquee, .lp-radar { animation: none !important; }
+  .lp-unmask { color: rgb(var(--c-danger)); }
+}
+
 @keyframes sk-grow-x { from { transform: scaleX(0); } to { transform: scaleX(1); } }
 .sk-grow-x { transform-origin: left; animation: sk-grow-x 0.9s cubic-bezier(0.2, 0.7, 0.2, 1) 0.3s both; }
 @media (prefers-reduced-motion: reduce) { .sk-grow-x { animation: none !important; } }

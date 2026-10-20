@@ -15,6 +15,7 @@ import {
   Sparkles,
 } from 'lucide-react';
 import { SurakshaLogo } from '../components/SurakshaLogo';
+import HomoglyphSpecimen from '../components/landing/HomoglyphSpecimen';
 
 interface AuthViewProps {
   onNavigateHome?: () => void;
@@ -164,7 +165,7 @@ export const AuthView: React.FC<AuthViewProps> = ({ onNavigateHome, initialMode 
   const activeError = localError || error;
 
   return (
-    <div className="relative min-h-screen w-full flex flex-col justify-between items-center bg-canvas font-sans text-fg py-8 px-4 sm:px-6 selection:bg-accent/30 selection:text-fg">
+    <div className="relative grid min-h-[100dvh] w-full bg-canvas font-sans text-fg lg:grid-cols-[1.05fr,1fr]">
       {/* Background Ambient Glow (matches app design system) */}
       <div aria-hidden className="pointer-events-none fixed inset-0 overflow-hidden select-none z-0">
         <div className="absolute top-1/4 left-1/2 -translate-x-1/2 -translate-y-1/2 h-[450px] w-[500px] rounded-full bg-accent/[0.07] blur-[140px]" />
@@ -179,6 +180,30 @@ export const AuthView: React.FC<AuthViewProps> = ({ onNavigateHome, initialMode 
         <div className="absolute inset-0 bg-gradient-to-b from-canvas/30 via-transparent to-canvas/80" />
       </div>
 
+      {/* Brand panel (desktop): the same homoglyph scanner the landing page opens with */}
+      <aside className="relative z-10 hidden flex-col justify-between overflow-hidden border-r border-line bg-surface2/70 p-10 lg:flex xl:p-14">
+        <div aria-hidden className="lp-grid pointer-events-none absolute inset-0 opacity-70" />
+        <div className="relative flex items-center gap-2.5">
+          <SurakshaLogo size={28} />
+          <span className="text-lg font-semibold tracking-tight">Suraksha</span>
+          <span className="font-deva text-sm text-fgSubtle" lang="hi">सुरक्षा</span>
+        </div>
+        <div className="relative my-10 max-w-[560px]">
+          <h2 className="max-w-[18ch] text-4xl font-semibold leading-[1.08] tracking-[-0.035em] text-fg xl:text-[2.75rem]">
+            Every flag comes with its reasons.
+          </h2>
+          <p className="mt-4 max-w-[46ch] leading-relaxed text-fgMuted">
+            Look-alike handles, copied logos and fake app listings, each one explained signal by signal.
+          </p>
+          <div className="mt-10">
+            <HomoglyphSpecimen />
+          </div>
+        </div>
+        <p className="relative text-sm text-fgSubtle">Findings are advisory. A person confirms every case.</p>
+      </aside>
+
+      <div className="relative z-10 flex min-h-[100dvh] flex-col items-center justify-between px-4 py-8 sm:px-6">
+
       {/* Top Header / Back Navigation */}
       <header className="relative z-10 w-full max-w-md flex items-center justify-between">
         {onNavigateHome ? (
@@ -188,15 +213,12 @@ export const AuthView: React.FC<AuthViewProps> = ({ onNavigateHome, initialMode 
             className="group inline-flex items-center gap-2 rounded-lg border border-line bg-surface/80 px-3 py-1.5 text-xs font-medium text-fgMuted backdrop-blur-md transition-all hover:bg-surface2 hover:text-fg hover:border-line"
           >
             <ArrowLeft className="h-3.5 w-3.5 transition-transform duration-200 group-hover:-translate-x-0.5" />
-            <span>Overview</span>
+            <span>Back to site</span>
           </button>
         ) : (
           <div />
         )}
-        <div className="flex items-center gap-2 rounded-full border border-ok/30 bg-ok/10 px-2.5 py-1 text-[11px] font-medium text-ok">
-          <span className="h-1.5 w-1.5 rounded-full bg-ok animate-pulse" />
-          <span>SOC Platform Active</span>
-        </div>
+
       </header>
 
       {/* Main Authentication Card */}
@@ -208,22 +230,16 @@ export const AuthView: React.FC<AuthViewProps> = ({ onNavigateHome, initialMode 
           {/* Brand Emblem & Heading */}
           <div className="flex flex-col items-center text-center mb-6">
             <div className="relative mb-3 flex items-center justify-center">
-              <SurakshaLogo size={46} glow={true} className="relative z-10" />
-            </div>
-            <div className="flex items-center gap-2 mb-1">
-              <span className="text-xs font-bold tracking-[0.2em] text-fg uppercase">SURAKSHA</span>
-              <span className="rounded-full bg-accent/15 border border-accent/30 px-2 py-0.5 text-[10px] font-mono text-accent">
-                SOC v1.0
-              </span>
+              <SurakshaLogo size={44} className="relative z-10" />
             </div>
             <h1 className="text-xl sm:text-2xl font-bold tracking-tight text-fg">
-              {mode === 'login' && 'Sign in to Console'}
-              {mode === 'signup' && 'Create SOC Workspace'}
+              {mode === 'login' && 'Sign in to Suraksha'}
+              {mode === 'signup' && 'Create your workspace'}
               {mode === 'forgot' && 'Reset your password'}
             </h1>
             <p className="mt-1 text-xs text-fgMuted leading-relaxed">
-              {mode === 'login' && 'Enter your credentials to access the brand protection platform.'}
-              {mode === 'signup' && 'Establish an analyst account to configure real-time monitoring.'}
+              {mode === 'login' && 'Pick up where your team left off.'}
+              {mode === 'signup' && 'Set up an analyst account to start monitoring your brand.'}
               {mode === 'forgot' && 'Enter your work email to receive password recovery instructions.'}
             </p>
           </div>
@@ -282,7 +298,7 @@ export const AuthView: React.FC<AuthViewProps> = ({ onNavigateHome, initialMode 
 
               <div className="my-5 flex items-center gap-3 text-xs text-fgSubtle">
                 <span className="h-px flex-1 bg-line" />
-                <span className="font-mono text-[10px] uppercase tracking-wider text-fgSubtle">or continue with email</span>
+                <span className="text-xs text-fgSubtle">or use email</span>
                 <span className="h-px flex-1 bg-line" />
               </div>
             </>
@@ -369,7 +385,7 @@ export const AuthView: React.FC<AuthViewProps> = ({ onNavigateHome, initialMode 
                     <span>Signing in…</span>
                   </>
                 ) : (
-                  <span>Sign In to Console</span>
+                  <span>Sign in</span>
                 )}
               </button>
             </form>
@@ -599,21 +615,18 @@ export const AuthView: React.FC<AuthViewProps> = ({ onNavigateHome, initialMode 
           <button
             type="button"
             onClick={signInAsDemoAnalyst}
-            className="group w-full flex items-center justify-between rounded-xl border border-line bg-surface/80 px-4 py-3 backdrop-blur-md transition-all duration-200 hover:border-accent/40 hover:bg-surface2 cursor-pointer shadow-sm"
+            className="group w-full flex items-center justify-between rounded-2xl border border-line bg-surface/80 px-4 py-3.5 backdrop-blur-md transition-colors duration-200 hover:border-accent/40 hover:bg-surface2 cursor-pointer"
           >
             <div className="flex items-center gap-2.5">
               <span className="flex h-7 w-7 items-center justify-center rounded-lg bg-ok/15 text-ok border border-ok/30">
                 <ShieldCheck className="h-4 w-4" />
               </span>
               <div className="text-left">
-                <div className="flex items-center gap-1.5">
-                  <span className="text-xs font-semibold text-fg group-hover:text-accent transition-colors">
-                    Direct Analyst Access
-                  </span>
-                  <span className="h-1.5 w-1.5 rounded-full bg-ok animate-pulse" />
-                </div>
-                <span className="text-[11px] text-fgMuted block">
-                  1-click entry to explore live SOC operations (Sandbox)
+                <span className="block text-sm font-semibold text-fg transition-colors group-hover:text-accent">
+                  Explore with demo data
+                </span>
+                <span className="block text-xs text-fgMuted">
+                  A sample brand and its findings. No sign-up needed.
                 </span>
               </div>
             </div>
@@ -622,19 +635,10 @@ export const AuthView: React.FC<AuthViewProps> = ({ onNavigateHome, initialMode 
         </div>
       </main>
 
-      {/* Subtle Credibility Bar: "not much but a little bit" */}
-      <footer className="relative z-10 w-full max-w-md text-center">
-        <div className="inline-flex items-center justify-center gap-2.5 text-[11px] text-fgSubtle">
-          <span className="flex items-center gap-1 text-ok font-medium">
-            <span className="h-1.5 w-1.5 rounded-full bg-ok" />
-            TLS 1.3 Encrypted
-          </span>
-          <span className="text-line">·</span>
-          <span>SOC-2 Certified Ops</span>
-          <span className="text-line">·</span>
-          <span>Zero-Knowledge Architecture</span>
-        </div>
+      <footer className="relative z-10 w-full max-w-md text-center text-xs text-fgSubtle lg:invisible">
+        Findings are advisory. A person confirms every case before anything is reported.
       </footer>
+      </div>
     </div>
   );
 };

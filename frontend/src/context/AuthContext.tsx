@@ -1,4 +1,4 @@
-import React, { createContext, useContext, useEffect, useState } from 'react';
+import React, { createContext, useContext, useEffect, useRef, useState } from 'react';
 import type { User } from 'firebase/auth';
 import {
   onAuthStateChanged,
@@ -53,8 +53,11 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
   const [userProfile, setUserProfile] = useState<UserProfileData | null>(null);
   const [loading, setLoading] = useState<boolean>(true);
   const [error, setError] = useState<string | null>(null);
+  // While a demo session is active, Firebase's "no user" callback must not end it.
+  const demoActive = useRef(false);
 
   const signInAsDemoAnalyst = () => {
+    demoActive.current = true;
     const demoUser: any = {
       uid: 'analyst-demo-001',
       email: 'analyst@suraksha.local',
@@ -84,6 +87,11 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
     testFirestoreConnection();
 
     const unsubscribe = onAuthStateChanged(auth, async user => {
+      if (!user && demoActive.current) {
+        setLoading(false);
+        return;
+      }
+      if (user) demoActive.current = false;
       setCurrentUser(user);
       if (user) {
         // Immediate fallback profile derived from token so UI is instantly responsive
@@ -290,6 +298,7 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
   };
 
   const logOut = async () => {
+    demoActive.current = false;
     try {
       if (firebaseConfigStatus.isConfigured) {
         await signOut(auth);

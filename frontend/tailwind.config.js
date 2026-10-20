@@ -73,20 +73,21 @@ export default {
         },
       },
       fontFamily: {
-        sans: ['Inter', 'Geist', 'system-ui', '-apple-system', 'BlinkMacSystemFont', 'Segoe UI', 'Roboto', 'sans-serif'],
-        mono: ['JetBrains Mono', 'Fira Code', 'SFMono-Regular', 'Menlo', 'Monaco', 'Consolas', 'monospace'],
+        sans: ['Geist', 'Noto Sans Devanagari', 'system-ui', '-apple-system', 'BlinkMacSystemFont', 'Segoe UI', 'Roboto', 'sans-serif'],
+        mono: ['Geist Mono', 'JetBrains Mono', 'SFMono-Regular', 'Menlo', 'Consolas', 'monospace'],
+        deva: ['Noto Sans Devanagari', 'Geist', 'sans-serif'],
       },
-      // Flat, quiet elevation. No coloured glows.
+      // Quiet elevation, shadows tinted to the ink canvas. No coloured glows.
       boxShadow: {
-        panel: '0 1px 2px 0 rgb(var(--shadow) / 0.06)',
-        card: '0 1px 2px 0 rgb(var(--shadow) / 0.06)',
-        elevated: '0 4px 14px -2px rgb(var(--shadow) / 0.12)',
-        dropdown: '0 8px 24px -4px rgb(var(--shadow) / 0.18)',
+        panel: '0 1px 2px 0 rgb(var(--shadow) / 0.10)',
+        card: '0 1px 2px 0 rgb(var(--shadow) / 0.10)',
+        elevated: '0 10px 30px -12px rgb(var(--shadow) / 0.35)',
+        dropdown: '0 16px 40px -12px rgb(var(--shadow) / 0.45)',
         cyanGlow: 'none',
         violetGlow: 'none',
       },
-      // Tighter corners everywhere (Linear-style); pills (rounded-full) are kept only for tiny status chips.
-      borderRadius: { lg: '0.375rem', xl: '0.5rem', '2xl': '0.625rem', '3xl': '0.75rem' },
+      // Radius rule: inputs and buttons 8px (lg/xl), panels 10-12px (2xl/3xl), status chips full pill.
+      borderRadius: { lg: '0.45rem', xl: '0.55rem', '2xl': '0.75rem', '3xl': '1rem' },
     },
   },
   plugins: [],

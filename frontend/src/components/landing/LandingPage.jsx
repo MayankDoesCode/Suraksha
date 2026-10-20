@@ -1,258 +1,122 @@
 import React, { useState, useMemo } from 'react';
 import {
   ArrowRight,
-  Shield,
   ShieldCheck,
-  ShieldAlert,
-  Globe,
   Share2,
   Smartphone,
-  CheckCircle2,
+  Globe,
   AlertTriangle,
-  Search,
-  FileText,
-  Terminal,
-  ExternalLink,
-  Lock,
-  Activity,
-  Sparkles,
-  Layers,
-  Network,
-  ChevronRight,
-  Play,
   Check,
-  Zap,
-  KeyRound,
-  LayoutDashboard,
-  Eye,
-  Sliders,
-  ShieldX,
-  Compass,
+  X,
+  Play,
+  Scale,
+  Cpu,
+  ScanSearch,
+  FileCheck2,
+  UserCheck,
+  Building2,
 } from 'lucide-react';
 import { ShieldMark } from '../ShieldMark';
 import GetApp from './GetApp';
+import HomoglyphSpecimen from './HomoglyphSpecimen';
 import { Reveal, CountUp } from './Reveal';
 import { runFullLookalikeAnalysis } from '../../utils/lookalikeEngine';
 import { INITIAL_BRAND_PROFILE } from '../../data/demoData';
 
 /**
- * Enterprise Brand Protection Landing Page
- * Combines modern Linear-inspired dark aesthetics, interactive threat vector previews,
- * dedicated login portal & inner dashboard showcases with images, and a live client-side sandbox.
+ * Public landing page ("night watch" theme).
+ * One bold moment (the homoglyph scanner in the hero); every section after it is quiet and factual.
+ * The scanner section runs the real client-side lookalike engine against the demo brand profile.
  */
 
-const HERO_TABS = [
-  {
-    id: 'domain',
-    label: 'Domain Lookalike',
-    icon: Globe,
-    badge: 'Critical Threat #7104',
-    badgeColor: 'text-danger bg-danger/10 border-danger/30',
-    target: 'Acme Corp',
-    candidate: 'xn--cme-portal-12a.com',
-    display: 'аcme-portal.com (Cyrillic \'а\' U+0430)',
-    riskLevel: 'Critical (Score 92/100)',
-    signals: [
-      { type: 'danger', text: 'UTS #39 Homoglyph skeleton collision with official domain acme.com' },
-      { type: 'high', text: 'Active port 443 with self-signed TLS cert issued 2 hours ago' },
-      { type: 'ai', text: 'URL Model inference: 0.96 Phishing (uncalibrated probability)' },
-    ],
-    epistemic: '2 Verified Structural Facts · 1 Statistical Inference',
-    action: 'Generate RFC 2142 Registrar Abuse Notice',
-  },
-  {
-    id: 'social',
-    label: 'Social Impersonation',
-    icon: Share2,
-    badge: 'High Risk #7105',
-    badgeColor: 'text-high bg-high/10 border-high/30',
-    target: 'Acme Corp',
-    candidate: '@acme_support_helpdesk',
-    display: 'X / Twitter profile claiming 24/7 refund desk',
-    riskLevel: 'High (Score 78/100)',
-    signals: [
-      { type: 'danger', text: 'Profile URL conflicts with registered official handle @acme_official' },
-      { type: 'high', text: 'External link directs users to unauthorized Telegram bot t.me/acme_claims' },
-      { type: 'ai', text: 'Lure keyword density: "urgent unlock", "account suspension", "refund"' },
-    ],
-    epistemic: '2 Verified Registry Conflicts · 1 Content Heuristic',
-    action: 'Submit Impersonation Report to Platform Trust & Safety',
-  },
-  {
-    id: 'mobile',
-    label: 'Rogue Mobile APK',
-    icon: Smartphone,
-    badge: 'Critical Threat #7106',
-    badgeColor: 'text-danger bg-danger/10 border-danger/30',
-    target: 'Acme Corp',
-    candidate: 'com.acme.instant.wallet',
-    display: 'Acme Pro: Fast Cash Loan (Sideload APK)',
-    riskLevel: 'Critical (Score 88/100)',
-    signals: [
-      { type: 'danger', text: 'Developer certificate signed by unverified entity "Rogue Financial Tech Ltd"' },
-      { type: 'high', text: 'Package namespace mirrors official app com.acme.wallet' },
-      { type: 'ai', text: 'App icon visual perceptual hash matches official branding at 94% similarity' },
-    ],
-    epistemic: '3 Cryptographic & Manifest Facts · 0 Hallucinations',
-    action: 'Issue DMCA & Malware Takedown to Hosting Mirror',
-  },
-  {
-    id: 'graph',
-    label: 'Threat Correlation',
-    icon: Network,
-    badge: 'Syndicate Matrix #9021',
-    badgeColor: 'text-ai bg-ai/10 border-ai/30',
-    target: 'Acme Corp',
-    candidate: 'Campaign Infrastructure Cluster',
-    display: '1 Domain + 2 Phishing Hosts + 1 Telegram Bot',
-    riskLevel: 'Severe Coordinated Attack',
-    signals: [
-      { type: 'danger', text: 'Shared registrar & ASN: AS16276 across 3 deceptive domains' },
-      { type: 'high', text: 'Identical Google Analytics UA tracking ID embedded in all landing pages' },
-      { type: 'ai', text: 'Correlated attack timing: all assets provisioned within 48-hour window' },
-    ],
-    epistemic: 'Cross-Entity Evidence Graph · Unified Adversary Profiling',
-    action: 'Export Coordinated Syndicate Dossier (STIX / JSON)',
-  },
-];
+const ICON = { strokeWidth: 1.75 };
 
 const SANDBOX_PRESETS = [
-  {
-    label: 'Cyrillic Homoglyph',
-    domain: 'аcme.com',
-    name: 'Acme Secure Portal',
-    desc: 'Spoofs Latin "a" with Cyrillic U+0430 to mimic official login portal',
-  },
-  {
-    label: 'Subdomain Abuse',
-    domain: 'acme.claims-portal.com',
-    name: 'Acme Claims Desk',
-    desc: 'Embeds brand name as subdomain prefix under rogue host claims-portal.com',
-  },
-  {
-    label: 'Combosquatting Lure',
-    domain: 'acme-refund-desk.xyz',
-    name: 'Acme Customer Support',
-    desc: 'Appends urgency lure keywords with cheap high-risk TLD',
-  },
-  {
-    label: 'Typosquatting',
-    domain: 'acmee.com',
-    name: 'Acme Access',
-    desc: 'Omission or character duplication typo with Damerau-Levenshtein edit distance of 1',
-  },
-  {
-    label: 'Official Asset',
-    domain: 'acme.com',
-    name: 'Acme Official',
-    desc: 'Verified registered domain in the protected brand profile',
-  },
+  { label: 'Cyrillic homoglyph', domain: 'аcme.com', name: 'Acme Secure Portal', desc: 'Spoofs Latin "a" with Cyrillic U+0430 to mimic official login portal' },
+  { label: 'Subdomain abuse', domain: 'acme.claims-portal.com', name: 'Acme Claims Desk', desc: 'Embeds brand name as subdomain prefix under rogue host claims-portal.com' },
+  { label: 'Combosquat lure', domain: 'acme-refund-desk.xyz', name: 'Acme Customer Support', desc: 'Appends urgency lure keywords with cheap high-risk TLD' },
+  { label: 'Typosquat', domain: 'acmee.com', name: 'Acme Access', desc: 'Omission or character duplication typo with Damerau-Levenshtein edit distance of 1' },
+  { label: 'Official asset', domain: 'acme.com', name: 'Acme Official', desc: 'Verified registered domain in the protected brand profile' },
 ];
 
-const LOOP = [
-  {
-    step: '01',
-    title: 'Register & Whitelist',
-    desc: 'Enroll your official hostnames, social handles, and mobile bundle IDs. Verified assets are mathematically excluded from every finding to prevent false alarms.',
-    icon: ShieldCheck,
-  },
-  {
-    step: '02',
-    title: 'Continuous Vector Sweep',
-    desc: 'SURAKSHA evaluates candidate domains, social accounts, and APK stores using Unicode decomposition, typosquatting algorithms, and lure dictionaries.',
-    icon: Globe,
-  },
-  {
-    step: '03',
-    title: 'Epistemic Signal Isolation',
-    desc: 'Every finding categorizes observed deterministic facts separately from statistical ML inferences. No opaque black boxes—analysts see the exact rule that fired.',
-    icon: Terminal,
-  },
-  {
-    step: '04',
-    title: 'Analyst Investigation Dossier',
-    desc: 'Correlate findings across the threat graph, record notes, review DNS records, and maintain an immutable audit trail of analyst decisions.',
-    icon: FileText,
-  },
-  {
-    step: '05',
-    title: 'RFC 2142 Automated Takedown',
-    desc: 'Generate court-admissible takedown notices, registrar abuse emails, and export structured evidence for ICANN UDRP dispute resolution.',
-    icon: Zap,
-  },
+// Examples the demo workspace detects. Shown once, in the ticker under the hero.
+const TICKER = [
+  { text: 'аcme.com', kind: 'Cyrillic homoglyph', sev: 'danger' },
+  { text: '@acme_refund_helpdesk', kind: 'Fake support account', sev: 'danger' },
+  { text: 'com.acme.instant.wallet', kind: 'Copycat app', sev: 'danger' },
+  { text: 'acme-refund-desk.xyz', kind: 'Lure keywords', sev: 'high' },
+  { text: '@acrne_official', kind: 'rn reads as m', sev: 'high' },
+  { text: 'acme.claims-portal.com', kind: 'Brand in subdomain', sev: 'high' },
+  { text: 'Acme Pro: Fast Cash Loan', kind: 'Logo copied on icon', sev: 'danger' },
+  { text: 'acmee.com', kind: 'One-letter typo', sev: 'warn' },
 ];
+const SEV = { danger: 'text-danger', high: 'text-high', warn: 'text-warn' };
 
 const MEASURED = [
-  {
-    label: 'URL model, bare domains',
-    value: '42%',
-    sub: 'True Positive Recall',
-    note: 'of phishing hosts caught at 95% precision on a frozen test set of 2,210 hosts.',
-    badge: 'Frozen Test Set',
-  },
-  {
-    label: 'Format-only baseline',
-    value: '0.87 F1',
-    sub: 'Benchmark Reference',
-    note: 'A model with zero content scored this on raw URLs, close to the 0.90 of the trained model. We declare this openly.',
-    badge: 'Baseline Provenance',
-  },
-  {
-    label: 'Social impersonation labels',
-    value: '0',
-    sub: 'Honest Disclosure',
-    note: 'verified brand-impersonation training labels exist. The social module relies on deterministic registry verification, not unproven ML.',
-    badge: 'Zero Hallucination',
-  },
-  {
-    label: 'Mobile app labels',
-    value: '0',
-    sub: 'Rule-Based Guard',
-    note: 'verified malicious brand clones exist in public benchmarks. App assessment is cryptographic and manifest-based.',
-    badge: 'Strict Verification',
-  },
+  { value: '42%', label: 'of phishing hosts caught by the URL model at 95% precision', note: 'Frozen test set of 2,210 bare-domain hosts.' },
+  { value: '0.87 F1', label: 'from a format-only baseline with no content at all', note: 'The trained model scores 0.90. We publish the gap.' },
+  { value: '0', label: 'verified social-impersonation training labels exist', note: 'So social verdicts come from rules and the brand registry, not a guess.' },
+  { value: '0', label: 'verified malicious app clones in public benchmarks', note: 'App checks use publisher, package id, icon and description evidence.' },
 ];
 
-const Section = ({ eyebrow, title, subtitle, id, children }) => (
-  <section id={id} className="mx-auto w-full max-w-[1720px] px-6 sm:px-10 lg:px-12 2xl:px-16 py-16 sm:py-24">
-    <Reveal>
-      <div className="flex items-center gap-2">
-        <span className="h-1.5 w-1.5 rounded-full bg-accent" />
-        <p className="text-xs font-semibold uppercase tracking-widest text-accent">{eyebrow}</p>
+const STEPS = [
+  { icon: Building2, title: 'Register what is really yours', body: 'Official domains, handles, apps, logo and partners become the ground truth. They are excluded before any check runs.' },
+  { icon: ScanSearch, title: 'Detect look-alikes', body: 'Handles, store listings and domains are compared character by character, icon by icon, against that ground truth.' },
+  { icon: FileCheck2, title: 'Read the evidence', body: 'Every point of a score is a named signal. Counter-evidence, like a parody disclaimer, is shown next to it.' },
+  { icon: UserCheck, title: 'Act with a person in charge', body: 'An analyst confirms the case, keeps notes, and drafts the platform or registrar report. Nothing is sent automatically.' },
+];
+
+const COMPARE = [
+  { q: 'Decides the severity', rules: true, models: false },
+  { q: 'Names the exact reason it fired', rules: true, models: false },
+  { q: 'Same input, same answer, every time', rules: true, models: true },
+  { q: 'Can overrule an official asset', rules: false, models: false },
+  { q: 'Helps sort the review queue', rules: true, models: true },
+];
+
+const container = 'mx-auto w-full max-w-[1320px] px-4 sm:px-8 lg:px-10';
+
+const sevStyle = (cat) =>
+  cat === 'Critical' ? 'text-danger border-danger/30 bg-danger/10'
+    : cat === 'High' ? 'text-high border-high/30 bg-high/10'
+      : cat === 'Medium' ? 'text-warn border-warn/30 bg-warn/10'
+        : 'text-ok border-ok/30 bg-ok/10';
+const sevStroke = (cat) =>
+  cat === 'Critical' ? 'rgb(var(--c-danger))' : cat === 'High' ? 'rgb(var(--c-high))' : cat === 'Medium' ? 'rgb(var(--c-warn))' : 'rgb(var(--c-ok))';
+
+function ScoreDial({ score, category }) {
+  const r = 52;
+  const c = 2 * Math.PI * r;
+  const pct = Math.max(0, Math.min(100, score)) / 100;
+  return (
+    <div className="relative h-36 w-36 shrink-0">
+      <svg viewBox="0 0 128 128" className="h-full w-full -rotate-90" aria-hidden>
+        <circle cx="64" cy="64" r={r} fill="none" stroke="rgb(var(--c-line))" strokeWidth="10" />
+        <circle
+          cx="64" cy="64" r={r} fill="none" stroke={sevStroke(category)} strokeWidth="10" strokeLinecap="round"
+          strokeDasharray={`${c * pct} ${c}`} style={{ transition: 'stroke-dasharray 0.6s cubic-bezier(0.2,0.7,0.2,1), stroke 0.3s ease' }}
+        />
+      </svg>
+      <div className="absolute inset-0 flex flex-col items-center justify-center">
+        <span className="font-mono text-4xl font-medium tabular-nums text-fg">{score}</span>
+        <span className="text-xs text-fgSubtle">of 100</span>
       </div>
-      <h2 className="mt-3 max-w-3xl text-2xl font-semibold text-fg sm:text-3xl lg:text-4xl tracking-tight">
-        {title}
-      </h2>
-      {subtitle && (
-        <p className="mt-3 max-w-2xl text-sm sm:text-base text-fgMuted leading-relaxed">
-          {subtitle}
-        </p>
-      )}
-    </Reveal>
-    <div className="mt-10">{children}</div>
-  </section>
-);
+    </div>
+  );
+}
 
 export default function LandingPage({ onLaunchDashboard, onReplayIntro }) {
   const open = (options) => onLaunchDashboard && onLaunchDashboard(options || { mode: 'login' });
+  const openDemo = () => open({ mode: 'demo' });
 
-  // Hero interactive state
-  const [activeHeroTab, setActiveHeroTab] = useState(0);
-
-  // Live sandbox state
   const [sandboxDomain, setSandboxDomain] = useState('аcme.com');
   const [sandboxName, setSandboxName] = useState('Acme Secure Portal');
   const [sandboxDesc, setSandboxDesc] = useState('Spoofs Latin "a" with Cyrillic U+0430');
 
-  // Client-side real-time analysis using actual lookalike engine
+  // Client-side real-time analysis using the actual lookalike engine.
   const sandboxAnalysis = useMemo(() => {
     try {
-      return runFullLookalikeAnalysis(
-        sandboxName,
-        sandboxDomain,
-        INITIAL_BRAND_PROFILE,
-        sandboxDesc
-      );
+      return runFullLookalikeAnalysis(sandboxName, sandboxDomain, INITIAL_BRAND_PROFILE, sandboxDesc);
     } catch {
       return null;
     }
@@ -264,848 +128,514 @@ export default function LandingPage({ onLaunchDashboard, onReplayIntro }) {
     setSandboxDesc(preset.desc);
   };
 
-  const heroItem = HERO_TABS[activeHeroTab];
-
   return (
-    <div className="min-h-screen overflow-x-hidden bg-canvas text-fg selection:bg-accent/30 selection:text-fg">
-      {/* Subtle background ambient mesh */}
-      <div className="fixed inset-0 pointer-events-none z-0 overflow-hidden">
-        <div className="absolute top-[-10%] left-1/2 -translate-x-1/2 w-[1200px] h-[600px] bg-accent/8 blur-[140px] rounded-full" />
-        <div className="absolute top-[35%] right-[-10%] w-[700px] h-[450px] bg-ai/5 blur-[130px] rounded-full" />
-        <div className="absolute bottom-[20%] left-[-10%] w-[600px] h-[400px] bg-ok/5 blur-[120px] rounded-full" />
-      </div>
+    <div className="lp-grain min-h-[100dvh] overflow-x-hidden bg-canvas text-fg">
+      <a href="#main" className="sr-only z-50 rounded-xl bg-accent px-4 py-2 font-semibold text-onAccent focus:not-sr-only focus:fixed focus:left-4 focus:top-4">
+        Skip to content
+      </a>
+      {/* Navigation */}
+      <header className="sticky top-0 z-40 border-b border-line/70 bg-canvas/80 backdrop-blur-md">
+        <div className={`${container} flex h-16 items-center justify-between gap-4`}>
+          <a href="/" className="flex items-center gap-2.5" aria-label="Suraksha home">
+            <ShieldMark size={26} />
+            <span className="text-[17px] font-semibold tracking-tight">Suraksha</span>
+            <span className="hidden font-deva text-sm text-fgSubtle sm:inline" lang="hi">सुरक्षा</span>
+          </a>
 
-      {/* Navigation Header */}
-      <header className="sticky top-0 z-40 border-b border-line bg-canvas/85 backdrop-blur-md">
-        <div className="mx-auto flex h-16 w-full max-w-[1720px] items-center justify-between px-6 sm:px-10 lg:px-12 2xl:px-16">
-          <div className="flex items-center gap-6">
-            <a href="/" className="flex items-center gap-2.5 text-sm font-semibold tracking-tight hover:opacity-90 transition-opacity">
-              <ShieldMark size={24} />
-              <span className="font-bold tracking-wider text-base">SURAKSHA</span>
-              <span className="hidden sm:inline-flex items-center rounded-full border border-ok/30 bg-ok/10 px-2 py-0.5 text-[10px] font-medium text-ok tracking-wide">
-                <span className="mr-1.5 h-1.5 w-1.5 rounded-full bg-ok animate-pulse" />
-                DEFENSE MATRIX ACTIVE
-              </span>
-            </a>
-          </div>
-
-          <nav className="hidden lg:flex items-center gap-7 text-xs font-medium text-fgMuted">
-            <a href="#vectors" className="hover:text-fg transition-colors">Attack Vectors</a>
-            <a href="#sandbox" className="hover:text-fg transition-colors">Live Sandbox</a>
-            <a href="#login-gateway" className="hover:text-fg transition-colors">Login Gateway</a>
-            <a href="#inner-workspace" className="hover:text-fg transition-colors">Inner Command Center</a>
-            <a href="#epistemic" className="hover:text-fg transition-colors">Rules vs ML</a>
-            <a href="#lifecycle" className="hover:text-fg transition-colors">Analyst Loop</a>
-            <a href="#measured" className="hover:text-fg transition-colors">Audit Benchmarks</a>
+          <nav className="hidden items-center gap-7 text-sm text-fgMuted lg:flex" aria-label="Sections">
+            <a href="#vectors" className="transition-colors hover:text-fg">Coverage</a>
+            <a href="#sandbox" className="transition-colors hover:text-fg">Scanner</a>
+            <a href="#epistemic" className="transition-colors hover:text-fg">Evidence</a>
+            <a href="#lifecycle" className="transition-colors hover:text-fg">How it works</a>
+            <a href="#measured" className="transition-colors hover:text-fg">Benchmarks</a>
           </nav>
 
-          <div className="flex items-center gap-3">
-            {onReplayIntro && (
-              <button
-                onClick={onReplayIntro}
-                title="Replay Brand Intro"
-                className="hidden sm:inline-flex items-center gap-1.5 text-xs text-fgSubtle hover:text-fg transition-colors px-2.5 py-1.5 rounded border border-line bg-surface hover:bg-surface3"
-              >
-                <Play className="h-3 w-3" />
-                Intro
-              </button>
-            )}
+          <div className="flex items-center gap-2">
             <button
               onClick={() => open({ mode: 'login' })}
-              className="inline-flex items-center gap-2 rounded-md bg-accent px-4 py-2 text-xs font-semibold text-onAccent shadow-sm transition-[transform,background-color] duration-150 hover:bg-accentHover active:scale-95"
+              className="hidden rounded-xl px-3.5 py-2 text-sm font-medium text-fgMuted transition-colors hover:bg-surface3 hover:text-fg sm:inline-flex"
             >
-              Launch Workspace
-              <ArrowRight className="h-3.5 w-3.5" />
+              Sign in
+            </button>
+            <button
+              onClick={openDemo}
+              className="inline-flex items-center gap-2 whitespace-nowrap rounded-xl bg-accent px-4 py-2 text-sm font-semibold text-onAccent transition-[transform,background-color] duration-150 hover:bg-accentHover active:scale-[0.98]"
+            >
+              Open the live demo
             </button>
           </div>
         </div>
       </header>
 
-      <main className="relative z-10">
-        {/* HERO SECTION */}
-        <section className="mx-auto w-full max-w-[1720px] px-6 sm:px-10 lg:px-12 2xl:px-16 pb-16 pt-16 sm:pt-24 lg:pt-28">
-          <div className="grid lg:grid-cols-12 gap-10 xl:gap-14 items-center">
-            {/* Left Hero Pitch */}
-            <div className="min-w-0 lg:col-span-7 xl:col-span-7 sk-stagger">
-              <div className="inline-flex items-center gap-2 rounded-full border border-line bg-surface2/80 px-3 py-1 text-xs font-medium text-fgMuted">
-                <Shield className="h-3.5 w-3.5 text-accent" />
-                <span className="text-fg font-semibold">Autonomous Brand Defense</span>
-                <span className="text-fgSubtle">·</span>
-                <span className="text-fgSubtle">Zero-Hallucination Verification</span>
-              </div>
-
-              <h1 className="mt-4 text-4xl sm:text-6xl xl:text-7xl font-bold leading-[1.08] tracking-tight text-fg">
-                Find Brand Impersonators.{' '}
-                <span className="text-transparent bg-clip-text bg-gradient-to-r from-accent via-ai to-ok">
-                  Prove Every Finding.
-                </span>
-              </h1>
-
-              <p className="mt-5 max-w-2xl text-base sm:text-lg text-fgMuted leading-relaxed">
-                SURAKSHA continuously safeguards your registered domains, social accounts, and mobile apps against deceptive lookalikes—delivering mathematical homoglyph decomposition, deterministic asset exclusion, and court-ready evidence.
+      <main id="main">
+        {/* Hero */}
+        <section className="relative isolate">
+          <div aria-hidden className="lp-grid pointer-events-none absolute inset-0 -z-10" />
+          <div aria-hidden className="pointer-events-none absolute -top-40 right-[-10%] -z-10 h-[620px] w-[720px] rounded-full bg-accent/[0.07] blur-[140px]" />
+          <div className={`${container} grid items-center gap-12 py-14 lg:min-h-[min(calc(100dvh-7.5rem),820px)] lg:grid-cols-12 lg:gap-10 lg:py-16`}>
+            <div className="min-w-0 sk-stagger lg:col-span-6">
+              <p className="inline-flex items-center gap-2 rounded-full border border-line bg-surface/70 px-3 py-1 text-sm text-fgMuted">
+                <ShieldCheck className="h-4 w-4 text-accent" {...ICON} />
+                Brand impersonation defence
               </p>
-
-              <div className="mt-8 flex flex-wrap items-center gap-3">
+              <h1 className="mt-6 max-w-[14ch] text-[2.75rem] font-semibold leading-[1.02] tracking-[-0.035em] text-fg sm:text-6xl lg:text-[4.4rem]">
+                Spot the fake before your customers do.
+              </h1>
+              <p className="mt-6 max-w-[50ch] text-lg leading-relaxed text-fgMuted">
+                Suraksha watches social media, app stores and domains for impersonators of your brand, and shows the evidence behind every flag.
+              </p>
+              <div className="mt-9 flex flex-wrap items-center gap-3">
                 <button
-                  onClick={() => open({ mode: 'login' })}
-                  className="group inline-flex items-center gap-2 rounded-md bg-accent px-6 py-3.5 text-sm font-semibold text-onAccent shadow-md transition-[transform,background-color] duration-150 hover:bg-accentHover active:scale-[0.98]"
+                  onClick={openDemo}
+                  className="group inline-flex items-center gap-2 whitespace-nowrap rounded-xl bg-accent px-6 py-3.5 text-[15px] font-semibold text-onAccent transition-[transform,background-color] duration-150 hover:bg-accentHover active:scale-[0.98]"
                 >
-                  Launch Workspace Console
-                  <ArrowRight className="h-4 w-4 transition-transform duration-200 group-hover:translate-x-1" />
+                  Open the live demo
+                  <ArrowRight className="h-4 w-4 transition-transform duration-200 group-hover:translate-x-0.5" {...ICON} />
                 </button>
                 <a
                   href="#sandbox"
-                  className="inline-flex items-center gap-2 rounded-md border border-line bg-surface/70 px-6 py-3.5 text-sm font-medium text-fgMuted transition-colors hover:bg-surface3 hover:text-fg"
+                  className="inline-flex items-center gap-2 whitespace-nowrap rounded-xl border border-line bg-surface/60 px-6 py-3.5 text-[15px] font-medium text-fg transition-colors hover:border-fgSubtle/60 hover:bg-surface3"
                 >
-                  <Terminal className="h-4 w-4 text-fgSubtle" />
-                  Try Live Sandbox
+                  Try the scanner
                 </a>
-                <a
-                  href="#login-gateway"
-                  className="inline-flex items-center gap-2 rounded-md border border-line/60 bg-surface2/50 px-5 py-3.5 text-sm font-medium text-fgSubtle transition-colors hover:bg-surface3 hover:text-fg"
-                >
-                  <KeyRound className="h-4 w-4 text-accent" />
-                  View Login Portal
-                </a>
-              </div>
-
-              <GetApp />
-
-              {/* Trust Indicators */}
-              <div className="mt-10 grid grid-cols-3 gap-4 border-t border-line/70 pt-6">
-                <div>
-                  <p className="text-xs font-semibold text-fg">100% Deterministic</p>
-                  <p className="text-[11px] text-fgSubtle mt-0.5">Verified asset exclusion</p>
-                </div>
-                <div>
-                  <p className="text-xs font-semibold text-fg">UTS #39 Homoglyphs</p>
-                  <p className="text-[11px] text-fgSubtle mt-0.5">Unicode confusable analysis</p>
-                </div>
-                <div>
-                  <p className="text-xs font-semibold text-fg">RFC 2142 Ready</p>
-                  <p className="text-[11px] text-fgSubtle mt-0.5">Instant abuse takedown export</p>
-                </div>
               </div>
             </div>
 
-            {/* Right Hero: Interactive Threat Dossier Console */}
-            <div className="min-w-0 lg:col-span-5 xl:col-span-5">
-              <div className="rounded-xl border border-line bg-surface/95 p-5 shadow-2xl backdrop-blur-md space-y-4">
-                {/* Console Tab Selector */}
-                <div className="flex items-center justify-between border-b border-line pb-3">
-                  <div className="flex items-center gap-1.5 overflow-x-auto">
-                    {HERO_TABS.map((tab, idx) => {
-                      const Icon = tab.icon;
-                      const active = activeHeroTab === idx;
+            <div className="min-w-0 lg:col-span-6">
+              <HomoglyphSpecimen />
+            </div>
+          </div>
+        </section>
+
+        {/* Ticker: the single marquee on the page */}
+        <section aria-label="Examples the demo workspace detects" className="border-y border-line/70 bg-surface2/60">
+          <div className="relative overflow-hidden py-4 [mask-image:linear-gradient(90deg,transparent,#000_8%,#000_92%,transparent)]">
+            <div className="lp-marquee flex w-max gap-10">
+              {[...TICKER, ...TICKER].map((t, i) => (
+                <span key={i} className="flex shrink-0 items-center gap-3 text-sm" aria-hidden={i >= TICKER.length}>
+                  <AlertTriangle className={`h-4 w-4 ${SEV[t.sev]}`} {...ICON} />
+                  <span className="font-mono text-fg">{t.text}</span>
+                  <span className="text-fgSubtle">{t.kind}</span>
+                </span>
+              ))}
+            </div>
+          </div>
+        </section>
+
+        {/* Coverage bento */}
+        <section id="vectors" className={`${container} py-24 sm:py-32`}>
+          <Reveal>
+            <h2 className="max-w-[20ch] text-3xl font-semibold tracking-[-0.03em] text-fg sm:text-[2.6rem] sm:leading-[1.1]">
+              Impostors show up where your customers already are.
+            </h2>
+            <p className="mt-4 max-w-[60ch] text-base leading-relaxed text-fgMuted">
+              Fake helpdesks on social media, copycat apps in stores and look-alike domains. Suraksha checks all three against the same brand profile.
+            </p>
+          </Reveal>
+
+          <div className="mt-14 grid gap-4 lg:grid-cols-5 lg:grid-rows-2">
+            {/* Social: the large tile */}
+            <Reveal className="relative overflow-hidden rounded-3xl border border-line bg-surface p-7 sm:p-9 lg:col-span-3 lg:row-span-2">
+              <div aria-hidden className="pointer-events-none absolute -right-24 -top-24 h-[420px] w-[420px] opacity-70">
+                <svg viewBox="0 0 200 200" className="h-full w-full">
+                  {[90, 66, 42, 18].map((r) => (
+                    <circle key={r} cx="100" cy="100" r={r} fill="none" stroke="rgb(var(--c-line))" strokeWidth="0.6" />
+                  ))}
+                  <line x1="100" y1="10" x2="100" y2="190" stroke="rgb(var(--c-line))" strokeWidth="0.6" />
+                  <line x1="10" y1="100" x2="190" y2="100" stroke="rgb(var(--c-line))" strokeWidth="0.6" />
+                  <g className="lp-radar">
+                    <path d="M100 100 L100 10 A90 90 0 0 1 163.6 36.4 Z" fill="rgb(var(--c-accent) / 0.12)" />
+                    <line x1="100" y1="100" x2="100" y2="10" stroke="rgb(var(--c-accent) / 0.7)" strokeWidth="0.8" />
+                  </g>
+                  <circle cx="132" cy="58" r="3" fill="rgb(var(--c-danger))" />
+                  <circle cx="64" cy="128" r="2.5" fill="rgb(var(--c-high))" />
+                  <circle cx="145" cy="138" r="2.5" fill="rgb(var(--c-ok))" />
+                </svg>
+              </div>
+              <div className="relative flex h-full flex-col">
+                <span className="flex h-11 w-11 items-center justify-center rounded-2xl border border-accent/25 bg-accent/10 text-accent">
+                  <Share2 className="h-5 w-5" {...ICON} />
+                </span>
+                <h3 className="mt-6 text-2xl font-semibold tracking-tight text-fg">Fake support accounts</h3>
+                <p className="mt-3 max-w-[44ch] leading-relaxed text-fgMuted">
+                  The account offering refunds in your name, with your logo as its avatar and an OTP request in the bio. Suraksha scores the handle, the copied picture and the scam wording, and leaves your verified accounts alone.
+                </p>
+                <ul className="mt-auto grid gap-3 pt-10 text-sm text-fgMuted sm:grid-cols-2">
+                  {['Look-alike handles and display names', 'Avatar compared with your logo', 'OTP, refund and KYC scam wording', 'Parody and fan pages scored down'].map((t) => (
+                    <li key={t} className="flex items-start gap-2.5">
+                      <Check className="mt-0.5 h-4 w-4 shrink-0 text-ok" {...ICON} />
+                      {t}
+                    </li>
+                  ))}
+                </ul>
+              </div>
+            </Reveal>
+
+            {/* Apps */}
+            <Reveal delay={80} className="rounded-3xl border border-line bg-gradient-to-br from-ai/[0.10] via-surface to-surface p-7 lg:col-span-2">
+              <div className="flex items-start justify-between gap-4">
+                <span className="flex h-11 w-11 items-center justify-center rounded-2xl border border-ai/25 bg-ai/10 text-ai">
+                  <Smartphone className="h-5 w-5" {...ICON} />
+                </span>
+                <div className="text-right">
+                  <p className="font-mono text-3xl font-medium text-fg">98.8%</p>
+                  <p className="text-xs text-fgSubtle">icon match on an edited logo copy</p>
+                </div>
+              </div>
+              <h3 className="mt-5 text-xl font-semibold tracking-tight text-fg">Copycat apps</h3>
+              <p className="mt-2 text-sm leading-relaxed text-fgMuted">
+                Store listings that reuse your icon, your name in the title or a package id one character off. Authorised partners are marked, not hidden.
+              </p>
+            </Reveal>
+
+            {/* Domains */}
+            <Reveal delay={160} className="rounded-3xl border border-line bg-surface p-7 lg:col-span-2">
+              <div className="flex items-start justify-between gap-4">
+                <span className="flex h-11 w-11 items-center justify-center rounded-2xl border border-high/25 bg-high/10 text-high">
+                  <Globe className="h-5 w-5" {...ICON} />
+                </span>
+                <p className="font-mono text-2xl text-fgMuted" aria-label="Latin a beside Cyrillic a">
+                  a <span className="text-fgSubtle">/</span> <span className="text-danger">{'а'}</span>
+                </p>
+              </div>
+              <h3 className="mt-5 text-xl font-semibold tracking-tight text-fg">Look-alike domains</h3>
+              <p className="mt-2 text-sm leading-relaxed text-fgMuted">
+                Homoglyphs, typos, brand-plus-keyword combos and brand names hidden in subdomains, all measured against your registered domains.
+              </p>
+            </Reveal>
+          </div>
+        </section>
+
+        {/* Scanner */}
+        <section id="sandbox" className="border-y border-line/70 bg-surface2/50">
+          <div className={`${container} py-24 sm:py-32`}>
+            <Reveal className="max-w-[62ch]">
+              <p className="text-sm font-medium text-accent">Runs in your browser</p>
+              <h2 className="mt-3 text-3xl font-semibold tracking-[-0.03em] text-fg sm:text-[2.6rem] sm:leading-[1.1]">
+                Type a domain. Get a verdict with reasons.
+              </h2>
+              <p className="mt-4 leading-relaxed text-fgMuted">
+                This is the same rule engine the workspace uses, checking against the demo brand, Acme Corp, and its four official domains.
+              </p>
+            </Reveal>
+
+            <div className="mt-14 grid items-start gap-5 lg:grid-cols-12">
+              <div className="space-y-5 rounded-3xl border border-line bg-surface p-6 sm:p-7 lg:col-span-5">
+                <div className="flex flex-col gap-2">
+                  <label htmlFor="lp-domain" className="text-sm font-medium text-fg">Domain to check</label>
+                  <input
+                    id="lp-domain"
+                    type="text"
+                    spellCheck={false}
+                    autoComplete="off"
+                    value={sandboxDomain}
+                    onChange={(e) => setSandboxDomain(e.target.value)}
+                    placeholder="acme-login.com"
+                    className="w-full rounded-xl border border-line bg-surface2 px-4 py-3 font-mono text-lg text-fg placeholder:text-fgSubtle focus:border-accent focus:outline-none focus:ring-2 focus:ring-accent/25"
+                  />
+                </div>
+                <div className="flex flex-col gap-2">
+                  <label htmlFor="lp-name" className="text-sm font-medium text-fg">Name shown on the site <span className="font-normal text-fgSubtle">(optional)</span></label>
+                  <input
+                    id="lp-name"
+                    type="text"
+                    value={sandboxName}
+                    onChange={(e) => setSandboxName(e.target.value)}
+                    placeholder="Acme Support Desk"
+                    className="w-full rounded-xl border border-line bg-surface2 px-4 py-2.5 text-fg placeholder:text-fgSubtle focus:border-accent focus:outline-none focus:ring-2 focus:ring-accent/25"
+                  />
+                </div>
+                <div>
+                  <p className="text-sm font-medium text-fg">Or load an example</p>
+                  <div className="mt-3 flex flex-wrap gap-2">
+                    {SANDBOX_PRESETS.map((preset) => {
+                      const active = sandboxDomain === preset.domain;
                       return (
                         <button
-                          key={tab.id}
-                          onClick={() => setActiveHeroTab(idx)}
-                          className={`flex items-center gap-1.5 px-2.5 py-1 rounded text-xs font-medium transition-colors ${
-                            active
-                              ? 'bg-surface3 text-fg font-semibold shadow-sm'
-                              : 'text-fgSubtle hover:text-fg hover:bg-surface2'
+                          key={preset.label}
+                          type="button"
+                          onClick={() => handleSelectPreset(preset)}
+                          aria-pressed={active}
+                          className={`rounded-full border px-3.5 py-1.5 text-sm transition-colors ${
+                            active ? 'border-accent/50 bg-accent/10 text-accent' : 'border-line text-fgMuted hover:border-fgSubtle/60 hover:text-fg'
                           }`}
                         >
-                          <Icon className="h-3 w-3" />
-                          <span>{tab.label}</span>
+                          {preset.label}
                         </button>
                       );
                     })}
                   </div>
-                  <span className="text-[10px] font-mono text-fgSubtle shrink-0 ml-2">SIMULATED DOSSIER</span>
                 </div>
+              </div>
 
-                {/* Threat Header */}
-                <div className="flex items-center justify-between">
-                  <span className={`inline-flex items-center gap-1.5 px-2 py-0.5 rounded text-[11px] font-mono font-semibold border ${heroItem.badgeColor}`}>
-                    <span className="h-1.5 w-1.5 rounded-full bg-current animate-pulse" />
-                    {heroItem.badge}
-                  </span>
-                  <span className="text-xs font-mono text-fgSubtle">Target: <strong className="text-fg">{heroItem.target}</strong></span>
-                </div>
-
-                {/* Candidate Information */}
-                <div className="rounded-lg border border-line bg-surface2/80 p-3 space-y-1.5 text-xs">
-                  <div className="flex items-center justify-between">
-                    <span className="text-fgSubtle font-medium">Candidate Asset:</span>
-                    <span className="font-mono font-semibold text-fg truncate max-w-[240px]">{heroItem.candidate}</span>
-                  </div>
-                  <div className="flex items-center justify-between">
-                    <span className="text-fgSubtle font-medium">Observed Display:</span>
-                    <span className="font-mono text-danger font-medium truncate max-w-[240px]">{heroItem.display}</span>
-                  </div>
-                  <div className="flex items-center justify-between pt-1 border-t border-line/60">
-                    <span className="text-fgSubtle font-medium">Engine Severity:</span>
-                    <span className="font-semibold text-fg">{heroItem.riskLevel}</span>
-                  </div>
-                </div>
-
-                {/* Fired Signals Box */}
-                <div className="space-y-2 text-xs">
-                  <div className="flex items-center justify-between text-[11px] font-medium uppercase tracking-wider text-fgSubtle">
-                    <span>Evidence Signals Fired</span>
-                    <span className="text-[10px] text-ai font-mono">UTS#39 + ML</span>
-                  </div>
-                  <div className="space-y-1.5 rounded-lg border border-line bg-surface2/50 p-2.5">
-                    {heroItem.signals.map((sig, i) => (
-                      <div key={i} className="flex items-start gap-2 text-xs text-fgMuted">
-                        <span className={`mt-0.5 text-xs ${sig.type === 'danger' ? 'text-danger' : sig.type === 'high' ? 'text-high' : 'text-ai'}`}>
-                          ●
+              <div className="lg:col-span-7" aria-live="polite">
+                {sandboxAnalysis ? (
+                  <div className="rounded-3xl border border-line bg-surface p-6 sm:p-8">
+                    <div className="flex flex-col gap-6 sm:flex-row sm:items-center">
+                      <ScoreDial score={sandboxAnalysis.overallScore} category={sandboxAnalysis.overallRiskCategory} />
+                      <div className="min-w-0">
+                        <span className={`inline-flex rounded-full border px-3 py-1 text-sm font-semibold ${sevStyle(sandboxAnalysis.overallRiskCategory)}`}>
+                          {sandboxAnalysis.overallRiskCategory} risk
                         </span>
-                        <span className="leading-snug">{sig.text}</span>
+                        <p className="mt-3 truncate font-mono text-xl text-fg" title={sandboxDomain}>{sandboxDomain || 'No domain yet'}</p>
+                        <p className="mt-1 text-sm text-fgMuted">
+                          Suggested next step: <span className="text-fg">{sandboxAnalysis.recommendedAction}</span>
+                        </p>
                       </div>
-                    ))}
-                  </div>
-                </div>
+                    </div>
 
-                {/* Epistemic Provenance Footer */}
-                <div className="pt-2 border-t border-line flex items-center justify-between text-xs">
-                  <span className="text-[11px] text-fgSubtle font-medium truncate max-w-[220px]" title={heroItem.epistemic}>
-                    {heroItem.epistemic}
-                  </span>
-                  <button
-                    onClick={() => open({ mode: 'login' })}
-                    className="inline-flex items-center gap-1 text-xs font-semibold text-accent hover:underline cursor-pointer"
-                  >
-                    Investigate →
-                  </button>
-                </div>
+                    {sandboxAnalysis.characterDiffs?.length > 0 && (
+                      <div className="mt-7 rounded-2xl border border-danger/25 bg-danger/[0.06] p-4">
+                        <p className="flex items-center gap-2 text-sm font-medium text-danger">
+                          <AlertTriangle className="h-4 w-4" {...ICON} />
+                          {sandboxAnalysis.characterDiffs.length === 1 ? 'One character is an impostor' : `${sandboxAnalysis.characterDiffs.length} characters are impostors`}
+                        </p>
+                        <ul className="mt-3 space-y-1.5">
+                          {sandboxAnalysis.characterDiffs.map((diff, idx) => (
+                            <li key={idx} className="flex flex-wrap items-baseline gap-x-3 text-sm text-fgMuted">
+                              <span className="font-mono text-base">
+                                <span className="text-danger">{diff.substituted}</span>
+                                <span className="px-1.5 text-fgSubtle">for</span>
+                                <span className="text-ok">{diff.original}</span>
+                              </span>
+                              <span>{diff.explanation}</span>
+                            </li>
+                          ))}
+                        </ul>
+                      </div>
+                    )}
+
+                    <div className="mt-7">
+                      <p className="text-sm font-medium text-fg">Why ({sandboxAnalysis.signals.length} {sandboxAnalysis.signals.length === 1 ? 'signal' : 'signals'})</p>
+                      {sandboxAnalysis.signals.length === 0 ? (
+                        <p className="mt-3 rounded-2xl border border-line bg-surface2 p-4 text-sm text-fgMuted">
+                          No impersonation signals. Official domains are excluded before any rule runs.
+                        </p>
+                      ) : (
+                        <ul className="mt-3 max-h-64 space-y-2 overflow-y-auto pr-1">
+                          {sandboxAnalysis.signals.map((sig) => (
+                            <li key={sig.id} className="rounded-2xl border border-line bg-surface2 p-4">
+                              <div className="flex items-start justify-between gap-3">
+                                <p className="text-sm font-medium text-fg">{sig.title}</p>
+                                <span className={`shrink-0 text-xs font-medium capitalize ${sig.severity === 'critical' ? 'text-danger' : sig.severity === 'high' ? 'text-high' : 'text-warn'}`}>
+                                  {sig.severity}
+                                </span>
+                              </div>
+                              <p className="mt-1 text-sm leading-relaxed text-fgMuted">{sig.detail}</p>
+                            </li>
+                          ))}
+                        </ul>
+                      )}
+                    </div>
+
+                    <div className="mt-7 grid grid-cols-3 gap-3 border-t border-line pt-5 text-sm">
+                      <div>
+                        <p className="font-mono text-lg text-fg">{sandboxAnalysis.damerauDistance}</p>
+                        <p className="text-xs text-fgSubtle">edits from official</p>
+                      </div>
+                      <div>
+                        <p className="font-mono text-lg text-fg">{sandboxAnalysis.domainSimilarityScore}%</p>
+                        <p className="text-xs text-fgSubtle">domain similarity</p>
+                      </div>
+                      <div>
+                        <p className="font-mono text-lg text-fg">{sandboxAnalysis.nameSimilarityScore}%</p>
+                        <p className="text-xs text-fgSubtle">name similarity</p>
+                      </div>
+                    </div>
+                  </div>
+                ) : (
+                  <div className="rounded-3xl border border-dashed border-line bg-surface p-10 text-center text-fgMuted">
+                    Type a domain on the left to see the verdict and the signals behind it.
+                  </div>
+                )}
               </div>
             </div>
           </div>
         </section>
 
-        {/* 3 CORE DEFENSE PILLARS */}
-        <Section
-          id="vectors"
-          eyebrow="Coverage Matrix"
-          title="Three pillars of digital brand defense."
-          subtitle="Modern adversaries exploit domains, social handles, and mobile apps in synchronized campaigns. SURAKSHA monitors all three vectors through unified telemetry."
-        >
-          <div className="grid gap-6 md:grid-cols-3">
-            <Reveal className="rounded-2xl border border-line bg-surface p-6 sm:p-8 sk-lift flex flex-col justify-between">
-              <div>
-                <div className="h-10 w-10 rounded-lg bg-accent/10 border border-accent/20 flex items-center justify-center text-accent mb-4">
-                  <Globe className="h-5 w-5" />
-                </div>
-                <h3 className="text-lg font-semibold text-fg">Domain & Lookalike Engine</h3>
-                <p className="mt-2 text-sm text-fgMuted leading-relaxed">
-                  Deep inspection of lookalike domains, punycode IDNs, deceptive TLD combinations, and combosquatting stems. Detects sub-character Unicode homoglyphs that evade traditional string matching.
-                </p>
+        {/* Rules vs models */}
+        <section id="epistemic" className={`${container} py-24 sm:py-32`}>
+          <div className="grid gap-12 lg:grid-cols-12 lg:gap-16">
+            <Reveal className="lg:col-span-5">
+              <h2 className="text-3xl font-semibold tracking-[-0.03em] text-fg sm:text-[2.6rem] sm:leading-[1.1]">
+                Rules decide. Models advise.
+              </h2>
+              <p className="mt-5 max-w-[48ch] leading-relaxed text-fgMuted">
+                A flag you cannot explain is a flag nobody can act on. Severity comes from rules that name what they saw. Model scores sit beside them as context, and neither can ever flag an asset you registered as official.
+              </p>
+              <div className="mt-8 flex flex-wrap gap-6 text-sm">
+                <span className="flex items-center gap-2 text-fgMuted"><Scale className="h-5 w-5 text-accent" {...ICON} /> Rule engine</span>
+                <span className="flex items-center gap-2 text-fgMuted"><Cpu className="h-5 w-5 text-ai" {...ICON} /> ML models</span>
               </div>
-              <ul className="mt-6 space-y-2 border-t border-line/60 pt-4 text-xs text-fgMuted">
-                <li className="flex items-center gap-2"><Check className="h-3.5 w-3.5 text-ok" /> UTS #39 Unicode confusable tables</li>
-                <li className="flex items-center gap-2"><Check className="h-3.5 w-3.5 text-ok" /> Levenshtein & Damerau edit distance</li>
-                <li className="flex items-center gap-2"><Check className="h-3.5 w-3.5 text-ok" /> Subdomain brand prefix hijack alerts</li>
-              </ul>
             </Reveal>
 
-            <Reveal delay={90} className="rounded-2xl border border-line bg-surface p-6 sm:p-8 sk-lift flex flex-col justify-between">
-              <div>
-                <div className="h-10 w-10 rounded-lg bg-high/10 border border-high/20 flex items-center justify-center text-high mb-4">
-                  <Share2 className="h-5 w-5" />
+            <Reveal delay={100} className="lg:col-span-7">
+              <div className="overflow-hidden rounded-3xl border border-line bg-surface">
+                <div className="grid grid-cols-[1fr,5.5rem,5.5rem] items-center gap-2 border-b border-line bg-surface2 px-5 py-4 text-sm font-medium sm:grid-cols-[1fr,7rem,7rem] sm:px-7">
+                  <span className="text-fgMuted">What it does</span>
+                  <span className="text-center text-accent">Rules</span>
+                  <span className="text-center text-ai">Models</span>
                 </div>
-                <h3 className="text-lg font-semibold text-fg">Social Media Sentinel</h3>
-                <p className="mt-2 text-sm text-fgMuted leading-relaxed">
-                  Cross-references suspected social accounts across X, Instagram, LinkedIn, and YouTube against your verified brand profile. Flags dangerous redirect links to Telegram bots and unverified payment gateways.
-                </p>
-              </div>
-              <ul className="mt-6 space-y-2 border-t border-line/60 pt-4 text-xs text-fgMuted">
-                <li className="flex items-center gap-2"><Check className="h-3.5 w-3.5 text-ok" /> Handle vs registered URL mismatch traps</li>
-                <li className="flex items-center gap-2"><Check className="h-3.5 w-3.5 text-ok" /> High-risk lure phrase pattern mining</li>
-                <li className="flex items-center gap-2"><Check className="h-3.5 w-3.5 text-ok" /> Zero false positives on registered channels</li>
-              </ul>
-            </Reveal>
-
-            <Reveal delay={180} className="rounded-2xl border border-line bg-surface p-6 sm:p-8 sk-lift flex flex-col justify-between">
-              <div>
-                <div className="h-10 w-10 rounded-lg bg-ai/10 border border-ai/20 flex items-center justify-center text-ai mb-4">
-                  <Smartphone className="h-5 w-5" />
-                </div>
-                <h3 className="text-lg font-semibold text-fg">Rogue Mobile App Guard</h3>
-                <p className="mt-2 text-sm text-fgMuted leading-relaxed">
-                  Audits sideloaded Android APK packages and alternative app stores for brand spoofing. Compares cryptographic developer signatures and package names to protect users from credential-stealing trojans.
-                </p>
-              </div>
-              <ul className="mt-6 space-y-2 border-t border-line/60 pt-4 text-xs text-fgMuted">
-                <li className="flex items-center gap-2"><Check className="h-3.5 w-3.5 text-ok" /> Package namespace spoofing checks</li>
-                <li className="flex items-center gap-2"><Check className="h-3.5 w-3.5 text-ok" /> Developer certificate verification</li>
-                <li className="flex items-center gap-2"><Check className="h-3.5 w-3.5 text-ok" /> Store metadata & trademark scrutiny</li>
-              </ul>
-            </Reveal>
-          </div>
-        </Section>
-
-        {/* SECTION 1: LOGIN & IDENTITY GATEWAY (SHOWCASING LOGIN PORTAL IMAGE) */}
-        <Section
-          id="login-gateway"
-          eyebrow="Authentication & Access Control"
-          title="Enterprise login portal with zero data leakage."
-          subtitle="Engineered for threat intelligence teams and cyber risk analysts. Instant Google Workspace SSO, role-based access control, and a zero-credential isolated demo sandbox."
-        >
-          <div className="grid lg:grid-cols-12 gap-8 xl:gap-12 items-center">
-            {/* Left: Login Features & Details */}
-            <div className="lg:col-span-5 space-y-6">
-              <div className="space-y-4">
-                <div className="flex items-center gap-2 text-xs font-semibold uppercase tracking-wider text-accent">
-                  <KeyRound className="h-4 w-4" />
-                  <span>Secure Analyst Authentication</span>
-                </div>
-                <h3 className="text-2xl sm:text-3xl font-bold tracking-tight text-fg">
-                  Frictionless Sign-In. Enterprise Session Security.
-                </h3>
-                <p className="text-sm text-fgMuted leading-relaxed">
-                  SURAKSHA's identity gateway enforces enterprise security policies while giving security researchers instant access to isolated sandbox environments without risking production brand assets.
-                </p>
-              </div>
-
-              <div className="space-y-3.5">
-                <div className="rounded-xl border border-line bg-surface p-4 flex items-start gap-3.5">
-                  <div className="h-8 w-8 rounded-lg bg-accent/15 border border-accent/25 flex items-center justify-center text-accent shrink-0 mt-0.5">
-                    <CheckCircle2 className="h-4 w-4" />
-                  </div>
-                  <div>
-                    <h4 className="text-sm font-semibold text-fg">Google & SAML Enterprise SSO</h4>
-                    <p className="text-xs text-fgMuted mt-0.5 leading-relaxed">
-                      Authenticate with your organization's Google Workspace or SAML 2.0 identity provider with one click.
-                    </p>
-                  </div>
-                </div>
-
-                <div className="rounded-xl border border-line bg-surface p-4 flex items-start gap-3.5">
-                  <div className="h-8 w-8 rounded-lg bg-ok/15 border border-ok/25 flex items-center justify-center text-ok shrink-0 mt-0.5">
-                    <ShieldCheck className="h-4 w-4" />
-                  </div>
-                  <div>
-                    <h4 className="text-sm font-semibold text-fg">Isolated Demo Sandbox Mode</h4>
-                    <p className="text-xs text-fgMuted mt-0.5 leading-relaxed">
-                      Evaluate full platform capabilities without credentials. Populates pre-configured synthetic findings in an isolated session.
-                    </p>
-                  </div>
-                </div>
-
-                <div className="rounded-xl border border-line bg-surface p-4 flex items-start gap-3.5">
-                  <div className="h-8 w-8 rounded-lg bg-ai/15 border border-ai/25 flex items-center justify-center text-ai shrink-0 mt-0.5">
-                    <Lock className="h-4 w-4" />
-                  </div>
-                  <div>
-                    <h4 className="text-sm font-semibold text-fg">Zero-Leakage Session Storage</h4>
-                    <p className="text-xs text-fgMuted mt-0.5 leading-relaxed">
-                      Local-first session security. Cryptographically signed tokens expire automatically, protecting analyst workstations.
-                    </p>
-                  </div>
-                </div>
-              </div>
-
-              <div className="pt-2 flex flex-wrap gap-3">
-                <button
-                  onClick={() => open({ mode: 'login' })}
-                  className="inline-flex items-center gap-2 rounded-md bg-accent px-5 py-3 text-xs font-semibold text-onAccent shadow-md hover:bg-accentHover transition-colors"
-                >
-                  <KeyRound className="h-3.5 w-3.5" />
-                  Open Login Portal
-                </button>
-                <button
-                  onClick={() => open({ mode: 'signup' })}
-                  className="inline-flex items-center gap-2 rounded-md border border-line bg-surface2 px-5 py-3 text-xs font-medium text-fg hover:bg-surface3 transition-colors"
-                >
-                  Create Analyst Account
-                </button>
-              </div>
-            </div>
-
-            {/* Right: Actual UI Image of the Login Portal */}
-            <div className="lg:col-span-7">
-              <div className="relative rounded-2xl border border-line bg-surface/90 p-2 shadow-2xl overflow-hidden group">
-                <div className="absolute inset-0 bg-gradient-to-tr from-accent/10 via-transparent to-ai/10 pointer-events-none" />
-                <div className="overflow-hidden rounded-xl border border-line/80">
-                  <img
-                    src="/suraksha_login_portal.png"
-                    alt="SURAKSHA Secure Authentication & Login Portal Interface"
-                    className="w-full h-auto object-cover transform transition-transform duration-500 group-hover:scale-[1.02]"
-                    loading="lazy"
-                  />
-                </div>
-                {/* Floating overlay chip */}
-                <div className="absolute bottom-5 left-5 right-5 sm:right-auto flex items-center gap-2 rounded-lg border border-line/90 bg-surface/95 px-3 py-2 text-xs backdrop-blur-md shadow-lg">
-                  <span className="h-2 w-2 rounded-full bg-ok animate-pulse" />
-                  <span className="text-fg font-medium">Authentication Gateway</span>
-                  <span className="text-fgSubtle">·</span>
-                  <span className="text-fgSubtle font-mono text-[11px]">OAuth 2.0 / Firebase Auth</span>
-                </div>
-              </div>
-            </div>
-          </div>
-        </Section>
-
-        {/* SECTION 2: THE INNER PART (SHOWCASING INNER DASHBOARD / DETECT DOMAIN IMAGE) */}
-        <Section
-          id="inner-workspace"
-          eyebrow="Authenticated Workspace View"
-          title="The Analyst Command Center: Inside the Workspace."
-          subtitle="Explore the inner cockpit of SURAKSHA after login: Candidate Asset Test Bench, Levenshtein edit distance heuristics, Unicode homoglyph detection, and protected allowlist baselines."
-        >
-          <div className="grid lg:grid-cols-12 gap-8 xl:gap-12 items-center">
-            {/* Left: Actual UI Image of the Inner Dashboard */}
-            <div className="lg:col-span-7 order-2 lg:order-1">
-              <div className="relative rounded-2xl border border-line bg-surface/90 p-2 shadow-2xl overflow-hidden group">
-                <div className="absolute inset-0 bg-gradient-to-tr from-ok/10 via-transparent to-accent/10 pointer-events-none" />
-                <div className="overflow-hidden rounded-xl border border-line/80">
-                  <img
-                    src="/suraksha_inner_dashboard.png"
-                    alt="SURAKSHA Command Center Inner Workspace Interface"
-                    className="w-full h-auto object-cover transform transition-transform duration-500 group-hover:scale-[1.02]"
-                    loading="lazy"
-                  />
-                </div>
-                {/* Floating overlay chip */}
-                <div className="absolute bottom-5 left-5 right-5 sm:right-auto flex items-center gap-2 rounded-lg border border-line/90 bg-surface/95 px-3 py-2 text-xs backdrop-blur-md shadow-lg">
-                  <span className="h-2 w-2 rounded-full bg-ok animate-pulse" />
-                  <span className="text-fg font-medium">Workspace Active</span>
-                  <span className="text-fgSubtle">·</span>
-                  <span className="text-fgSubtle font-mono text-[11px]">Detect › Check a domain</span>
-                </div>
-              </div>
-            </div>
-
-            {/* Right: Inner Part Modules & Capabilities */}
-            <div className="lg:col-span-5 order-1 lg:order-2 space-y-6">
-              <div className="space-y-4">
-                <div className="flex items-center gap-2 text-xs font-semibold uppercase tracking-wider text-ok">
-                  <LayoutDashboard className="h-4 w-4" />
-                  <span>Inner Operational Cockpit</span>
-                </div>
-                <h3 className="text-2xl sm:text-3xl font-bold tracking-tight text-fg">
-                  Unified Domain Similarity & Heuristic Analysis
-                </h3>
-                <p className="text-sm text-fgMuted leading-relaxed">
-                  Inside SURAKSHA after sign in, analysts interact directly with the multi-vector detection engine. Suspected domains and brand assets are evaluated locally in real-time against verified corporate allowlists.
-                </p>
-              </div>
-
-              <div className="space-y-3.5">
-                <div className="rounded-xl border border-line bg-surface p-4 flex items-start gap-3.5">
-                  <div className="h-8 w-8 rounded-lg bg-accent/15 border border-accent/25 flex items-center justify-center text-accent shrink-0 mt-0.5">
-                    <Activity className="h-4 w-4" />
-                  </div>
-                  <div>
-                    <h4 className="text-sm font-semibold text-fg">Candidate Asset Test Bench</h4>
-                    <p className="text-xs text-fgMuted mt-0.5 leading-relaxed">
-                      Instant evaluation of Levenshtein edit distance, Cyrillic homoglyphs, subdomain abuse, and lure keywords.
-                    </p>
-                  </div>
-                </div>
-
-                <div className="rounded-xl border border-line bg-surface p-4 flex items-start gap-3.5">
-                  <div className="h-8 w-8 rounded-lg bg-ok/15 border border-ok/25 flex items-center justify-center text-ok shrink-0 mt-0.5">
-                    <ShieldCheck className="h-4 w-4" />
-                  </div>
-                  <div>
-                    <h4 className="text-sm font-semibold text-fg">Protected Brand Baseline</h4>
-                    <p className="text-xs text-fgMuted mt-0.5 leading-relaxed">
-                      Verified corporate domains and social handles are registered and excluded from false-positive alert queues.
-                    </p>
-                  </div>
-                </div>
-
-                <div className="rounded-xl border border-line bg-surface p-4 flex items-start gap-3.5">
-                  <div className="h-8 w-8 rounded-lg bg-ai/15 border border-ai/25 flex items-center justify-center text-ai shrink-0 mt-0.5">
-                    <FileText className="h-4 w-4" />
-                  </div>
-                  <div>
-                    <h4 className="text-sm font-semibold text-fg">Explainable Evidence & Signals</h4>
-                    <p className="text-xs text-fgMuted mt-0.5 leading-relaxed">
-                      Every verdict provides granular signals supporting or contradicting malicious impersonation.
-                    </p>
-                  </div>
-                </div>
-              </div>
-
-              <div className="pt-2 flex flex-wrap gap-3">
-                <button
-                  onClick={() => open({ mode: 'login' })}
-                  className="inline-flex items-center gap-2 rounded-md bg-accent px-5 py-3 text-xs font-semibold text-onAccent shadow-md hover:bg-accentHover transition-colors"
-                >
-                  <LayoutDashboard className="h-3.5 w-3.5" />
-                  Launch Inner Workspace
-                  <ArrowRight className="h-3.5 w-3.5" />
-                </button>
-              </div>
-            </div>
-          </div>
-        </Section>
-
-        {/* INTERACTIVE DETECTION SANDBOX SECTION */}
-        <Section
-          id="sandbox"
-          eyebrow="Interactive Threat Sandbox"
-          title="Test any candidate domain in real time."
-          subtitle="Experience SURAKSHA's client-side rule evaluation engine. No static mockups—this executes the actual homoglyph decomposition and typosquatting pipeline directly in your browser."
-        >
-          <div className="grid lg:grid-cols-12 gap-8 items-start">
-            {/* Input & Presets Column */}
-            <div className="lg:col-span-5 space-y-4">
-              <div className="rounded-xl border border-line bg-surface p-5 space-y-4">
-                <div>
-                  <label className="text-xs font-semibold uppercase tracking-wider text-fgSubtle">
-                    Candidate Domain to Inspect
-                  </label>
-                  <div className="relative mt-2">
-                    <input
-                      type="text"
-                      value={sandboxDomain}
-                      onChange={(e) => setSandboxDomain(e.target.value)}
-                      placeholder="e.g. аcme-portal.com"
-                      className="w-full rounded-md border border-line bg-surface2 px-3.5 py-2.5 text-sm font-mono text-fg placeholder:text-fgSubtle focus:border-accent focus:outline-none"
-                    />
-                  </div>
-                </div>
-
-                <div>
-                  <label className="text-xs font-semibold uppercase tracking-wider text-fgSubtle">
-                    Candidate Display Name (Optional)
-                  </label>
-                  <input
-                    type="text"
-                    value={sandboxName}
-                    onChange={(e) => setSandboxName(e.target.value)}
-                    placeholder="e.g. Acme Support Desk"
-                    className="mt-2 w-full rounded-md border border-line bg-surface2 px-3.5 py-2 text-sm text-fg placeholder:text-fgSubtle focus:border-accent focus:outline-none"
-                  />
-                </div>
-
-                {/* Benchmark Presets */}
-                <div>
-                  <label className="text-xs font-semibold uppercase tracking-wider text-fgSubtle block mb-2">
-                    Quick Benchmark Scenarios
-                  </label>
-                  <div className="flex flex-wrap gap-1.5">
-                    {SANDBOX_PRESETS.map((preset) => (
-                      <button
-                        key={preset.label}
-                        type="button"
-                        onClick={() => handleSelectPreset(preset)}
-                        className={`text-xs px-2.5 py-1.5 rounded-md border transition-colors ${
-                          sandboxDomain === preset.domain
-                            ? 'border-accent bg-accent/15 text-accent font-semibold'
-                            : 'border-line bg-surface2 text-fgMuted hover:text-fg hover:border-fgSubtle'
-                        }`}
-                      >
-                        {preset.label}
-                      </button>
+                {COMPARE.map((row, i) => (
+                  <div key={row.q} className={`grid grid-cols-[1fr,5.5rem,5.5rem] items-center gap-2 px-5 py-4 sm:grid-cols-[1fr,7rem,7rem] sm:px-7 ${i % 2 ? 'bg-surface2/40' : ''}`}>
+                    <span className="text-[15px] text-fg">{row.q}</span>
+                    {[row.rules, row.models].map((yes, j) => (
+                      <span key={j} className="flex justify-center">
+                        {yes ? (
+                          <Check className={`h-5 w-5 ${j === 0 ? 'text-accent' : 'text-ai'}`} {...ICON} aria-label="Yes" />
+                        ) : (
+                          <X className="h-5 w-5 text-fgSubtle/70" {...ICON} aria-label="No" />
+                        )}
+                      </span>
                     ))}
                   </div>
-                </div>
-
-                <div className="text-[11px] text-fgSubtle border-t border-line/60 pt-3 flex items-center justify-between">
-                  <span>Protected Brand: <strong className="text-fg font-mono">Acme Corp</strong></span>
-                  <span>Evaluated against 4 official domains</span>
-                </div>
-              </div>
-            </div>
-
-            {/* Live Engine Output Card */}
-            <div className="lg:col-span-7">
-              {sandboxAnalysis ? (
-                <div className="rounded-xl border border-line bg-surface p-6 shadow-xl space-y-5">
-                  <div className="flex flex-wrap items-center justify-between gap-3 border-b border-line pb-4">
-                    <div>
-                      <div className="flex items-center gap-2">
-                        <span className={`inline-flex items-center px-2.5 py-0.5 rounded text-xs font-mono font-bold ${
-                          sandboxAnalysis.overallRiskCategory === 'Critical'
-                            ? 'bg-danger/15 text-danger border border-danger/30'
-                            : sandboxAnalysis.overallRiskCategory === 'High'
-                            ? 'bg-high/15 text-high border border-high/30'
-                            : sandboxAnalysis.overallRiskCategory === 'Medium'
-                            ? 'bg-warn/15 text-warn border border-warn/30'
-                            : 'bg-ok/15 text-ok border border-ok/30'
-                        }`}>
-                          {sandboxAnalysis.overallRiskCategory.toUpperCase()} RISK
-                        </span>
-                        <span className="text-xs font-mono text-fgSubtle">
-                          Threat Score: <strong className="text-fg text-sm">{sandboxAnalysis.overallScore}/100</strong>
-                        </span>
-                      </div>
-                      <p className="text-xs text-fgMuted mt-1">
-                        Recommended Action: <strong className="text-fg">{sandboxAnalysis.recommendedAction}</strong>
-                      </p>
-                    </div>
-
-                    <button
-                      onClick={() => open({ mode: 'login' })}
-                      className="inline-flex items-center gap-1.5 rounded bg-accent px-3 py-1.5 text-xs font-semibold text-onAccent hover:bg-accentHover transition-colors"
-                    >
-                      Dossier in Workspace <ArrowRight className="h-3 w-3" />
-                    </button>
-                  </div>
-
-                  {/* Character Diffs / Homoglyph Breakdown */}
-                  {sandboxAnalysis.characterDiffs && sandboxAnalysis.characterDiffs.length > 0 && (
-                    <div className="rounded-lg border border-danger/30 bg-danger/5 p-3.5 space-y-2">
-                      <div className="flex items-center justify-between text-xs font-semibold text-danger">
-                        <span className="flex items-center gap-1.5">
-                          <AlertTriangle className="h-4 w-4" />
-                          Unicode Homoglyph Substitution Detected
-                        </span>
-                        <span className="font-mono text-[11px]">{sandboxAnalysis.characterDiffs.length} confusable glyph(s)</span>
-                      </div>
-                      <div className="space-y-1 text-xs">
-                        {sandboxAnalysis.characterDiffs.map((diff, idx) => (
-                          <div key={idx} className="flex items-center justify-between bg-surface/80 rounded px-2.5 py-1 font-mono text-[11px]">
-                            <span>
-                              Char <span className="text-danger font-bold">'{diff.substituted}'</span> replaces Latin <span className="text-ok font-bold">'{diff.original}'</span>
-                            </span>
-                            <span className="text-fgSubtle">{diff.explanation}</span>
-                          </div>
-                        ))}
-                      </div>
-                    </div>
-                  )}
-
-                  {/* Fired Signals List */}
-                  <div>
-                    <h4 className="text-xs font-semibold uppercase tracking-wider text-fgSubtle mb-2">
-                      Deterministic Signals Triggered ({sandboxAnalysis.signals.length})
-                    </h4>
-                    <div className="space-y-2 max-h-56 overflow-y-auto pr-1">
-                      {sandboxAnalysis.signals.map((sig) => (
-                        <div key={sig.id} className="rounded-md border border-line bg-surface2/60 p-3 text-xs space-y-1">
-                          <div className="flex items-center justify-between">
-                            <span className="font-semibold text-fg flex items-center gap-1.5">
-                              <span className={`h-1.5 w-1.5 rounded-full ${
-                                sig.severity === 'critical' ? 'bg-danger' : sig.severity === 'high' ? 'bg-high' : 'bg-warn'
-                              }`} />
-                              {sig.title}
-                            </span>
-                            <span className="text-[10px] font-mono uppercase px-1.5 py-0.5 rounded bg-surface3 text-fgSubtle">
-                              {sig.category}
-                            </span>
-                          </div>
-                          <p className="text-fgMuted leading-relaxed">{sig.detail}</p>
-                        </div>
-                      ))}
-                    </div>
-                  </div>
-
-                  {/* Summary Provenance */}
-                  <div className="text-[11px] text-fgSubtle border-t border-line/60 pt-3 flex items-center justify-between">
-                    <span>Damerau-Levenshtein: <strong className="text-fg font-mono">{sandboxAnalysis.damerauDistance}</strong></span>
-                    <span>Name Similarity: <strong className="text-fg font-mono">{sandboxAnalysis.nameSimilarityScore}%</strong></span>
-                    <span>Domain Similarity: <strong className="text-fg font-mono">{sandboxAnalysis.domainSimilarityScore}%</strong></span>
-                  </div>
-                </div>
-              ) : (
-                <div className="rounded-xl border border-line bg-surface p-8 text-center text-fgMuted">
-                  Type a candidate domain on the left to run live signal analysis.
-                </div>
-              )}
-            </div>
-          </div>
-        </Section>
-
-        {/* EPISTEMIC ARCHITECTURE SECTION */}
-        <Section
-          id="epistemic"
-          eyebrow="Epistemic Architecture"
-          title="Two kinds of signal, never blended."
-          subtitle="Rules decide severity. Machine learning is supporting context. Official assets are categorically whitelisted. We never let probabilistic models make unchecked verdicts."
-        >
-          <div className="grid gap-6 md:grid-cols-2">
-            <Reveal className="rounded-2xl border border-line bg-surface p-6 sm:p-8 sk-lift space-y-4">
-              <div className="flex items-center justify-between">
-                <span className="text-xs font-mono font-semibold text-accent uppercase tracking-wider">Deterministic Engine</span>
-                <span className="text-[11px] font-mono text-fgSubtle">Verdicts & Severity</span>
-              </div>
-              <h3 className="text-xl font-bold text-fg">Rule-Based Engines</h3>
-              <p className="text-sm text-fgMuted leading-relaxed">
-                Lookalike similarity, homoglyphs and punycode, lure words, URL structure, and verified-asset exclusion. Every signal names the exact rule that fired, so an analyst or legal officer can inspect and prove it in court.
-              </p>
-              <div className="rounded-lg border border-line bg-surface2/60 p-4 space-y-2 text-xs">
-                <div className="flex items-center gap-2 text-fg">
-                  <CheckCircle2 className="h-4 w-4 text-ok" />
-                  <span>100% reproducible and verifiable by an analyst</span>
-                </div>
-                <div className="flex items-center gap-2 text-fg">
-                  <CheckCircle2 className="h-4 w-4 text-ok" />
-                  <span>Legally sound for ICANN UDRP and DMCA filings</span>
-                </div>
-                <div className="flex items-center gap-2 text-fg">
-                  <CheckCircle2 className="h-4 w-4 text-ok" />
-                  <span>Guaranteed zero false alarms for registered assets</span>
-                </div>
-              </div>
-            </Reveal>
-
-            <Reveal delay={120} className="rounded-2xl border border-line bg-surface p-6 sm:p-8 sk-lift space-y-4">
-              <div className="flex items-center justify-between">
-                <span className="text-xs font-mono font-semibold text-ai uppercase tracking-wider">Supporting Context</span>
-                <span className="text-[11px] font-mono text-fgSubtle">Triage & Prioritization</span>
-              </div>
-              <h3 className="text-xl font-bold text-fg">Trained Statistical Models</h3>
-              <p className="text-sm text-fgMuted leading-relaxed">
-                Reported alongside findings as uncalibrated supporting evidence. A model score helps sort queue priority, but never overrides a verified official asset and never alters an epistemic fact.
-              </p>
-              <div className="rounded-lg border border-line bg-surface2/60 p-4 space-y-2 text-xs">
-                <div className="flex items-center gap-2 text-fg">
-                  <CheckCircle2 className="h-4 w-4 text-ai" />
-                  <span>Deep neural representations of lexical URL structure</span>
-                </div>
-                <div className="flex items-center gap-2 text-fg">
-                  <CheckCircle2 className="h-4 w-4 text-ai" />
-                  <span>Probability weights for analyst triage queue ranking</span>
-                </div>
-                <div className="flex items-center gap-2 text-fg">
-                  <CheckCircle2 className="h-4 w-4 text-ai" />
-                  <span>Openly documented offline benchmarks and baselines</span>
-                </div>
+                ))}
               </div>
             </Reveal>
           </div>
-        </Section>
+        </section>
 
-        {/* THE 5-STEP LIFECYCLE */}
-        <Section
-          id="lifecycle"
-          eyebrow="The Defense Loop"
-          title="Most tools stop at the alert. SURAKSHA starts there."
-          subtitle="From initial discovery to evidence dossier and registrar takedown, SURAKSHA provides an unbroken chain of custody for security analysts."
-        >
-          <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-5">
-            {LOOP.map((step, i) => {
-              const Icon = step.icon;
-              return (
-                <Reveal as="div" key={step.step} delay={i * 80} className="rounded-2xl border border-line bg-surface p-5 sk-lift flex flex-col justify-between">
-                  <div>
-                    <div className="flex items-center justify-between">
-                      <span className="text-xs font-mono font-bold text-accent">{step.step}</span>
-                      <Icon className="h-4 w-4 text-fgSubtle" />
-                    </div>
-                    <h3 className="mt-3 text-base font-semibold text-fg">{step.title}</h3>
-                    <p className="mt-2 text-xs text-fgMuted leading-relaxed">{step.desc}</p>
-                  </div>
-                </Reveal>
-              );
-            })}
-          </div>
-        </Section>
-
-        {/* FROZEN AUDIT BENCHMARKS SECTION */}
-        <Section
-          id="measured"
-          eyebrow="Frozen Benchmark Evaluation"
-          title="Numbers you can check, including the unflattering ones."
-          subtitle="We believe digital brand protection demands complete scientific honesty. These figures are from a leakage-safe, domain-grouped evaluation on frozen October 2026 test sets."
-        >
-          <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-4">
-            {MEASURED.map((m, i) => (
-              <Reveal key={m.label} delay={i * 90} className="rounded-2xl border border-line bg-surface p-5 sk-lift flex flex-col justify-between">
-                <div>
-                  <div className="flex items-center justify-between">
-                    <span className="text-xs text-fgSubtle">{m.label}</span>
-                    <span className="text-[10px] font-mono px-1.5 py-0.5 rounded bg-surface2 text-accent border border-accent/20">
-                      {m.badge}
+        {/* Workflow: a real sequence, so it is numbered */}
+        <section id="lifecycle" className="border-t border-line/70">
+          <div className={`${container} py-24 sm:py-32`}>
+            <Reveal>
+              <h2 className="max-w-[22ch] text-3xl font-semibold tracking-[-0.03em] text-fg sm:text-[2.6rem] sm:leading-[1.1]">
+                From a suspicious handle to a report you can file.
+              </h2>
+            </Reveal>
+            <ol className="relative mt-16 grid gap-10 md:grid-cols-4 md:gap-6">
+              <span aria-hidden className="sk-grow-x absolute left-0 right-0 top-[22px] hidden h-px bg-gradient-to-r from-accent/70 via-line to-line md:block" />
+              {STEPS.map((s, i) => {
+                const Icon = s.icon;
+                return (
+                  <Reveal as="li" key={s.title} delay={i * 90} className="relative">
+                    <span className="relative z-10 flex h-11 w-11 items-center justify-center rounded-2xl border border-line bg-canvas text-accent">
+                      <Icon className="h-5 w-5" {...ICON} />
                     </span>
-                  </div>
-                  <p className="mt-3 text-3xl sm:text-4xl font-bold font-mono text-fg tracking-tight">
-                    <CountUp value={m.value} />
-                  </p>
-                  <p className="mt-1 text-xs font-medium text-fg">{m.sub}</p>
-                  <p className="mt-2 text-xs text-fgMuted leading-relaxed">{m.note}</p>
-                </div>
+                    <p className="mt-6 font-mono text-sm text-fgSubtle">{i + 1}</p>
+                    <h3 className="mt-1 text-lg font-semibold tracking-tight text-fg">{s.title}</h3>
+                    <p className="mt-2 max-w-[34ch] text-sm leading-relaxed text-fgMuted">{s.body}</p>
+                  </Reveal>
+                );
+              })}
+            </ol>
+          </div>
+        </section>
+
+        {/* Product view */}
+        <section id="inner-workspace" className="relative isolate overflow-hidden border-y border-line/70 bg-surface2/50">
+          <div aria-hidden className="pointer-events-none absolute left-1/2 top-24 -z-10 h-[480px] w-[900px] -translate-x-1/2 rounded-full bg-accent/[0.06] blur-[140px]" />
+          <div className={`${container} pt-24 sm:pt-32`}>
+            <Reveal className="mx-auto max-w-[60ch] text-center">
+              <h2 className="text-3xl font-semibold tracking-[-0.03em] text-fg sm:text-[2.6rem] sm:leading-[1.1]">
+                One queue for every impostor.
+              </h2>
+              <p className="mt-4 leading-relaxed text-fgMuted">
+                Open findings, review progress and the cases that need a decision first, for one brand or many.
+              </p>
+            </Reveal>
+            <Reveal delay={120} className="mx-auto mt-14 max-w-[1120px]">
+              <div className="rounded-t-3xl border border-b-0 border-line bg-surface p-2 pb-0 shadow-elevated sm:p-3 sm:pb-0">
+                <img
+                  src="/suraksha_inner_dashboard.png"
+                  alt="The Suraksha overview: open findings by severity, the review pipeline and the cases that need attention"
+                  className="w-full rounded-t-2xl border border-b-0 border-line"
+                  loading="lazy"
+                  width="1600"
+                  height="1000"
+                />
+              </div>
+            </Reveal>
+          </div>
+        </section>
+
+        {/* Benchmarks */}
+        <section id="measured" className={`${container} py-24 sm:py-32`}>
+          <Reveal className="max-w-[62ch]">
+            <p className="text-sm font-medium text-accent">Measured, including the unflattering parts</p>
+            <h2 className="mt-3 text-3xl font-semibold tracking-[-0.03em] text-fg sm:text-[2.6rem] sm:leading-[1.1]">
+              Numbers you can check.
+            </h2>
+          </Reveal>
+          <div className="mt-14 grid gap-px overflow-hidden rounded-3xl border border-line bg-line sm:grid-cols-2">
+            {MEASURED.map((m, i) => (
+              <Reveal key={m.label} delay={i * 70} className="bg-surface p-7 sm:p-9">
+                <p className="font-mono text-5xl font-medium tracking-tight text-fg sm:text-6xl">
+                  <CountUp value={m.value} />
+                </p>
+                <p className="mt-4 max-w-[34ch] text-[15px] leading-relaxed text-fg">{m.label}</p>
+                <p className="mt-2 max-w-[40ch] text-sm leading-relaxed text-fgSubtle">{m.note}</p>
               </Reveal>
             ))}
           </div>
+          <p className="mt-6 max-w-[80ch] text-sm leading-relaxed text-fgSubtle">
+            URL results come from an offline, domain-grouped evaluation, so no site in the test set was seen in training. Social and app detection rely on the verified brand registry and named rules.
+          </p>
+        </section>
 
-          <div className="mt-6 rounded-lg border border-line bg-surface2/60 p-4 text-xs text-fgMuted leading-relaxed flex items-start gap-2.5">
-            <Lock className="h-4 w-4 text-fgSubtle shrink-0 mt-0.5" />
-            <span>
-              URL results are derived from an offline frozen test set of 2,210 hosts evaluated under strictly disjoint domain grouping. Social media and mobile app detection operates through verified asset registries and deterministic rule engines rather than speculative synthetic labels.
-            </span>
-          </div>
-        </Section>
-
-        {/* CALL TO ACTION SECTION */}
-        <section className="border-t border-line bg-surface/40">
-          <div className="mx-auto max-w-[1720px] px-6 sm:px-10 lg:px-12 2xl:px-16 py-16 sm:py-20">
-            <Reveal className="rounded-3xl border border-line bg-gradient-to-b from-surface to-surface2 p-8 sm:p-12 text-center max-w-4xl mx-auto shadow-2xl relative overflow-hidden">
-              <div className="absolute top-0 left-1/2 -translate-x-1/2 w-96 h-32 bg-accent/15 blur-3xl pointer-events-none" />
-              
-              <div className="relative z-10 space-y-4">
-                <ShieldMark size={48} className="mx-auto" />
-                <h2 className="text-3xl sm:text-4xl font-bold text-fg tracking-tight">
-                  Protect Your Brand Infrastructure Today
-                </h2>
-                <p className="max-w-xl mx-auto text-sm sm:text-base text-fgMuted leading-relaxed">
-                  Start by registering the domains, handles, and apps that are really yours. Eliminate blind spots and automate your threat response workflow.
-                </p>
-                <div className="pt-4 flex flex-wrap justify-center gap-3">
-                  <button
-                    onClick={() => open({ mode: 'login' })}
-                    className="group inline-flex items-center gap-2 rounded-md bg-accent px-7 py-3.5 text-sm font-semibold text-onAccent shadow-lg transition-[transform,background-color] duration-150 hover:bg-accentHover active:scale-[0.98]"
-                  >
-                    Open SURAKSHA Console
-                    <ArrowRight className="h-4 w-4 transition-transform duration-200 group-hover:translate-x-1" />
-                  </button>
-                </div>
+        {/* Closing: CTA + get the app */}
+        <section className="border-t border-line/70">
+          <div className={`${container} grid items-center gap-12 py-24 sm:py-28 lg:grid-cols-12`}>
+            <Reveal className="lg:col-span-7">
+              <p className="font-deva text-2xl text-accent" lang="hi">सुरक्षा</p>
+              <h2 className="mt-3 max-w-[18ch] text-4xl font-semibold tracking-[-0.035em] text-fg sm:text-5xl sm:leading-[1.05]">
+                See it catch a fake in under a minute.
+              </h2>
+              <p className="mt-5 max-w-[50ch] leading-relaxed text-fgMuted">
+                The demo opens with a sample brand, its official assets and a queue of realistic impostors. No sign-up needed.
+              </p>
+              <div className="mt-8 flex flex-wrap gap-3">
+                <button
+                  onClick={openDemo}
+                  className="group inline-flex items-center gap-2 whitespace-nowrap rounded-xl bg-accent px-6 py-3.5 text-[15px] font-semibold text-onAccent transition-[transform,background-color] duration-150 hover:bg-accentHover active:scale-[0.98]"
+                >
+                  Open the live demo
+                  <ArrowRight className="h-4 w-4 transition-transform duration-200 group-hover:translate-x-0.5" {...ICON} />
+                </button>
+                <button
+                  onClick={() => open({ mode: 'signup' })}
+                  className="inline-flex items-center gap-2 whitespace-nowrap rounded-xl border border-line px-6 py-3.5 text-[15px] font-medium text-fg transition-colors hover:border-fgSubtle/60 hover:bg-surface3"
+                >
+                  Create an account
+                </button>
               </div>
+            </Reveal>
+            <Reveal delay={100} className="lg:col-span-5">
+              <GetApp />
             </Reveal>
           </div>
         </section>
       </main>
 
-      {/* FOOTER */}
-      <footer className="border-t border-line bg-canvas">
-        <div className="mx-auto max-w-[1720px] px-6 sm:px-10 lg:px-12 2xl:px-16 py-12">
-          <div className="grid grid-cols-2 md:grid-cols-4 gap-8 mb-8 text-xs">
-            <div>
-              <div className="flex items-center gap-2 font-bold text-sm tracking-tight text-fg mb-3">
-                <ShieldMark size={20} />
-                SURAKSHA
-              </div>
-              <p className="text-fgSubtle leading-relaxed">
-                Autonomous Digital Brand Protection & Epistemic Verification for enterprise security analysts.
-              </p>
+      <footer className="border-t border-line/70">
+        <div className={`${container} flex flex-col gap-8 py-12 md:flex-row md:items-start md:justify-between`}>
+          <div className="max-w-sm">
+            <div className="flex items-center gap-2.5">
+              <ShieldMark size={22} animate={false} />
+              <span className="font-semibold tracking-tight">Suraksha</span>
             </div>
-            <div>
-              <h5 className="font-semibold text-fg uppercase tracking-wider text-[11px] mb-3">Capabilities</h5>
-              <ul className="space-y-2 text-fgMuted">
-                <li><a href="#vectors" className="hover:text-fg transition-colors">Lookalike Domain Engine</a></li>
-                <li><a href="#vectors" className="hover:text-fg transition-colors">Social Impersonator Guard</a></li>
-                <li><a href="#vectors" className="hover:text-fg transition-colors">Rogue Mobile App Scanner</a></li>
-                <li><a href="#sandbox" className="hover:text-fg transition-colors">Live Interactive Sandbox</a></li>
-              </ul>
-            </div>
-            <div>
-              <h5 className="font-semibold text-fg uppercase tracking-wider text-[11px] mb-3">Methodology & Gateway</h5>
-              <ul className="space-y-2 text-fgMuted">
-                <li><a href="#login-gateway" className="hover:text-fg transition-colors">Authentication Gateway</a></li>
-                <li><a href="#inner-workspace" className="hover:text-fg transition-colors">Inner Command Center</a></li>
-                <li><a href="#epistemic" className="hover:text-fg transition-colors">Epistemic Rule Engine</a></li>
-                <li><a href="#measured" className="hover:text-fg transition-colors">Frozen Evaluation Sets</a></li>
-              </ul>
-            </div>
-            <div>
-              <h5 className="font-semibold text-fg uppercase tracking-wider text-[11px] mb-3">Workspace</h5>
-              <ul className="space-y-2 text-fgMuted">
-                <li><button onClick={() => open({ mode: 'login' })} className="hover:text-fg transition-colors">Sign In / Register</button></li>
-                <li><button onClick={() => open({ mode: 'login', tab: 'lookalike' })} className="hover:text-fg transition-colors">Domain Watchtower</button></li>
-                <li><button onClick={() => open({ mode: 'login', tab: 'investigations' })} className="hover:text-fg transition-colors">Investigation Center</button></li>
-                {onReplayIntro && (
-                  <li><button onClick={onReplayIntro} className="hover:text-fg transition-colors">Replay Brand Intro</button></li>
-                )}
-              </ul>
-            </div>
+            <p className="mt-3 text-sm leading-relaxed text-fgSubtle">
+              Findings are advisory. A person reviews every case before anything is reported.
+            </p>
           </div>
-
-          <div className="border-t border-line/60 pt-6 flex flex-wrap items-center justify-between gap-4 text-xs text-fgSubtle">
-            <span>© 2026 SURAKSHA Brand Protection Platform. Findings are advisory and support human analyst decision-making.</span>
-            <div className="flex items-center gap-4">
-              <span className="font-mono">v2.0.4-freeze</span>
-              <span className="h-1 w-1 rounded-full bg-fgSubtle" />
-              <span>Leakage-Safe Architecture</span>
-            </div>
-          </div>
+          <nav className="grid grid-cols-2 gap-x-10 gap-y-3 whitespace-nowrap text-sm text-fgMuted sm:grid-cols-3" aria-label="Footer">
+            <a href="#vectors" className="hover:text-fg">Coverage</a>
+            <a href="#sandbox" className="hover:text-fg">Scanner</a>
+            <a href="#epistemic" className="hover:text-fg">Evidence</a>
+            <a href="#lifecycle" className="hover:text-fg">How it works</a>
+            <a href="#measured" className="hover:text-fg">Benchmarks</a>
+            <a href="#get-app" className="hover:text-fg">Get the app</a>
+            <button onClick={() => open({ mode: 'login' })} className="text-left hover:text-fg">Sign in</button>
+            <button onClick={() => open({ mode: 'login', tab: 'investigation-center' })} className="text-left hover:text-fg">Investigations</button>
+            {onReplayIntro && (
+              <button onClick={onReplayIntro} className="inline-flex items-center gap-1.5 text-left hover:text-fg">
+                <Play className="h-3.5 w-3.5" {...ICON} /> Replay intro
+              </button>
+            )}
+          </nav>
+        </div>
+        <div className={`${container} border-t border-line/60 py-6 text-xs text-fgSubtle`}>
+          © 2026 Suraksha
         </div>
       </footer>
     </div>

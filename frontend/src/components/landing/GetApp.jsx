@@ -35,34 +35,40 @@ export default function GetApp() {
   };
 
   return (
-    <div className="mt-6 rounded-lg border border-line/70 bg-surface2/40 p-4" id="get-app">
-      <p className="flex items-center gap-2 text-sm font-semibold text-fg">
-        <Smartphone className="h-4 w-4 text-accent" /> Get Suraksha on your phone
+    <div className="rounded-3xl border border-line bg-surface p-6 sm:p-7" id="get-app">
+      <p className="flex items-center gap-2.5 text-base font-semibold text-fg">
+        <span className="flex h-9 w-9 items-center justify-center rounded-xl border border-accent/25 bg-accent/10 text-accent">
+          <Smartphone className="h-4 w-4" strokeWidth={1.75} />
+        </span>
+        Get Suraksha on your phone
       </p>
-      <div className="mt-3 flex flex-wrap gap-2">
+      <p className="mt-3 text-sm leading-relaxed text-fgMuted">
+        The Android app and the installable web app both work offline in demo mode.
+      </p>
+      <div className="mt-5 flex flex-wrap gap-2">
         <a
           href={APK_URL}
-          className="inline-flex items-center gap-2 rounded-md bg-accent px-4 py-2.5 text-sm font-medium text-white hover:opacity-90"
+          className="inline-flex items-center gap-2 whitespace-nowrap rounded-xl bg-accent px-4 py-2.5 text-sm font-semibold text-onAccent transition-colors hover:bg-accentHover"
         >
-          <Download className="h-4 w-4" /> Android app (APK)
+          <Download className="h-4 w-4" strokeWidth={1.75} /> Android app (APK)
         </a>
         <button
           type="button"
           onClick={install}
           disabled={installed}
-          className="inline-flex items-center gap-2 rounded-md border border-line/60 bg-surface2/50 px-4 py-2.5 text-sm font-medium text-fgSubtle hover:bg-surface3 hover:text-fg disabled:opacity-60"
+          className="inline-flex items-center gap-2 whitespace-nowrap rounded-xl border border-line px-4 py-2.5 text-sm font-medium text-fg transition-colors hover:border-fgSubtle/60 hover:bg-surface3 disabled:opacity-60"
         >
-          <Download className="h-4 w-4 text-accent" /> {installed ? 'Installed' : 'Install web app'}
+          <Download className="h-4 w-4 text-accent" strokeWidth={1.75} /> {installed ? 'Installed' : 'Install web app'}
         </button>
       </div>
       {help && (
-        <p className="mt-3 text-xs leading-relaxed text-fgSubtle">
+        <p className="mt-4 text-sm leading-relaxed text-fgMuted">
           Your browser did not offer a one-tap install. On iPhone (Safari): Share, then Add to Home Screen.
           On Android or desktop Chrome/Edge: menu, then Install app / Add to Home screen.
         </p>
       )}
-      <p className="mt-3 text-[11px] text-fgSubtle">
-        Android: open the downloaded file and allow installs from this source. Works offline in demo mode.
+      <p className="mt-4 text-xs leading-relaxed text-fgSubtle">
+        Android: open the downloaded file and allow installs from this source.
       </p>
     </div>
   );
