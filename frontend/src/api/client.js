@@ -118,6 +118,29 @@ class ApiClient {
     });
   }
 
+  async monitorSocial(payload) {
+    // Live public-platform search + detector run. Public endpoint; failures surface as an Error.
+    const res = await fetch(`${this.baseUrl}/social/monitor`, {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify(payload),
+    });
+    const body = await res.json().catch(() => ({}));
+    if (!res.ok || !body.success) throw new Error(body?.error?.message || `Live scan failed (${res.status})`);
+    return body.data;
+  }
+
+  async monitorApps(payload) {
+    const res = await fetch(`${this.baseUrl}/apps/monitor`, {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify(payload),
+    });
+    const body = await res.json().catch(() => ({}));
+    if (!res.ok || !body.success) throw new Error(body?.error?.message || `Live scan failed (${res.status})`);
+    return body.data;
+  }
+
   async uploadBrandLogo(id, dataUrl) {
     // Multipart upload of the official logo (PNG/JPEG/WEBP/GIF, max 2 MB); used for visual impersonation checks.
     const blob = await (await fetch(dataUrl)).blob();

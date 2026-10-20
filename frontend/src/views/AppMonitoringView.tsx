@@ -20,6 +20,7 @@ import {
 } from 'lucide-react';
 import type { RiskLevel } from '../types';
 import api from '../api/client';
+import { LiveAppScan } from '../components/LiveAppScan';
 import { analyzeAppCandidate } from '../utils/appEngine';
 import { compareToOfficialLogo, fileToDataUrl } from '../utils/imageHash';
 import { ACME_LOGO, ACME_LOGO_COPY, OTHER_LOGO } from '../data/demoLogos';
@@ -263,6 +264,8 @@ export const AppMonitoringView: React.FC = () => {
           )}
         </div>
       </div>
+
+      <LiveAppScan brand={brandProfile} />
 
       {/* 2. MODE 1: LIVE APPLE APP STORE SCAN (ITUNES REST API) */}
       {activeMode === 'live_provider' && (

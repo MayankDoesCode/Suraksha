@@ -28,6 +28,7 @@ import {
   Sparkles,
 } from 'lucide-react';
 import api from '../api/client';
+import { LiveSocialScan } from '../components/LiveSocialScan';
 import { compareToOfficialLogo, fileToDataUrl } from '../utils/imageHash';
 import { ACME_LOGO, ACME_LOGO_COPY, OTHER_LOGO } from '../data/demoLogos';
 import {
@@ -378,6 +379,8 @@ export const SocialMonitoringView: React.FC = () => {
           {isDemoMode && <div><dt className="text-fgSubtle">Data</dt><dd className="text-warn font-medium">Demo scenarios</dd></div>}
         </dl>
       </div>
+
+      <LiveSocialScan brandName={brandProfile.brandName || ''} officialUrls={brandProfile.officialSocialUrls || []} />
 
       {/* 2. Pre-configured Benchmark Scenarios Bar (Demo Mode Only) */}
       {isDemoMode && (

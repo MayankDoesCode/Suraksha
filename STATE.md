@@ -41,3 +41,7 @@ BLOCKED: none.
 - Android app: Capacitor project in `frontend/android`, PWA manifest/service worker, bottom tab bar on phones. Build the APK with GitHub Actions (see `docs/MOBILE.md`; copy `docs/github-workflows/*.yml` to `.github/workflows/`).
 - Look-alike name model: `python -m backend.scripts.train_lookalike_model` writes `backend/app/ml/models/lookalike_model.joblib` + manifest; served at `POST /api/v1/ml/predict-lookalike` (advisory, official handles excluded first, loads through the sklearn version guard). Trained on SYNTHETIC data with brand-grouped split; its scores show the pipeline works, not real-world accuracy.
 - Fixed: CORS config for Android origins (class-body scoping bug).
+- Live monitoring endpoints (public, rate-limited, graceful when a source is down; official assets excluded first):
+  `POST /api/v1/social/monitor` (Bluesky + Mastodon search, plus `accounts` import) and
+  `POST /api/v1/apps/monitor` (Apple App Store search, plus `listings` import for Google Play/APK mirrors; Google Play has no public search API).
+  UI: Live scan panel on the Social screen; an Apps panel is not built yet.
