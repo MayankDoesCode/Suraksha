@@ -356,3 +356,10 @@ button[class*='rounded-3xl'][class*='border-line']:hover { transform: translateY
 :focus-visible { animation: focus-ring 0.25s ease-out; }
 @keyframes focus-ring { from { outline-offset: 6px; outline-color: transparent; } }
 @media (prefers-reduced-motion: reduce) { .page-enter, tbody > tr, nav[aria-label='Primary'] li, .sk-shimmer, :focus-visible { animation: none !important; } }
+
+@media print {
+  body * { visibility: hidden !important; }
+  #brand-report, #brand-report * { visibility: visible !important; }
+  #brand-report { position: absolute; left: 0; top: 0; width: 100%; }
+  @page { margin: 14mm; }
+}

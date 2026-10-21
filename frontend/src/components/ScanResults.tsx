@@ -1,5 +1,5 @@
-import React from 'react';
-import { CheckCircle2, XCircle, Download, ExternalLink } from 'lucide-react';
+import React, { useState } from 'react';
+import { CheckCircle2, XCircle, Download, ExternalLink, Plus } from 'lucide-react';
 import { RiskBadge } from './RiskBadge';
 
 export type ScanData = {
@@ -28,7 +28,8 @@ function exportCsv(kind: string, data: ScanData) {
 }
 
 /** Structured, report-style results for a live scan: four summary tiles, ranked findings, source status. */
-export function ScanResults({ kind, data }: { kind: 'social' | 'app'; data: ScanData }) {
+export function ScanResults({ kind, data, onTrack }: { kind: 'social' | 'app'; data: ScanData; onTrack?: (hit: any) => void }) {
+  const [tracked, setTracked] = useState<Set<string>>(new Set());
   const okSources = new Set(data.sources.filter((s) => s.ok).map((s) => s.source));
   const allSources = new Set(data.sources.map((s) => s.source));
   const counts = LEVELS.map((l) => ({ l, n: data.flagged.filter((h) => level(h.severity) === l).length }));
@@ -93,7 +94,17 @@ export function ScanResults({ kind, data }: { kind: 'social' | 'app'; data: Scan
                 </div>
                 <div className="mt-2 flex flex-wrap items-center gap-1.5">
                   {(h.signals || []).map((s: string) => (<span key={s} className="rounded border border-line/70 bg-surface2 px-1.5 py-0.5 text-[10px] text-fgSubtle">{label(s)}</span>))}
-                  {url && (<a href={url} target="_blank" rel="noreferrer" className="ml-auto inline-flex items-center gap-1 text-[11px] text-accent hover:underline">Open <ExternalLink className="h-3 w-3" /></a>)}
+                  {onTrack && (
+                    <button
+                      type="button"
+                      disabled={tracked.has(`${i}-${title}`)}
+                      onClick={() => { onTrack(h); setTracked(new Set(tracked).add(`${i}-${title}`)); }}
+                      className="ml-auto inline-flex items-center gap-1 rounded border border-line px-2 py-0.5 text-[11px] text-fg hover:bg-surface2 disabled:opacity-60"
+                    >
+                      {tracked.has(`${i}-${title}`) ? <><CheckCircle2 className="h-3 w-3 text-ok" /> In findings</> : <><Plus className="h-3 w-3" /> Add to findings</>}
+                    </button>
+                  )}
+                  {url && (<a href={url} target="_blank" rel="noreferrer" className={`${onTrack ? "" : "ml-auto "}inline-flex items-center gap-1 text-[11px] text-accent hover:underline`}>Open <ExternalLink className="h-3 w-3" /></a>)}
                 </div>
               </li>
             );

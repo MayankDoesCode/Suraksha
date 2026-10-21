@@ -9,6 +9,7 @@ import {
   Share2,
   Smartphone,
   Activity,
+  BookOpen,
   type LucideIcon,
 } from 'lucide-react';
 
@@ -48,7 +49,10 @@ export const NAV_GROUPS: NavGroup[] = [
     ],
   },
   { id: 'protect', title: 'Protect', items: [{ id: 'brand-profile', label: 'Protected assets', icon: Building2, keywords: 'brand domains official verified' }] },
-  { id: 'system', title: 'System', items: [{ id: 'diagnostics', label: 'Models & status', icon: Activity, keywords: 'health ml evaluation' }] },
+  { id: 'system', title: 'System', items: [
+    { id: 'methodology', label: 'How it works', icon: BookOpen, keywords: 'method pipeline signals coverage limitations' },
+    { id: 'diagnostics', label: 'Models & status', icon: Activity, keywords: 'health ml evaluation' },
+  ] },
 ];
 
 export const NAV_ITEMS = NAV_GROUPS.flatMap((g) => g.items.map((i) => ({ ...i, group: g.title })));

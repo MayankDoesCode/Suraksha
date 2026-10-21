@@ -34,6 +34,12 @@ logger = logging.getLogger(__name__)
 DEFAULT_MODEL_DIR = os.path.join(os.path.dirname(os.path.abspath(__file__)), "models")
 
 
+_LAZY_ATTRS = (
+    "candidate_model", "candidate_manifest", "url_model", "url_manifest", "social_model",
+    "social_manifest", "mobile_model", "mobile_manifest", "artifact_compat",
+)
+
+
 class MLService:
     """
     Unified Inference and Telemetry Service for SURAKSHA ML Components.
@@ -54,16 +60,19 @@ class MLService:
 
     def __init__(self, model_dir: Optional[str] = None):
         self.model_dir = model_dir or DEFAULT_MODEL_DIR
-        self.candidate_model = None
-        self.candidate_manifest = None
-        self.url_model = None
-        self.url_manifest = None
-        self.social_model = None
-        self.social_manifest = None
-        self.mobile_model = None
-        self.mobile_manifest = None
-        self.artifact_compat: Dict[str, Dict[str, Any]] = {}
-        self._load_models()
+        # Models load lazily on first use (the URL model alone is ~280 MB resident), so the API
+        # starts and passes health checks within small instances (512 MB). Set
+        # SURAKSHA_EAGER_ML=1 to load everything at startup instead.
+        self._d: Dict[str, Any] = {name: None for name in _LAZY_ATTRS}
+        self._d["artifact_compat"] = {}
+        self._loaded = False
+        if os.getenv("SURAKSHA_EAGER_ML") == "1":
+            self._ensure_loaded()
+
+    def _ensure_loaded(self) -> None:
+        if not self._loaded:
+            self._loaded = True
+            self._load_models()
 
     def _load_models(self) -> None:
         """Load trained models and manifests from model directory."""
@@ -101,6 +110,13 @@ class MLService:
         if os.path.exists(url_model_path) and self.url_manifest and self.url_manifest.get("trained"):
             try:
                 self.url_model = self._load_verified("url_phishing", url_model_path, self.url_manifest)
+                if self.url_model is not None and os.getenv("SURAKSHA_LEAN_URL_MODEL") == "1":
+                    # Opt-in for small hosts: keep one of the three calibrated folds (~3x less memory).
+                    # Probabilities differ slightly from the full ensemble, so this is off by default.
+                    folds = getattr(self.url_model, "calibrated_classifiers_", None)
+                    if folds and len(folds) > 1:
+                        self.url_model.calibrated_classifiers_ = folds[:1]
+                        self.url_manifest = {**(self.url_manifest or {}), "lean_mode": "1 of 3 calibration folds"}
                 logger.info(
                     "SURAKSHA URL Phishing ML Model v%s loaded successfully.",
                     self.url_manifest.get("model_version", "1.0.0"),
@@ -160,6 +176,7 @@ class MLService:
 
     def reload(self) -> None:
         """Reload all model components from disk."""
+        self._loaded = True
         self._load_models()
 
     def is_url_model_available(self) -> bool:
@@ -618,6 +635,21 @@ class MLService:
 
 # Global singleton instance
 _ml_service: Optional[MLService] = None
+
+
+def _lazy_prop(name: str):
+    def getter(self):
+        self._ensure_loaded()
+        return self._d[name]
+
+    def setter(self, value):
+        self._d[name] = value
+
+    return property(getter, setter)
+
+
+for _n in _LAZY_ATTRS:
+    setattr(MLService, _n, _lazy_prop(_n))
 
 
 def get_ml_service(model_dir: Optional[str] = None) -> MLService:

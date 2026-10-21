@@ -60,6 +60,8 @@ ENV FLASK_ENV=production
 ENV PYTHONUNBUFFERED=1
 ENV PYTHONPATH=/app
 ENV MALLOC_ARENA_MAX=2
+# Small hosts (512 MB): keep 1 of 3 URL-model calibration folds. Remove for the full ensemble.
+ENV SURAKSHA_LEAN_URL_MODEL=1
 
 EXPOSE 5000
 

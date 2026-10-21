@@ -2,6 +2,8 @@ import React, { useState } from 'react';
 import { Radar } from 'lucide-react';
 import api from '../api/client';
 import { ScanResults } from './ScanResults';
+import { useApp } from '../context/AppContext';
+import { hitToCandidate } from '../utils/liveHits';
 
 type Hit = { platform: string; store: string; title: string; package_id: string; publisher: string; listing_url: string; score: number; severity: string; signals: string[] };
 type Result = { scanned: number; official_excluded: number; flagged: Hit[]; sources: { source: string; ok: boolean; reason?: string }[] };
@@ -10,6 +12,7 @@ const SAMPLE = '[{"app_title":"Brand Wallet Pro","package_id":"net.example.walle
 
 /** Searches the Apple App Store and scores any pasted Google Play / APK-mirror listings against the brand. */
 export function LiveAppScan({ brand }: { brand: any }) {
+  const { addCandidate } = useApp();
   const [busy, setBusy] = useState(false);
   const [err, setErr] = useState('');
   const [res, setRes] = useState<Result | null>(null);
@@ -49,7 +52,7 @@ export function LiveAppScan({ brand }: { brand: any }) {
           className="w-full rounded-md border border-line bg-surface2 p-2 font-mono text-[11px] text-fg" />
       )}
       {err && <p className="text-xs text-bad">{err}</p>}
-      {res && <ScanResults kind="app" data={res as any} />}
+      {res && <ScanResults kind="app" data={res as any} onTrack={(h) => addCandidate(hitToCandidate('app', h))} />}
     </div>
   );
 }

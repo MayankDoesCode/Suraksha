@@ -43,7 +43,42 @@ def search_mastodon(query: str, limit: int = 20, instance: str = "mastodon.socia
         return [], {"source": "mastodon", "ok": False, "reason": f"unavailable: {type(e).__name__}"}
 
 
-SOURCES = {"bluesky": search_bluesky, "mastodon": search_mastodon}
+def search_github(query: str, limit: int = 15):
+    """GitHub users and orgs (free, no key; ~10 searches/min unauthenticated). Look-alike org names are a real vector."""
+    try:
+        r = _get("https://api.github.com/search/users", {"q": f"{query} in:login,name", "per_page": limit})
+        r.raise_for_status()
+        out = [{
+            "platform": "github", "candidate_name": u.get("login", ""), "display_name": u.get("login", ""),
+            "description": "", "avatar_url": u.get("avatar_url", ""), "source_url": u.get("html_url", ""),
+        } for u in r.json().get("items", [])]
+        return out, {"source": "github", "ok": True, "count": len(out)}
+    except Exception as e:
+        return [], {"source": "github", "ok": False, "reason": f"unavailable: {type(e).__name__}"}
+
+
+def search_reddit(query: str, limit: int = 15):
+    """Reddit user search (free, no key; may be rate-limited from cloud hosts, reported as unavailable then)."""
+    try:
+        r = _get("https://www.reddit.com/users/search.json", {"q": query, "limit": limit})
+        r.raise_for_status()
+        out = []
+        for c in r.json().get("data", {}).get("children", []):
+            d = c.get("data", {})
+            sub = d.get("subreddit") or {}
+            out.append({
+                "platform": "reddit", "candidate_name": d.get("name", ""), "display_name": sub.get("title") or d.get("name", ""),
+                "description": sub.get("public_description", ""), "avatar_url": (d.get("icon_img") or "").split("?")[0],
+                "source_url": f"https://www.reddit.com/user/{d.get('name', '')}",
+            })
+        return out, {"source": "reddit", "ok": True, "count": len(out)}
+    except Exception as e:
+        return [], {"source": "reddit", "ok": False, "reason": f"unavailable: {type(e).__name__}"}
+
+
+SOURCES = {"bluesky": search_bluesky, "mastodon": search_mastodon, "github": search_github, "reddit": search_reddit}
+# Queries per source per scan (GitHub's unauthenticated search limit is low).
+MAX_QUERIES = {"bluesky": 6, "mastodon": 4, "github": 2, "reddit": 3}
 
 
 def parse_import(text: str, fmt: str = "json") -> List[Dict[str, Any]]:

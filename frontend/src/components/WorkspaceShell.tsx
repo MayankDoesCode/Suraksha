@@ -20,6 +20,7 @@ import { InvestigationCenterView } from '../views/InvestigationCenterView';
 import { ThreatGraphView } from '../views/ThreatGraphView';
 import { ReportsView } from '../views/ReportsView';
 import { DiagnosticsView } from '../views/DiagnosticsView';
+import { MethodologyView } from '../views/MethodologyView';
 import { WatchtowerView } from '../views/WatchtowerView';
 
 interface WorkspaceShellProps {
@@ -88,6 +89,8 @@ const WorkspaceContent: React.FC<WorkspaceShellProps> = ({ onNavigateHome, initi
         return <ThreatGraphView />;
       case 'reports':
         return <ReportsView />;
+      case 'methodology':
+        return <MethodologyView />;
       case 'diagnostics':
         return <DiagnosticsView />;
       default:

@@ -1,22 +1,13 @@
 from flask import Blueprint, jsonify, request, current_app
 
 from backend.app.detection.social_detector import SocialDetector
+from concurrent.futures import ThreadPoolExecutor
+
 from backend.app.intel import social_sources
+from backend.app.intel.name_variants import variants
 from backend.app.utils.limiter import limiter
 
 social_bp = Blueprint("social", __name__, url_prefix="/social")
-MAX_QUERIES = 4
-
-
-def _queries(brand: str, extra):
-    base = brand.strip()
-    qs = [base, base.replace(" ", ""), f"{base} support", f"{base} official"]
-    qs += [str(q) for q in (extra or [])]
-    seen, out = set(), []
-    for q in qs:
-        if q and q.lower() not in seen:
-            seen.add(q.lower()); out.append(q)
-    return out[:MAX_QUERIES]
 
 
 @social_bp.route("/monitor", methods=["POST"])
@@ -33,15 +24,15 @@ def monitor():
         return jsonify({"success": False, "error": {"code": "VALIDATION_ERROR", "message": "brand_profile.name is required."}}), 422
     brand = {**brand, "name": name}
 
-    wanted = [s for s in (p["sources"] if isinstance(p.get("sources"), list) else list(social_sources.SOURCES)) if s in social_sources.SOURCES]
+    wanted = [x for x in (p["sources"] if isinstance(p.get("sources"), list) else list(social_sources.SOURCES)) if x in social_sources.SOURCES]
+    qs = variants(name, p.get("queries") or [])
+    jobs = [(src, q) for src in wanted for q in qs[: social_sources.MAX_QUERIES.get(src, 4)]]
     candidates, statuses = [], []
-    for src in wanted:
-        for q in _queries(name, p.get("queries")):
-            found, st = social_sources.SOURCES[src](q)
-            candidates += found
-            statuses.append({**st, "query": q})
-            if not st["ok"]:
-                break  # source down: don't hammer it
+    if jobs:
+        with ThreadPoolExecutor(max_workers=min(8, len(jobs))) as ex:
+            for (src, q), (found, st) in zip(jobs, ex.map(lambda j: social_sources.SOURCES[j[0]](j[1]), jobs)):
+                candidates += found
+                statuses.append({**st, "query": q})
     if p.get("accounts"):
         try:
             imported = social_sources.parse_import(

@@ -3,7 +3,10 @@ import json
 from flask import Blueprint, jsonify, request, current_app
 
 from backend.app.detection.app_detector import AppDetector
+from concurrent.futures import ThreadPoolExecutor
+
 from backend.app.intel import app_sources
+from backend.app.intel.name_variants import variants
 from backend.app.utils.limiter import limiter
 
 apps_bp = Blueprint("apps_monitor", __name__, url_prefix="/apps")
@@ -23,16 +26,16 @@ def monitor_apps():
         return jsonify({"success": False, "error": {"code": "VALIDATION_ERROR", "message": "brand_profile.name is required."}}), 422
     brand = {**brand, "name": name}
 
-    queries = list(dict.fromkeys([name, f"{name} app", f"{name} wallet", *[str(q) for q in (p.get("queries") or [])]]))[:4]
-    wanted = [s for s in (p["sources"] if isinstance(p.get("sources"), list) else list(app_sources.SOURCES)) if s in app_sources.SOURCES]
+    queries = variants(name, [f"{name} pay", f"{name} loan", f"{name} wallet", *[str(q) for q in (p.get("queries") or [])]], limit=6)
+    wanted = [x for x in (p["sources"] if isinstance(p.get("sources"), list) else list(app_sources.SOURCES)) if x in app_sources.SOURCES]
+    country = str(p.get("country") or "in")
+    jobs = [(src, q) for src in wanted for q in queries]
     candidates, statuses = [], []
-    for src in wanted:
-        for q in queries:
-            found, st = app_sources.SOURCES[src](q, country=str(p.get("country") or "in"))
-            candidates += found
-            statuses.append({**st, "query": q})
-            if not st["ok"]:
-                break
+    if jobs:
+        with ThreadPoolExecutor(max_workers=min(8, len(jobs))) as ex:
+            for (src, q), (found, st) in zip(jobs, ex.map(lambda j: app_sources.SOURCES[j[0]](j[1], country=country), jobs)):
+                candidates += found
+                statuses.append({**st, "query": q})
     if p.get("listings"):
         try:
             raw = p["listings"] if isinstance(p["listings"], str) else json.dumps(p["listings"])
