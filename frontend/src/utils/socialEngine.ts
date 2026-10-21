@@ -256,6 +256,8 @@ export function analyzeSocialCandidate(
   const normCandidateName = candidate.name.trim().toLowerCase();
   const normCandidateHandle = normalizeHandle(candidate.username);
   const normBrandName = brandProfile.brandName.trim().toLowerCase();
+  // With no brand registered the name is empty, and every string "includes" an empty string: guard each brand-name match.
+  const hasBrandName = normBrandName.length >= 3;
   const brandKeywords = [
     normBrandName,
     ...(brandProfile.protectedKeywords || []).map(k => k.trim().toLowerCase())
@@ -481,7 +483,7 @@ export function analyzeSocialCandidate(
       deobfuscatedHandle = deobfuscatedHandle.replaceAll(leet, normal);
     }
   }
-  if (leetMatches.length > 0 && deobfuscatedHandle.includes(normBrandName)) {
+  if (leetMatches.length > 0 && (hasBrandName && deobfuscatedHandle.includes(normBrandName))) {
     const detail = `Handle utilizes leetspeak substitutions (${leetMatches.join(', ')}) to construct brand name "${brandProfile.brandName}".`;
     signals.push({
       id: 'sig-leetspeak',
@@ -505,9 +507,9 @@ export function analyzeSocialCandidate(
   }
 
   const brandNameInHandleOrName = 
-    normCandidateHandle.includes(normBrandName) || 
-    normCandidateName.includes(normBrandName) ||
-    deobfuscatedHandle.includes(normBrandName);
+    (hasBrandName && normCandidateHandle.includes(normBrandName)) || 
+    (hasBrandName && normCandidateName.includes(normBrandName)) ||
+    (hasBrandName && deobfuscatedHandle.includes(normBrandName));
 
   if (detectedLureWords.length > 0 && brandNameInHandleOrName) {
     const detail = `Candidate combines protected brand name with deceptive lure words: ${detectedLureWords.map(w => `"${w}"`).join(', ')}.`;
@@ -619,7 +621,7 @@ export function analyzeSocialCandidate(
       od => domainHost === od.toLowerCase() || domainHost.endsWith('.' + od.toLowerCase())
     );
 
-    if (domainHost.includes(normBrandName) && !isDomainOfficial) {
+    if ((hasBrandName && domainHost.includes(normBrandName)) && !isDomainOfficial) {
       const detail = `External link domain "${domainHost}" embeds the brand name but is NOT in the official registered domains list.`;
       signals.push({
         id: 'sig-unregistered-domain-link',

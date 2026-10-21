@@ -131,3 +131,20 @@ describe('Social Media Monitor - Official Profile URL Mismatch Regression Tests'
     assert.strictEqual(result.riskCategory, 'Low');
   });
 });
+
+
+describe('no brand registered', () => {
+  const noBrand = { id: 'x', brandName: '', officialWebsite: '', officialDomains: [], officialSocialUrls: [], officialApps: [], authorizedPartners: [], protectedKeywords: [], lastUpdated: '' } as unknown as BrandProfile;
+  const cand = (over: Partial<SocialCandidateInput>): SocialCandidateInput => ({ name: 'Garden Tips', username: '@garden_tips_daily', platform: 'X', url: 'https://x.com/garden_tips_daily', bio: 'Plants and soil.', ...over });
+
+  test('a harmless account is not called critical just because no brand exists to compare against', () => {
+    const r = analyzeSocialCandidate(cand({}), noBrand);
+    assert.equal(r.riskCategory, 'Low');
+    assert.ok(!r.signals.some((s) => s.type === 'UNREGISTERED_BRAND_DOMAIN'));
+  });
+
+  test('credential requests are still flagged with no brand', () => {
+    const r = analyzeSocialCandidate(cand({ bio: 'Share your OTP and UPI PIN to claim your reward.' }), noBrand);
+    assert.ok(['High', 'Critical'].includes(r.riskCategory));
+  });
+});
