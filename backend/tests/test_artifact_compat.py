@@ -149,3 +149,17 @@ def test_requirements_pin_model_critical_libraries():
     pins = dict(re.findall(r"^([A-Za-z0-9_.-]+)==([^\s#]+)", reqs, flags=re.M))
     assert pins.get("scikit-learn") == sklearn.__version__
     assert pins.get("joblib") == joblib.__version__
+
+
+def test_url_model_is_skipped_on_render_unless_enabled(monkeypatch):
+    from backend.app.ml.service import MLService
+    monkeypatch.delenv("SURAKSHA_DISABLE_URL_MODEL", raising=False)
+    monkeypatch.delenv("SURAKSHA_ENABLE_URL_MODEL", raising=False)
+    monkeypatch.delenv("RENDER", raising=False)
+    assert MLService._skip_url_model() is False
+    monkeypatch.setenv("RENDER", "true")
+    assert MLService._skip_url_model() is True
+    monkeypatch.setenv("SURAKSHA_ENABLE_URL_MODEL", "1")
+    assert MLService._skip_url_model() is False
+    monkeypatch.setenv("SURAKSHA_DISABLE_URL_MODEL", "1")
+    assert MLService._skip_url_model() is True

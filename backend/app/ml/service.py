@@ -107,7 +107,9 @@ class MLService:
                 logger.warning("Could not read URL manifest: %s", e)
                 self.url_manifest = None
 
-        if os.path.exists(url_model_path) and self.url_manifest and self.url_manifest.get("trained"):
+        if self._skip_url_model():
+            logger.warning("URL phishing model not loaded (low-memory host). Detection continues with rules only; set SURAKSHA_ENABLE_URL_MODEL=1 on a host with >= 1 GB RAM to enable it.")
+        elif os.path.exists(url_model_path) and self.url_manifest and self.url_manifest.get("trained"):
             try:
                 self.url_model = self._load_verified("url_phishing", url_model_path, self.url_manifest)
                 if self.url_model is not None and os.getenv("SURAKSHA_LEAN_URL_MODEL") == "1":
@@ -178,6 +180,14 @@ class MLService:
         """Reload all model components from disk."""
         self._loaded = True
         self._load_models()
+
+    @staticmethod
+    def _skip_url_model() -> bool:
+        """The calibrated URL model needs several hundred MB when loaded. Render's free plan has 512 MB, so on Render it is
+        skipped unless explicitly enabled. SURAKSHA_DISABLE_URL_MODEL=1 forces the skip anywhere."""
+        if os.getenv("SURAKSHA_DISABLE_URL_MODEL") == "1":
+            return True
+        return bool(os.getenv("RENDER")) and os.getenv("SURAKSHA_ENABLE_URL_MODEL") != "1"
 
     def is_url_model_available(self) -> bool:
         return self.url_model is not None and bool(self.url_manifest and self.url_manifest.get("trained"))
