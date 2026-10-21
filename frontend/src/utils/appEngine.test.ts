@@ -79,3 +79,27 @@ describe('perceptual hash', () => {
     assert.ok(hashSimilarity(a, other) < 0.8);
   });
 });
+
+
+describe('brand-independent checks', () => {
+  const noBrand = { id: 'x', brandName: '', officialWebsite: '', officialDomains: [], officialSocialUrls: [], officialApps: [], authorizedPartners: [], protectedKeywords: [], lastUpdated: '' } as unknown as BrandProfile;
+  const go = (o: Partial<Parameters<typeof analyzeAppCandidate>[0]>) => analyzeAppCandidate({ name: 'Paytm Cashback Pro', developer: 'Unknown Rewards Technologies', store: 'Google Play Store', ...o }, noBrand);
+
+  test('a listing that asks for a UPI PIN is flagged even with no brand registered', () => {
+    const r = go({ description: 'Earn ₹5,000 cashback instantly. Verify your bank account and enter your UPI PIN to claim your reward.' });
+    assert.ok(['High', 'Critical'].includes(r.riskCategory));
+    assert.ok(r.signals.some((s) => s.type === 'CREDENTIAL_REQUEST'));
+    assert.ok(r.signals.some((s) => s.type === 'CASH_REWARD_LURE'));
+  });
+
+  test('with no brand and nothing suspicious the verdict says it cannot judge, not that it is low risk', () => {
+    const r = go({ name: 'Weather Today', description: 'Daily forecast.' });
+    assert.match(r.summary, /not enough to judge/i);
+    assert.ok(r.missingInformation.some((m) => /no brand is registered/i.test(m)));
+  });
+
+  test('a reviewer note that the app copies a brand is recorded as a human observation', () => {
+    const r = go({ description: 'Daily forecast.', observedBranding: 'Copies Paytm branding and colors' });
+    assert.ok(r.signals.some((s) => s.type === 'REPORTED_BRAND_COPY'));
+  });
+});

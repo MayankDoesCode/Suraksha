@@ -57,6 +57,10 @@ const STOP = new Set(['the', 'and', 'for', 'with', 'your', 'you', 'our', 'are', 
 const LURE = /\b(loan|loans|instant|cash|cashback|rewards?|free|bonus|claim|refund|lottery|giveaway|prize|earn)\b/i;
 const CONFUSABLES: Record<string, string> = { 'а': 'a', 'е': 'e', 'о': 'o', 'р': 'p', 'с': 'c', 'х': 'x', 'ѕ': 's', 'і': 'i', 'ј': 'j', 'α': 'a', 'ο': 'o', 'ν': 'v' };
 const LEET: Record<string, string> = { '0': 'o', '1': 'l', '3': 'e', '4': 'a', '5': 's', '7': 't', '$': 's', '@': 'a' };
+// Listing text that asks for payment secrets or an identity check is a red flag whatever the brand is.
+const CREDENTIAL_ASK = /(upi\s*pin|\bm-?pin\b|\botp\b|\bcvv\b|enter\s+(your\s+)?(bank\s+)?(pin|password)|verify\s+(your\s+)?(bank|account|kyc)|share\s+(your\s+)?(otp|pin)|net\s*banking\s+password)/i;
+const MONEY_AMOUNT = /(₹|rs\.?\s*)\s*\d|\d[\d,]*\s*(rupees|inr)\b|\$\s*\d/i;
+const COPY_CLAIM = /(copies|copied|copying|clone[sd]?|imitat\w*|impersonat\w*|looks?\s+like|same\s+(logo|colou?rs?|name|branding)|fake|pretend\w*)/i;
 const TRUSTED_STORE = /google play|app store|apple|appgallery|galaxy store/i;
 const UNTRUSTED_STORE = /third-party|direct apk|apk mirror|sideload|apkpure|mirror/i;
 
@@ -123,6 +127,7 @@ export function analyzeAppCandidate(input: AppCandidateInput, brand: BrandProfil
   const store = input.store || '';
   const officialApps = brand.officialApps || [];
   const brandName = brand.brandName || '';
+  const noBrand = !brandName && officialApps.length === 0;
   const untrustedStore = UNTRUSTED_STORE.test(store);
   const trustedStore = TRUSTED_STORE.test(store) && !untrustedStore;
 
@@ -245,6 +250,18 @@ export function analyzeAppCandidate(input: AppCandidateInput, brand: BrandProfil
   if (untrustedStore && brandAssociated) add('UNTRUSTED_DISTRIBUTION', 'Untrusted distribution channel', `Distributed via ${store} rather than an official store.`, 'high');
   if (brandAssociated && LURE.test(`${name} ${desc}`)) add('LURE_TERMS', 'Financial lure terms', 'Title/description uses lure terms (loan, instant cash, rewards, bonus) alongside brand identity.', 'medium');
 
+  const listing = `${name} ${desc} ${input.evidence || ''}`;
+  if (CREDENTIAL_ASK.test(listing)) {
+    add('CREDENTIAL_REQUEST', 'Listing asks for payment secrets', 'The text asks the user to enter a UPI PIN, OTP, password or to verify a bank account. Genuine apps never ask for these in a store listing or before sign-in.', 'high');
+  }
+  if (LURE.test(`${name} ${desc}`) && MONEY_AMOUNT.test(desc)) {
+    add('CASH_REWARD_LURE', 'Cash-reward lure', 'The description promises a money reward or cashback with a specific amount, a common scam pattern.', 'medium');
+  }
+  const observed = (input.observedBranding || '').trim();
+  if (observed && COPY_CLAIM.test(observed)) {
+    add('REPORTED_BRAND_COPY', 'Reported as copying a brand', `Reviewer note: "${observed.slice(0, 160)}". This is a human observation, not an automated match.`, 'medium');
+  }
+
   const evidenceText = input.evidence || '';
   const perms: string[] = [];
   if (/read_sms/i.test(evidenceText)) perms.push('android.permission.READ_SMS');
@@ -262,7 +279,7 @@ export function analyzeAppCandidate(input: AppCandidateInput, brand: BrandProfil
   else if (score >= 45 || signals.some(s => s.severity === 'high')) riskCategory = 'High';
   else if (score >= 20 || signals.some(s => s.severity === 'medium')) riskCategory = 'Medium';
 
-  const unrelated = !brandAssociated && perms.length === 0;
+  const unrelated = signals.length === 0 && perms.length === 0 && !noBrand;
   const evidenceSupporting = signals.map(s => `${s.title}: ${s.detail}`);
   const evidenceAgainst: string[] = [];
   if (unrelated) evidenceAgainst.push('No resemblance to the brand name, icon, description or package was found.');
@@ -275,8 +292,11 @@ export function analyzeAppCandidate(input: AppCandidateInput, brand: BrandProfil
       ? ['Keep under surveillance and re-check the listing for changes.', 'Verify the developer\'s relationship to the brand.']
       : ['No action needed. Keep the snapshot to avoid re-alerting.'];
 
+  if (noBrand) base.missingInformation.push('No brand is registered, so name, icon and publisher checks against your brand were skipped. Add your brand in Protected assets.');
   const summary = unrelated
     ? 'Low risk: the app does not resemble the brand.'
+    : noBrand && signals.length === 0 && perms.length === 0
+      ? 'Not enough to judge: no brand is registered, so look-alike checks could not run.'
     : `${riskCategory} risk: ${signals.filter(s => s.severity !== 'low').map(s => s.title.toLowerCase()).slice(0, 3).join('; ')}.`;
 
   return {

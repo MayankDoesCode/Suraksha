@@ -742,10 +742,17 @@ export const AppMonitoringView: React.FC = () => {
                       <span>Publisher Mismatch Detected</span>
                     </div>
                   ) : (
+                    analysisResult.isExcluded ? (
                     <div className="flex items-center gap-1.5 text-ok text-xs font-medium font-mono">
                       <ShieldCheck className="w-4 h-4 text-ok shrink-0" />
                       <span>Publisher Matches Verified Entity</span>
                     </div>
+                    ) : (
+                    <div className="flex items-center gap-1.5 text-fgMuted text-xs font-medium font-mono">
+                      <ShieldCheck className="w-4 h-4 text-fgSubtle shrink-0" />
+                      <span>No verified publisher to compare against</span>
+                    </div>
+                    )
                   )}
                   <p className="text-xs text-fgMuted">
                     Candidate: <strong className="text-fg font-medium">{developer}</strong>
