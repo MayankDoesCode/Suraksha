@@ -1,6 +1,6 @@
 """Add brand ownership, organization, and sample isolation columns to brands table
 
-Revision ID: 004_add_brand_ownership_and_sample_flag
+Revision ID: 004_brand_ownership_sample_flag
 Revises: 003_add_ml_risk_fields
 Create Date: 2026-10-14 07:10:00.000000
 
@@ -8,7 +8,7 @@ Create Date: 2026-10-14 07:10:00.000000
 from alembic import op
 import sqlalchemy as sa
 
-revision = "004_add_brand_ownership_and_sample_flag"
+revision = "004_brand_ownership_sample_flag"
 down_revision = "003_add_ml_risk_fields"
 branch_labels = None
 depends_on = None
