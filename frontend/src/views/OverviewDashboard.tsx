@@ -334,6 +334,12 @@ export const OverviewDashboard: React.FC = () => {
 
   const goFinding = (c: CandidateAsset) => { setSelectedCandidateId(c.id); setActiveTab('investigation-center'); };
 
+  // Hooks must run on every render, so this lives above the early returns below (a changing hook count crashes React: error #300).
+  const weekly = useMemo(() => {
+    const now = weekStart(Date.now());
+    return Array.from({ length: 12 }, (_, i) => candidates.filter((c) => weekStart(time(c.createdDate)) === now - (11 - i) * 7 * 864e5).length);
+  }, [candidates]);
+
   if (isBackendLoading && candidates.length === 0) {
     return <div aria-busy="true" aria-label="Loading overview" className="mx-auto w-full max-w-[1720px] space-y-4"><div className="h-56 sk-shimmer rounded-3xl bg-surface3" /><div className="grid grid-cols-2 gap-3 lg:grid-cols-4">{[0, 1, 2, 3].map((i) => <div key={i} className="h-28 sk-shimmer rounded-3xl bg-surface3" />)}</div></div>;
   }
@@ -361,10 +367,6 @@ export const OverviewDashboard: React.FC = () => {
     { sev: 'info', title: `${reviewed} of ${candidates.length} findings have been reviewed`, body: waiting ? `${waiting} still need an analyst decision.` : 'Everything has been triaged.' },
   ].filter(Boolean) as { sev: string; title: string; body: string }[];
 
-  const weekly = useMemo(() => {
-    const now = weekStart(Date.now());
-    return Array.from({ length: 12 }, (_, i) => candidates.filter((c) => weekStart(time(c.createdDate)) === now - (11 - i) * 7 * 864e5).length);
-  }, [candidates]);
   const wmax = Math.max(1, ...weekly);
   const spark = weekly.map((v, i) => `${(i / 11) * 100},${36 - (v / wmax) * 32}`).join(' ');
 
