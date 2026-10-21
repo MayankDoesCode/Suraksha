@@ -59,6 +59,7 @@ ENV PORT=5000
 ENV FLASK_ENV=production
 ENV PYTHONUNBUFFERED=1
 ENV PYTHONPATH=/app
+ENV MALLOC_ARENA_MAX=2
 
 EXPOSE 5000
 
@@ -67,4 +68,4 @@ HEALTHCHECK --interval=30s --timeout=5s --start-period=5s --retries=3 \
   CMD curl -f http://localhost:${PORT}/api/v1/health || exit 1
 
 # Run database migrations safely and start production server with Gunicorn
-CMD ["sh", "-c", "alembic -c alembic.ini upgrade head && exec gunicorn backend.run:app --bind 0.0.0.0:${PORT:-5000} --workers 2 --threads 4 --timeout 60"]
+CMD ["sh", "-c", "alembic -c alembic.ini upgrade head && exec gunicorn backend.run:app --bind 0.0.0.0:${PORT:-5000} --workers 1 --threads 4 --timeout 120"]
