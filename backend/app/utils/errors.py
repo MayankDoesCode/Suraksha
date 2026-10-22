@@ -111,6 +111,90 @@ def register_error_handlers(app):
             }
         }), 429
 
+    from sqlalchemy.exc import SQLAlchemyError, IntegrityError, OperationalError
+
+    @app.errorhandler(IntegrityError)
+    def handle_integrity_error(error):
+        logger.warning("Database integrity constraint violated: %s", str(error))
+        try:
+            from backend.app.database import get_db
+            get_db().rollback()
+        except Exception as rb_err:
+            logger.debug("Rollback after integrity error: %s", rb_err)
+
+        orig_str = str(getattr(error, "orig", error)).lower()
+        if "unique" in orig_str or "duplicate" in orig_str:
+            code = "CONFLICT_ERROR"
+            msg = "A record with these unique details already exists."
+            status = 409
+        elif "foreign key" in orig_str:
+            code = "INVALID_REFERENCE"
+            msg = "Referenced parent entity does not exist."
+            status = 422
+        else:
+            code = "DATABASE_INTEGRITY_ERROR"
+            msg = "Operation violates database constraints."
+            status = 409
+
+        return jsonify({
+            "success": False,
+            "error": {
+                "code": code,
+                "message": msg,
+                "details": []
+            }
+        }), status
+
+    @app.errorhandler(OperationalError)
+    def handle_operational_error(error):
+        logger.error("Database operational error: %s", str(error), exc_info=True)
+        try:
+            from backend.app.database import get_db
+            get_db().rollback()
+        except Exception:
+            pass
+
+        return jsonify({
+            "success": False,
+            "error": {
+                "code": "DATABASE_UNAVAILABLE",
+                "message": "The database is temporarily unavailable. Please retry in a few moments.",
+                "details": []
+            }
+        }), 503
+
+    @app.errorhandler(SQLAlchemyError)
+    def handle_sqlalchemy_error(error):
+        logger.error("Database transaction error: %s", str(error), exc_info=True)
+        try:
+            from backend.app.database import get_db
+            get_db().rollback()
+        except Exception:
+            pass
+
+        return jsonify({
+            "success": False,
+            "error": {
+                "code": "DATABASE_ERROR",
+                "message": "A database error occurred while processing the request.",
+                "details": []
+            }
+        }), 500
+
+    from werkzeug.exceptions import HTTPException
+
+    @app.errorhandler(HTTPException)
+    def handle_http_exception(error):
+        status_code = getattr(error, "code", 500)
+        return jsonify({
+            "success": False,
+            "error": {
+                "code": error.name.upper().replace(" ", "_"),
+                "message": getattr(error, "description", error.name),
+                "details": []
+            }
+        }), status_code
+
     @app.errorhandler(500)
     def handle_internal_server_error(error):
         logger.error("Unhandled server exception: %s", str(error), exc_info=True)
@@ -134,3 +218,4 @@ def register_error_handlers(app):
                 "details": []
             }
         }), 500
+

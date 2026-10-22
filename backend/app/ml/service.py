@@ -390,8 +390,8 @@ class MLService:
         2. Rule-Based Threat Corroboration: Brand Trademark Similarity & Official Allowlist Verification.
         """
         username = str(profile_data.get("username") or profile_data.get("handle") or "").strip()
-        display_name = str(profile_data.get("display_name") or profile_data.get("name") or "").strip()
-        bio = str(profile_data.get("bio") or profile_data.get("description") or "").strip()
+        display_name = str(profile_data.get("display_name") or profile_data.get("name") or profile_data.get("candidate_name") or "").strip()
+        bio = str(profile_data.get("bio") or profile_data.get("description") or profile_data.get("biography") or "").strip()
 
         # 1. Official allowlist exclusion check
         if brand_profile:
@@ -439,15 +439,21 @@ class MLService:
                 ml_status = f"error: {str(e)}"
 
         # 3. Brand Impersonation Deterministic Heuristics
-        brand_name = str(brand_profile.get("name") or "").strip().lower() if brand_profile else ""
+        brand_name = (
+            str(brand_profile.get("name") or "").strip().lower()
+            if brand_profile
+            else str(profile_data.get("target_brand") or profile_data.get("brand_name") or profile_data.get("brand") or "").strip().lower()
+        )
         brand_match = False
         brand_signals = []
 
         if brand_name:
-            if brand_name in username.lower() or brand_name in display_name.lower():
+            _generic_words = {"corp", "corporation", "inc", "ltd", "limited", "technologies", "technology", "company", "group", "holdings", "bank", "pay", "app", "global", "international"}
+            brand_words = [w for w in brand_name.lower().split() if len(w) >= 3 and w not in _generic_words]
+            if brand_name in username.lower() or brand_name in display_name.lower() or any(bw in username.lower() or bw in display_name.lower() for bw in brand_words):
                 brand_match = True
-                brand_signals.append(f"Target brand name '{brand_name}' contained in account identifier")
-            if any(lure in username.lower() or lure in bio.lower() for lure in ["support", "help", "official", "claim", "refund", "verify"]):
+                brand_signals.append(f"Target brand name or distinctive token '{brand_name}' contained in account identifier")
+            if any(lure in username.lower() or lure in bio.lower() for lure in ["support", "help", "official", "claim", "refund", "verify", "recovery", "reversal", "desk", "assistance"]):
                 brand_signals.append("High-risk lure keywords detected in handle or profile bio")
 
         # 4. Brand impersonation risk score (deterministic heuristic, uncalibrated).

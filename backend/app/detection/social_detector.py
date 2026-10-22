@@ -16,12 +16,15 @@ class DetectionOutcome:
 
 _SCAM_CUE_PATTERNS = [
     ("OTP request", r"\botp\b"),
-    ("refund/claim lure", r"\b(refund|claim|reward|cashback|lottery|giveaway|prize)\b"),
-    ("KYC/verification lure", r"\b(kyc|verify your|update your|account (blocked|suspended))\b"),
-    ("off-platform contact", r"(wa\.me|t\.me|whatsapp|telegram|dm (us|me)|inbox us)"),
+    ("refund/claim lure", r"\b(refund|claim|reward|cashback|lottery|giveaway|prize|reversal|recovery|assistance)\b"),
+    ("KYC/verification lure", r"\b(kyc|verify your|update your|account (blocked|suspended)|reactivate)\b"),
+    ("off-platform contact", r"(wa\.me|t\.me|whatsapp|telegram|dm\s*(us|me)?|inbox\s*(us|me)?|message\s*us)"),
     ("shortened link", r"(bit\.ly|tinyurl|cutt\.ly|rb\.gy|shorturl)"),
+    ("bio link aggregator", r"(linktr\.ee|beacons\.ai|carrd\.co|bio\.link|allmylinks)"),
+    ("crypto drainer/seedphrase lure", r"\b(seed\s*phrase|private\s*key|secret\s*phrase|12\s*words|wallet\s*connect|claim\s*airdrop)\b"),
     ("phone number", r"(\+?\d[\d\s-]{8,}\d)"),
-    ("urgency", r"\b(urgent|immediately|limited time|act now)\b"),
+    ("urgency", r"\b(urgent|immediately|limited time|act now|within\s*24\s*hours)\b"),
+    ("task/investment scam", r"\b(daily\s*income|earn\s*\$?\d+\s*daily|crypto\s*doubling|guaranteed\s*return)\b"),
 ]
 
 
@@ -113,7 +116,35 @@ class SocialDetector(BaseDetector):
             if h_sim.similarity_score > best_sim.similarity_score:
                 best_sim = h_sim
 
+        brand_compact = NameSimilarityService.normalize_compact(brand_name)
+        norm_cand_clean = norm_candidate_handle.replace("_", "").replace(".", "").replace("-", "")
+        norm_disp_clean = NameSimilarityService.normalize_compact(display_name).replace("_", "").replace(".", "").replace("-", "")
+        
+        # Extract distinctive brand tokens (e.g. 'acme' from 'Acme Corp')
+        _generic_brand_words = {
+            "bank", "banking", "pay", "payments", "payment", "app", "group", "official", "india", "limited",
+            "ltd", "technologies", "technology", "finance", "financial", "mobile", "wallet", "online", "digital",
+            "services", "service", "global", "international", "company", "corp", "corporation", "inc", "store",
+            "shop", "money", "card", "cards", "insurance", "capital", "holdings",
+        }
+        brand_tokens = [w for w in NameSimilarityService.normalize_text(brand_name).split() if len(w) >= 3 and w not in _generic_brand_words]
+        brand_token_matched = any(t in norm_cand_clean or t in norm_disp_clean for t in brand_tokens)
+        brand_in_handle = bool(
+            (brand_compact and len(brand_compact) >= 3 and (brand_compact in norm_cand_clean or brand_compact in norm_disp_clean))
+            or brand_token_matched
+        )
+
+        for t in brand_tokens:
+            t_sim = NameSimilarityService.compare(candidate_name, t)
+            if t_sim.similarity_score > best_sim.similarity_score:
+                best_sim = t_sim
+            if display_name:
+                t_disp_sim = NameSimilarityService.compare(display_name, t)
+                if t_disp_sim.similarity_score > best_sim.similarity_score:
+                    best_sim = t_disp_sim
+
         # Evaluate similarity threshold
+        name_sim_fired = False
         if best_sim.similarity_score >= 0.70:
             # Score proportional to similarity (scaled 30.0 - 55.0)
             score_impact = min(55.0, round(best_sim.similarity_score * 50.0, 1))
@@ -134,16 +165,35 @@ class SocialDetector(BaseDetector):
                 ),
                 "source_reference": candidate_url or None,
             })
+            name_sim_fired = True
+        elif brand_in_handle:
+            signals.append(
+                DetectionSignal(
+                    signal_type="BRAND_TOKEN_IN_HANDLE",
+                    severity_score=42.0,
+                    confidence=0.92,
+                    explanation=(
+                        f"Candidate profile embeds brand mark '{brand_name}' inside handle/name "
+                        f"('{candidate_name}') alongside unauthorized modifier terms."
+                    ),
+                    evidence_fields=["candidate_name", "brand_name"]
+                )
+            )
+            evidence.append({
+                "evidence_type": "brand_token_audit",
+                "description": f"Handle incorporates brand mark '{brand_name}': {candidate_name}",
+                "source_reference": candidate_url or None,
+            })
 
         # Signal B: Impersonation / Trust Keyword Appending
         # e.g., 'support', 'help', 'official', 'care'
         all_text = f"{candidate_name} {display_name}"
         detected_keywords = NameSimilarityService.extract_suspicious_keywords(all_text)
-        if detected_keywords and best_sim.similarity_score >= 0.50:
+        if detected_keywords and (best_sim.similarity_score >= 0.50 or brand_in_handle):
             signals.append(
                 DetectionSignal(
                     signal_type="IMPERSONATION_KEYWORDS",
-                    severity_score=35.0,
+                    severity_score=38.0,
                     confidence=0.95,
                     explanation=(
                         f"Candidate incorporates high-risk trust-inducing keyword(s): "
@@ -155,6 +205,28 @@ class SocialDetector(BaseDetector):
             evidence.append({
                 "evidence_type": "keyword_impersonation",
                 "description": f"Detected trust mimicry keywords: {', '.join(detected_keywords)}",
+                "source_reference": candidate_url or None,
+            })
+
+        # Signal B2: Social Engineering & Scam Cues in Bio / Profile
+        bio_text = f"{candidate.get('bio') or ''} {candidate.get('description') or ''} {all_text}"
+        scam_cues = _find_scam_cues(bio_text)
+        if scam_cues and (brand_in_handle or best_sim.similarity_score >= 0.50):
+            signals.append(
+                DetectionSignal(
+                    signal_type="SCAM_CUE_SOLICITATION",
+                    severity_score=38.0 if brand_in_handle else 28.0,
+                    confidence=0.88,
+                    explanation=(
+                        f"Profile content incorporates high-risk social engineering scam indicators: "
+                        f"{scam_cues} (e.g. off-platform messaging, OTP/credential solicitation, or refund lures)."
+                    ),
+                    evidence_fields=["scam_cues", "bio"]
+                )
+            )
+            evidence.append({
+                "evidence_type": "social_engineering_cues",
+                "description": f"Observed scam indicators in profile: {', '.join(scam_cues)}",
                 "source_reference": candidate_url or None,
             })
 

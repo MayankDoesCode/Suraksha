@@ -78,3 +78,61 @@ def test_threat_repository_rollback_on_commit_failure(app):
         saved = threat_repo.save_or_update(**kwargs)
         assert saved.id is not None
         assert threat_repo.find_existing(brand.id, "phishing-threatbrand.com", "domain") is not None
+
+
+def test_transaction_scope_and_close_db_rollback(app):
+    """Verify transaction_scope commits on success and rolls back on exception, and close_db rolls back."""
+    from backend.app.database import transaction_scope, close_db
+    with app.app_context():
+        # 1. Success commit
+        with transaction_scope() as session:
+            b = Brand(name="TxScope Brand Success", description="test", owner_id="tester")
+            session.add(b)
+
+        check = get_db().query(Brand).filter_by(name="TxScope Brand Success").first()
+        assert check is not None
+
+        # 2. Rollback on exception
+        with pytest.raises(ValueError):
+            with transaction_scope() as session:
+                b2 = Brand(name="TxScope Brand Fail", description="test", owner_id="tester")
+                session.add(b2)
+                raise ValueError("Force rollback")
+
+        check2 = get_db().query(Brand).filter_by(name="TxScope Brand Fail").first()
+        assert check2 is None
+
+        # 3. close_db with exception safely triggers rollback
+        session = get_db()
+        session.add(Brand(name="Teardown Rollback Brand", description="test", owner_id="tester"))
+        close_db(exception=RuntimeError("Teardown error"))
+        # Re-query in fresh session
+        check3 = get_db().query(Brand).filter_by(name="Teardown Rollback Brand").first()
+        assert check3 is None
+
+
+def test_brand_validator_resilient_normalization():
+    """Verify BrandValidator sanitizes URLs, trailing slashes, and handle prefixes."""
+    from backend.app.validation.brand_validator import BrandValidator
+    payload = {
+        "name": "Resilient Corp",
+        "domains": [
+            {"domain": "https://resilientcorp.com/login?ref=1#top", "is_primary": True},
+            "sub.resilientcorp.org/",
+        ],
+        "social_handles": [
+            {"platform": "twitter", "handle": "https://x.com/resilient_official"},
+            {"platform": "instagram", "handle": "@resilient_insta"},
+        ],
+        "app_identifiers": [
+            {"platform": "android", "identifier": "https://play.google.com/store/apps/details?id=com.resilient.app&hl=en"},
+        ]
+    }
+    cleaned, errors = BrandValidator.validate(payload)
+    assert not errors
+    assert cleaned["domains"][0]["domain"] == "resilientcorp.com"
+    assert cleaned["domains"][1]["domain"] == "sub.resilientcorp.org"
+    assert cleaned["social_handles"][0]["handle"] == "resilient_official"
+    assert cleaned["social_handles"][1]["handle"] == "resilient_insta"
+    assert cleaned["app_identifiers"][0]["identifier"] == "com.resilient.app"
+

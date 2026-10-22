@@ -25,14 +25,29 @@ STRUCTURE_RULE_SCORES = {
 # High-risk TLDs commonly abused in automated phishing / brand impersonation
 HIGH_RISK_TLDS: Set[str] = {
     "xyz", "top", "online", "site", "club", "vip", "work", "cc", "buzz",
-    "cfd", "sbs", "rest", "surf", "icu", "cam", "fit", "tk", "ml", "ga", "cf", "gq"
+    "cfd", "sbs", "rest", "surf", "icu", "cam", "fit", "tk", "ml", "ga", "cf", "gq",
+    "click", "link", "monster", "live", "guru", "stream", "bid", "loan", "win", "racing", "date", "faith"
 }
 
+# Industry-curated phishing and credential harvesting lure keywords
 PHISHING_INTENT_KEYWORDS: List[str] = [
+    # General Credential / Access Lures
     "login", "signin", "sign-in", "auth", "portal", "verify", "verification",
     "secure", "security", "account", "wallet", "kyc", "claims", "support",
     "helpdesk", "recover", "recovery", "refund", "update", "banking", "token",
-    "bonus", "rewards", "claim", "dispute", "compliance", "confirm"
+    "bonus", "rewards", "claim", "dispute", "compliance", "confirm", "validate",
+    "unlock", "suspended", "restriction", "identity",
+    # Banking, UPI & Payment Vectors
+    "mpin", "m-pin", "otp", "pan-card", "netbanking", "e-wallet", "creditcard",
+    "debitcard", "atm-pin", "bill-payment", "fastag-recharge", "instant-loan",
+    # Web3 & Cryptocurrency Harvest Lures
+    "airdrop", "seedphrase", "seed-phrase", "connect-wallet", "metamask",
+    "trustwallet", "revoke-approval", "web3-auth", "claim-tokens", "crypto-bonus",
+    # Enterprise Access & Identity Providers
+    "okta", "sso", "azure-login", "office365", "globalprotect", "duo-mfa",
+    "sharepoint", "webmail-access", "citrix-login", "vpn-portal",
+    # Logistics, Parcel & Delivery Phishing
+    "tracking-parcel", "delivery-fee", "customs-duty", "package-on-hold", "redelivery"
 ]
 
 
@@ -92,15 +107,22 @@ def extract_domain_components(raw_input: str) -> Dict[str, Any]:
             punycode_hostname = raw_host
 
     parts = unicode_hostname.split(".") if unicode_hostname else []
-    if len(parts) >= 3 and ".".join(parts[-2:]) in TWO_LEVEL_SUFFIXES:
+    is_two_level = len(parts) >= 3 and ".".join(parts[-2:]) in TWO_LEVEL_SUFFIXES
+    if is_two_level:
         tld = ".".join(parts[-2:])  # e.g. co.in, co.uk: the registrable label is the one before the suffix
         sld = parts[-3]
+        subdomains = parts[:-3]
+        root_domain = f"{sld}.{tld}"
     elif len(parts) >= 2:
         tld = parts[-1]
         sld = parts[-2]
+        subdomains = parts[:-2]
+        root_domain = f"{sld}.{tld}"
     else:
         tld = ""
         sld = unicode_hostname
+        subdomains = []
+        root_domain = unicode_hostname
 
     puny_parts = punycode_hostname.split(".") if punycode_hostname else []
     if len(puny_parts) >= 3 and ".".join(puny_parts[-2:]) in TWO_LEVEL_SUFFIXES:
@@ -117,6 +139,8 @@ def extract_domain_components(raw_input: str) -> Dict[str, Any]:
         "punycode_sld": punycode_sld,
         "tld": tld,
         "parts": parts,
+        "subdomains": subdomains,
+        "root_domain": root_domain,
         "is_idn": is_idn,
     }
 
@@ -312,9 +336,13 @@ class DomainDetector(BaseDetector):
                     matched_target = target
 
         # De-leeted candidate SLD and hostname for normalized matching
-        de_leeted_sld = resolved_latin_sld or candidate_sld
+        base_sld = resolved_latin_sld or candidate_sld
+        de_leeted_i = base_sld
+        de_leeted_l = base_sld
         for digit, char in LEET_MAP.items():
-            de_leeted_sld = de_leeted_sld.replace(digit, char)
+            de_leeted_i = de_leeted_i.replace(digit, char)
+            de_leeted_l = de_leeted_l.replace(digit, "l" if digit == "1" else char)
+        de_leeted_variants = list(set([de_leeted_i, de_leeted_l, base_sld]))
 
         # Check if the brand name is embedded as a prominent token in the hostname
         clean_hostname_compact = candidate_hostname.replace("-", "").replace(".", "")
@@ -326,13 +354,54 @@ class DomainDetector(BaseDetector):
         brand_embedded = (
             brand_compact in clean_hostname_compact or
             brand_compact in clean_unicode_compact or
-            brand_compact in de_leeted_sld.replace("-", "") or
+            any(brand_compact in d.replace("-", "") for d in de_leeted_variants) or
             any(t in candidate_hostname for t in target_slds if len(t) >= 4) or
             any(t in resolved_hostname for t in target_slds if len(t) >= 4) or
-            any(t in de_leeted_sld for t in target_slds if len(t) >= 4) or
+            any(any(t in d for t in target_slds if len(t) >= 4) for d in de_leeted_variants) or
             any(has_exact_token(candidate_hostname, t) for t in target_slds if t and 3 <= len(t) < 4 and " " not in t)
         )
 
+        # -------------------------------------------------------------
+        # Subdomain Brand Abuse (e.g. apexpay.claims-portal.com or brand.com.attacker.net)
+        # Attacker weaponizes official brand mark as a prefix under an unverified root domain
+        # -------------------------------------------------------------
+        cand_subdomains = components.get("subdomains", [])
+        cand_root = components.get("root_domain", f"{candidate_sld}.{candidate_tld}")
+        official_root_hosts = set()
+        for off_dom in official_domain_names:
+            oc = extract_domain_components(off_dom)
+            official_root_hosts.add(oc["hostname"])
+            official_root_hosts.add(oc.get("root_domain", oc["hostname"]))
+
+        is_different_root = cand_root not in official_root_hosts
+        brand_in_subdomain = any(
+            (brand_compact and len(brand_compact) >= 3 and brand_compact in sub.replace("-", "").replace("_", "")) or
+            any(t and len(t) >= 4 and t in sub for t in target_slds)
+            for sub in cand_subdomains
+        )
+
+        if brand_in_subdomain and is_different_root:
+            subdomain_str = ".".join(cand_subdomains)
+            signals.append(
+                DetectionSignal(
+                    signal_type="SUBDOMAIN_BRAND_ABUSE",
+                    severity_score=50.0,
+                    confidence=0.96,
+                    explanation=(
+                        f"Brand identity '{brand_name}' is weaponized as an unauthorized subdomain prefix "
+                        f"('{subdomain_str}') under unverified third-party root host '{cand_root}'."
+                    ),
+                    evidence_fields=["subdomains", "root_domain", "candidate_domain"]
+                )
+            )
+            evidence.append({
+                "evidence_type": "subdomain_brand_hijack",
+                "description": f"Subdomain hijack detected: brand mark '{brand_name}' prepended to '{cand_root}'.",
+                "source_reference": candidate_hostname,
+            })
+
+        # Signal A1: Direct Brand Look-Alike & Typosquatting in SLD
+        lookalike_fired = False
         if best_sim_score >= 0.75 or (best_sim_score >= 0.60 and brand_embedded):
             score_impact = min(55.0, round(best_sim_score * 50.0, 1))
             signals.append(
@@ -352,6 +421,32 @@ class DomainDetector(BaseDetector):
                 "description": f"Domain hostname '{candidate_hostname}' exhibits visual/lexical typosquatting of '{matched_target}'.",
                 "source_reference": components.get("original_input", candidate_hostname),
             })
+            lookalike_fired = True
+
+        # Signal A2: Combosquatting in Domain Root (e.g. fake-apexpay.com, apexpay-security.com, apexpaylogin.xyz)
+        is_combosquat = (
+            (brand_compact and len(brand_compact) >= 4 and any(brand_compact in d.replace("-", "").replace("_", "") and d.replace("-", "").replace("_", "") != brand_compact for d in de_leeted_variants)) or
+            any(t and len(t) >= 4 and any(t in d and d != t for d in de_leeted_variants) for t in target_slds) or
+            (best_sim_score >= 0.50 and brand_embedded and best_sim_score < 0.75)
+        )
+        if is_combosquat and (not lookalike_fired or best_sim_score < 0.80):
+            signals.append(
+                DetectionSignal(
+                    signal_type="DOMAIN_COMBOSQUATTING",
+                    severity_score=45.0,
+                    confidence=0.92,
+                    explanation=(
+                        f"Candidate domain root '{candidate_sld}' embeds verified brand mark '{brand_name}' "
+                        f"alongside unauthorized modifiers in the second-level domain (combosquatting)."
+                    ),
+                    evidence_fields=["candidate_sld", "brand_name"]
+                )
+            )
+            evidence.append({
+                "evidence_type": "combosquatting_analysis",
+                "description": f"Combosquatting observed: brand token '{brand_name}' embedded inside composite SLD '{candidate_sld}'.",
+                "source_reference": candidate_hostname,
+            })
 
         # Signal B: Phishing Intent / Security Keywords in Hostname
         found_intent_keywords = [
@@ -362,8 +457,8 @@ class DomainDetector(BaseDetector):
             signals.append(
                 DetectionSignal(
                     signal_type="PHISHING_KEYWORD_IN_DOMAIN",
-                    severity_score=40.0,
-                    confidence=0.90,
+                    severity_score=42.0,
+                    confidence=0.92,
                     explanation=(
                         f"Candidate domain embeds high-risk credential-harvesting/phishing keyword(s): "
                         f"{found_intent_keywords} alongside brand token '{brand_name}'."
@@ -376,6 +471,32 @@ class DomainDetector(BaseDetector):
                 "description": f"Domain contains credential harvesting lure tokens: {', '.join(found_intent_keywords)}",
                 "source_reference": candidate_hostname,
             })
+        elif found_intent_keywords and not brand_embedded:
+            # Standalone credential lure suspicion requires either:
+            # - a high-risk TLD (e.g. .xyz, .top) with lure keyword(s)
+            # - or multiple credential lures combined (e.g. login-verify-account.com)
+            is_high_risk_tld = candidate_tld in HIGH_RISK_TLDS
+            has_multiple_lures = len(found_intent_keywords) >= 2
+            has_strong_lure = any(k in ("login", "signin", "verify", "verification", "auth", "portal", "wallet", "kyc", "recover", "recovery", "banking") for k in found_intent_keywords)
+            if (is_high_risk_tld and has_strong_lure) or (has_multiple_lures and (is_high_risk_tld or has_strong_lure)):
+                lure_score = 42.0 if (is_high_risk_tld and has_strong_lure) else (36.0 if is_high_risk_tld else 28.0)
+                signals.append(
+                    DetectionSignal(
+                        signal_type="CREDENTIAL_LURE_SUSPICION",
+                        severity_score=lure_score,
+                        confidence=0.88,
+                        explanation=(
+                            f"Domain exhibits high-risk credential-harvesting/phishing indicators: "
+                            f"{found_intent_keywords} registered under '.{candidate_tld}'."
+                        ),
+                        evidence_fields=["phishing_keywords", "candidate_tld"]
+                    )
+                )
+                evidence.append({
+                    "evidence_type": "generic_phishing_heuristic",
+                    "description": f"Credential solicitation pattern: keywords {found_intent_keywords} on '.{candidate_tld}'.",
+                    "source_reference": candidate_hostname,
+                })
 
         # Signal C: TLD-Swap Impersonation
         # Brand operates on a legitimate TLD, but candidate registers identical SLD on alternate TLD

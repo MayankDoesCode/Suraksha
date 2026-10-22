@@ -336,6 +336,24 @@ def discover_lookalikes(brand_id: str):
     user_info = get_current_user() or {}
     brand_service.get_brand(brand_id, requesting_user_id=user_info.get("uid"), is_admin=(user_info.get("role") == "admin"))
     payload = request.get_json(silent=True) or {}
+
+    if payload.get("async"):
+        from backend.app.services.discovery_service import AsyncDiscoveryManager
+        job_id = AsyncDiscoveryManager.submit_job(
+            brand_id,
+            limit=payload.get("limit", 150),
+            techniques=payload.get("techniques") or None,
+            enrich=bool(payload.get("enrich", False)),
+        )
+        return jsonify({
+            "success": True,
+            "data": {
+                "job_id": job_id,
+                "status": "pending",
+                "poll_url": f"/api/v1/brands/{brand_id}/discover/jobs/{job_id}",
+            }
+        }), 202
+
     from backend.app.services.discovery_service import DiscoveryService
     result = DiscoveryService().discover(
         brand_id,
@@ -344,6 +362,20 @@ def discover_lookalikes(brand_id: str):
         enrich=bool(payload.get("enrich", False)),
     )
     return jsonify({"success": True, "data": result}), 200
+
+
+@brands_bp.route("/brands/<string:brand_id>/discover/jobs/<string:job_id>", methods=["GET"])
+@require_auth(allowed_roles=["admin", "lead", "analyst", "viewer"])
+def get_discovery_job(brand_id: str, job_id: str):
+    """Poll asynchronous discovery job status and results."""
+    user_info = get_current_user() or {}
+    brand_service.get_brand(brand_id, requesting_user_id=user_info.get("uid"), is_admin=(user_info.get("role") == "admin"))
+    from backend.app.services.discovery_service import AsyncDiscoveryManager
+    job = AsyncDiscoveryManager.get_job(job_id)
+    if not job:
+        from backend.app.core.exceptions import NotFoundError
+        raise NotFoundError(f"Discovery job '{job_id}' not found.")
+    return jsonify({"success": True, "data": job}), 200
 
 
 @brands_bp.route("/brands/<string:brand_id>/graph", methods=["GET"])

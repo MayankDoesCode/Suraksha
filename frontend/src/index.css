@@ -11,50 +11,52 @@
  *   ok     = low / verified safe         accent = primary action  ai = AI- or ML-derived content
  */
 /*
- * Palette: "saffron night". A deep indigo-navy canvas with one saffron accent; the severity colours are
- * tuned away from it (high leans coral, medium leans lemon) so a button never reads as a warning.
- * Text on a solid accent fill is dark ink in the dark theme (on-accent).
+ * Palette: "Suraksha Gold & Obsidian". Aligned precisely with the cinematic brand shield:
+ *   - Luminous Saffron Amber (#f5a524) and Radiant Gold (#ffc24b) accents.
+ *   - Midnight Obsidian canvas (#0a0d16 / #101420) with subtle golden cybernetic aura.
+ *   - Champagne Gold (#ffd27a) for AI and intelligence features.
+ *   - Calibrated critical (crimson), high (coral), and ok (emerald) status tones.
  */
 :root[data-theme='light'] {
   color-scheme: light;
-  --c-canvas: 247 248 250;
+  --c-canvas: 248 249 252;
   --c-surface: 255 255 255;
-  --c-surface-2: 241 243 246;
-  --c-surface-3: 231 234 240;
-  --c-line: 221 225 232;
-  --c-fg: 15 23 42;
+  --c-surface-2: 242 244 249;
+  --c-surface-3: 232 236 244;
+  --c-line: 220 226 236;
+  --c-fg: 15 20 32;
   --c-fg-muted: 71 85 105;
   --c-fg-subtle: 100 116 139;
-  --c-accent: 37 99 235;
-  --c-accent-hover: 29 78 216;
+  --c-accent: 217 119 6;
+  --c-accent-hover: 180 83 9;
   --c-on-accent: 255 255 255;
-  --c-ai: 3 105 161;
-  --c-ok: 21 128 61;
-  --c-warn: 161 98 7;
-  --c-high: 194 65 12;
-  --c-danger: 190 18 60;
-  --shadow: 15 23 42;
+  --c-ai: 180 83 9;
+  --c-ok: 16 185 129;
+  --c-warn: 217 119 6;
+  --c-high: 234 88 12;
+  --c-danger: 225 29 72;
+  --shadow: 15 20 32;
 }
 
-/* Dark is opt-in: the theme toggle, or any subtree marked data-theme="dark" (the product shots on the landing page). */
+/* Dark is default and mirrors the SURAKSHA brand shield emblem */
 :root, :root[data-theme='dark'], [data-theme='dark'] {
   color-scheme: dark;
-  --c-canvas: 9 9 11;
-  --c-surface: 17 17 20;
-  --c-surface-2: 13 13 16;
-  --c-surface-3: 28 28 33;
-  --c-line: 40 40 47;
-  --c-fg: 242 242 245;
-  --c-fg-muted: 170 170 180;
-  --c-fg-subtle: 130 130 142;
-  --c-accent: 168 200 255;
-  --c-accent-hover: 198 220 255;
-  --c-on-accent: 8 14 28;
-  --c-ai: 196 181 253;
-  --c-ok: 74 196 140;
-  --c-warn: 245 190 70;
-  --c-high: 251 126 72;
-  --c-danger: 240 68 104;
+  --c-canvas: 10 13 22;
+  --c-surface: 16 20 32;
+  --c-surface-2: 12 15 25;
+  --c-surface-3: 24 30 48;
+  --c-line: 38 46 68;
+  --c-fg: 246 247 251;
+  --c-fg-muted: 174 180 196;
+  --c-fg-subtle: 122 130 150;
+  --c-accent: 245 165 36;
+  --c-accent-hover: 255 194 75;
+  --c-on-accent: 14 17 28;
+  --c-ai: 255 210 122;
+  --c-ok: 52 211 153;
+  --c-warn: 245 165 36;
+  --c-high: 249 115 22;
+  --c-danger: 244 63 94;
   --shadow: 0 0 0;
   background-color: rgb(var(--c-canvas));
   color: rgb(var(--c-fg));
@@ -105,6 +107,26 @@ body {
 }
 .cyber-panel-hover { transition: border-color 0.15s ease; }
 .cyber-panel-hover:hover { border-color: rgb(var(--c-accent) / 0.5); }
+
+/* Premium Glassmorphic Cyber Sheen & Micro-Glow */
+.glass-panel {
+  background: rgba(var(--c-surface), 0.85);
+  backdrop-filter: blur(14px);
+  -webkit-backdrop-filter: blur(14px);
+  border: 1px solid rgb(var(--c-line));
+}
+
+.glow-hover {
+  transition: all 0.2s cubic-bezier(0.16, 1, 0.3, 1);
+}
+.glow-hover:hover {
+  box-shadow: 0 0 25px -4px rgb(var(--c-accent) / 0.18);
+  border-color: rgb(var(--c-accent) / 0.45);
+}
+
+.shadow-panel {
+  box-shadow: 0 4px 20px -2px rgba(0, 0, 0, 0.12), inset 0 1px 0 rgba(255, 255, 255, 0.04);
+}
 
 /* Buttons */
 .btn-cyber-primary {

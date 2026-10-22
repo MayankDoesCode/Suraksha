@@ -17,16 +17,15 @@ SUPPORTED_GROQ_MODELS = [
     "gemma2-9b-it",
 ]
 
+from backend.app.utils.errors import AppException
+
 DEFAULT_GROQ_MODEL = "llama-3.3-70b-versatile"
 
 
-class AIServiceError(Exception):
+class AIServiceError(AppException):
     """Base exception for AI investigation failures."""
-    def __init__(self, message: str, code: str = "AI_ERROR", status_code: int = 500):
-        super().__init__(message)
-        self.message = message
-        self.code = code
-        self.status_code = status_code
+    def __init__(self, message: str, code: str = "AI_ERROR", status_code: int = 500, details: list = None):
+        super().__init__(message, status_code=status_code, code=code, details=details or [])
 
 
 class AIServiceUnavailableError(AIServiceError):

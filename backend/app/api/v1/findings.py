@@ -33,8 +33,8 @@ def list_findings():
         or request.args.get("demo", "").lower() in ("true", "1", "yes")
     )
 
-    page = max(1, page)
-    per_page = min(max(1, per_page), 100)
+    page = max(1, page or 1)
+    per_page = min(max(1, per_page or 20), 100)
     offset = (page - 1) * per_page
 
     user_info = get_authenticated_user_optional()
@@ -552,14 +552,18 @@ def ai_investigate_candidate():
     }), 200
 
 
-def _owned_finding(finding_id: str):
-    """Fetch a finding the caller may act on (owner or admin); sample findings are not actionable."""
+def _owned_finding(finding_id: str, allow_sample: bool = False):
+    """Fetch a finding the caller may act on (owner or admin); sample findings are optionally allowed for drafting."""
     user_info = get_current_user() or {}
     finding = threat_repo.get_by_id(finding_id)
     if not finding:
         raise NotFoundError(f"Finding with ID '{finding_id}' not found.")
     is_admin = user_info.get("role") == "admin"
-    if finding.is_sample or (finding.brand and finding.brand.owner_id and finding.brand.owner_id != user_info.get("uid") and not is_admin):
+    if finding.is_sample:
+        if allow_sample:
+            return finding, user_info
+        raise ForbiddenError("You do not have access to this finding.")
+    if finding.brand and finding.brand.owner_id and finding.brand.owner_id != user_info.get("uid") and not is_admin:
         raise ForbiddenError("You do not have access to this finding.")
     return finding, user_info
 
@@ -575,10 +579,10 @@ def enrich_finding(finding_id: str):
 
 
 @findings_bp.route("/findings/<string:finding_id>/report", methods=["GET"])
-@require_auth(allowed_roles=["admin", "lead", "analyst"])
+@require_auth(allowed_roles=["admin", "lead", "analyst", "viewer"])
 def finding_report(finding_id: str):
     """Draft (never sent) takedown/abuse report for registrar, hosting, platform, app store or internal use."""
-    finding, user_info = _owned_finding(finding_id)
+    finding, user_info = _owned_finding(finding_id, allow_sample=True)
     from backend.app.services.report_service import build_report
     data = finding.to_dict(include_relations=True)
     brand_name = finding.brand.name if finding.brand else "the brand"
@@ -586,23 +590,41 @@ def finding_report(finding_id: str):
     return jsonify({"success": True, "data": report}), 200
 
 
-@findings_bp.route("/findings/<string:finding_id>/takedown", methods=["POST"])
-@require_auth(allowed_roles=["admin", "lead", "analyst"])
+@findings_bp.route("/findings/<string:finding_id>/takedown", methods=["GET", "POST"])
+@require_auth(allowed_roles=["admin", "lead", "analyst", "viewer"])
 @limiter.limit(lambda: current_app.config.get("RATELIMIT_DISCOVER", "3 per minute"))
 def finding_takedown(finding_id: str):
-    """Draft a takedown notice (registrar/host/trademark). Body: {notice, format: json|eml|pdf}. Never sends."""
+    """Draft a takedown notice (registrar/host/trademark/platform/app_store). Body: {notice, format: json|eml|pdf|txt, abuse_email, analyst}. Never sends."""
     import base64
     from flask import Response
     from backend.app.services import report_service as rs
-    _, user_info = _owned_finding(finding_id)
-    body = request.get_json(silent=True) or {}
-    n = rs.generate_takedown(finding_id, body.get("notice", "registrar"), analyst=user_info.get("email") or user_info.get("uid"))
-    fmt = body.get("format", "json")
-    threat_repo.apply_enrichment(finding_id, [{"evidence_type": "takedown_drafted", "description": f"notice={n['notice']}; to={n['to']}; manifest={n['manifest_sha256'][:16]}", "source_reference": "takedown_endpoint"}], [], (), ())
+    finding, user_info = _owned_finding(finding_id, allow_sample=True)
+    body = request.get_json(silent=True) or {} if request.method == "POST" else {}
+
+    default_notice = (
+        "registrar" if finding.asset_type == "domain"
+        else "platform" if finding.asset_type == "social"
+        else "app_store" if finding.asset_type in ("mobile_app", "app")
+        else "trademark"
+    )
+    notice = body.get("notice") or request.args.get("notice") or default_notice
+    analyst = body.get("analyst") or request.args.get("analyst") or user_info.get("email") or user_info.get("uid")
+    abuse_email = body.get("abuse_email") or request.args.get("abuse_email")
+    fmt = body.get("format") or request.args.get("format") or "json"
+
+    n = rs.generate_takedown(finding_id, notice, analyst=analyst, abuse_email=abuse_email)
+
+    if not finding.is_sample:
+        threat_repo.apply_enrichment(finding_id, [{"evidence_type": "takedown_drafted", "description": f"notice={n['notice']}; to={n['to']}; manifest={n['manifest_sha256'][:16]}", "source_reference": "takedown_endpoint"}], [], (), ())
+
     if fmt == "eml":
         return Response(rs.to_eml(n), mimetype="message/rfc822", headers={"Content-Disposition": "attachment; filename=takedown-" + finding_id + ".eml"})
     if fmt == "pdf":
         return Response(rs.to_pdf(n["text"]), mimetype="application/pdf", headers={"Content-Disposition": "attachment; filename=takedown-" + finding_id + ".pdf"})
+    if fmt == "txt":
+        return Response(n["text"], mimetype="text/plain", headers={"Content-Disposition": "attachment; filename=takedown-" + finding_id + ".txt"})
+
     n["eml_base64"] = base64.b64encode(rs.to_eml(n)).decode()
     n["pdf_base64"] = base64.b64encode(rs.to_pdf(n["text"])).decode()
     return jsonify({"success": True, "data": n}), 200
+

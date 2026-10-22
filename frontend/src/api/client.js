@@ -3,7 +3,7 @@
  * Connects to versioned Flask API under /api/v1/
  */
 
-const API_BASE_URL = import.meta.env.VITE_API_BASE_URL || '/api/v1';
+const API_BASE_URL = (typeof import.meta !== 'undefined' && import.meta?.env?.VITE_API_BASE_URL) || '/api/v1';
 
 class ApiClient {
   constructor(baseUrl) {
@@ -198,6 +198,26 @@ class ApiClient {
     return this.request(`/metrics${params}`);
   }
 
+  // Takedown & Abuse Notice Drafting
+  async draftFindingTakedown(findingId, { notice = 'registrar', format = 'json', abuseEmail, analyst } = {}) {
+    return this.request(`/findings/${encodeURIComponent(findingId)}/takedown`, {
+      method: 'POST',
+      body: JSON.stringify({
+        notice,
+        format,
+        abuse_email: abuseEmail,
+        analyst,
+      }),
+    });
+  }
+
+  // Passive Domain Intel Enrichment (DNS, RDAP, TLS)
+  async enrichFinding(findingId) {
+    return this.request(`/findings/${encodeURIComponent(findingId)}/enrich`, {
+      method: 'POST',
+    });
+  }
+
   // Brand Asset Scanning & Detection
   async scanCandidate(brandId, payload) {
     return this.request(`/brands/${encodeURIComponent(brandId)}/scan`, {
@@ -214,6 +234,13 @@ class ApiClient {
   async testIntegration(providerId) {
     return this.request(`/integrations/${encodeURIComponent(providerId)}/test`, {
       method: 'POST',
+    });
+  }
+
+  async testWebhook(webhookUrl, brandName) {
+    return this.request('/integrations/webhook/test', {
+      method: 'POST',
+      body: JSON.stringify({ webhook_url: webhookUrl, brand_name: brandName }),
     });
   }
 
@@ -320,6 +347,61 @@ class ApiClient {
       method: 'POST',
       body: JSON.stringify(payload),
     });
+  }
+
+  // Feature 3: AI Cyber Defense Copilot & Google Safe Browsing
+  async verifyUrlWithCopilot(url, targetBrand = '') {
+    return this.request('/copilot/verify-url', {
+      method: 'POST',
+      body: JSON.stringify({ url, target_brand: targetBrand }),
+    });
+  }
+
+  async chatWithCopilot({ message, url = '', targetBrand = '', history = [] }) {
+    return this.request('/copilot/chat', {
+      method: 'POST',
+      body: JSON.stringify({
+        message,
+        url,
+        target_brand: targetBrand,
+        history,
+      }),
+    });
+  }
+
+  // Feature 4: Internet Threat Feeds & Adversarial Permutation Engine
+  async getRecentThreatFeed(limit = 25) {
+    return this.request(`/copilot/threat-feed/recent?limit=${encodeURIComponent(limit)}`);
+  }
+
+  async searchThreatFeed(query, limit = 20) {
+    return this.request('/copilot/threat-feed/search', {
+      method: 'POST',
+      body: JSON.stringify({ query, limit }),
+    });
+  }
+
+  async generatePermutations(domain, limit = 25) {
+    return this.request('/copilot/generate-permutations', {
+      method: 'POST',
+      body: JSON.stringify({ domain, limit }),
+    });
+  }
+
+  // Feature 5: Asynchronous Background Discovery & DNS Recon
+  async startBrandDiscovery(brandId, { limit = 100, techniques = null, enrich = false, async = true } = {}) {
+    return this.request(`/brands/${encodeURIComponent(brandId)}/discover`, {
+      method: 'POST',
+      body: JSON.stringify({ limit, techniques, enrich, async }),
+    });
+  }
+
+  async getDiscoveryJobStatus(brandId, jobId) {
+    return this.request(`/brands/${encodeURIComponent(brandId)}/discover/jobs/${encodeURIComponent(jobId)}`);
+  }
+
+  async getBrandRelationshipGraph(brandId) {
+    return this.request(`/brands/${encodeURIComponent(brandId)}/graph`);
   }
 }
 

@@ -7,7 +7,7 @@
     "dev": "vite",
     "build": "vite build",
     "preview": "vite preview",
-    "test": "node --experimental-strip-types --test src/utils/socialEngine.test.ts src/utils/threatGraph.test.ts src/utils/askFilter.test.ts src/utils/appEngine.test.ts",
+    "test": "node --experimental-strip-types --test src/utils/socialEngine.test.ts src/utils/threatGraph.test.ts src/utils/askFilter.test.ts src/utils/appEngine.test.ts src/utils/takedownGenerator.test.ts",
     "cap:sync": "vite build && cap sync android",
     "android:open": "cap open android"
   },

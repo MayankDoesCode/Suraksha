@@ -168,27 +168,57 @@ class DetectionService:
         # it is completely unrelated and not treated as a threat finding.
         # -------------------------------------------------------------
         if rule_score == 0.0 and len(signals) == 0:
-            return {
-                "brand_id": brand_id,
-                "candidate_name": candidate_name,
-                "asset_type": asset_type_normalized,
-                "asset_type_defaulted": asset_type_defaulted,
-                "is_official": False,
-                "excluded": False,
-                "risk_score": 0.0,
-                "final_risk_score": 0.0,
-                "rule_based_score": 0.0,
-                "ml_risk_score": 0.0,
-                "ml_predicted_class": "LEGITIMATE",
-                "ml_confidence": 1.0,
-                "ml_model_version": self.risk_classifier.get_version(),
-                "ml_fallback_used": False,
-                "severity": "LOW",
-                "signals": [],
-                "evidence": [],
-                "persisted": False,
-                "finding": None,
-            }
+            # Before dismissing as benign, verify if lexical ML phishing model catches an attack
+            ml_caught_phishing = False
+            if asset_type_normalized == "domain" and self.ml_service and self.ml_service.is_url_model_available():
+                indicator = candidate_data.get("source_url") or candidate_data.get("url") or candidate_name
+                url_pred = self.ml_service.predict_url_risk(indicator)
+                if url_pred.get("available") and url_pred.get("is_phishing_risk"):
+                    ml_caught_phishing = True
+                    ml_score = float(url_pred["risk_score"])
+                    prob = float(url_pred.get("risk_probability", 0.0))
+                    ml_version = f"url_phishing_v{url_pred.get('model_version', '1.0.0')}"
+                    evidence_records.append({
+                        "evidence_type": "url_phishing_ml_classification",
+                        "description": (
+                            f"Lexical URL model ({ml_version}) flagged high-risk phishing vector "
+                            f"(ML score: {ml_score}/100, probability: {int(prob * 100)}%)."
+                        ),
+                        "source_reference": ml_version,
+                    })
+                    signals.append(
+                        DetectionSignal(
+                            signal_type="ML_PHISHING_URL_DETECTION",
+                            severity_score=ml_score,
+                            confidence=prob,
+                            explanation=f"Machine Learning model identified deceptive phishing patterns in '{indicator}'.",
+                            evidence_fields=["url", "ml_risk_score"]
+                        )
+                    )
+                    rule_score = round(ml_score, 1)
+
+            if not ml_caught_phishing:
+                return {
+                    "brand_id": brand_id,
+                    "candidate_name": candidate_name,
+                    "asset_type": asset_type_normalized,
+                    "asset_type_defaulted": asset_type_defaulted,
+                    "is_official": False,
+                    "excluded": False,
+                    "risk_score": 0.0,
+                    "final_risk_score": 0.0,
+                    "rule_based_score": 0.0,
+                    "ml_risk_score": 0.0,
+                    "ml_predicted_class": "LEGITIMATE",
+                    "ml_confidence": 1.0,
+                    "ml_model_version": self.risk_classifier.get_version(),
+                    "ml_fallback_used": False,
+                    "severity": "LOW",
+                    "signals": [],
+                    "evidence": [],
+                    "persisted": False,
+                    "finding": None,
+                }
 
         # -------------------------------------------------------------
         # 4. Specialized Machine Learning Pipeline Routing & Hybrid Fusion

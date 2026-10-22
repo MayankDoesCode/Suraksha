@@ -70,4 +70,5 @@ backend/app/ml/data/annotations/*.json
 _to_delete/
 .gsd/
 GSD-STYLE.md
+scratch/
 *.db

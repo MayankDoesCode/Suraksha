@@ -49,11 +49,12 @@ export const AppMonitoringView: React.FC = () => {
   const [analysisResult, setAnalysisResult] = useState<any | null>(null);
   const [createdCandidateId, setCreatedCandidateId] = useState<string | null>(null);
 
-  // Live Provider Scanning State (Phase 4 iTunes)
+  // Live Provider Scanning State (Google Play & Apple App Store)
   const [providerScanning, setProviderScanning] = useState(false);
   const [providerScanResult, setProviderScanResult] = useState<any | null>(null);
   const [providerError, setProviderError] = useState<string | null>(null);
   const [providerLimit, setProviderLimit] = useState(25);
+  const [providerId, setProviderId] = useState<'google_play_store' | 'itunes_app_store'>('google_play_store');
 
   const loadScenario = (type: 'rogue' | 'official' | 'partner') => {
     setErrorMsg(null);
@@ -158,7 +159,7 @@ export const AppMonitoringView: React.FC = () => {
     setProviderScanResult(null);
 
     try {
-      const res = await api.scanBrandProvider(targetBrandId, 'itunes_app_store', providerLimit);
+      const res = await api.scanBrandProvider(targetBrandId, providerId, providerLimit);
       if (res?.success) {
         setProviderScanResult(res.data);
         await refreshBackendData();
@@ -289,13 +290,25 @@ export const AppMonitoringView: React.FC = () => {
                   </span>
                 </div>
                 <p className="text-xs text-fgMuted mt-0.5">
-                  Queries Apple's live public registry for <strong className="text-fg font-medium">"{brandProfile.brandName}"</strong>, automatically excludes verified brand assets, and persists findings.
+                  Queries {providerId === 'google_play_store' ? 'Google Play Store' : 'Apple App Store'} live public directory for <strong className="text-fg font-medium">"{brandProfile.brandName}"</strong>, automatically excludes verified brand assets, and flags trojans.
                 </p>
               </div>
             </div>
 
             {/* Run Controls */}
-            <div className="flex items-center gap-2">
+            <div className="flex flex-wrap items-center gap-2">
+              <div className="flex items-center gap-1.5 bg-surface2 px-2.5 py-1.5 rounded-md border border-line text-xs text-fgMuted">
+                <span>Store:</span>
+                <select
+                  value={providerId}
+                  onChange={(e) => setProviderId(e.target.value as any)}
+                  className="bg-transparent text-fg font-medium focus:outline-none cursor-pointer"
+                >
+                  <option value="google_play_store" className="bg-surface">Google Play Store (Android)</option>
+                  <option value="itunes_app_store" className="bg-surface">Apple App Store (iOS)</option>
+                </select>
+              </div>
+
               <div className="flex items-center gap-1.5 bg-surface2 px-2.5 py-1.5 rounded-md border border-line text-xs text-fgMuted">
                 <span>Limit:</span>
                 <select
@@ -345,7 +358,9 @@ export const AppMonitoringView: React.FC = () => {
                   <div className="text-xl font-semibold font-mono text-fg mt-0.5">
                     {providerScanResult.total_retrieved}
                   </div>
-                  <div className="text-[11px] text-fgMuted font-mono">Live iTunes Records</div>
+                  <div className="text-[11px] text-fgMuted font-mono">
+                    {providerId === 'google_play_store' ? 'Google Play Records' : 'Apple App Store Records'}
+                  </div>
                 </div>
 
                 <div className="p-3 rounded-lg bg-surface2 border border-line text-center">

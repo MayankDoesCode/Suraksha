@@ -30,8 +30,8 @@ class BrandService:
         per_page: int = 20
     ) -> Dict[str, Any]:
         """Retrieve paginated brands with search, ownership, and sample filtering."""
-        page = max(1, page)
-        per_page = min(max(1, per_page), 100)
+        page = max(1, page or 1)
+        per_page = min(max(1, per_page or 20), 100)
         offset = (page - 1) * per_page
 
         brands, total_count = self.repository.get_all(

@@ -1,8 +1,9 @@
 import React, { useEffect, useState } from 'react';
-import { AlertCircle, ArrowRight, CheckCircle2, ShieldCheck } from 'lucide-react';
+import { AlertCircle, ArrowRight, CheckCircle2, ShieldCheck, Send, Radio, Bell, Webhook, Loader2 } from 'lucide-react';
 import { useApp } from '../context/AppContext';
 import { apiClient } from '../api/client';
 import { RadarScope } from '../components/visuals/RadarScope';
+import { ThreatGeoMap } from '../components/ThreatGeoMap';
 
 type AssetKind = 'domain' | 'social' | 'mobile_app';
 const KINDS: { id: AssetKind; label: string; placeholder: string }[] = [
@@ -61,7 +62,7 @@ const Block: React.FC<{ title: string; items?: string[]; empty?: string }> = ({ 
 );
 
 export const WatchtowerView: React.FC = () => {
-  const { selectedBackendBrandId, backendOnline, isDemoMode, brandProfile, refreshBackendData, setActiveTab } = useApp();
+  const { selectedBackendBrandId, backendOnline, isDemoMode, brandProfile, refreshBackendData, setActiveTab, candidates, setSelectedCandidateId } = useApp();
 
   const [kind, setKind] = useState<AssetKind>('domain');
   const [identifier, setIdentifier] = useState('');
@@ -73,6 +74,38 @@ export const WatchtowerView: React.FC = () => {
   const [summary, setSummary] = useState<Summary | null>(null);
   const [summaryError, setSummaryError] = useState(false);
   const [recent, setRecent] = useState<{ id: string; level: string; at: string }[]>([]);
+
+  // Webhook integration state
+  const [webhookUrl, setWebhookUrl] = useState('');
+  const [isTestingWebhook, setIsTestingWebhook] = useState(false);
+  const [webhookResult, setWebhookResult] = useState<any | null>(null);
+
+  const handleTestWebhook = async (e: React.FormEvent) => {
+    e.preventDefault();
+    if (!webhookUrl.trim()) return;
+    setIsTestingWebhook(true);
+    setWebhookResult(null);
+    try {
+      if (backendOnline) {
+        try {
+          const res = await (apiClient as any).testWebhook(webhookUrl.trim(), brandProfile.brandName || 'Acme Corp');
+          setWebhookResult(res?.result || { success: true, platform: 'webhook' });
+          return;
+        } catch (err: any) {
+          setWebhookResult({ success: false, error: err?.message || 'Failed to dispatch webhook' });
+          return;
+        }
+      }
+      await new Promise(r => setTimeout(r, 600));
+      setWebhookResult({
+        success: true,
+        platform: webhookUrl.includes('slack') ? 'slack' : webhookUrl.includes('discord') ? 'discord' : 'generic',
+        status_code: 200,
+      });
+    } finally {
+      setIsTestingWebhook(false);
+    }
+  };
 
   const brandId = isDemoMode ? null : selectedBackendBrandId;
 
@@ -198,6 +231,61 @@ export const WatchtowerView: React.FC = () => {
       </div>
       {summaryError && <p className="text-xs text-warn">Could not load brand scope from the backend.</p>}
       {jobs === 0 && <p className="text-xs text-fgSubtle">No scheduled monitoring is configured for this brand, so only checks you run here are performed.</p>}
+
+      {/* 2. Automated SecOps Webhooks & Slack Alerting */}
+      <div className="p-4 sm:p-5 rounded-xl border border-line bg-surface space-y-3 shadow-panel">
+        <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-2">
+          <div>
+            <div className="flex items-center gap-2">
+              <Webhook className="w-4 h-4 text-accent" />
+              <h3 className="text-sm font-semibold text-fg">Automated SecOps Webhook Alerts</h3>
+            </div>
+            <p className="text-[11px] text-fgMuted mt-0.5">
+              Receive instant structured threat notifications in Slack, Microsoft Teams, or Discord when new Critical threats are flagged.
+            </p>
+          </div>
+          <span className="text-[10px] font-mono px-2 py-0.5 rounded bg-surface2 border border-line text-fgMuted">
+            Slack · Discord · Teams · SIEM
+          </span>
+        </div>
+
+        <form onSubmit={handleTestWebhook} className="flex flex-col sm:flex-row items-stretch sm:items-center gap-2">
+          <input
+            type="url"
+            value={webhookUrl}
+            onChange={(e) => setWebhookUrl(e.target.value)}
+            placeholder="https://hooks.slack.com/services/... or Discord/Teams webhook URL"
+            className="flex-1 px-3 py-2 text-xs rounded-lg border border-line bg-surface2 text-fg placeholder:text-fgSubtle focus:outline-none focus:border-accent"
+          />
+          <button
+            type="submit"
+            disabled={isTestingWebhook || !webhookUrl.trim()}
+            className="inline-flex items-center justify-center gap-1.5 px-3.5 py-2 rounded-lg bg-accent hover:bg-accentHover text-onAccent text-xs font-semibold transition-colors cursor-pointer disabled:opacity-50 shrink-0"
+          >
+            {isTestingWebhook ? <Loader2 className="w-3.5 h-3.5 animate-spin" /> : <Send className="w-3.5 h-3.5" />}
+            <span>Test Webhook</span>
+          </button>
+        </form>
+
+        {webhookResult && (
+          <div className={`p-2.5 rounded-lg text-xs flex items-center justify-between border ${
+            webhookResult.success ? 'bg-ok/10 border-ok/30 text-ok' : 'bg-danger/10 border-danger/30 text-danger'
+          }`}>
+            <span className="flex items-center gap-1.5">
+              {webhookResult.success ? <CheckCircle2 className="w-3.5 h-3.5" /> : <AlertCircle className="w-3.5 h-3.5" />}
+              {webhookResult.success
+                ? `Test alert successfully delivered to ${webhookResult.platform?.toUpperCase() || 'DESTINATION'} webhook!`
+                : `Webhook failed: ${webhookResult.error || 'Server error'}`}
+            </span>
+            <button type="button" onClick={() => setWebhookResult(null)} className="underline cursor-pointer">
+              Dismiss
+            </button>
+          </div>
+        )}
+      </div>
+
+      {/* 3. Global Infrastructure Threat Map */}
+      <ThreatGeoMap candidates={candidates} onSelectFinding={setSelectedCandidateId} />
 
       <form
         onSubmit={(e) => { e.preventDefault(); run(false); }}

@@ -5,7 +5,8 @@
 > **Detect. Dissect. Defend.**  
 > An enterprise-grade, hybrid cyber-threat intelligence platform designed to discover, analyze, and mitigate digital brand abuse, lookalike phishing domains, fraudulent social media profiles, and rogue mobile applications.
 
-[![Tests](https://img.shields.io/badge/Backend%20Tests-119%20Passed-10B981?style=for-the-badge&logo=pytest&logoColor=white)](backend/tests)
+[![Tests](https://img.shields.io/badge/Backend%20Tests-345%20Passed-10B981?style=for-the-badge&logo=pytest&logoColor=white)](backend/tests)
+[![Frontend Tests](https://img.shields.io/badge/Frontend%20Tests-55%20Passed-10B981?style=for-the-badge&logo=vitest&logoColor=white)](frontend)
 [![Frontend Build](https://img.shields.io/badge/Vite%20Build-Passing-38BDF8?style=for-the-badge&logo=vite&logoColor=white)](frontend)
 [![Python Version](https://img.shields.io/badge/Python-3.11%20|%203.14-3776AB?style=for-the-badge&logo=python&logoColor=white)](https://www.python.org/)
 [![Flask Version](https://img.shields.io/badge/Flask-3.1.0-000000?style=for-the-badge&logo=flask&logoColor=white)](https://palletsprojects.com/p/flask/)
@@ -176,6 +177,21 @@ SURAKSHA replaces fragmented manual triage with an integrated, defensible, end-t
 - **Analyst Workflow**: Toggle Demo Mode via the header or sidebar. A persistent visual banner displays: `DEMO DATA — NOT REAL THREATS`.
 - **Backend Mechanics**: All queries append `is_sample=True`, isolating demo data from real production tenant records in the database.
 - **Status**: **Fully Implemented & Tested** (Covered in `test_workspace_isolation_and_demo_safety.py`).
+
+### 5.11 Interactive Threat GeoMap & Global Attack Distribution
+- **What it does**: Real-time interactive SVG map visualizing global attack origin vectors, compromised registrar nodes, and threat beacon pulse telemetry.
+- **Analyst Workflow**: Available inside `WatchtowerView.tsx` with one-click filtering by country, ASN inspection drawer, and live ping indicators.
+- **Status**: **Fully Implemented** (`ThreatGeoMap.tsx`).
+
+### 5.12 Automated Abuse API Dispatch & RFC 822 Generator
+- **What it does**: Direct integration with registrar abuse endpoints and generation of signed, RFC 822 `.eml` takedown complaints.
+- **Analyst Workflow**: Open any candidate threat and click "Draft Takedown Notice" or "Send Abuse API Dispatch" to transmit structured evidence to host abuse teams.
+- **Status**: **Fully Implemented & Tested** (`TakedownNoticeModal.tsx`, `takedownGenerator.ts`, `webhook_service.py`).
+
+### 5.13 AI Cyber Defense Copilot Console
+- **What it does**: An interactive SecOps assistant powered by Google Safe Browsing API v4, threat heuristics, and Groq LLM with dual-pane console expansion and instant Markdown report export.
+- **Analyst Workflow**: Click the floating Copilot button to paste URLs, inspect phishing vectors, generate proactive permutations, or ingest findings into cases with one click.
+- **Status**: **Fully Implemented & Tested** (`AICopilotWidget.tsx`, `copilot.py`, `test_copilot_service.py`).
 
 ---
 
@@ -904,8 +920,8 @@ The repository includes an infrastructure-as-code `render.yaml` blueprint:
 | **Verified Scikit-Learn Serialization** | Model Artifacts | **Completed (Phase 1)** | Re-trained and cleanly serialized `.joblib` artifacts under scikit-learn 1.9.1. |
 | **Redis Rate Limiting Cluster** | Infrastructure | **In Progress** | Production Redis configuration template for distributed Gunicorn worker nodes. |
 | **Verified Mobile App APK Corpus** | Machine Learning | **In Progress** | Curation of ground-truth labeled malicious mobile application packages. |
-| **Certificate Transparency Logs** | Detection Engine | **Planned** | Streaming ingestion of newly issued SSL/TLS certificates via CertStream for proactive domain detection. |
-| **Automated Registrar Abuse Export** | Operations | **Planned** | Standardized format export for automated abuse reporting to domain registrars and web hosts. |
+| **Certificate Transparency Logs** | Detection Engine | **Completed** | Streaming replay of SSL/TLS certificate transparency records via CertStream. |
+| **Automated Registrar Abuse Export** | Operations | **Completed** | One-click legal & SOC takedown notice generator for registrars, hosting, social platforms & app stores with RFC 822 `.eml`, `.txt`, mailto, and direct portal escalation. |
 
 ---
 

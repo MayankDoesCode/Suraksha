@@ -98,7 +98,11 @@ def build_report(finding: Dict[str, Any], brand_name: str, audience: str, analys
             lines.append(f"- {label}: {infra[key]}")
 
     lines += ["", "## Why it is believed to be impersonation (rule-based findings)"]
-    lines += [f"- {s.get('explanation')}" for s in signals] or ["- No rule signal is recorded on this finding."]
+    signal_explanations = [
+        s.explanation if hasattr(s, "explanation") else (s.get("explanation") if isinstance(s, dict) else str(s))
+        for s in signals
+    ]
+    lines += [f"- {exp}" for exp in signal_explanations if exp] or ["- No rule signal is recorded on this finding."]
 
     lines += ["", "## Evidence", "| Type | Observation | Source | Captured |", "| --- | --- | --- | --- |"]
     for e in evidence:
@@ -132,7 +136,21 @@ def build_report(finding: Dict[str, Any], brand_name: str, audience: str, analys
 
 
 # ------------------------------------------------------------------------------------------ takedown notices
-NOTICES = {"registrar": "Domain registrar", "host": "Hosting provider", "trademark": "Trademark / impersonation notice"}
+NOTICES = {
+    "registrar": "Domain registrar",
+    "host": "Hosting provider",
+    "trademark": "Trademark / impersonation notice",
+    "platform": "Social platform trust & safety",
+    "app_store": "App store review team",
+}
+
+NOTICE_ASSET_TYPES = {
+    "registrar": {"domain"},
+    "host": {"domain"},
+    "trademark": {"domain", "social", "mobile_app", "app"},
+    "platform": {"social"},
+    "app_store": {"mobile_app", "app"},
+}
 
 
 def _jinja():
@@ -143,17 +161,34 @@ def _jinja():
 def render_takedown(finding: Dict[str, Any], brand_name: str, notice: str, abuse_email: Optional[str], analyst: Optional[str] = None) -> Dict[str, Any]:
     if notice not in NOTICES:
         raise ValidationError("Unknown notice type.", details=[{"field": "notice", "message": "Use one of: " + ", ".join(sorted(NOTICES))}])
-    if finding.get("asset_type") != "domain":
-        raise ValidationError("Takedown notices are generated for domain findings only.", details=[{"field": "asset_type", "message": "Finding is a " + str(finding.get("asset_type")) + "."}])
+    asset_type = finding.get("asset_type")
+    allowed = NOTICE_ASSET_TYPES.get(notice, set())
+    if asset_type not in allowed:
+        raise ValidationError(
+            f"Takedown notices for {NOTICES[notice]} do not apply to {asset_type} findings.",
+            details=[{"field": "asset_type", "message": "Finding is a " + str(asset_type) + "."}]
+        )
     evidence = [e for e in finding.get("evidence", []) if e.get("evidence_type") != "analyst_triage_audit"]
     infra = _infra(evidence)
     keys = [("IP addresses", "dns_records.a"), ("Name servers", "dns_records.ns"), ("Registrar", "whois_registration.registrar"),
             ("Registered", "whois_registration.registered_at"), ("Certificate SHA-256", "tls_certificate.sha256")]
     indicators = [label + ": " + infra[k] for label, k in keys if infra.get(k)]
-    to = abuse_email or "[abuse contact not found in RDAP: look up the registrar or network abuse address]"
+    to = abuse_email or (
+        "[abuse contact not found in RDAP: look up the registrar or network abuse address]" if notice in ("registrar", "host")
+        else "trust-and-safety@platform.com" if notice == "platform"
+        else "developer-support@appstore.com" if notice == "app_store"
+        else "[abuse / legal contact]"
+    )
+    recipient_map = {
+        "registrar": infra.get("whois_registration.registrar") or "Abuse Team",
+        "host": "Abuse Team",
+        "trademark": "Trust & Safety / Legal Team",
+        "platform": "Platform Trust & Safety Team",
+        "app_store": "App Store Review Team",
+    }
     ctx = {
         "subject": "Brand impersonation: " + str(finding.get("candidate_name")), "to": to,
-        "recipient": {"registrar": infra.get("whois_registration.registrar") or "Abuse Team", "host": "Abuse Team", "trademark": "Trust & Safety Team"}[notice],
+        "recipient": recipient_map.get(notice, "Abuse Team"),
         "target": finding.get("candidate_name"), "source_url": finding.get("source_url"), "brand": brand_name,
         "severity": finding.get("severity", "UNKNOWN"), "score": finding.get("final_risk_score", finding.get("risk_score", 0)),
         "first_seen": finding.get("observed_at") or finding.get("created_at") or "not recorded", "indicators": indicators,
@@ -206,8 +241,8 @@ def to_pdf(text: str) -> bytes:
     return bytes(out)
 
 
-def generate_takedown(finding_id: str, notice: str = "registrar", analyst: Optional[str] = None, repo=None, rdap_fetch=None) -> Dict[str, Any]:
-    """Draft a takedown notice for a domain finding using the RDAP abuse contact. Never sent."""
+def generate_takedown(finding_id: str, notice: str = "registrar", analyst: Optional[str] = None, abuse_email: Optional[str] = None, repo=None, rdap_fetch=None) -> Dict[str, Any]:
+    """Draft a takedown notice for a finding using the RDAP abuse contact or custom recipient. Never sent."""
     from backend.app.intel import rdap as rdap_mod
     from backend.app.repositories.threat_repository import ThreatRepository
     from backend.app.utils.errors import NotFoundError
@@ -216,7 +251,9 @@ def generate_takedown(finding_id: str, notice: str = "registrar", analyst: Optio
         raise NotFoundError("Finding with ID '" + finding_id + "' not found.")
     data = finding.to_dict(include_relations=True)
     rec = (rdap_fetch or rdap_mod.fetch_rdap)(finding.candidate_name) if finding.asset_type == "domain" else None
-    n = render_takedown(data, finding.brand.name if finding.brand else "the brand", notice, getattr(rec, "abuse_email", None), analyst)
+    contact = abuse_email or (getattr(rec, "abuse_email", None) if rec else None)
+    n = render_takedown(data, finding.brand.name if finding.brand else "the brand", notice, contact, analyst)
     n["finding_id"] = finding_id
     n["rdap_error"] = getattr(rec, "error", None)
     return n
+

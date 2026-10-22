@@ -163,6 +163,24 @@ export const SocialMonitoringView: React.FC = () => {
         evidence: 'Clear non-affiliation disclaimer present in bio. Zero phishing or credential requests.',
       },
     },
+    {
+      id: 'telegram_scam',
+      label: '6. Cybercrime Telegram / WhatsApp Scam Bot',
+      badgeColor: 'bg-danger/15 text-danger border-danger/30',
+      description: 'Critical: Rogue customer care bot soliciting OTP, Seedphrases, and UPI PINs via private message.',
+      data: {
+        name: 'Acme Corp 24x7 Instant Refund Desk',
+        username: '@acme_instant_refund_bot',
+        avatarDataUrl: ACME_LOGO,
+        platform: 'Telegram',
+        url: 'https://t.me/acme_instant_refund_bot',
+        bio: 'Official Acme Corp 24x7 Instant Refund & KYC Verification Bot. DM us your UPI ID and 6-digit verification code to unblock your account immediately.',
+        followerCount: '1240',
+        creationDate: '2026-03-01',
+        observedBranding: 'Direct clone of Acme official avatar. Impersonation of verified support team.',
+        evidence: 'Soliciting OTP, banking credentials, and private customer information over Telegram DM.',
+      },
+    },
   ];
 
   const loadScenario = (scenarioData: SocialCandidateInput) => {

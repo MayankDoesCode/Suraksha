@@ -60,7 +60,7 @@ const LEET: Record<string, string> = { '0': 'o', '1': 'l', '3': 'e', '4': 'a', '
 // Listing text that asks for payment secrets or an identity check is a red flag whatever the brand is.
 const CREDENTIAL_ASK = /(upi\s*pin|\bm-?pin\b|\botp\b|\bcvv\b|enter\s+(your\s+)?(bank\s+)?(pin|password)|verify\s+(your\s+)?(bank|account|kyc)|share\s+(your\s+)?(otp|pin)|net\s*banking\s+password)/i;
 const MONEY_AMOUNT = /(₹|rs\.?\s*)\s*\d|\d[\d,]*\s*(rupees|inr)\b|\$\s*\d/i;
-const COPY_CLAIM = /(copies|copied|copying|clone[sd]?|imitat\w*|impersonat\w*|looks?\s+like|same\s+(logo|colou?rs?|name|branding)|fake|pretend\w*)/i;
+const COPY_CLAIM = /(copies|copied|copying|clone[sd]?|imitat\w*|impersonat\w*|looks?\s+like|similar|uses?\s+a\s+similar|same\s+(logo|colou?rs?|name|branding|mark|icon)|fake|pretend\w*)/i;
 const TRUSTED_STORE = /google play|app store|apple|appgallery|galaxy store/i;
 const UNTRUSTED_STORE = /third-party|direct apk|apk mirror|sideload|apkpure|mirror/i;
 

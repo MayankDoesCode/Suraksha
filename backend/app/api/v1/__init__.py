@@ -8,6 +8,7 @@ from backend.app.api.v1.auth import auth_bp
 from backend.app.api.v1.ct import ct_bp
 from backend.app.api.v1.social import social_bp
 from backend.app.api.v1.apps import apps_bp
+from backend.app.api.v1.copilot import copilot_bp
 
 api_v1_bp = Blueprint("api_v1", __name__, url_prefix="/api/v1")
 
@@ -21,3 +22,4 @@ api_v1_bp.register_blueprint(auth_bp)
 api_v1_bp.register_blueprint(ct_bp)
 api_v1_bp.register_blueprint(social_bp)
 api_v1_bp.register_blueprint(apps_bp)
+api_v1_bp.register_blueprint(copilot_bp)

@@ -148,3 +148,44 @@ describe('no brand registered', () => {
     assert.ok(['High', 'Critical'].includes(r.riskCategory));
   });
 });
+
+describe('Social Media Monitor - Brand Token and Support Mimicry Tests', () => {
+  const acmeBrand: BrandProfile = {
+    id: 'demo-brand',
+    brandName: 'Acme Corp',
+    officialWebsite: 'https://acme.com',
+    officialDomains: ['acme.com'],
+    officialSocialUrls: [
+      {
+        id: 'soc-acme-official',
+        platform: 'X',
+        handle: '@acmecorp',
+        url: 'https://x.com/acmecorp',
+        verificationStatus: 'verified_platform',
+      }
+    ],
+    officialApps: [],
+    authorizedPartners: [],
+    protectedKeywords: ['Acme Corp', 'Acme'],
+    lastUpdated: ''
+  };
+
+  test('flags fake support desk combining brand token with lure words and recovery claims as Critical/High', () => {
+    const candidate: SocialCandidateInput = {
+      name: 'Acme Support Desk',
+      username: '@acme_support_claims',
+      platform: 'X',
+      url: 'https://social.example.invalid/acme_support_claims',
+      bio: 'Official Acme support desk. Message us for account recovery, payment reversal, and wallet assistance.',
+      followerCount: '186',
+      observedBranding: 'Orange-and-black Acme-style shield icon and "Verified Acme Support"'
+    };
+
+    const result = analyzeSocialCandidate(candidate, acmeBrand);
+    assert.notStrictEqual(result.riskCategory, 'Low');
+    assert.ok(result.heuristicScore >= 70, `Expected score >= 70, got ${result.heuristicScore}`);
+    assert.ok(result.signals.some(s => s.type === 'BRAND_LURE_COMPOUND'));
+    assert.ok(result.signals.some(s => s.type === 'UNREGISTERED_OFFICIAL_CLAIM'));
+    assert.ok(result.signals.some(s => s.type === 'UNMONITORED_COMMUNICATION_LURE'));
+  });
+});

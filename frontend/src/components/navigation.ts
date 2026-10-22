@@ -28,30 +28,30 @@ export interface NavGroup {
 
 /** Task-oriented navigation. Only routes that exist; there is no Settings page yet, so none is listed. */
 export const NAV_GROUPS: NavGroup[] = [
-  { id: 'home', title: null, items: [{ id: 'overview', label: 'Overview', icon: LayoutDashboard, keywords: 'home summary queue' }] },
+  { id: 'home', title: null, items: [{ id: 'overview', label: 'Security Overview', icon: LayoutDashboard, keywords: 'home summary queue dashboard' }] },
   {
     id: 'detect',
-    title: 'Detect',
+    title: 'Detection & Recon',
     items: [
-      { id: 'lookalike-engine', label: 'Check a domain', icon: Binary, keywords: 'lookalike typosquat phishing url' },
-      { id: 'social-monitoring', label: 'Check a social profile', icon: Share2, keywords: 'impersonation handle account' },
-      { id: 'app-monitoring', label: 'Check a mobile app', icon: Smartphone, keywords: 'package store publisher' },
-      { id: 'watchtower', label: 'Watchtower', icon: Radar, keywords: 'backend evaluate perimeter' },
+      { id: 'lookalike-engine', label: 'Lookalike & Domain Recon', icon: Binary, keywords: 'lookalike typosquat phishing url dns' },
+      { id: 'social-monitoring', label: 'Social Impersonation', icon: Share2, keywords: 'impersonation handle account social telegram' },
+      { id: 'app-monitoring', label: 'Mobile App Store Recon', icon: Smartphone, keywords: 'package store publisher trojan playstore appstore' },
+      { id: 'watchtower', label: 'Watchtower & Threat Map', icon: Radar, keywords: 'backend evaluate perimeter geomap alert' },
     ],
   },
   {
     id: 'triage',
-    title: 'Triage',
+    title: 'Triage & Remediation',
     items: [
-      { id: 'reports', label: 'Findings', icon: FileSearch, keywords: 'table export csv reports' },
-      { id: 'investigation-center', label: 'Investigations', icon: FolderSearch, keywords: 'cases status notes evidence' },
-      { id: 'threat-graph', label: 'Threat graph', icon: Network, keywords: 'relationships links connected' },
+      { id: 'reports', label: 'Executive Reports & Audit', icon: FileSearch, keywords: 'table export csv reports ciso briefing' },
+      { id: 'investigation-center', label: 'Investigation Center', icon: FolderSearch, keywords: 'cases status notes evidence takedowns' },
+      { id: 'threat-graph', label: 'Threat Relationship Graph', icon: Network, keywords: 'relationships links connected visual' },
     ],
   },
-  { id: 'protect', title: 'Protect', items: [{ id: 'brand-profile', label: 'Protected assets', icon: Building2, keywords: 'brand domains official verified' }] },
-  { id: 'system', title: 'System', items: [
-    { id: 'methodology', label: 'How it works', icon: BookOpen, keywords: 'method pipeline signals coverage limitations' },
-    { id: 'diagnostics', label: 'Models & status', icon: Activity, keywords: 'health ml evaluation' },
+  { id: 'protect', title: 'Brand Perimeter', items: [{ id: 'brand-profile', label: 'Protected Brand Profile', icon: Building2, keywords: 'brand domains official verified allowlist' }] },
+  { id: 'system', title: 'Intelligence System', items: [
+    { id: 'methodology', label: 'Detection Methodology', icon: BookOpen, keywords: 'method pipeline signals coverage limitations' },
+    { id: 'diagnostics', label: 'System Health & AI Models', icon: Activity, keywords: 'health ml evaluation api telemetry' },
   ] },
 ];
 

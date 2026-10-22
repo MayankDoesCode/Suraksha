@@ -4,6 +4,7 @@ from typing import Dict, Any, Optional, Type
 from backend.app.connectors.base import BaseConnector
 from backend.app.connectors.itunes_connector import ITunesAppStoreConnector
 from backend.app.connectors.twitter_connector import TwitterV2Connector
+from backend.app.connectors.google_play_connector import GooglePlayConnector
 
 logger = logging.getLogger(__name__)
 
@@ -21,6 +22,7 @@ class ConnectorRegistry:
         """Instantiate available connectors."""
         self._connectors["itunes_app_store"] = ITunesAppStoreConnector()
         self._connectors["twitter_v2"] = TwitterV2Connector()
+        self._connectors["google_play_store"] = GooglePlayConnector()
 
     def get(self, connector_id: str) -> Optional[BaseConnector]:
         """Retrieve connector instance by identifier."""

@@ -90,9 +90,10 @@ class BrandValidator:
                         errors.append({"field": f"domains[{idx}]", "message": "Invalid domain entry format"})
                         continue
 
-                    # Strip protocols if user pasted full URL
+                    # Strip protocols, paths, query params if user pasted full URL
                     if "://" in raw_domain:
-                        raw_domain = raw_domain.split("://")[-1].split("/")[0]
+                        raw_domain = raw_domain.split("://", 1)[-1]
+                    raw_domain = raw_domain.split("/")[0].split("?")[0].split("#")[0].strip().rstrip(".")
 
                     if not raw_domain:
                         errors.append({"field": f"domains[{idx}]", "message": "Domain cannot be blank"})
@@ -145,7 +146,10 @@ class BrandValidator:
                         continue
 
                     platform = str(item.get("platform", "")).strip().lower()
-                    handle = str(item.get("handle", "")).strip().lstrip("@")
+                    handle = str(item.get("handle", "")).strip()
+                    if "://" in handle:
+                        handle = handle.split("://", 1)[-1].rstrip("/").split("/")[-1]
+                    handle = handle.lstrip("@").strip()
                     url = str(item.get("url", "")).strip() if item.get("url") else None
 
                     if not platform:
@@ -184,6 +188,10 @@ class BrandValidator:
 
                     platform = str(item.get("platform", "")).strip().lower()
                     identifier = str(item.get("identifier", "")).strip()
+                    if "id=" in identifier:
+                        identifier = identifier.split("id=")[-1].split("&")[0].strip()
+                    elif "/app/" in identifier:
+                        identifier = identifier.rstrip("/").split("/")[-1].strip()
                     app_name = str(item.get("app_name", "")).strip() if item.get("app_name") else None
 
                     if not platform:

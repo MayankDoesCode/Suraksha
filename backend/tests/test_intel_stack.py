@@ -182,3 +182,34 @@ def test_single_weak_overlap_is_not_a_campaign():
     y = {**_finding("y", a="2.2.2.2", registrar="Same")}
     y["evidence"][0] = {"id": 9, "evidence_type": "dns_records", "description": kv(a=["2.2.2.2"], asn=["2.2.2.2:AS1/2.2.0.0/16/US"]), "captured_at": "t"}
     assert build_graph([x, y])["campaigns"] == []
+
+
+def test_async_discovery_submission_and_polling(client, monkeypatch):
+    from backend.app.intel import dns_probe
+    def fake_probe_many(domains, concurrency=32):
+        out = []
+        for d in domains:
+            o = dns_probe.DnsObservation(domain=d, resolves=(d == "acmee.com"))
+            if d == "acmee.com":
+                o.a = ["93.184.216.34"]
+            out.append(o)
+        return out
+    monkeypatch.setattr(dns_probe.DnsProbe, "probe_many", fake_probe_many)
+    bid = _brand(client)
+
+    # Submit async discovery job
+    r = client.post(f"/api/v1/brands/{bid}/discover", json={"limit": 20, "async": True})
+    assert r.status_code == 202
+    job_info = r.get_json()["data"]
+    job_id = job_info["job_id"]
+    assert job_info["status"] == "pending"
+
+    # Poll status
+    poll_r = client.get(f"/api/v1/brands/{bid}/discover/jobs/{job_id}")
+    assert poll_r.status_code == 200
+    poll_data = poll_r.get_json()["data"]
+    assert poll_data["job_id"] == job_id
+    assert poll_data["brand_id"] == bid
+    assert "progress_percent" in poll_data
+    assert poll_data["status"] in ("pending", "running", "completed")
+

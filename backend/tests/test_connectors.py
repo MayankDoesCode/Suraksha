@@ -191,6 +191,48 @@ def test_twitter_connector_rate_limit_429(monkeypatch):
 
 
 # ---------------------------------------------------------------------------
+# Google Play Store Connector Tests
+# ---------------------------------------------------------------------------
+
+from backend.app.connectors.google_play_connector import GooglePlayConnector
+
+def test_google_play_connector_normalization():
+    """Verify Google Play connector normalizes raw application entries."""
+    connector = GooglePlayConnector()
+    sample_raw = {
+        "title": "Acme Mobile Bank Secure",
+        "package_id": "com.rogue.acme.securebank",
+        "developer": "Shady App Studios",
+        "url": "https://play.google.com/store/apps/details?id=com.rogue.acme.securebank",
+        "description": "Log into your Acme Bank account to claim instant prize cash.",
+        "icon_url": "https://play-lh.googleusercontent.com/sample_icon.png",
+        "permissions": ["android.permission.RECEIVE_SMS", "android.permission.SYSTEM_ALERT_WINDOW"],
+        "price": 0.0,
+        "is_sample": False,
+    }
+
+    norm = connector.normalize_record(sample_raw)
+    assert norm["external_id"] == "play_com.rogue.acme.securebank"
+    assert norm["candidate_name"] == "Acme Mobile Bank Secure"
+    assert norm["package_id"] == "com.rogue.acme.securebank"
+    assert norm["publisher_name"] == "Shady App Studios"
+    assert norm["platform"] == "google_play"
+    assert norm["asset_type"] == "mobile_app"
+    assert norm["detection_source"] == "google_play_store"
+    assert "android.permission.RECEIVE_SMS" in norm["metadata"]["permissions"]
+
+
+def test_google_play_connector_fallback_corpus():
+    """Verify Google Play connector returns deterministic threat corpus if external request fails."""
+    connector = GooglePlayConnector()
+
+    with patch("requests.get", side_effect=requests.exceptions.ConnectionError("Offline proxy")):
+        candidates = connector.collect_candidates({"name": "Acme Bank"}, limit=5)
+        assert len(candidates) > 0
+        assert any("acme" in (c.get("id") or c.get("package_id", "")).lower() for c in candidates)
+
+
+# ---------------------------------------------------------------------------
 # Connector Registry Tests
 # ---------------------------------------------------------------------------
 
@@ -200,6 +242,7 @@ def test_registry_status_no_secrets():
     statuses = registry.get_all_status()
 
     assert "itunes_app_store" in statuses
+    assert "google_play_store" in statuses
     assert "twitter_v2" in statuses
 
     for cid, st in statuses.items():

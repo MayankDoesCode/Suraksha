@@ -11,30 +11,40 @@ interface HeaderProps {
 }
 
 export const Header: React.FC<HeaderProps> = ({ onToggleMobileMenu, onOpenSearch }) => {
-  const { activeTab } = useApp();
+  const { activeTab, brandProfile, backendOnline } = useApp();
   const page = pageInfo(activeTab);
   const isMac = typeof navigator !== 'undefined' && /mac/i.test(navigator.platform);
 
   return (
     <header className="relative z-20 flex h-12 shrink-0 items-center gap-2 border-b border-line bg-surface2/80 px-3 backdrop-blur-md sm:px-5">
       {onToggleMobileMenu && (
-        <button onClick={onToggleMobileMenu} className="rounded-md p-1.5 text-fgMuted hover:bg-surface3 hover:text-fg lg:hidden" aria-label="Open navigation menu">
+        <button onClick={onToggleMobileMenu} className="rounded-md p-1.5 text-fgMuted hover:bg-surface3 hover:text-fg lg:hidden cursor-pointer" aria-label="Open navigation menu">
           <Menu className="h-4 w-4" />
         </button>
       )}
-      <nav aria-label="Breadcrumb" className="flex min-w-0 items-center gap-1 text-[13px]">
+      <nav aria-label="Breadcrumb" className="flex min-w-0 items-center gap-1.5 text-[13px]">
         {page?.group && (
           <>
-            <span className="hidden text-fgSubtle sm:inline">{page.group}</span>
+            <span className="hidden text-fgSubtle sm:inline font-mono uppercase tracking-wider text-[11px]">{page.group}</span>
             <ChevronRight className="hidden h-3 w-3 text-fgSubtle sm:inline" aria-hidden />
           </>
         )}
-        <h1 className="truncate font-medium text-fg">{page?.label ?? 'SURAKSHA'}</h1>
+        <h1 className="truncate font-semibold text-fg tracking-tight">{page?.label ?? 'SURAKSHA'}</h1>
       </nav>
-      <div className="ml-auto flex items-center gap-1.5">
+
+      <div className="ml-auto flex items-center gap-2">
+        {/* Active Protected Brand & SOC Status */}
+        <div className="hidden md:flex items-center gap-2 px-3 py-1 rounded-full bg-surface/80 border border-line text-xs font-mono shadow-xs">
+          <span className={`w-2 h-2 rounded-full ${backendOnline ? 'bg-ok animate-pulse' : 'bg-warn'}`} />
+          <span className="text-fgMuted text-[11px]">Brand:</span>
+          <span className="text-accent font-semibold text-[11px] truncate max-w-[150px]">
+            {brandProfile.brandName || 'Acme Corp'}
+          </span>
+        </div>
+
         <button
           onClick={onOpenSearch}
-          className="flex items-center gap-2 rounded-lg border border-line bg-surface/60 px-2.5 py-1.5 text-xs text-fgSubtle transition-colors hover:bg-surface3 hover:text-fgMuted sm:min-w-[200px]"
+          className="flex items-center gap-2 rounded-lg border border-line bg-surface/60 px-2.5 py-1.5 text-xs text-fgSubtle transition-colors hover:bg-surface3 hover:text-fgMuted sm:min-w-[180px] cursor-pointer"
           aria-label="Search pages and findings"
         >
           <Search className="h-3.5 w-3.5" />

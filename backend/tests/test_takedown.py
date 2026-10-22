@@ -57,3 +57,26 @@ def test_metrics_count_takedowns_and_report_none_when_no_certs(client, monkeypat
     tk = client.post(f"/api/v1/findings/{fid}/takedown", json={"notice": "registrar"}); assert tk.status_code == 200, tk.get_json()
     m = client.get("/api/v1/metrics").get_json()["data"]
     assert m["takedowns_drafted"] == 1 and m["median_hours_cert_to_detection"] is None and m["flagged_last_24h"] >= 1
+
+
+def test_social_and_app_store_takedowns():
+    social_finding = {
+        "id": "s1", "asset_type": "social", "candidate_name": "@acme_support",
+        "severity": "CRITICAL", "final_risk_score": 90,
+        "signals": [{"explanation": "Fake support account asking for credentials"}],
+        "evidence": []
+    }
+    app_finding = {
+        "id": "a1", "asset_type": "mobile_app", "candidate_name": "Acme Mobile Bank Pro",
+        "severity": "HIGH", "final_risk_score": 82,
+        "signals": [{"explanation": "Unofficial APK mirroring protected brand"}],
+        "evidence": []
+    }
+    sn = rs.render_takedown(social_finding, "Acme", "platform", None, "analyst@sec.test")
+    assert "@acme_support" in sn["text"] and "impersonating our brand" in sn["text"]
+    assert sn["notice"] == "platform"
+
+    an = rs.render_takedown(app_finding, "Acme", "app_store", None, "analyst@sec.test")
+    assert "Acme Mobile Bank Pro" in an["text"] and "infringing application listing" in an["text"]
+    assert an["notice"] == "app_store"
+

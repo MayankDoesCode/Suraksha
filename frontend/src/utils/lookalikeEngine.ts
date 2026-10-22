@@ -458,12 +458,13 @@ export function runFullLookalikeAnalysis(
   // Check if candidate is an authorized partner
   const isAuthorizedPartner = (brandProfile.authorizedPartners || []).some(p => {
     const pName = normalizeString(p.name);
-    const pDom = normalizeDomain(p.websiteUrl).normalizedHostname;
-    return (
-      (cleanCandidateName.length > 0 && cleanCandidateName.includes(pName)) ||
-      (normalizedCandidateDomain.normalizedHostname.length > 0 &&
-        normalizedCandidateDomain.normalizedHostname.includes(pDom))
+    const pDom = normalizeDomain(p.websiteUrl || '').normalizedHostname;
+    const nameMatch = pName.length >= 3 && cleanCandidateName.length >= 3 && (cleanCandidateName === pName || cleanCandidateName.includes(pName));
+    const domMatch = pDom.length >= 3 && normalizedCandidateDomain.normalizedHostname.length >= 3 && (
+      normalizedCandidateDomain.normalizedHostname === pDom ||
+      normalizedCandidateDomain.normalizedHostname.endsWith(`.${pDom}`)
     );
+    return nameMatch || domMatch;
   });
 
   const isOfficialAsset = isExactDomainMatch || (

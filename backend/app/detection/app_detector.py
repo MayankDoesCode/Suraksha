@@ -39,8 +39,21 @@ class AppDetector(BaseDetector):
         package signatures, and publisher authentication.
         """
         brand_name = brand_profile.get("name", "")
-        official_apps = brand_profile.get("app_identifiers", [])
-        official_publishers = [p.get("publisher_name", "").strip().lower() for p in brand_profile.get("publishers", []) if p.get("publisher_name")]
+        official_apps = (
+            brand_profile.get("app_identifiers") or
+            brand_profile.get("official_apps") or
+            brand_profile.get("apps") or []
+        )
+        official_publishers = [
+            p.get("publisher_name", "").strip().lower()
+            for p in brand_profile.get("publishers", [])
+            if p.get("publisher_name")
+        ]
+        # Also include publishers/developers defined directly on official app records
+        for off in official_apps:
+            dev = off.get("developer_name") or off.get("publisher_name") or off.get("developer")
+            if dev and dev.strip().lower() not in official_publishers:
+                official_publishers.append(dev.strip().lower())
 
         app_title = candidate.get("candidate_name") or candidate.get("app_name") or ""
         candidate_package = (candidate.get("package_id") or candidate.get("identifier") or "").strip().lower()
@@ -49,20 +62,35 @@ class AppDetector(BaseDetector):
         candidate_platform = (candidate.get("platform") or "").lower()
         candidate_url = candidate.get("source_url") or ""
 
+        def _canonical_platform(p: str) -> str:
+            p = (p or "").strip().lower()
+            if p in ("google_play", "play_store", "android_play_store", "android"):
+                return "android"
+            if p in ("ios", "apple", "ios_app_store", "itunes", "app_store"):
+                return "ios"
+            return p
+
         # -------------------------------------------------------------
         # 1. Official App Exclusion Check
         # -------------------------------------------------------------
+        cand_canon_platform = _canonical_platform(candidate_platform)
         for off_app in official_apps:
-            off_identifier = (off_app.get("identifier") or "").strip().lower()
-            off_platform = (off_app.get("platform") or "").lower()
+            off_identifier = (
+                off_app.get("identifier") or
+                off_app.get("package_id") or
+                off_app.get("bundle_id") or
+                off_app.get("app_id") or
+                off_app.get("package_name") or ""
+            ).strip().lower()
+            off_platform = _canonical_platform(off_app.get("platform") or "")
 
-            same_platform = not candidate_platform or not off_platform or (candidate_platform == off_platform)
+            same_platform = not cand_canon_platform or not off_platform or (cand_canon_platform == off_platform)
 
             if off_identifier and candidate_package and off_identifier == candidate_package and same_platform:
                 return DetectionOutcome(
                     is_official=True,
                     exclusion_reason=(
-                        f"Exact match against verified official mobile app package ID '{off_app.get('identifier')}' "
+                        f"Exact match against verified official mobile app package ID '{off_identifier}' "
                         f"({off_app.get('platform') or 'global'})."
                     ),
                     risk_evaluation=RiskEvaluation(total_score=0.0, severity="LOW", signals=[])
@@ -129,6 +157,24 @@ class AppDetector(BaseDetector):
                 ),
                 "source_reference": candidate_url or None,
             })
+        elif title_has_token:
+            signals.append(
+                DetectionSignal(
+                    signal_type="APP_TITLE_BRAND_EMBEDDING",
+                    severity_score=42.0,
+                    confidence=0.90,
+                    explanation=(
+                        f"Application title '{app_title}' embeds distinctive brand mark '{brand_name}' "
+                        "alongside descriptive or lure keywords."
+                    ),
+                    evidence_fields=["app_title", "brand_name"]
+                )
+            )
+            evidence.append({
+                "evidence_type": "app_title_containment",
+                "description": f"Title incorporates protected brand token '{brand_name}': {app_title}",
+                "source_reference": candidate_url or None,
+            })
 
         # Signal B: Package ID Mimicry / Mismatch
         brand_compact = NameSimilarityService.normalize_compact(brand_name)
@@ -136,21 +182,34 @@ class AppDetector(BaseDetector):
             seg.startswith(t) for t in brand_tokens for seg in re.split(r"[._]", candidate_package) if seg
         )
 
-        if candidate_package and official_apps and package_has_brand:
-            # Package ID clearly embeds brand name but failed exact official match
-            official_ids_str = ", ".join(a.get("identifier", "") for a in official_apps)
-            signals.append(
-                DetectionSignal(
-                    signal_type="PACKAGE_ID_MISMATCH",
-                    severity_score=40.0,
-                    confidence=0.95,
-                    explanation=(
-                        f"Candidate package ID '{candidate_package}' mimics brand identity '{brand_name}' "
-                        f"but does not match verified official package ID(s): [{official_ids_str}]."
-                    ),
-                    evidence_fields=["candidate_package", "verified_packages"]
+        if candidate_package and package_has_brand:
+            if official_apps:
+                official_ids_str = ", ".join(a.get("identifier", "") for a in official_apps)
+                signals.append(
+                    DetectionSignal(
+                        signal_type="PACKAGE_ID_MISMATCH",
+                        severity_score=40.0,
+                        confidence=0.95,
+                        explanation=(
+                            f"Candidate package ID '{candidate_package}' mimics brand identity '{brand_name}' "
+                            f"but does not match verified official package ID(s): [{official_ids_str}]."
+                        ),
+                        evidence_fields=["candidate_package", "verified_packages"]
+                    )
                 )
-            )
+            else:
+                signals.append(
+                    DetectionSignal(
+                        signal_type="UNAUTHORIZED_PACKAGE_BRAND_EMBEDDING",
+                        severity_score=40.0,
+                        confidence=0.92,
+                        explanation=(
+                            f"Candidate package ID '{candidate_package}' embeds brand identity '{brand_name}' "
+                            "without matching any registered official release."
+                        ),
+                        evidence_fields=["candidate_package", "brand_name"]
+                    )
+                )
             evidence.append({
                 "evidence_type": "package_identifier_audit",
                 "description": f"Unverified package identifier observed: {candidate_package}",
@@ -281,6 +340,120 @@ class AppDetector(BaseDetector):
                     "source_reference": candidate_url or None,
                 })
 
+        # Signal G: Dangerous Permissions & Android Trojan Risk Analyzer
+        raw_perms = candidate.get("permissions") or candidate.get("requested_permissions") or []
+        if isinstance(raw_perms, str):
+            raw_perms = [p.strip().upper() for p in raw_perms.split(",") if p.strip()]
+        perms = {p.upper() for p in raw_perms if isinstance(p, str)}
+
+        # Trojan Pattern 1: SMS / OTP Interception (used to bypass banking 2FA)
+        sms_perms = {"READ_SMS", "RECEIVE_SMS", "SEND_SMS"}
+        matched_sms = perms & sms_perms
+        if len(matched_sms) >= 1:
+            signals.append(
+                DetectionSignal(
+                    signal_type="TROJAN_SMS_INTERCEPTION",
+                    severity_score=48.0,
+                    confidence=0.92,
+                    explanation=(
+                        f"Application requests sensitive SMS permissions {sorted(matched_sms)}, "
+                        "commonly exploited by mobile banking trojans to intercept 2FA OTP tokens."
+                    ),
+                    evidence_fields=["permissions"]
+                )
+            )
+            evidence.append({
+                "evidence_type": "dangerous_permissions_audit",
+                "description": f"SMS interception capability detected: {sorted(matched_sms)}",
+                "source_reference": candidate_package or app_title,
+            })
+
+        # Trojan Pattern 2: Accessibility & Overlay Hijack (screen grab & fake login injection)
+        overlay_perms = {"BIND_ACCESSIBILITY_SERVICE", "SYSTEM_ALERT_WINDOW"}
+        matched_overlay = perms & overlay_perms
+        if len(matched_overlay) >= 1:
+            signals.append(
+                DetectionSignal(
+                    signal_type="TROJAN_OVERLAY_HIJACK",
+                    severity_score=50.0,
+                    confidence=0.95,
+                    explanation=(
+                        f"Application requests overlay/accessibility permissions {sorted(matched_overlay)}, "
+                        "enabling malicious UI overlay injection and keystroke harvesting."
+                    ),
+                    evidence_fields=["permissions"]
+                )
+            )
+            evidence.append({
+                "evidence_type": "overlay_hijack_capability",
+                "description": f"Screen overlay and accessibility attack capability: {sorted(matched_overlay)}",
+                "source_reference": candidate_package or app_title,
+            })
+
+        # Trojan Pattern 3: Silent Dropper
+        if "REQUEST_INSTALL_PACKAGES" in perms:
+            signals.append(
+                DetectionSignal(
+                    signal_type="TROJAN_DROPPER_CAPABILITY",
+                    severity_score=40.0,
+                    confidence=0.90,
+                    explanation=(
+                        "Application requests REQUEST_INSTALL_PACKAGES capability, allowing background "
+                        "installation of untrusted APK payloads."
+                    ),
+                    evidence_fields=["permissions"]
+                )
+            )
+            evidence.append({
+                "evidence_type": "dropper_capability",
+                "description": "Background installer capability: REQUEST_INSTALL_PACKAGES",
+                "source_reference": candidate_package or app_title,
+            })
+
+        # Trojan Pattern 4: Notification Listener Exploitation (Steals OTPs from push notifications)
+        if "BIND_NOTIFICATION_LISTENER_SERVICE" in perms:
+            signals.append(
+                DetectionSignal(
+                    signal_type="NOTIFICATION_LISTENER_EXPLOIT",
+                    severity_score=45.0,
+                    confidence=0.92,
+                    explanation=(
+                        "Application requests BIND_NOTIFICATION_LISTENER_SERVICE, commonly exploited "
+                        "by banking trojans (e.g., Godfather) to steal OTPs directly from notification bars."
+                    ),
+                    evidence_fields=["permissions"]
+                )
+            )
+            evidence.append({
+                "evidence_type": "notification_listener_audit",
+                "description": "Notification interception capability: BIND_NOTIFICATION_LISTENER_SERVICE",
+                "source_reference": candidate_package or app_title,
+            })
+
+        # Trojan Pattern 5: Predatory Loan App & Contact Harvester Pattern
+        loan_lure_keywords = {"loan", "credit", "instant cash", "fast money", "quick loan", "cibil", "7 days", "micro loan"}
+        matched_loan_lures = [kw for kw in loan_lure_keywords if kw in app_title.lower() or kw in candidate_desc.lower()]
+        invasive_perms = {"READ_CONTACTS", "ACCESS_FINE_LOCATION", "READ_CALL_LOG"}
+        matched_invasive = perms & invasive_perms
+        if matched_loan_lures and len(matched_invasive) >= 2:
+            signals.append(
+                DetectionSignal(
+                    signal_type="PREDATORY_LOAN_SPYWARE",
+                    severity_score=48.0,
+                    confidence=0.94,
+                    explanation=(
+                        f"Application combines micro-lending lures ({matched_loan_lures}) with invasive permissions "
+                        f"{sorted(matched_invasive)}, characteristic of predatory loan extortion apps."
+                    ),
+                    evidence_fields=["permissions", "loan_lures"]
+                )
+            )
+            evidence.append({
+                "evidence_type": "predatory_loan_heuristic",
+                "description": f"Loan extortion spyware signature: lures {matched_loan_lures} + permissions {sorted(matched_invasive)}",
+                "source_reference": candidate_package or app_title,
+            })
+
         # -------------------------------------------------------------
         # 3. Explainable Risk Score Aggregation
         # -------------------------------------------------------------
@@ -292,3 +465,50 @@ class AppDetector(BaseDetector):
             risk_evaluation=risk_evaluation,
             evidence_records=evidence
         )
+
+
+if __name__ == "__main__":
+    import json
+
+    print("=" * 65)
+    print("SURAKSHA MOBILE APP DETECTOR — SELF TEST & HEURISTICS RUNNER")
+    print("=" * 65)
+
+    detector = AppDetector()
+    brand_context = {
+        "name": "PayPal",
+        "official_apps": [{"identifier": "com.paypal.android.p2pmobile", "platform": "android"}],
+        "publishers": [{"publisher_name": "PayPal Mobile"}]
+    }
+
+    # Case 1: Official App
+    off_app = {
+        "candidate_name": "PayPal - Send, Shop, Manage",
+        "package_id": "com.paypal.android.p2pmobile",
+        "publisher_name": "PayPal Mobile",
+        "platform": "android"
+    }
+    outcome_off = detector.evaluate_full(off_app, brand_context)
+    print(f"\n[1] Official Verified App: {off_app['candidate_name']}")
+    print(f"    - Official: {outcome_off.is_official}")
+    print(f"    - Exclusion Reason: {outcome_off.exclusion_reason}")
+    print(f"    - Threat Score: {outcome_off.risk_evaluation.total_score} ({outcome_off.risk_evaluation.severity})")
+
+    # Case 2: Rogue Trojan App
+    trojan_app = {
+        "candidate_name": "PayPal Fast Loan & Credit Wallet",
+        "package_id": "com.rogue.quickpay.paypal.loan",
+        "publisher_name": "Anonymous Devs Team",
+        "description": "Log in with your PayPal password and PIN to receive fast credit.",
+        "permissions": ["READ_SMS", "RECEIVE_SMS", "BIND_ACCESSIBILITY_SERVICE", "SYSTEM_ALERT_WINDOW"]
+    }
+    outcome_trojan = detector.evaluate_full(trojan_app, brand_context)
+    print(f"\n[2] Rogue Banking Trojan: {trojan_app['candidate_name']}")
+    print(f"    - Official: {outcome_trojan.is_official}")
+    print(f"    - Threat Score: {outcome_trojan.risk_evaluation.total_score} ({outcome_trojan.risk_evaluation.severity})")
+    print(f"    - Detected Signals: {[s.signal_type for s in outcome_trojan.risk_evaluation.signals]}")
+
+    print("\n" + "=" * 65)
+    print("Self-test completed successfully.")
+    print("=" * 65)
+

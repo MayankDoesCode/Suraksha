@@ -59,10 +59,35 @@ def get_db():
         raise RuntimeError("Database has not been initialized. Call init_db first.")
     return _session_factory()
 
+
+from contextlib import contextmanager
+
+@contextmanager
+def transaction_scope():
+    """
+    Provide a transactional scope around a series of database operations.
+    Automatically commits on success and rolls back on exception.
+    """
+    session = get_db()
+    try:
+        yield session
+        session.commit()
+    except Exception:
+        session.rollback()
+        raise
+
+
 def close_db(exception=None):
-    """Teardown active scoped database session."""
+    """Teardown active scoped database session with safe rollback on error."""
+    global _session_factory
     if _session_factory is not None:
+        if exception is not None:
+            try:
+                _session_factory().rollback()
+            except Exception as rb_err:
+                logger.warning("Error rolling back session on teardown: %s", rb_err)
         _session_factory.remove()
+
 
 def check_db_connection() -> tuple[bool, str]:
     """Test database connectivity with an active ping query."""
@@ -75,3 +100,4 @@ def check_db_connection() -> tuple[bool, str]:
     except Exception as exc:
         logger.error("Database health check failed: %s", str(exc))
         return False, f"Database connectivity failed: {str(exc)}"
+

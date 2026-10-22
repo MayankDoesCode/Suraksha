@@ -1,9 +1,10 @@
 import React, { useEffect, useMemo, useRef, useState } from 'react';
-import { ArrowLeft, Check, Copy, ExternalLink, FolderSearch, Search } from 'lucide-react';
+import { ArrowLeft, Check, Copy, ExternalLink, FolderSearch, Search, ShieldAlert } from 'lucide-react';
 import { useApp } from '../context/AppContext';
 import { bySeverityThenNewest } from '../components/FindingsTable';
 import { deriveThreatGraph, type GraphEdge } from '../utils/threatGraph';
 import type { CandidateAsset, InvestigationStatus, RiskLevel } from '../types';
+import { TakedownNoticeModal } from '../components/TakedownNoticeModal';
 
 const STATUSES: InvestigationStatus[] = ['New', 'Investigating', 'Confirmed Suspicious', 'Dismissed'];
 const BAR: Record<RiskLevel, string> = { Critical: 'bg-danger', High: 'bg-high', Medium: 'bg-warn', Low: 'bg-ok' };
@@ -59,6 +60,7 @@ export const InvestigationCenterView: React.FC = () => {
   const [note, setNote] = useState('');
   const [copied, setCopied] = useState(false);
   const [confirmHide, setConfirmHide] = useState(false);
+  const [takedownCandidate, setTakedownCandidate] = useState<CandidateAsset | null>(null);
   const listRef = useRef<HTMLUListElement>(null);
 
   const graph = useMemo(() => deriveThreatGraph(candidates, brandProfile.brandName, { includeDismissed: true }), [candidates, brandProfile.brandName]);
@@ -217,6 +219,14 @@ export const InvestigationCenterView: React.FC = () => {
                 >
                   {STATUSES.map((s) => <option key={s} value={s}>{s}</option>)}
                 </select>
+                <button
+                  onClick={() => setTakedownCandidate(current)}
+                  className="inline-flex items-center gap-1 rounded-md border border-amber-500/30 bg-amber-500/10 px-2.5 py-1 text-[13px] text-amber-400 hover:bg-amber-500/20 transition-colors"
+                  title="Draft formal takedown / abuse notice"
+                >
+                  <ShieldAlert className="h-3.5 w-3.5" />
+                  <span>Takedown notice</span>
+                </button>
                 <button onClick={() => setSelectedCandidateId(current.id)} className="rounded-md border border-line px-2.5 py-1 text-[13px] text-fgMuted hover:bg-surface3 hover:text-fg" title="Full dossier with the AI explanation assistant">
                   Full dossier
                 </button>
@@ -354,6 +364,14 @@ export const InvestigationCenterView: React.FC = () => {
           </article>
         )}
       </div>
+
+      {takedownCandidate && (
+        <TakedownNoticeModal
+          candidate={takedownCandidate}
+          brandProfile={brandProfile}
+          onClose={() => setTakedownCandidate(null)}
+        />
+      )}
     </div>
   );
 };

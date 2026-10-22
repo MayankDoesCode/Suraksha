@@ -112,9 +112,23 @@ export const Sidebar: React.FC<SidebarProps> = ({ onNavigateHome, isOpen, onClos
                             active ? 'font-medium text-fg' : 'text-fgMuted hover:bg-surface3/60 hover:text-fg'
                           }`}
                         >
-                          {active && <motion.span layoutId="nav-pill" className="absolute inset-0 rounded-lg bg-surface3" transition={{ type: 'spring', stiffness: 420, damping: 34 }} aria-hidden />}
-                          {active && <motion.span layoutId="nav-bar" className="absolute inset-y-1.5 -left-2 w-[3px] rounded-r-full bg-accent" transition={{ type: 'spring', stiffness: 420, damping: 34 }} aria-hidden />}
-                          <Icon className={`relative h-4 w-4 shrink-0 transition-colors ${active ? 'text-accent' : ''}`} strokeWidth={1.75} />
+                          {active && (
+                            <motion.span
+                              layoutId="nav-pill"
+                              className="absolute inset-0 rounded-lg bg-accent/[0.08] border border-accent/20 shadow-[0_0_16px_rgba(245,165,36,0.08)]"
+                              transition={{ type: 'spring', stiffness: 420, damping: 34 }}
+                              aria-hidden
+                            />
+                          )}
+                          {active && (
+                            <motion.span
+                              layoutId="nav-bar"
+                              className="absolute inset-y-1.5 -left-2 w-[3px] rounded-r-full bg-accent shadow-[0_0_10px_rgba(245,165,36,0.85)]"
+                              transition={{ type: 'spring', stiffness: 420, damping: 34 }}
+                              aria-hidden
+                            />
+                          )}
+                          <Icon className={`relative h-4 w-4 shrink-0 transition-colors ${active ? 'text-accent drop-shadow-[0_0_6px_rgba(245,165,36,0.4)]' : ''}`} strokeWidth={1.75} />
                           <span className="relative truncate">{item.label}</span>
                           {count && (
                             <span className={`ml-auto text-[11px] tabular-nums ${count.tone === 'danger' ? 'text-danger' : 'text-warn'}`}>{count.n}</span>

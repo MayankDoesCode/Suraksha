@@ -145,6 +145,32 @@ const PARODY_KEYWORDS = [
   'humor', 'memes', 'meme account', 'tribute'
 ];
 
+export const GENERIC_BRAND_WORDS = new Set([
+  'bank', 'banking', 'pay', 'payments', 'payment', 'app', 'group', 'official', 'india', 'limited', 'ltd',
+  'technologies', 'technology', 'tech', 'finance', 'financial', 'mobile', 'wallet', 'online', 'digital',
+  'services', 'service', 'global', 'international', 'company', 'corp', 'corporation', 'inc', 'store', 'shop',
+  'money', 'card', 'cards', 'insurance', 'capital', 'holdings', 'the', 'and', 'co', 'solutions', 'enterprises',
+  'enterprise', 'network', 'media', 'desk', 'support', 'hub', 'club'
+]);
+
+export function extractDistinctiveBrandTokens(brandName: string, protectedKeywords: string[] = []): string[] {
+  const tokens = new Set<string>();
+  const norm = normalizeHandle(brandName).replace(/[^a-z0-9\s]/g, ' ');
+  for (const w of norm.split(/\s+/)) {
+    const clean = w.trim();
+    if (clean.length >= 3 && !GENERIC_BRAND_WORDS.has(clean)) {
+      tokens.add(clean);
+    }
+  }
+  for (const kw of protectedKeywords) {
+    const clean = normalizeHandle(kw).replace(/[^a-z0-9]/g, '');
+    if (clean.length >= 3 && !GENERIC_BRAND_WORDS.has(clean)) {
+      tokens.add(clean);
+    }
+  }
+  return [...tokens];
+}
+
 // Helper: Normalize username (strip @, lower-case, remove trailing slashes)
 export function normalizeHandle(h: string): string {
   return h.trim().toLowerCase().replace(/^@+/, '').replace(/\/+$/, '');
@@ -262,6 +288,10 @@ export function analyzeSocialCandidate(
     normBrandName,
     ...(brandProfile.protectedKeywords || []).map(k => k.trim().toLowerCase())
   ];
+  const distinctiveBrandTokens = extractDistinctiveBrandTokens(
+    brandProfile.brandName || '',
+    brandProfile.protectedKeywords || []
+  );
 
   const signals: SocialSignal[] = [];
   const evidenceSupporting: string[] = [];
@@ -453,6 +483,16 @@ export function analyzeSocialCandidate(
     levDistance = nameLev;
   }
 
+  // Also check against distinctive brand tokens (e.g. "acme" from "Acme Corp")
+  for (const token of distinctiveBrandTokens) {
+    const handleWords = normCandidateHandle.split(/[._\-\s]+/);
+    const nameWords = normCandidateName.split(/[._\-\s]+/);
+    if (handleWords.includes(token) || nameWords.includes(token) || normCandidateHandle.includes(token) || normCandidateName.includes(token)) {
+      stringSimilarity = Math.max(stringSimilarity, 90);
+      levDistance = Math.min(levDistance, 1);
+    }
+  }
+
   // Homoglyphs (Cyrillic lookalikes)
   const detectedCyrillic: string[] = [];
   for (const char of candidate.name + candidate.username) {
@@ -506,13 +546,19 @@ export function analyzeSocialCandidate(
     }
   }
 
+  const matchedBrandToken = distinctiveBrandTokens.find(token => 
+    normCandidateHandle.includes(token) ||
+    normCandidateName.includes(token) ||
+    deobfuscatedHandle.includes(token)
+  );
+
   const brandNameInHandleOrName = 
-    (hasBrandName && normCandidateHandle.includes(normBrandName)) || 
-    (hasBrandName && normCandidateName.includes(normBrandName)) ||
-    (hasBrandName && deobfuscatedHandle.includes(normBrandName));
+    (hasBrandName && (normCandidateHandle.includes(normBrandName) || normCandidateName.includes(normBrandName) || deobfuscatedHandle.includes(normBrandName))) ||
+    Boolean(matchedBrandToken);
 
   if (detectedLureWords.length > 0 && brandNameInHandleOrName) {
-    const detail = `Candidate combines protected brand name with deceptive lure words: ${detectedLureWords.map(w => `"${w}"`).join(', ')}.`;
+    const brandTerm = matchedBrandToken || brandProfile.brandName;
+    const detail = `Candidate combines protected brand identity ("${brandTerm}") with deceptive lure words: ${detectedLureWords.map(w => `"${w}"`).join(', ')}.`;
     signals.push({
       id: 'sig-lure-keywords',
       category: 'Identity & Handle',
@@ -520,6 +566,17 @@ export function analyzeSocialCandidate(
       title: 'High-Risk Brand + Lure Combination',
       detail,
       severity: 'high'
+    });
+    evidenceSupporting.push(detail);
+  } else if (matchedBrandToken && !isExactOfficialMatch && !isAuthorizedPartner) {
+    const detail = `Candidate handle or display name embeds the distinctive brand mark "${matchedBrandToken}" alongside unauthorized terms.`;
+    signals.push({
+      id: 'sig-brand-token',
+      category: 'Identity & Handle',
+      type: 'BRAND_TOKEN_IN_HANDLE',
+      title: 'Brand Mark in Handle or Title',
+      detail,
+      severity: 'medium'
     });
     evidenceSupporting.push(detail);
   }
@@ -539,12 +596,11 @@ export function analyzeSocialCandidate(
     evidenceSupporting.push(detail);
   }
 
-  // Unregistered official claim in handle or name
-  if (
-    (normCandidateName.includes('official') || normCandidateHandle.includes('official') || normCandidateName.includes('hq')) &&
-    !isExactOfficialMatch
-  ) {
-    const detail = `Profile claims to be the "Official" representation or headquarters, but is NOT listed in the registered Brand Profile.`;
+  // Unregistered official claim in handle, name, bio, or observed branding
+  const combinedTextForOfficial = `${candidate.name} ${candidate.username} ${candidate.bio || ''} ${candidate.observedBranding || ''}`.toLowerCase();
+  const claimsOfficial = /\b(official|verified|authorized|headquarters|hq)\b/i.test(combinedTextForOfficial);
+  if (claimsOfficial && !isExactOfficialMatch) {
+    const detail = `Profile claims to be the "Official" representation, verified support, or headquarters, but is NOT listed in the registered Brand Profile.`;
     signals.push({
       id: 'sig-unregistered-official',
       category: 'Identity & Handle',
@@ -577,17 +633,47 @@ export function analyzeSocialCandidate(
     }
   }
 
-  // Direct DM solicitation for account recovery
-  if (
-    (fullContent.includes('dm') || fullContent.includes('direct message') || fullContent.includes('inbox')) &&
-    (fullContent.includes('support') || fullContent.includes('refund') || fullContent.includes('unlock') || fullContent.includes('fix'))
-  ) {
-    const detail = `Bio directs users to private unmonitored DMs for customer support, payment fixes, or account recovery.`;
+  // Direct DM / private messaging solicitation for customer support or recovery
+  const contactLureRegex = /\b(dm(\s*(us|me))?|direct\s*message|inbox(\s*(us|me))?|message\s*us|contact\s*us|reach\s*out|chat\s*with\s*us)\b/i;
+  const supportLureRegex = /\b(support|help|desk|refund|claims?|unlock|fix|reversal|recovery|assistance|reimbursement|dispute|unblock)\b/i;
+  if (contactLureRegex.test(fullContent) && supportLureRegex.test(fullContent)) {
+    const detail = `Bio directs users to private messaging/DMs for customer support, payment fixes, account recovery, or wallet assistance.`;
     signals.push({
       id: 'sig-dm-lure',
       category: 'Credential & Phishing Risks',
       type: 'UNMONITORED_COMMUNICATION_LURE',
       title: 'Private Messaging Support Lure',
+      detail,
+      severity: 'high'
+    });
+    evidenceSupporting.push(detail);
+  }
+
+  // Financial recovery / payment reversal lures
+  const financialRecoveryRegex = /\b(account\s*recovery|payment\s*reversal|wallet\s*assistance|instant\s*refund|gas\s*rebate|unblock\s*(account|transfer|funds))\b/i;
+  if (financialRecoveryRegex.test(fullContent)) {
+    const detail = `Bio solicits users with high-risk financial recovery, account unblocking, or payment reversal lures.`;
+    signals.push({
+      id: 'sig-financial-recovery-lure',
+      category: 'Credential & Phishing Risks',
+      type: 'FINANCIAL_RECOVERY_LURE',
+      title: 'Payment Reversal or Account Recovery Lure',
+      detail,
+      severity: 'high'
+    });
+    evidenceSupporting.push(detail);
+  }
+
+  // Reviewer observed branding mimicry (e.g. "Acme-style shield icon", "Verified Acme Support")
+  const observedText = (candidate.observedBranding || '').trim();
+  const COPY_CLAIM_REGEX = /(copies|copied|copying|clone[sd]?|imitat\w*|impersonat\w*|looks?\s+like|similar|same\s+(logo|colou?rs?|name|branding|icon|shield|badge|mark)|fake|pretend\w*|style\s+(icon|logo|mark|shield)|verified\s+.*support)/i;
+  if (observedText && COPY_CLAIM_REGEX.test(observedText) && !isExactOfficialMatch) {
+    const detail = `Reviewer note indicates brand mark imitation: "${observedText.slice(0, 160)}".`;
+    signals.push({
+      id: 'sig-observed-branding-copy',
+      category: 'Identity & Handle',
+      type: 'REPORTED_BRAND_COPY',
+      title: 'Observed Brand Asset Mimicry',
       detail,
       severity: 'high'
     });
@@ -621,7 +707,7 @@ export function analyzeSocialCandidate(
       od => domainHost === od.toLowerCase() || domainHost.endsWith('.' + od.toLowerCase())
     );
 
-    if ((hasBrandName && domainHost.includes(normBrandName)) && !isDomainOfficial) {
+    if (((hasBrandName && domainHost.includes(normBrandName)) || (matchedBrandToken && domainHost.includes(matchedBrandToken))) && !isDomainOfficial) {
       const detail = `External link domain "${domainHost}" embeds the brand name but is NOT in the official registered domains list.`;
       signals.push({
         id: 'sig-unregistered-domain-link',
@@ -638,7 +724,7 @@ export function analyzeSocialCandidate(
   // 7. PLATFORM & METADATA SIGNALS (Follower count & Creation date anomalies)
   const followerNum = typeof candidate.followerCount === 'string' ? parseInt(candidate.followerCount, 10) : candidate.followerCount;
   if (followerNum !== undefined && !isNaN(followerNum)) {
-    if (followerNum < 150 && (brandNameInHandleOrName || normCandidateName.includes('support'))) {
+    if (followerNum < 500 && (brandNameInHandleOrName || normCandidateName.includes('support') || claimsOfficial)) {
       const detail = `Suspiciously low audience count (${followerNum} followers) for an account purporting to offer official brand customer support.`;
       signals.push({
         id: 'sig-low-followers',

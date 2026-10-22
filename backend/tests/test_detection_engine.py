@@ -278,3 +278,86 @@ def test_scan_api_endpoint(client, brand_with_assets):
     assert data["data"]["candidate_name"] == "@acmebank_alerts"
     assert data["data"]["risk_score"] > 0
     assert "signals" in data["data"]
+
+
+def test_subdomain_brand_abuse(app, brand_with_assets):
+    """Subdomain prefix brand hijacking (e.g. acmebank.claims-portal.com) must be flagged with high/critical severity."""
+    service = DetectionService()
+    candidate = {
+        "asset_type": "domain",
+        "candidate_name": "acmebank.claims-portal.com",
+        "source_url": "https://acmebank.claims-portal.com",
+    }
+    result = service.evaluate_candidate(brand_with_assets, candidate, persist=False)
+    assert result["is_official"] is False
+    assert result["risk_score"] >= 70.0
+    signal_types = [s["signal_type"] for s in result["signals"]]
+    assert "SUBDOMAIN_BRAND_ABUSE" in signal_types
+
+
+def test_combosquatting_domain(app, brand_with_assets):
+    """Combosquatting in domain root (e.g. fake-acmebank.com) must be flagged with combosquatting signal."""
+    service = DetectionService()
+    candidate = {
+        "asset_type": "domain",
+        "candidate_name": "fake-acmebank.com",
+        "source_url": "https://fake-acmebank.com",
+    }
+    result = service.evaluate_candidate(brand_with_assets, candidate, persist=False)
+    assert result["is_official"] is False
+    assert result["risk_score"] >= 50.0
+    signal_types = [s["signal_type"] for s in result["signals"]]
+    assert "DOMAIN_COMBOSQUATTING" in signal_types or "LOOKALIKE_DOMAIN" in signal_types
+
+
+def test_generic_credential_lure_not_legitimate(app, brand_with_assets):
+    """Generic credential phishing lures with high risk TLD must not be classified as LEGITIMATE."""
+    service = DetectionService()
+    candidate = {
+        "asset_type": "domain",
+        "candidate_name": "auth-login-verify-account.top",
+        "source_url": "https://auth-login-verify-account.top",
+    }
+    result = service.evaluate_candidate(brand_with_assets, candidate, persist=False)
+    assert result["is_official"] is False
+    assert result["risk_score"] > 0.0
+    signal_types = [s["signal_type"] for s in result["signals"]]
+    assert "CREDENTIAL_LURE_SUSPICION" in signal_types
+
+
+def test_long_social_handle_brand_containment(app, brand_with_assets):
+    """Long social handles embedding the brand mark alongside lure keywords must not drop below detection thresholds."""
+    service = DetectionService()
+    candidate = {
+        "asset_type": "social",
+        "candidate_name": "@acmebank_official_support_helpdesk",
+        "platform": "twitter",
+    }
+    result = service.evaluate_candidate(brand_with_assets, candidate, persist=False)
+    assert result["is_official"] is False
+    assert result["risk_score"] >= 50.0
+    signal_types = [s["signal_type"] for s in result["signals"]]
+    assert "IMPERSONATION_KEYWORDS" in signal_types
+
+
+def test_unauthorized_package_id_without_official_apps(app):
+    """An unverified app package embedding the brand mark must be flagged even when no official apps exist."""
+    with app.app_context():
+        db = get_db()
+        brand = Brand(name="ApexCredit")
+        db.add(brand)
+        db.commit()
+        brand_id = brand.id
+
+    service = DetectionService()
+    candidate = {
+        "asset_type": "mobile_app",
+        "candidate_name": "ApexCredit Instant Cash",
+        "package_id": "com.apexcredit.wallet",
+    }
+    result = service.evaluate_candidate(brand_id, candidate, persist=False)
+    assert result["is_official"] is False
+    assert result["risk_score"] >= 35.0
+    signal_types = [s["signal_type"] for s in result["signals"]]
+    assert "UNAUTHORIZED_PACKAGE_BRAND_EMBEDDING" in signal_types or "PACKAGE_ID_MISMATCH" in signal_types
+

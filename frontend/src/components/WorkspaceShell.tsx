@@ -6,6 +6,7 @@ import { BottomNav } from './BottomNav';
 import { Header } from './Header';
 import { CandidateModal } from './CandidateModal';
 import { CommandPalette } from './CommandPalette';
+import { AICopilotWidget } from './AICopilotWidget';
 import { AuthView } from '../views/AuthView';
 import { ThemeProvider } from '../context/ThemeContext';
 import { ErrorBoundary } from './ErrorBoundary';
@@ -116,13 +117,15 @@ const WorkspaceContent: React.FC<WorkspaceShellProps> = ({ onNavigateHome, initi
 
           {/* Subtle Cybernetic Ambient Background in Dashboard Shell */}
           <div aria-hidden className="pointer-events-none absolute inset-0 overflow-hidden z-0 select-none">
-            <div className="absolute -top-40 right-[10%] h-[460px] w-[560px] rounded-full bg-accent/[0.05] blur-[150px]" />
-            <div className="absolute inset-0 bg-[radial-gradient(ellipse_70%_60%_at_50%_-25%,rgb(var(--c-accent)/0.06),transparent_70%)]" />
+            <div className="absolute -top-40 right-[15%] h-[520px] w-[640px] rounded-full bg-accent/[0.08] blur-[160px]" />
+            <div className="absolute top-[20%] -left-32 h-[420px] w-[480px] rounded-full bg-accent/[0.04] blur-[140px]" />
+            <div className="absolute inset-0 bg-[radial-gradient(ellipse_75%_65%_at_50%_-15%,rgb(var(--c-accent)/0.09),transparent_75%)]" />
             <div
-              className="absolute inset-0 opacity-[0.03] dark:opacity-[0.04]"
+              className="absolute inset-0 opacity-[0.035] dark:opacity-[0.05]"
               style={{
-                backgroundImage: 'radial-gradient(circle at 1px 1px, currentColor 1px, transparent 0)',
-                backgroundSize: '24px 24px',
+                backgroundImage: 'linear-gradient(to right, rgba(245, 165, 36, 0.12) 1px, transparent 1px), linear-gradient(to bottom, rgba(245, 165, 36, 0.12) 1px, transparent 1px)',
+                backgroundSize: '38px 38px',
+                maskImage: 'radial-gradient(ellipse at 50% 30%, rgba(0, 0, 0, 0.85) 0%, transparent 80%)',
               }}
             />
           </div>
@@ -147,6 +150,9 @@ const WorkspaceContent: React.FC<WorkspaceShellProps> = ({ onNavigateHome, initi
           onClose={() => setSelectedCandidateId(null)}
         />
       )}
+
+      {/* AI Cyber Defense Copilot Widget */}
+      <AICopilotWidget />
     </div>
   );
 };
