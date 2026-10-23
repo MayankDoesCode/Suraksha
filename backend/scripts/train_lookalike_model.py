@@ -22,7 +22,9 @@ HOMO = {"o": "0", "i": "1", "l": "1", "e": "3", "a": "4", "s": "5", "m": "rn", "
 WORDS = ["support", "help", "official", "care", "login", "secure", "wallet", "rewards", "team", "india"]
 BRANDS = ("acme bank hdfc paytm zomato swiggy flipkart nykaa tata reliance airtel jio cred groww zerodha "
           "razorpay phonepe ola uber lenskart boat myntra meesho dunzo byjus unacademy policybazaar "
-          "bajaj kotak axis icici sbi pnb indigo vistara makemytrip cleartrip oyo dream11 mpl").split()
+          "bajaj kotak axis icici sbi pnb indigo vistara makemytrip cleartrip oyo dream11 mpl "
+          "paypal amazon google microsoft apple netflix spotify instagram whatsapp binance coinbase "
+          "walmart dhl fedex hsbc barclays citibank linkedin dropbox adobe steam telegram").split()
 BENIGN = ("garden coffee photography fitness travel recipes music cricket cooking books movies yoga "
           "daily news pixel craft studio design robotics gaming anime poetry hiking").split()
 
@@ -44,8 +46,11 @@ def features(cand, brand):
             float(any(w in c for w in WORDS))]
 
 
-def make_attack(brand, rng):
-    k = rng.choice(["swap", "word", "space", "homo", "dup", "drop"])
+KINDS = ["swap", "word", "space", "homo", "dup", "drop"]
+
+
+def make_attack(brand, rng, kinds=KINDS):
+    k = rng.choice(kinds)
     if k == "swap" and len(brand) > 3:
         i = rng.randrange(len(brand) - 1); return brand[:i] + brand[i + 1] + brand[i] + brand[i + 2:]
     if k == "word": return rng.choice([brand + rng.choice(WORDS), rng.choice(WORDS) + "_" + brand, brand + "." + rng.choice(WORDS)])
@@ -57,34 +62,57 @@ def make_attack(brand, rng):
     return brand[:-1] if len(brand) > 4 else brand + "x"
 
 
-def build(seed=7, per_brand=24):
-    rng = random.Random(seed); X, y, g = [], [], []
+def hard_negative(brand, rng):
+    """Legit names that merely look a bit like the brand: shared fragment + unrelated word,
+    brand-sized benign words, and benign words with one letter changed."""
+    frag = brand[: rng.choice([2, 3])]
+    c = rng.choice([frag + rng.choice(BENIGN), rng.choice(BENIGN) + brand[-2:], rng.choice(BENIGN)[: len(brand)]])
+    if rng.random() < 0.3 and len(c) > 3:  # one-letter edit of a benign word
+        i = rng.randrange(len(c)); c = c[:i] + rng.choice("aeiourstn") + c[i + 1:]
+    return c
+
+
+def build(seed=7, per_brand=24, kinds=KINDS):
+    rng = random.Random(seed); X, y, g, k = [], [], [], []
     for bi, b in enumerate(BRANDS):
         for _ in range(per_brand):
-            X.append(features(make_attack(b, rng), b)); y.append(1); g.append(bi)
-        for _ in range(per_brand):  # negatives: unrelated, other real brands, benign words
-            other = rng.choice([o for o in BRANDS if o != b] + BENIGN)
-            X.append(features(other + rng.choice(["", "hq", "daily", "world"]), b)); y.append(0); g.append(bi)
-    return np.array(X), np.array(y), np.array(g)
+            kind = rng.choice(kinds)
+            X.append(features(make_attack(b, rng, [kind]), b)); y.append(1); g.append(bi); k.append(kind)
+        for n in range(per_brand):  # negatives: unrelated, other real brands, benign words, HARD look-alikes
+            if n % 2:
+                cand = hard_negative(b, rng)
+            else:
+                cand = rng.choice([o for o in BRANDS if o != b] + BENIGN) + rng.choice(["", "hq", "daily", "world"])
+            X.append(features(cand, b)); y.append(0); g.append(bi); k.append("neg")
+    return np.array(X), np.array(y), np.array(g), np.array(k)
 
 
 def rule_baseline(X): return (X[:, 1] >= 0.8).astype(int)  # skeleton similarity >= 0.8
 
 
 def main():
-    X, y, g = build()
+    X, y, g, kinds = build()
     tr, te = next(GroupShuffleSplit(n_splits=1, test_size=0.25, random_state=7).split(X, y, g))
     clf = LogisticRegression(max_iter=1000, class_weight="balanced").fit(X[tr], y[tr])
     p = clf.predict_proba(X[te])[:, 1]; pred = (p >= 0.5).astype(int); base = rule_baseline(X[te])
     def m(pr): return {"precision": round(precision_score(y[te], pr), 3), "recall": round(recall_score(y[te], pr), 3), "f1": round(f1_score(y[te], pr), 3)}
     neg = y[te] == 0
     # false-positive audit: exact brand name (official) and a legit sibling must not be flagged
+    # (a) unseen-technique test: train without "dup"/"homo" attacks, test on them (+ same-group negatives)
+    seen = np.isin(kinds, ["swap", "word", "space", "drop", "neg"]); unseen = ~seen | (kinds == "neg")
+    c2 = LogisticRegression(max_iter=1000, class_weight="balanced").fit(X[seen & np.isin(g, g[tr])], y[seen & np.isin(g, g[tr])])
+    te2 = np.isin(g, g[te]) & unseen
+    u = (c2.predict_proba(X[te2])[:, 1] >= 0.5).astype(int)
+    unseen_tech = {"precision": round(precision_score(y[te2], u), 3), "recall": round(recall_score(y[te2], u), 3), "f1": round(f1_score(y[te2], u), 3), "held_out_techniques": ["dup", "homo"]}
+    # (b) 5-fold brand-grouped CV
+    from sklearn.model_selection import GroupKFold, cross_val_score
+    cv = cross_val_score(LogisticRegression(max_iter=1000, class_weight="balanced"), X, y, groups=g, cv=GroupKFold(5), scoring="f1")
     audit = {"official_exact_flagged": int(sum(clf.predict_proba([features(b, b)])[0][1] >= 0.5 for b in BRANDS)),  # informational: allowlist handles exact matches first
              "negative_fpr": round(float(pred[neg].mean()), 4), "baseline_negative_fpr": round(float(base[neg].mean()), 4)}
-    report = {"trained_at": datetime.now(timezone.utc).isoformat(), "data": "synthetic (disclosed)",
+    report = {"trained_at": datetime.now(timezone.utc).isoformat(), "data": "synthetic (disclosed), 80 brands, hard negatives",
               "n_train": int(len(tr)), "n_test": int(len(te)), "split": "grouped by brand",
-              "model": m(pred), "rule_baseline": m(base), "roc_auc": round(float(roc_auc_score(y[te], p)), 4), "audit": audit,
-              "caveat": "Synthetic, easy negatives: near-perfect scores show the pipeline works, NOT real-world accuracy. Do not quote as a headline metric.",
+              "model": m(pred), "unseen_technique": unseen_tech, "cv_f1_mean": round(float(cv.mean()), 3), "cv_f1_std": round(float(cv.std()), 3), "rule_baseline": m(base), "roc_auc": round(float(roc_auc_score(y[te], p)), 4), "audit": audit,
+              "caveat": "Synthetic data with hard look-alike negatives, brand-grouped split, held-out attack techniques and 5-fold CV. Closer to honest, but still NOT real-world accuracy; validate on labelled live handles.",
               "note": "Advisory evidence only; official assets are excluded by allowlist before any scoring."}
     os.makedirs(OUT, exist_ok=True)
     import sklearn
