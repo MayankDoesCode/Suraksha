@@ -33,6 +33,15 @@ def collect(a):
     print(f"Wrote {len(rows)} rows to {a.out}. Fill the `label` column, then run evaluate.")
 
 
+def core(handle):
+    """Strip platform suffixes so models score the name, not '.bsky.social' / '@instance'."""
+    h = handle.split("@")[0] if "@" in handle[1:] else handle
+    for suf in (".bsky.social", ".bandcamp.com", ".com", ".org", ".invalid"):
+        if h.lower().endswith(suf):
+            h = h[: -len(suf)]
+    return h
+
+
 def prf(y, p):
     tp = sum(1 for a, b in zip(y, p) if a and b); fp = sum(1 for a, b in zip(y, p) if not a and b)
     fn = sum(1 for a, b in zip(y, p) if a and not b)
@@ -46,17 +55,20 @@ def evaluate(a):
     from backend.scripts.train_lookalike_model import features, rule_baseline
     import numpy as np
     rows = [r for r in csv.DictReader(open(a.labels, encoding="utf-8")) if (r["label"] or "").strip().lower() in ("impersonator", "official", "unrelated")]
+    # Official accounts are excluded by the brand allowlist in the real product, so they are not scored here.
+    n_official = sum(r["label"].strip().lower() == "official" for r in rows)
+    rows = [r for r in rows if r["label"].strip().lower() != "official"]
     if len(rows) < 20:
         sys.exit(f"Only {len(rows)} labelled rows; label at least 20 (aim for 150).")
     y = [r["label"].strip().lower() == "impersonator" for r in rows]
     app = [float(r["score"]) >= a.threshold for r in rows]
     ml_p = []
     for r in rows:
-        out = predict_lookalike(r["handle"], r["brand"], [r["brand"]])
+        out = predict_lookalike(core(r["handle"]), r["brand"], [r["brand"]])
         ml_p.append(float(out.get("probability", 0.0)))
     ml = [p >= 0.5 for p in ml_p]
-    rule = [bool(v) for v in rule_baseline(np.array([features(r["handle"], r["brand"]) for r in rows]))]
-    res = {"evaluated_at": datetime.now(timezone.utc).isoformat(), "n_labelled": len(rows), "n_impersonator": sum(y),
+    rule = [bool(v) for v in rule_baseline(np.array([features(core(r["handle"]), r["brand"]) for r in rows]))]
+    res = {"evaluated_at": datetime.now(timezone.utc).isoformat(), "n_labelled": len(rows), "n_impersonator": sum(y), "official_excluded": n_official,
            "app_score_threshold": a.threshold, "suraksha_detector": prf(y, app), "lookalike_model": prf(y, ml),
            "string_rule_baseline": prf(y, rule),
            "note": "Real handles from live scans, hand-labelled by the evaluator; candidates are those the scan surfaced (score>0)."}
