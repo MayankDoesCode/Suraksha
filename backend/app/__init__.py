@@ -1,6 +1,6 @@
 import logging
 import os
-from flask import Flask
+from flask import Flask, request
 from flask_cors import CORS
 from dotenv import load_dotenv
 
@@ -48,6 +48,37 @@ def create_app(config_name: str | None = None) -> Flask:
         allow_headers=["Content-Type", "Authorization", "X-Requested-With"],
         methods=["GET", "POST", "PUT", "DELETE", "OPTIONS"]
     )
+
+    # Security response headers (defense in depth; API responses are never cached)
+    _csp = (
+        "default-src 'self'; "
+        "script-src 'self' 'unsafe-inline' https://apis.google.com https://www.gstatic.com; "
+        "style-src 'self' 'unsafe-inline' https://fonts.googleapis.com; "
+        "font-src 'self' https://fonts.gstatic.com data:; "
+        "img-src 'self' data: blob: https:; "
+        "connect-src 'self' https:; "
+        "frame-src https://*.firebaseapp.com https://accounts.google.com; "
+        "worker-src 'self'; manifest-src 'self'; object-src 'none'; "
+        "base-uri 'self'; form-action 'self'; frame-ancestors 'none'"
+    )
+
+    @app.after_request
+    def add_security_headers(resp):
+        h = resp.headers
+        h.setdefault("X-Content-Type-Options", "nosniff")
+        h.setdefault("X-Frame-Options", "DENY")
+        h.setdefault("Referrer-Policy", "strict-origin-when-cross-origin")
+        h.setdefault("Permissions-Policy", "camera=(), microphone=(), geolocation=(), payment=()")
+        h.setdefault("Cross-Origin-Opener-Policy", "same-origin-allow-popups")
+        h.setdefault("Cross-Origin-Resource-Policy", "same-site")
+        if request.is_secure or request.headers.get("X-Forwarded-Proto", "").lower() == "https":
+            h.setdefault("Strict-Transport-Security", "max-age=31536000; includeSubDomains")
+        if request.path.startswith("/api/"):
+            h.setdefault("Cache-Control", "no-store")
+        elif "text/html" in (resp.content_type or ""):
+            h.setdefault("Content-Security-Policy", _csp)
+        h.pop("Server", None)
+        return resp
 
     # Initialize rate limiting
     init_limiter(app)

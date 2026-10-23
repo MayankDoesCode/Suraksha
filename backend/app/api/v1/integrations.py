@@ -1,3 +1,4 @@
+import logging
 from flask import Blueprint, request, jsonify
 from backend.app.connectors.registry import connector_registry
 from backend.app.services.scan_service import ScanService
@@ -6,6 +7,7 @@ from backend.app.utils.errors import NotFoundError, ValidationError
 from backend.app.services.brand_service import BrandService
 from backend.app.utils.auth import require_auth, get_authenticated_user_optional, get_current_user
 
+logger = logging.getLogger(__name__)
 integrations_bp = Blueprint("integrations", __name__)
 scan_service = ScanService()
 brand_service = BrandService()
@@ -125,9 +127,10 @@ def run_job_now(job_id: str):
             "error": {"code": "NOT_FOUND", "message": str(e), "details": []}
         }), 404
     except Exception as e:
+        logger.exception("Monitoring job execution failed")
         return jsonify({
             "success": False,
-            "error": {"code": "EXECUTION_ERROR", "message": str(e), "details": []}
+            "error": {"code": "EXECUTION_ERROR", "message": "Job execution failed. See server logs.", "details": []}
         }), 500
 
 @integrations_bp.route("/monitoring/jobs/<string:job_id>", methods=["DELETE"])
