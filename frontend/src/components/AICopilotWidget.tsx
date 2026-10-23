@@ -61,6 +61,14 @@ interface ChatMessage {
   timestamp: string;
 }
 
+// Minimal inline markdown: **bold** and `code` (no HTML injection: everything stays React text nodes).
+const renderInline = (text: string): React.ReactNode[] =>
+  text.split(/(\*\*[^*]+\*\*|`[^`]+`)/g).filter(Boolean).map((seg, i) => {
+    if (seg.startsWith('**') && seg.endsWith('**') && seg.length > 4) return <strong key={i} className="font-semibold text-fg">{seg.slice(2, -2)}</strong>;
+    if (seg.startsWith('`') && seg.endsWith('`') && seg.length > 2) return <code key={i} className="rounded bg-surface2 px-1 py-0.5 font-mono text-[11px] break-all">{seg.slice(1, -1)}</code>;
+    return <React.Fragment key={i}>{seg}</React.Fragment>;
+  });
+
 export const AICopilotWidget: React.FC = () => {
   const { setActiveTab, addCandidate, brandProfile } = useApp();
   const [isOpen, setIsOpen] = useState(false);
@@ -276,7 +284,7 @@ export const AICopilotWidget: React.FC = () => {
             }
             return (
               <div key={idx} className="whitespace-pre-wrap leading-relaxed text-xs">
-                {part}
+                {renderInline(part)}
               </div>
             );
           })}
@@ -284,11 +292,11 @@ export const AICopilotWidget: React.FC = () => {
       );
     }
 
-    return <div className="whitespace-pre-wrap leading-relaxed text-xs">{text}</div>;
+    return <div className="whitespace-pre-wrap leading-relaxed text-xs">{renderInline(text)}</div>;
   };
 
   return (
-    <div className="fixed bottom-5 right-5 z-50 flex flex-col items-end">
+    <div className="fixed bottom-[calc(4.75rem+env(safe-area-inset-bottom))] right-4 lg:bottom-5 lg:right-5 z-50 flex flex-col items-end">
       {/* Floating Toggle Button */}
       {!isOpen && (
         <button

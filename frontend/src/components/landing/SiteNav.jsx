@@ -52,7 +52,6 @@ export default function SiteNav({ onLogin, onDemo, onReplayIntro, container }) {
         <a href="/" className="flex items-center gap-2.5 rounded-lg outline-none focus-visible:ring-2 focus-visible:ring-accent" aria-label="Suraksha home">
           <ShieldMark size={24} />
           <span className="font-display text-lg font-semibold tracking-tight">Suraksha</span>
-          <span className="hidden font-deva text-sm text-fgSubtle sm:inline" lang="hi">सुरक्षा</span>
         </a>
 
         <div className="relative hidden items-center gap-1 text-sm md:flex">

@@ -414,3 +414,7 @@ button[class*='rounded-3xl'][class*='border-line']:hover { transform: translateY
 
 @keyframes hero-scan { 0%, 100% { transform: translateY(-20%); opacity: 0; } 15%, 85% { opacity: 1; } 50% { transform: translateY(420%); } }
 @keyframes hero-alert-bar { from { transform: scaleX(1); } to { transform: scaleX(0); } }
+
+@keyframes auth-sweep { to { transform: rotate(360deg); } }
+
+@keyframes orbit-rev { to { transform: rotate(-360deg); } }

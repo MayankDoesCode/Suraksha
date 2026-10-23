@@ -15,7 +15,7 @@ import {
   Sparkles,
 } from 'lucide-react';
 import { SurakshaLogo } from '../components/SurakshaLogo';
-import AuthLiveCheck from '../components/AuthLiveCheck';
+import AuthRadar from '../components/AuthRadar';
 
 interface AuthViewProps {
   onNavigateHome?: () => void;
@@ -221,9 +221,14 @@ export const AuthView: React.FC<AuthViewProps> = ({ onNavigateHome, initialMode 
           <p className="mt-4 max-w-[46ch] leading-relaxed text-fgMuted">
             Look-alike handles, copied logos and fake app listings, each one explained signal by signal.
           </p>
-          <div className="mt-8">
-            <AuthLiveCheck />
+          <div className="mt-12 px-6">
+            <AuthRadar />
           </div>
+          <dl className="mt-12 grid grid-cols-3 divide-x divide-line rounded-2xl border border-line bg-surface/60 backdrop-blur">
+            {[['3', 'channels watched'], ['Every', 'flag explained'], ['Human', 'confirms each case']].map(([k, v]) => (
+              <div key={v} className="px-4 py-3.5"><dt className="font-display text-xl font-semibold tracking-tight text-fg">{k}</dt><dd className="mt-0.5 text-[11px] text-fgSubtle">{v}</dd></div>
+            ))}
+          </dl>
         </div>
         <p className="relative text-sm text-fgSubtle">Findings are advisory. A person confirms every case.</p>
       </aside>

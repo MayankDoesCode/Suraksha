@@ -194,7 +194,7 @@ function WeeklyHeat({ candidates, onPick }: { candidates: CandidateAsset[]; onPi
   };
   return (
     <div>
-      <div className="grid grid-cols-[64px_repeat(12,1fr)] gap-1.5">
+      <div className="grid grid-cols-[48px_repeat(12,minmax(0,1fr))] gap-1 sm:grid-cols-[64px_repeat(12,minmax(0,1fr))] sm:gap-1.5">
         {grid.map((row, r) => (
           <div key={types[r]} className="contents">
             <span className="self-center text-[11px] text-fgSubtle">{TYPE_LABEL[types[r]]}</span>
@@ -404,7 +404,7 @@ export const OverviewDashboard: React.FC = () => {
           </div>
 
           {tab === 'focus' && (
-            <Stagger className="grid gap-4 lg:grid-cols-[1fr_1.15fr]">
+            <Stagger className="grid grid-cols-1 gap-4 lg:grid-cols-[minmax(0,1fr)_minmax(0,1.15fr)]">
               <div className="lg:col-span-2"><StaggerItem><Panel title="Weekly look-alikes" description="New findings per week by type, last 12 weeks. Darker means more."><WeeklyHeat candidates={candidates} onPick={goFinding} /></Panel></StaggerItem></div>
               <StaggerItem>
                 <Panel title="Review first" description="Hover a row for quick actions" flush action={<button type="button" onClick={() => setActiveTab('investigation-center')} className="press inline-flex items-center gap-1 rounded-full px-3 py-1 text-xs text-fgMuted hover:bg-surface3 hover:text-fg">Open <ArrowRight className="h-3.5 w-3.5" aria-hidden /></button>}>
