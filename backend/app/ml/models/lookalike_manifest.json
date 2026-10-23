@@ -1,26 +1,37 @@
 {
-  "trained_at": "2026-10-20T03:03:33.486343+00:00",
-  "data": "synthetic (disclosed)",
-  "n_train": 1440,
-  "n_test": 480,
+  "trained_at": "2026-10-23T20:04:01.553293+00:00",
+  "data": "synthetic (disclosed), 80 brands, hard negatives",
+  "n_train": 2208,
+  "n_test": 768,
   "split": "grouped by brand",
   "model": {
-    "precision": 1.0,
+    "precision": 0.995,
+    "recall": 0.992,
+    "f1": 0.993
+  },
+  "unseen_technique": {
+    "precision": 0.966,
     "recall": 1.0,
-    "f1": 1.0
+    "f1": 0.982,
+    "held_out_techniques": [
+      "dup",
+      "homo"
+    ]
   },
+  "cv_f1_mean": 0.996,
+  "cv_f1_std": 0.002,
   "rule_baseline": {
-    "precision": 1.0,
-    "recall": 0.833,
-    "f1": 0.909
+    "precision": 0.997,
+    "recall": 0.786,
+    "f1": 0.879
   },
-  "roc_auc": 1.0,
+  "roc_auc": 0.9988,
   "audit": {
-    "official_exact_flagged": 40,
-    "negative_fpr": 0.0,
-    "baseline_negative_fpr": 0.0
+    "official_exact_flagged": 62,
+    "negative_fpr": 0.0052,
+    "baseline_negative_fpr": 0.0026
   },
-  "caveat": "Synthetic, easy negatives: near-perfect scores show the pipeline works, NOT real-world accuracy. Do not quote as a headline metric.",
+  "caveat": "Synthetic data with hard look-alike negatives, brand-grouped split, held-out attack techniques and 5-fold CV. Closer to honest, but still NOT real-world accuracy; validate on labelled live handles.",
   "note": "Advisory evidence only; official assets are excluded by allowlist before any scoring.",
   "sklearn_version": "1.9.1"
 }

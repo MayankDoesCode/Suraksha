@@ -20,9 +20,11 @@ import { ShieldMark } from '../ShieldMark';
 import GetApp from './GetApp';
 import HomoglyphSpecimen from './HomoglyphSpecimen';
 import HeroLanding from './HeroLanding';
+import Specimen from './Specimen';
 import SiteNav from './SiteNav';
+import { SectionHead, GlowText } from './Editorial';
 import MobileSection from './MobileSection';
-import { LoopScrolly } from './ProductShowcase';
+import CaseDesk from './CaseDesk';
 import { PlatformSection, IconMarquee, ProofStrip, Bento, WhyCard, GoDeeper, ClosingCta } from './Sections';
 import { Reveal, CountUp } from './Reveal';
 import { runFullLookalikeAnalysis } from '../../utils/lookalikeEngine';
@@ -144,11 +146,12 @@ export default function LandingPage({ onLaunchDashboard, onReplayIntro }) {
       <main id="main">
         {/* Hero */}
         <HeroLanding onDemo={openDemo} container={container} />
+        <Specimen container={container} />
         <PlatformSection onDemo={openDemo} container={container} />
         <IconMarquee />
         <ProofStrip container={container} />
         <div id="how" className={`${container} pt-28`}>
-          <p className="text-sm text-fgSubtle">The loop</p>
+          <SectionHead index="03" label="The loop" />
           <p className="mt-3 max-w-3xl font-display text-3xl font-semibold tracking-[-0.03em] sm:text-5xl">Most tools stop at the red flag. Suraksha starts there.</p>
         </div>
 
@@ -160,7 +163,7 @@ export default function LandingPage({ onLaunchDashboard, onReplayIntro }) {
 
 
         {/* Scanner */}
-        <LoopScrolly onOpen={openDemo} />
+        <CaseDesk container={container} onDemo={openDemo} />
 
         <section id="sandbox" className="border-y border-line/70 bg-surface2/50">
           <div className={`${container} py-24 sm:py-32`}>
@@ -309,7 +312,7 @@ export default function LandingPage({ onLaunchDashboard, onReplayIntro }) {
         </section>
 
         <section id="product" className={`${container} scroll-mt-20 pt-28`}>
-          <p className="text-sm text-fgSubtle">For every role</p>
+          <SectionHead index="05" label="For every role" />
           <h2 className="mt-3 max-w-3xl font-display text-3xl font-semibold tracking-[-0.03em] sm:text-5xl">Built for the people who act on it</h2>
           <p className="mt-4 max-w-2xl text-lg text-fgMuted">Analysts triage, legal teams send reports, leads see the pattern. Everyone works from the same evidence.</p>
           <div className="mt-12"><Bento /></div>

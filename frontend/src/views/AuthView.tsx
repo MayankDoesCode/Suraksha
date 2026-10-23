@@ -15,7 +15,7 @@ import {
   Sparkles,
 } from 'lucide-react';
 import { SurakshaLogo } from '../components/SurakshaLogo';
-import HomoglyphSpecimen from '../components/landing/HomoglyphSpecimen';
+import AuthLiveCheck from '../components/AuthLiveCheck';
 
 interface AuthViewProps {
   onNavigateHome?: () => void;
@@ -24,6 +24,30 @@ interface AuthViewProps {
 
 const inputClass =
   'w-full rounded-xl border border-line bg-surface2/80 px-3.5 py-2.5 text-sm text-fg placeholder:text-fgSubtle focus:outline-none focus:border-accent focus:ring-2 focus:ring-accent/20 transition-all duration-150 disabled:opacity-60';
+
+/** A quiet feed of what the engine is doing, so the sign-in screen shows the product at work. Sample lines. */
+const TICKER = [
+  ['@acrne_official', 'one letter off the official handle', 'High'],
+  ['Acme Pay Rewards', 'asks for a UPI PIN in its listing', 'High'],
+  ['acme-support-login.com', 'brand name plus a login lure', 'Medium'],
+  ['@acme.rewards', 'cash-reward wording', 'Medium'],
+];
+const AuthTicker: React.FC = () => {
+  const [i, setI] = React.useState(0);
+  React.useEffect(() => {
+    if (window.matchMedia?.('(prefers-reduced-motion: reduce)').matches) return undefined;
+    const t = setInterval(() => setI((n) => (n + 1) % TICKER.length), 2600);
+    return () => clearInterval(t);
+  }, []);
+  const [name, why, sev] = TICKER[i];
+  return (
+    <div className="relative mt-6 flex items-center gap-3 rounded-2xl border border-line bg-surface/70 px-4 py-3 text-sm backdrop-blur" aria-live="off">
+      <span className="relative flex h-2 w-2"><span className="absolute inline-flex h-full w-full animate-ping rounded-full bg-accent/70" /><span className="relative inline-flex h-2 w-2 rounded-full bg-accent" /></span>
+      <span key={i} className="auth-tick flex min-w-0 flex-1 items-center gap-2"><span className="truncate font-mono text-fg">{name}</span><span className="hidden truncate text-fgSubtle sm:inline">{why}</span></span>
+      <span className={`rounded-md px-1.5 py-0.5 text-[10px] font-medium ${sev === 'High' ? 'bg-high/15 text-high' : 'bg-warn/15 text-warn'}`}>{sev}</span>
+    </div>
+  );
+};
 
 export const AuthView: React.FC<AuthViewProps> = ({ onNavigateHome, initialMode = 'login' }) => {
   const {
@@ -169,6 +193,8 @@ export const AuthView: React.FC<AuthViewProps> = ({ onNavigateHome, initialMode 
       {/* Background Ambient Glow (matches app design system) */}
       <div aria-hidden className="pointer-events-none fixed inset-0 overflow-hidden select-none z-0">
         <div className="absolute top-1/4 left-1/2 -translate-x-1/2 -translate-y-1/2 h-[450px] w-[500px] rounded-full bg-accent/[0.07] blur-[140px]" />
+        <div className="lp-aurora -left-24 -top-32 h-[420px] w-[420px]" />
+        <div className="lp-aurora -bottom-28 -right-20 h-[380px] w-[380px]" style={{ animationDuration: '28s' }} />
         <div className="absolute top-2/3 right-1/4 h-[350px] w-[450px] rounded-full bg-ai/[0.04] blur-[130px]" />
         <div
           className="absolute inset-0 opacity-[0.03] dark:opacity-[0.04]"
@@ -188,15 +214,15 @@ export const AuthView: React.FC<AuthViewProps> = ({ onNavigateHome, initialMode 
           <span className="text-lg font-semibold tracking-tight">Suraksha</span>
           <span className="font-deva text-sm text-fgSubtle" lang="hi">सुरक्षा</span>
         </div>
-        <div className="relative my-10 max-w-[560px]">
+        <div className="auth-stagger relative my-10 max-w-[560px]">
           <h2 className="max-w-[18ch] text-4xl font-semibold leading-[1.08] tracking-[-0.035em] text-fg xl:text-[2.75rem]">
             Every flag comes with its reasons.
           </h2>
           <p className="mt-4 max-w-[46ch] leading-relaxed text-fgMuted">
             Look-alike handles, copied logos and fake app listings, each one explained signal by signal.
           </p>
-          <div className="mt-10">
-            <HomoglyphSpecimen />
+          <div className="mt-8">
+            <AuthLiveCheck />
           </div>
         </div>
         <p className="relative text-sm text-fgSubtle">Findings are advisory. A person confirms every case.</p>
@@ -223,9 +249,9 @@ export const AuthView: React.FC<AuthViewProps> = ({ onNavigateHome, initialMode 
 
       {/* Main Authentication Card */}
       <main className="relative z-10 w-full max-w-[410px] my-auto pt-4 pb-6">
-        <div className="relative rounded-2xl border border-line bg-surface/90 p-7 sm:p-9 shadow-2xl backdrop-blur-xl">
+        <div className="auth-card relative rounded-2xl border border-line bg-surface/90 p-7 sm:p-9 shadow-2xl backdrop-blur-xl">
           {/* Subtle top edge gradient reflection */}
-          <div className="absolute top-0 inset-x-8 h-[1.5px] bg-gradient-to-r from-transparent via-accent/80 to-transparent" />
+          <div className="auth-beam absolute top-0 inset-x-8 h-[1.5px]" />
 
           {/* Brand Emblem & Heading */}
           <div className="flex flex-col items-center text-center mb-6">

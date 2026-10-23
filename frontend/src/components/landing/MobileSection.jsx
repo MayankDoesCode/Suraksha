@@ -4,6 +4,7 @@ import { BellRing, CheckCircle2, WifiOff, Download } from 'lucide-react';
 import { Reveal } from './Reveal';
 import { PhoneApp } from './ProductShowcase';
 import GetApp from './GetApp';
+import { SectionHead } from './Editorial';
 
 const EASE = [0.16, 1, 0.3, 1];
 
@@ -28,8 +29,8 @@ export default function MobileSection({ container }) {
     <section id="mobile" className={`${container} scroll-mt-20 pt-28`}>
       <div className="grid items-center gap-10 lg:grid-cols-[1fr_1.05fr]">
         <div>
-          <Reveal><p className="text-sm text-fgSubtle">Mobile app</p></Reveal>
-          <Reveal delay={60}><h2 className="mt-3 max-w-lg font-display text-4xl font-semibold leading-[1.05] tracking-[-0.035em] sm:text-5xl"><span className="lp-gradient-text">Your brand watch,</span> in your pocket.</h2></Reveal>
+          <SectionHead index="06" label="Mobile app" />
+          <Reveal delay={60}><h2 className="mt-3 max-w-lg font-display text-4xl font-semibold leading-[1.05] tracking-[-0.035em] sm:text-5xl"><span className="lp-gradient-text">Your brand watch,</span> <span className="font-serif-display italic">in your pocket.</span></h2></Reveal>
           <Reveal delay={120}><p className="mt-4 max-w-md text-lg leading-relaxed text-fgMuted">The Android app and the installable web app show the same findings, reasons and drafts as the console, laid out for one hand.</p></Reveal>
           <ul className="mt-8 space-y-4">
             {POINTS.map(([Icon, t, d], i) => (

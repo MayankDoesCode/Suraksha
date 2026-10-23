@@ -16,7 +16,7 @@ const LINKS = [
  * with a pill that glides under whichever section you are reading. Below md it collapses to a menu that animates open.
  */
 export default function SiteNav({ onLogin, onDemo, onReplayIntro, container }) {
-  const { scrollY } = useScroll();
+  const { scrollY, scrollYProgress } = useScroll();
   const [solid, setSolid] = useState(false);
   const [open, setOpen] = useState(false);
   const [active, setActive] = useState(null);
@@ -76,6 +76,7 @@ export default function SiteNav({ onLogin, onDemo, onReplayIntro, container }) {
           </button>
         </div>
       </nav>
+      <motion.span aria-hidden className="absolute bottom-0 left-0 h-px w-full origin-left bg-gradient-to-r from-accent via-ai to-accent" style={{ scaleX: scrollYProgress }} />
 
       <AnimatePresence>
         {open && (

@@ -1,0 +1,172 @@
+brand,platform,handle,display_name,profile_url,score,severity,label,labelled_by
+Paytm,github,Paytm-Payments-Admin,Paytm-Payments-Admin,https://github.com/Paytm-Payments-Admin,80.4,CRITICAL,impersonator,claude-draft
+Paytm,github,paytmcashly-max,paytmcashly-max,https://github.com/paytmcashly-max,74.8,HIGH,impersonator,claude-draft
+Paytm,mastodon,paytm,PayTM,https://mastodon.social/@paytm,45,MEDIUM,official,human
+Paytm,github,paytm,paytm,https://github.com/paytm,45,MEDIUM,official,claude-draft
+Paytm,bluesky,paytmitch.bsky.social,payton mitchell,https://bsky.app/profile/paytmitch.bsky.social,34.2,MEDIUM,unrelated,claude-draft
+Paytm,bluesky,paytm.bsky.social,Dheeraj Jindal,https://bsky.app/profile/paytm.bsky.social,34.2,MEDIUM,unrelated,claude-draft
+Paytm,bluesky,paytmkajal.bsky.social,,https://bsky.app/profile/paytmkajal.bsky.social,34.2,MEDIUM,unrelated,claude-draft
+Paytm,bluesky,paytmkaro.bsky.social,,https://bsky.app/profile/paytmkaro.bsky.social,34.2,MEDIUM,unrelated,claude-draft
+Paytm,bluesky,paytmae.bsky.social,,https://bsky.app/profile/paytmae.bsky.social,34.2,MEDIUM,unrelated,claude-draft
+Paytm,bluesky,paytmerch.bsky.social,,https://bsky.app/profile/paytmerch.bsky.social,34.2,MEDIUM,unrelated,claude-draft
+Paytm,github,PaytmLabs,PaytmLabs,https://github.com/PaytmLabs,34.2,MEDIUM,official,claude-draft
+Paytm,github,paytm-temp,paytm-temp,https://github.com/paytm-temp,95.4,HIGH,impersonator,human
+HDFC Bank,bluesky,hdfcbankcares.bsky.social,HDFC Bank Cares,https://bsky.app/profile/hdfcbankcares.bsky.social,100,CRITICAL,impersonator,human
+HDFC Bank,github,hdfcbanking2022,hdfcbanking2022,https://github.com/hdfcbanking2022,74.8,HIGH,impersonator,human
+HDFC Bank,github,hdfcbankingproject23,hdfcbankingproject23,https://github.com/hdfcbankingproject23,74.8,HIGH,impersonator,human
+HDFC Bank,github,hdfcbanking202,hdfcbanking202,https://github.com/hdfcbanking202,74.8,HIGH,impersonator,human
+HDFC Bank,github,HDFCBANK,HDFCBANK,https://github.com/HDFCBANK,98,HIGH,unrelated,human
+HDFC Bank,bluesky,hdfcbank.bsky.social,,https://bsky.app/profile/hdfcbank.bsky.social,88,HIGH,unrelated,human
+HDFC Bank,github,HDFC-Bank-EFS-Hackathlon-2026,HDFC-Bank-EFS-Hackathlon-2026,https://github.com/HDFC-Bank-EFS-Hackathlon-2026,34.2,MEDIUM,unrelated,claude-draft
+HDFC Bank,github,hdfcbank-samples,hdfcbank-samples,https://github.com/hdfcbank-samples,34.2,MEDIUM,unrelated,claude-draft
+HDFC Bank,github,HDFC-bank1,HDFC-bank1,https://github.com/HDFC-bank1,88,HIGH,unrelated,human
+HDFC Bank,github,HDFC-Bank12,HDFC-Bank12,https://github.com/HDFC-Bank12,88,HIGH,unrelated,human
+HDFC Bank,github,HDFC-bank2,HDFC-bank2,https://github.com/HDFC-bank2,92,HIGH,unrelated,human
+HDFC Bank,github,HDFCBANKCOPILOT,HDFCBANKCOPILOT,https://github.com/HDFCBANKCOPILOT,34.2,MEDIUM,unrelated,claude-draft
+Zomato,bluesky,zomatoindia.bsky.social,zomato,https://bsky.app/profile/zomatoindia.bsky.social,45,MEDIUM,impersonator,human
+Zomato,mastodon,Zomato,,https://mastodon.social/@Zomato,80,LOW,official,human
+Zomato,mastodon,adam14300,Zomato,https://mastodon.social/@adam14300,45,MEDIUM,impersonator,claude-draft
+Zomato,github,Zomato,Zomato,https://github.com/Zomato,45,MEDIUM,official,claude-draft
+Zomato,bluesky,zomato.bsky.social,,https://bsky.app/profile/zomato.bsky.social,34.2,MEDIUM,,
+Zomato,bluesky,zomatosoup.bsky.social,,https://bsky.app/profile/zomatosoup.bsky.social,34.2,MEDIUM,unrelated,claude-draft
+Zomato,github,ZomatoAnalytics,ZomatoAnalytics,https://github.com/ZomatoAnalytics,34.2,MEDIUM,unrelated,claude-draft
+Zomato,github,Zomato-Nugget,Zomato-Nugget,https://github.com/Zomato-Nugget,34.2,MEDIUM,unrelated,claude-draft
+Zomato,github,zomato-ecosystem,zomato-ecosystem,https://github.com/zomato-ecosystem,34.2,MEDIUM,unrelated,claude-draft
+Zomato,github,Zomato-Movies,Zomato-Movies,https://github.com/Zomato-Movies,34.2,MEDIUM,unrelated,claude-draft
+Zomato,github,Zomato1,Zomato1,https://github.com/Zomato1,34.2,MEDIUM,unrelated,claude-draft
+Zomato,github,zomato-nugget-forks,zomato-nugget-forks,https://github.com/zomato-nugget-forks,34.2,MEDIUM,unrelated,claude-draft
+Swiggy,bluesky,suehal.bsky.social,Swiggy McBrook,https://bsky.app/profile/suehal.bsky.social,80.4,CRITICAL,unrelated,claude-draft
+Swiggy,bluesky,swiggystardust.bsky.social,_Swiggy:),https://bsky.app/profile/swiggystardust.bsky.social,45,MEDIUM,unrelated,claude-draft
+Swiggy,bluesky,swiggyzero.com,Swiggy,https://bsky.app/profile/swiggyzero.com,45,MEDIUM,,
+Swiggy,bluesky,swiggsyswigs.bsky.social,swiggy,https://bsky.app/profile/swiggsyswigs.bsky.social,45,MEDIUM,unrelated,claude-draft
+Swiggy,bluesky,swageleska.bsky.social,Swiggy,https://bsky.app/profile/swageleska.bsky.social,45,MEDIUM,unrelated,claude-draft
+Swiggy,bluesky,achilleanexpress.bsky.social,Swiggy,https://bsky.app/profile/achilleanexpress.bsky.social,45,MEDIUM,unrelated,claude-draft
+Swiggy,github,Swiggy,Swiggy,https://github.com/Swiggy,45,MEDIUM,official,claude-draft
+Swiggy,bluesky,swiggyramirez.bsky.social,Corey - SwiggyRamirez,https://bsky.app/profile/swiggyramirez.bsky.social,34.2,MEDIUM,unrelated,claude-draft
+Swiggy,bluesky,swiggyswag.bsky.social,Swig,https://bsky.app/profile/swiggyswag.bsky.social,34.2,MEDIUM,unrelated,claude-draft
+Swiggy,bluesky,swiggyziggy.bsky.social,,https://bsky.app/profile/swiggyziggy.bsky.social,34.2,MEDIUM,unrelated,claude-draft
+Swiggy,bluesky,swiggyswoo4.bsky.social,,https://bsky.app/profile/swiggyswoo4.bsky.social,34.2,MEDIUM,unrelated,claude-draft
+Swiggy,bluesky,swiggygwoogy.bsky.social,Gwoog,https://bsky.app/profile/swiggygwoogy.bsky.social,34.2,MEDIUM,unrelated,claude-draft
+PhonePe,bluesky,fakephonepeapp.bsky.social,Fake PhonePe App,https://bsky.app/profile/fakephonepeapp.bsky.social,74.8,HIGH,impersonator,claude-draft
+PhonePe,github,phonepereward,phonepereward,https://github.com/phonepereward,74.8,HIGH,impersonator,claude-draft
+PhonePe,bluesky,phonepe.bsky.social,PhonePE,https://bsky.app/profile/phonepe.bsky.social,45,MEDIUM,,
+PhonePe,github,PhonePe,PhonePe,https://github.com/PhonePe,45,MEDIUM,official,claude-draft
+PhonePe,github,phonepee,phonepee,https://github.com/phonepee,34.2,MEDIUM,,
+PhonePe,github,PhonePe-GlobalDSRepo,PhonePe-GlobalDSRepo,https://github.com/PhonePe-GlobalDSRepo,34.2,MEDIUM,,
+PhonePe,github,FakePhonePeApkDownload,FakePhonePeApkDownload,https://github.com/FakePhonePeApkDownload,34.2,MEDIUM,impersonator,claude-draft
+PhonePe,github,Phoneperecharge249,Phoneperecharge249,https://github.com/Phoneperecharge249,34.2,MEDIUM,impersonator,claude-draft
+PhonePe,github,phonepetest,phonepetest,https://github.com/phonepetest,34.2,MEDIUM,unrelated,claude-draft
+PhonePe,github,Phonepe578,Phonepe578,https://github.com/Phonepe578,34.2,MEDIUM,,
+PhonePe,github,PhonePeotect,PhonePeotect,https://github.com/PhonePeotect,34.2,MEDIUM,unrelated,claude-draft
+PhonePe,github,phonepe09,phonepe09,https://github.com/phonepe09,34.2,MEDIUM,,
+Flipkart,bluesky,flipkartsupport.bsky.social,Flipkart Support,https://bsky.app/profile/flipkartsupport.bsky.social,74.8,HIGH,impersonator,claude-draft
+Flipkart,bluesky,flipkart.bsky.social,Art n craft,https://bsky.app/profile/flipkart.bsky.social,34.2,MEDIUM,unrelated,claude-draft
+Flipkart,bluesky,flipkartdeals.bsky.social,,https://bsky.app/profile/flipkartdeals.bsky.social,34.2,MEDIUM,,
+Flipkart,bluesky,flipkartindia.bsky.social,,https://bsky.app/profile/flipkartindia.bsky.social,34.2,MEDIUM,,
+Flipkart,bluesky,flipkartusa.bsky.social,,https://bsky.app/profile/flipkartusa.bsky.social,34.2,MEDIUM,,
+Flipkart,bluesky,flipkartlifestyle.bsky.social,,https://bsky.app/profile/flipkartlifestyle.bsky.social,34.2,MEDIUM,,
+Flipkart,mastodon,Flipkart@mstdn.social,,https://mstdn.social/@Flipkart,34.2,MEDIUM,,
+Flipkart,bluesky,goddessanamika.bsky.social,Princess Anamika,https://bsky.app/profile/goddessanamika.bsky.social,12.8,LOW,unrelated,claude-draft
+Flipkart,bluesky,rajeshmishra.bsky.social,Rajesh Mishra (सनातनी),https://bsky.app/profile/rajeshmishra.bsky.social,12.8,LOW,unrelated,claude-draft
+Flipkart,bluesky,rkdeals.bsky.social,Ramakrishna Oruganti,https://bsky.app/profile/rkdeals.bsky.social,12.8,LOW,unrelated,claude-draft
+Flipkart,mastodon,Hutti,Hutti,https://mastodon.social/@Hutti,12.8,LOW,unrelated,claude-draft
+Flipkart,mastodon,Rajputsudheer8127,Finhub,https://mastodon.social/@Rajputsudheer8127,12.8,LOW,unrelated,claude-draft
+Airtel,bluesky,airtelatn.bsky.social,Airtel ATN,https://bsky.app/profile/airtelatn.bsky.social,80.4,CRITICAL,,
+Airtel,mastodon,Airtel_network_bot,python_bot,https://mastodon.social/@Airtel_network_bot,80.4,CRITICAL,,
+Airtel,mastodon,airtel,Airtel,https://mastodon.social/@airtel,45,MEDIUM,,
+Airtel,bluesky,airtek.bsky.social,Airtek,https://bsky.app/profile/airtek.bsky.social,37.4,MEDIUM,unrelated,claude-draft
+Airtel,bluesky,airtelmoney-ga.bsky.social,Airtel Money Gabon,https://bsky.app/profile/airtelmoney-ga.bsky.social,34.2,MEDIUM,,
+Airtel,bluesky,airtelindia.bsky.social,,https://bsky.app/profile/airtelindia.bsky.social,34.2,MEDIUM,,
+Airtel,bluesky,airtel.bsky.social,airtel.bsky.social,https://bsky.app/profile/airtel.bsky.social,34.2,MEDIUM,,
+Airtel,bluesky,airtelkenya.bsky.social,Airtel Kenya,https://bsky.app/profile/airtelkenya.bsky.social,34.2,MEDIUM,,
+Airtel,bluesky,airtelfinance.bsky.social,,https://bsky.app/profile/airtelfinance.bsky.social,34.2,MEDIUM,,
+Airtel,bluesky,airtel1234.bsky.social,,https://bsky.app/profile/airtel1234.bsky.social,34.2,MEDIUM,impersonator,claude-draft
+Airtel,bluesky,airtelke.bsky.social,,https://bsky.app/profile/airtelke.bsky.social,34.2,MEDIUM,,
+Airtel,bluesky,airtelafrica.bsky.social,,https://bsky.app/profile/airtelafrica.bsky.social,34.2,MEDIUM,,
+Jio,bluesky,jiouska.bsky.social,sneet,https://bsky.app/profile/jiouska.bsky.social,80.4,CRITICAL,unrelated,claude-draft
+Jio,mastodon,Jioluckydraw2020,Jio lucky draw 2020,https://mastodon.social/@Jioluckydraw2020,80.4,CRITICAL,impersonator,claude-draft
+Jio,mastodon,Jiolotterywinner2020,Jio Lottery Winner 2020 25 Lak,https://mastodon.social/@Jiolotterywinner2020,80.4,CRITICAL,impersonator,claude-draft
+Jio,bluesky,starboyxcx.bsky.social,jio 🦊,https://bsky.app/profile/starboyxcx.bsky.social,45,MEDIUM,unrelated,claude-draft
+Jio,bluesky,jorrbi.bsky.social,Jio,https://bsky.app/profile/jorrbi.bsky.social,45,MEDIUM,unrelated,claude-draft
+Jio,mastodon,jio@ioc.exchange,Jio,https://ioc.exchange/@jio,45,MEDIUM,unrelated,claude-draft
+Jio,mastodon,jio@ruby.social,Jio,https://ruby.social/@jio,45,MEDIUM,unrelated,claude-draft
+Jio,mastodon,nikotinaturner,JIO,https://mastodon.social/@nikotinaturner,45,MEDIUM,unrelated,claude-draft
+Jio,mastodon,jio,,https://mastodon.social/@jio,45,MEDIUM,,
+Jio,bluesky,jiossejay.bsky.social,意（2.14-16北京）,https://bsky.app/profile/jiossejay.bsky.social,34.2,MEDIUM,unrelated,claude-draft
+Jio,bluesky,jiojiowarudo.bsky.social,Jiojiojiojiojio,https://bsky.app/profile/jiojiowarudo.bsky.social,34.2,MEDIUM,unrelated,claude-draft
+Jio,bluesky,jiovescu.bsky.social,Joseph Iovescu ,https://bsky.app/profile/jiovescu.bsky.social,34.2,MEDIUM,unrelated,claude-draft
+Zerodha,bluesky,zerodha.com,Zerodha,https://bsky.app/profile/zerodha.com,45,MEDIUM,official,claude-draft
+Zerodha,mastodon,zerodha,Harsh Goyal,https://mastodon.social/@zerodha,45,MEDIUM,unrelated,claude-draft
+Zerodha,bluesky,zerodha.bsky.social,,https://bsky.app/profile/zerodha.bsky.social,34.2,MEDIUM,,
+PayPal,bluesky,cryptotogcash.bsky.social,jin° | ₱57.80 Crypto Trade | PayPal 1% - 1.5%,https://bsky.app/profile/cryptotogcash.bsky.social,100,CRITICAL,,
+PayPal,bluesky,sevenishmagpies.com,wing needs someone to paypal her 30k,https://bsky.app/profile/sevenishmagpies.com,80.4,CRITICAL,unrelated,claude-draft
+PayPal,bluesky,mastressezra.bsky.social,Mistress Ezra | Throne | PayPal | Findom,https://bsky.app/profile/mastressezra.bsky.social,80.4,CRITICAL,unrelated,claude-draft
+PayPal,bluesky,starsprlte.bsky.social,paypay 🎨,https://bsky.app/profile/starsprlte.bsky.social,74.7,HIGH,unrelated,claude-draft
+PayPal,bluesky,djpaypal.bandcamp.com,Dj Paypal,https://bsky.app/profile/djpaypal.bandcamp.com,34.2,MEDIUM,unrelated,claude-draft
+PayPal,bluesky,kazanovas34.bsky.social,Escort💰💰 paypal.me/kazanovas34,https://bsky.app/profile/kazanovas34.bsky.social,34.2,MEDIUM,unrelated,claude-draft
+PayPal,bluesky,paypalme20bucks.bsky.social,green,https://bsky.app/profile/paypalme20bucks.bsky.social,34.2,MEDIUM,unrelated,claude-draft
+PayPal,bluesky,paypalbitches.bsky.social,🔞paypalbitches🔞,https://bsky.app/profile/paypalbitches.bsky.social,34.2,MEDIUM,unrelated,claude-draft
+PayPal,bluesky,paypalaccounts37.bsky.social,Lile Rose,https://bsky.app/profile/paypalaccounts37.bsky.social,34.2,MEDIUM,impersonator,claude-draft
+PayPal,bluesky,paypal713.bsky.social,,https://bsky.app/profile/paypal713.bsky.social,34.2,MEDIUM,,
+PayPal,bluesky,paypalau.bsky.social,,https://bsky.app/profile/paypalau.bsky.social,34.2,MEDIUM,,
+PayPal,bluesky,paypallcarti.bsky.social,PaypallCarti,https://bsky.app/profile/paypallcarti.bsky.social,34.2,MEDIUM,unrelated,claude-draft
+Binance,bluesky,binance-official.bsky.social,Binance,https://bsky.app/profile/binance-official.bsky.social,81.1,CRITICAL,,
+Binance,bluesky,binance-cz.bsky.social,CZ 🔶 BNB,https://bsky.app/profile/binance-cz.bsky.social,80.4,CRITICAL,unrelated,claude-draft
+Binance,bluesky,binancearmy.bsky.social,Binance Army 🪖,https://bsky.app/profile/binancearmy.bsky.social,80.4,CRITICAL,unrelated,claude-draft
+Binance,bluesky,binancesignals.bsky.social,Binance Signals,https://bsky.app/profile/binancesignals.bsky.social,80.4,CRITICAL,,
+Binance,bluesky,binancezh.bsky.social,币安Binance华语,https://bsky.app/profile/binancezh.bsky.social,80.4,CRITICAL,,
+Binance,bluesky,binance-app-rank.bsky.social,Binance App Rank Bot,https://bsky.app/profile/binance-app-rank.bsky.social,74.8,HIGH,unrelated,claude-draft
+Binance,bluesky,binanceofficial.bsky.social,,https://bsky.app/profile/binanceofficial.bsky.social,74.8,HIGH,impersonator,claude-draft
+Binance,bluesky,officialbinance.bsky.social,official binance site,https://bsky.app/profile/officialbinance.bsky.social,74.8,HIGH,impersonator,claude-draft
+Binance,bluesky,binancesuppport.bsky.social,Binance Support,https://bsky.app/profile/binancesuppport.bsky.social,74.8,HIGH,impersonator,claude-draft
+Binance,bluesky,binancex.bsky.social,Binance,https://bsky.app/profile/binancex.bsky.social,45,MEDIUM,,
+Binance,bluesky,binanceindia.bsky.social,Binance,https://bsky.app/profile/binanceindia.bsky.social,45,MEDIUM,,
+Binance,bluesky,binanceoffical.bsky.social,Binance,https://bsky.app/profile/binanceoffical.bsky.social,45,MEDIUM,impersonator,claude-draft
+Amazon,bluesky,amazonamazon.bsky.social,雨存,https://bsky.app/profile/amazonamazon.bsky.social,80.4,CRITICAL,unrelated,claude-draft
+Amazon,bluesky,amzn4climate.bsky.social,Amazon Employees for Climate Justice,https://bsky.app/profile/amzn4climate.bsky.social,80.4,CRITICAL,unrelated,claude-draft
+Amazon,bluesky,beagoesc.bsky.social,Bea Góes | COROA DE VIDRO na Amazon 🩵📚,https://bsky.app/profile/beagoesc.bsky.social,80.4,CRITICAL,unrelated,claude-draft
+Amazon,bluesky,awscloud.bsky.social,Amazon Web Services (AWS),https://bsky.app/profile/awscloud.bsky.social,74.8,HIGH,official,claude-draft
+Amazon,bluesky,amazonofficial.bsky.social,,https://bsky.app/profile/amazonofficial.bsky.social,74.8,HIGH,,
+Amazon,bluesky,amytheamazonian.bsky.social,Amy the Amazonian,https://bsky.app/profile/amytheamazonian.bsky.social,34.2,MEDIUM,unrelated,claude-draft
+Amazon,bluesky,amazonpissjugs.bsky.social,Amazon Piss Jugs,https://bsky.app/profile/amazonpissjugs.bsky.social,34.2,MEDIUM,unrelated,claude-draft
+Amazon,bluesky,neddonovan.bsky.social,Ned Donovan | Encounter Party now on Amazon Prime!,https://bsky.app/profile/neddonovan.bsky.social,34.2,MEDIUM,unrelated,claude-draft
+Amazon,bluesky,amazonium3d.bsky.social,Amazonium3D,https://bsky.app/profile/amazonium3d.bsky.social,34.2,MEDIUM,unrelated,claude-draft
+Amazon,bluesky,amazonwatch.org,Amazon Watch,https://bsky.app/profile/amazonwatch.org,34.2,MEDIUM,unrelated,claude-draft
+Amazon,bluesky,amazonialatitude.com,Revista Amazônia Latitude,https://bsky.app/profile/amazonialatitude.com,34.2,MEDIUM,unrelated,claude-draft
+Amazon,bluesky,handle.invalid,Ana Carolina • DV NA AMAZON 🔥🐍,https://bsky.app/profile/handle.invalid,34.2,MEDIUM,unrelated,claude-draft
+Netflix,bluesky,portalnetflix.bsky.social,Portal Netflix BR | Fan Account,https://bsky.app/profile/portalnetflix.bsky.social,100,CRITICAL,unrelated,claude-draft
+Netflix,bluesky,netflixofficial.bsky.social,Netflix,https://bsky.app/profile/netflixofficial.bsky.social,81.1,CRITICAL,,
+Netflix,bluesky,nocturvav.swifties.social,"2% | jual spotify, netflix, youtube, etc",https://bsky.app/profile/nocturvav.swifties.social,80.4,CRITICAL,unrelated,claude-draft
+Netflix,bluesky,milodinasaur.bsky.social,"Dina||JUAL AKUN NETFLIX, YT, SPOTIFY, CANVA, DLL",https://bsky.app/profile/milodinasaur.bsky.social,80.4,CRITICAL,unrelated,claude-draft
+Netflix,bluesky,alunamoon.bsky.social,"Aluna, SUPPLIER NETFLIX, FH APP PREM",https://bsky.app/profile/alunamoon.bsky.social,74.8,HIGH,unrelated,claude-draft
+Netflix,bluesky,netflix.tumblr.com.web.brid.gy,Netflix [Unofficial],https://bsky.app/profile/netflix.tumblr.com.web.brid.gy,74.8,HIGH,,
+Netflix,mastodon,netflix@misskey.io,Netflix :verify:,https://misskey.io/@netflix,74.8,HIGH,,
+Netflix,bluesky,netflix.com,Netflix,https://bsky.app/profile/netflix.com,45,MEDIUM,official,claude-draft
+Netflix,bluesky,netfiixbrasil.bsky.social,Netflix,https://bsky.app/profile/netfiixbrasil.bsky.social,45,MEDIUM,impersonator,claude-draft
+Netflix,mastodon,netflix@china.al,Netflix,https://china.al/@netflix,45,MEDIUM,,
+Netflix,mastodon,Netflix,,https://mastodon.social/@Netflix,45,MEDIUM,,
+Netflix,bluesky,netflixbrasil.bsky.social,Netflix Brasil ,https://bsky.app/profile/netflixbrasil.bsky.social,34.2,MEDIUM,,
+Instagram,bluesky,kejuataucoklat.bsky.social,"Jual Followers, likes, views tiktok dan instagram",https://bsky.app/profile/kejuataucoklat.bsky.social,93.1,CRITICAL,unrelated,claude-draft
+Instagram,bluesky,instagramofficial.bsky.social,,https://bsky.app/profile/instagramofficial.bsky.social,74.8,HIGH,,
+Instagram,github,InstagramloginCom,InstagramloginCom,https://github.com/InstagramloginCom,74.8,HIGH,impersonator,claude-draft
+Instagram,github,official-instagram,official-instagram,https://github.com/official-instagram,74.8,HIGH,impersonator,claude-draft
+Instagram,github,Instagram,Instagram,https://github.com/Instagram,45,MEDIUM,official,claude-draft
+Instagram,bluesky,throatseeker.bsky.social,Instagram: @MarcelEugene_,https://bsky.app/profile/throatseeker.bsky.social,34.2,MEDIUM,unrelated,claude-draft
+Instagram,bluesky,pripyatbeast.bsky.social,Stephen Kick ➡️ Follow me on Instagram,https://bsky.app/profile/pripyatbeast.bsky.social,34.2,MEDIUM,unrelated,claude-draft
+Instagram,bluesky,bagboyken.bsky.social,Follow my Instagram: @Baggboyken,https://bsky.app/profile/bagboyken.bsky.social,34.2,MEDIUM,unrelated,claude-draft
+Instagram,bluesky,ade-pano.bsky.social,Ade Taylor (shoot_dev_print_repeat) on instagram,https://bsky.app/profile/ade-pano.bsky.social,34.2,MEDIUM,unrelated,claude-draft
+Instagram,bluesky,spearsx10.bsky.social,Britney Spears dançando no Instagram ,https://bsky.app/profile/spearsx10.bsky.social,34.2,MEDIUM,unrelated,claude-draft
+Instagram,bluesky,instasemcontexto.bsky.social,Instagram fora de contexto ,https://bsky.app/profile/instasemcontexto.bsky.social,34.2,MEDIUM,unrelated,claude-draft
+Instagram,bluesky,ogqueenbee1975.bsky.social,💙Melody - theonlyqueenbee75 *Instagram Refugee*,https://bsky.app/profile/ogqueenbee1975.bsky.social,34.2,MEDIUM,unrelated,claude-draft
+Coinbase,bluesky,coinbase-support.bsky.social,Coinbase Support,https://bsky.app/profile/coinbase-support.bsky.social,100,CRITICAL,impersonator,claude-draft
+Coinbase,bluesky,s-upportnumber.bsky.social,"Coinbase Login - PC, Mobile, App, 2FA & Troubleshoot",https://bsky.app/profile/s-upportnumber.bsky.social,100,CRITICAL,impersonator,claude-draft
+Coinbase,bluesky,supportnumber65.bsky.social,Coinbase customer support hotline USA,https://bsky.app/profile/supportnumber65.bsky.social,100,CRITICAL,impersonator,claude-draft
+Coinbase,bluesky,z-onevote511-63.bsky.social,Coinbase  Support Number Login Customer Helpline,https://bsky.app/profile/z-onevote511-63.bsky.social,100,CRITICAL,impersonator,claude-draft
+Coinbase,bluesky,supportnumber63.bsky.social,Coinbase help center support number USA,https://bsky.app/profile/supportnumber63.bsky.social,100,CRITICAL,impersonator,claude-draft
+Coinbase,bluesky,supportnumber96.bsky.social,Coinbase Official Support Number Customer Help USA,https://bsky.app/profile/supportnumber96.bsky.social,100,CRITICAL,impersonator,claude-draft
+Coinbase,bluesky,getusait666.bsky.social,The Risks of Buying Verified Coinbase Accounts,https://bsky.app/profile/getusait666.bsky.social,80.4,CRITICAL,impersonator,claude-draft
+Coinbase,bluesky,coinbasewallet.bsky.social,,https://bsky.app/profile/coinbasewallet.bsky.social,74.8,HIGH,,
+Coinbase,bluesky,coinabsewallete.bsky.social,Coinbase Wallet,https://bsky.app/profile/coinabsewallete.bsky.social,74.8,HIGH,impersonator,claude-draft
+Coinbase,bluesky,coinbasewalletext.bsky.social,Coinbase Wallet Extension,https://bsky.app/profile/coinbasewalletext.bsky.social,74.8,HIGH,,
+Coinbase,bluesky,coinbasewallet897.bsky.social,,https://bsky.app/profile/coinbasewallet897.bsky.social,74.8,HIGH,,
+Coinbase,mastodon,CoinbaseLogin@mastodon.cloud,Coinbase Wallet,https://mastodon.cloud/@CoinbaseLogin,74.8,HIGH,,

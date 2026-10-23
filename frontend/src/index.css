@@ -385,3 +385,32 @@ button[class*='rounded-3xl'][class*='border-line']:hover { transform: translateY
   #brand-report { position: absolute; left: 0; top: 0; width: 100%; }
   @page { margin: 14mm; }
 }
+
+/* Editorial serif for accent phrases (second repo's display pairing), over Funnel Display + Geist. */
+.font-serif-display { font-family: 'Bodoni Moda', 'Iowan Old Style', Georgia, serif; font-weight: 500; letter-spacing: -0.01em; }
+
+/* ---- Specimen plate: callouts and leader lines draw in when the lens reaches the swapped letters ---- */
+.sp-lens { box-shadow: 0 0 0 7px rgb(var(--c-accent) / 0.12), 0 24px 70px -10px rgb(0 0 0 / 0.75), inset 0 0 40px rgb(var(--c-accent) / 0.12); }
+.sp-callout { opacity: 0; transform: translateY(8px) scale(0.98); transition: opacity 0.45s cubic-bezier(0.22, 1, 0.36, 1), transform 0.45s cubic-bezier(0.22, 1, 0.36, 1); }
+.sp-leader { opacity: 0; transition: opacity 0.35s ease; }
+.sp-plate[data-near='1'] .sp-callout { opacity: 1; transform: none; }
+.sp-plate[data-near='1'] .sp-leader { opacity: 0.8; }
+@media (prefers-reduced-motion: reduce) { .sp-callout, .sp-leader { transition: none; } }
+
+/* ---- Sign-in polish ---- */
+@keyframes auth-rise { from { opacity: 0.001; transform: translateY(16px); filter: blur(4px); } to { opacity: 1; transform: none; filter: blur(0); } }
+@keyframes auth-beam { 0% { background-position: -120% 0; } 100% { background-position: 220% 0; } }
+@keyframes auth-tick { from { opacity: 0.001; transform: translateY(8px); } to { opacity: 1; transform: none; } }
+.auth-stagger > * { animation: auth-rise 0.9s cubic-bezier(0.19, 1, 0.22, 1) both; }
+.auth-stagger > *:nth-child(2) { animation-delay: 0.12s; } .auth-stagger > *:nth-child(3) { animation-delay: 0.26s; }
+.auth-card { animation: auth-rise 0.9s cubic-bezier(0.19, 1, 0.22, 1) 0.08s both; }
+.auth-beam { background: linear-gradient(90deg, transparent, rgb(var(--c-accent)), rgb(var(--c-ai)), transparent); background-size: 60% 100%; background-repeat: no-repeat; animation: auth-beam 5s linear infinite; opacity: 0.9; }
+.auth-tick { animation: auth-tick 0.5s cubic-bezier(0.19, 1, 0.22, 1) both; }
+.auth-card input { transition: border-color 0.2s ease, box-shadow 0.25s ease, background-color 0.2s ease; }
+.auth-card input:focus { border-color: rgb(var(--c-accent) / 0.75); box-shadow: 0 0 0 4px rgb(var(--c-accent) / 0.16); outline: none; }
+.auth-card button[type='submit'] { position: relative; overflow: hidden; }
+.auth-card button[type='submit']::after { content: ''; position: absolute; inset: 0; background: linear-gradient(100deg, transparent 30%, rgb(255 255 255 / 0.28) 50%, transparent 70%); transform: translateX(-100%); animation: lp-sweep 4.2s ease-in-out 1.4s infinite; pointer-events: none; }
+@media (prefers-reduced-motion: reduce) { .auth-stagger > *, .auth-card, .auth-beam, .auth-tick, .auth-card button[type='submit']::after { animation: none !important; } }
+
+@keyframes hero-scan { 0%, 100% { transform: translateY(-20%); opacity: 0; } 15%, 85% { opacity: 1; } 50% { transform: translateY(420%); } }
+@keyframes hero-alert-bar { from { transform: scaleX(1); } to { transform: scaleX(0); } }

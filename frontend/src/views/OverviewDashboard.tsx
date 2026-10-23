@@ -9,6 +9,7 @@ import { useAuth } from '../context/AuthContext';
 import { CountUp as LandCount } from '../components/landing/Reveal';
 import { Stagger, StaggerItem, ProgressRing } from '../components/motion';
 import { ShieldMark } from '../components/ShieldMark';
+import { GlowText } from '../components/landing/Editorial';
 import { deriveThreatGraph } from '../utils/threatGraph';
 import type { CandidateAsset, InvestigationStatus, RiskLevel } from '../types';
 
@@ -61,7 +62,7 @@ function CampusHero({ greetingText, summary, onPrimary, primaryLabel, chips, rad
       <div aria-hidden className="lp-hero-grid pointer-events-none absolute inset-0 opacity-70" />
       <div className="relative max-w-xl pr-24 sm:pr-40 md:pr-56 lg:pr-0">
         <p className="inline-flex items-center gap-1.5 rounded-full border border-white/10 bg-white/5 px-2.5 py-1 text-xs text-white/70 backdrop-blur"><Sparkles className="h-3 w-3" aria-hidden />Brand intelligence</p>
-        <h1 className="mt-4 font-display text-3xl font-semibold tracking-[-0.02em] sm:text-[2.4rem] sm:leading-[1.08]">{greetingText}</h1>
+        <h1 className="mt-4 font-display text-3xl font-semibold tracking-[-0.02em] sm:text-[2.4rem] sm:leading-[1.08]"><GlowText radius={240}>{greetingText}</GlowText></h1>
         <p className="mt-3 max-w-lg text-[15px] leading-relaxed text-white/65">{summary}</p>
         <div className="mt-6 flex flex-wrap items-center gap-2.5">
           <button type="button" onClick={onPrimary} className="press lp-sweep group inline-flex items-center gap-2 rounded-full bg-accent px-4 py-2 text-sm font-semibold text-onAccent hover:bg-accentHover">{primaryLabel}<ArrowRight className="h-4 w-4 transition-transform group-hover:translate-x-0.5" aria-hidden /></button>

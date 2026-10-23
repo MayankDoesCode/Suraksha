@@ -3,6 +3,8 @@ import { AnimatePresence, motion, useInView, useReducedMotion } from 'framer-mot
 import { ArrowRight, ArrowUpRight, AtSign, Smartphone, Globe, Image as ImageIcon, UserRound, Package, FileText, Layers, TriangleAlert, MessageSquareText, CalendarCheck2, Sparkles, Fingerprint, EyeOff, ScrollText, LockKeyhole } from 'lucide-react';
 import { Reveal, CountUp } from './Reveal';
 import { DesktopWindow } from './ProductShowcase';
+import { GlowText, SectionHead } from './Editorial';
+import { ShieldMark } from '../ShieldMark';
 
 const EASE = [0.16, 1, 0.3, 1];
 const SCENE_MS = 9000;
@@ -16,7 +18,7 @@ export function Headline({ lead, accent }) {
     </span>
   );
   const a = lead.split(' '); const b = accent.split(' ');
-  return <>{a.map((w, i) => word(w, i))}{b.map((w, i) => word(w, a.length + i, 'lp-gradient-text'))}</>;
+  return <>{a.map((w, i) => word(w, i))}{b.map((w, i) => word(w, a.length + i, 'lp-gradient-text font-serif-display italic'))}</>;
 }
 
 const SOURCES = [
@@ -175,7 +177,7 @@ export function PlatformSection({ onDemo, container }) {
       </div>
       <div className={`${container} grid items-center gap-14 pb-20 pt-24 lg:grid-cols-[1.1fr_1fr] lg:pb-24`}>
         <div>
-          <Reveal><p className="text-sm text-fgSubtle">Social and app monitoring for your brand</p></Reveal>
+          <SectionHead index="01" label="Social and app monitoring" />
           <Reveal delay={60}><h2 className="mt-6 font-display text-[2.6rem] font-semibold leading-[1.02] tracking-[-0.035em] sm:text-6xl lg:text-[3.9rem] xl:text-[4.25rem]"><Headline lead="Catch the fake early." accent="Then do something about it." /></h2></Reveal>
           <Reveal delay={140}><p className="mt-6 max-w-[34rem] text-lg leading-relaxed text-fgMuted">Suraksha reads handles, app listings, domains and logos as one, shows analysts what is suspicious and why, and tracks what happens next.</p></Reveal>
           <Reveal delay={220}>
@@ -218,6 +220,7 @@ const PROOF = [
 export function ProofStrip({ container }) {
   return (
     <section aria-label="Measured results" className={`${container} pt-20`}>
+      <div className="mb-8"><SectionHead index="02" label="Measured, not claimed" /></div>
       <ul className="grid grid-cols-2 gap-4 lg:grid-cols-4">
         {PROOF.map((p, i) => (
           <li key={p.label}>
@@ -366,7 +369,8 @@ const EXPLORE = [
 export function GoDeeper({ container }) {
   return (
     <section className={`${container} pt-28`}>
-      <Reveal><h2 className="max-w-2xl font-display text-3xl font-semibold tracking-tight sm:text-4xl">Everything an analyst, a lawyer or a judge would ask</h2></Reveal>
+      <div className="mb-6"><SectionHead index="07" label="Go deeper" /></div>
+      <Reveal><h2 className="max-w-2xl font-display text-3xl font-semibold tracking-tight sm:text-4xl"><GlowText radius={260}>Everything an analyst, a lawyer or a judge would ask</GlowText></h2></Reveal>
       <div className="mt-10 grid gap-4 sm:grid-cols-2 lg:grid-cols-4">
         {EXPLORE.map(([t, b, h], i) => (
           <Reveal key={t} delay={i * 60}>
@@ -381,12 +385,31 @@ export function GoDeeper({ container }) {
   );
 }
 
+/** Logo that materialises, holds, dissolves and returns on a loop. Static when reduced motion is on. */
+function BlinkLogo() {
+  const reduce = useReducedMotion();
+  return (
+    <div aria-hidden className="relative mx-auto mb-8 grid h-24 w-24 place-items-center">
+      <motion.span className="absolute inset-0 rounded-full border border-accent/40"
+        animate={reduce ? undefined : { scale: [0.6, 1.5], opacity: [0.7, 0] }} transition={{ duration: 4.8, repeat: Infinity, ease: 'easeOut' }} />
+      <motion.span className="absolute inset-3 rounded-full bg-accent/15 blur-xl"
+        animate={reduce ? undefined : { opacity: [0, 0.9, 0.9, 0, 0] }} transition={{ duration: 4.8, repeat: Infinity, times: [0, 0.25, 0.65, 0.85, 1] }} />
+      <motion.div
+        animate={reduce ? undefined : { opacity: [0, 1, 1, 0, 0], scale: [0.6, 1, 1.04, 0.8, 0.6], filter: ['blur(10px)', 'blur(0px)', 'blur(0px)', 'blur(8px)', 'blur(10px)'] }}
+        transition={{ duration: 4.8, repeat: Infinity, times: [0, 0.25, 0.65, 0.85, 1], ease: 'easeInOut' }}>
+        <ShieldMark size={64} animate={false} />
+      </motion.div>
+    </div>
+  );
+}
+
 export function ClosingCta({ onDemo, container }) {
   return (
     <section className="relative isolate mt-28 overflow-hidden border-t border-line/70">
       <div aria-hidden className="lp-aurora left-1/4 -top-40 -z-10 h-[420px] w-[620px]" />
       <div className={`${container} py-28 text-center`}>
-        <Reveal><h2 className="mx-auto max-w-3xl font-display text-4xl font-semibold leading-[1.05] tracking-[-0.035em] sm:text-6xl">From early warning to a verified report.</h2></Reveal>
+        <BlinkLogo />
+        <Reveal><h2 className="mx-auto max-w-3xl font-display text-4xl font-semibold leading-[1.05] tracking-[-0.035em] sm:text-6xl">From early warning to a <span className="lp-gradient-text font-serif-display italic">verified report.</span></h2></Reveal>
         <Reveal delay={100}><p className="mx-auto mt-5 max-w-xl text-lg text-fgMuted">Open the demo workspace and follow one fake from the first flag to a drafted report.</p></Reveal>
         <Reveal delay={200}>
           <div className="mt-9 flex flex-wrap items-center justify-center gap-3">

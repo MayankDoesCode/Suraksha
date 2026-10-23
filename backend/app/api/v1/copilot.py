@@ -2,7 +2,9 @@ import re
 import time
 import logging
 from typing import Dict, Any, List, Optional
-from flask import Blueprint, request, jsonify
+from flask import Blueprint, request, jsonify, current_app
+
+from backend.app.utils.limiter import limiter
 
 from backend.app.intel.google_safe_browsing import google_safe_browsing
 from backend.app.intel.threat_feed import threat_feed_service
@@ -30,6 +32,7 @@ def extract_url_from_text(text: str) -> Optional[str]:
 
 
 @copilot_bp.route("/copilot/verify-url", methods=["POST"])
+@limiter.limit(lambda: current_app.config.get("RATELIMIT_AI", "15 per minute"))
 def verify_url():
     """
     Unified URL & Domain Verification:
@@ -121,6 +124,7 @@ def verify_url():
 
 
 @copilot_bp.route("/copilot/chat", methods=["POST"])
+@limiter.limit(lambda: current_app.config.get("RATELIMIT_AI", "15 per minute"))
 def copilot_chat():
     """
     AI Security Copilot Chatbot:
@@ -421,6 +425,7 @@ def _generate_copilot_response(
 
 
 @copilot_bp.route("/copilot/threat-feed/recent", methods=["GET"])
+@limiter.limit(lambda: current_app.config.get("RATELIMIT_ML", "30 per minute"))
 def get_recent_threat_feed():
     """Returns recent wild threat URLs from abuse.ch URLhaus & curated phishing corpus."""
     try:
@@ -440,6 +445,7 @@ def get_recent_threat_feed():
 
 
 @copilot_bp.route("/copilot/threat-feed/search", methods=["POST"])
+@limiter.limit(lambda: current_app.config.get("RATELIMIT_ML", "30 per minute"))
 def search_threat_feed():
     """Searches active threat feed entries matching a brand, domain, or threat tag."""
     payload = request.get_json(silent=True) or {}
@@ -460,6 +466,7 @@ def search_threat_feed():
 
 
 @copilot_bp.route("/copilot/generate-permutations", methods=["POST"])
+@limiter.limit(lambda: current_app.config.get("RATELIMIT_AI", "15 per minute"))
 def generate_attack_permutations():
     """
     Generates 20+ proactive adversarial permutations (typosquats, combosquats, homoglyphs, tld-swaps)
