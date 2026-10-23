@@ -34,6 +34,19 @@ def _find_scam_cues(text: str) -> List[str]:
     return [name for name, pat in _SCAM_CUE_PATTERNS if re.search(pat, low)]
 
 
+# Scam-lure words that show up in impersonator handles but are not customer-support mimicry
+# (tuned on hand-labelled live handles; see docs/REAL_EVAL.md).
+_HANDLE_LURE_WORDS = (
+    "fake", "apk", "recharge", "reward", "rewards", "lucky", "draw", "lottery", "winner", "giveaway",
+    "offical", "oficial", "login", "accounts", "helpline", "refund", "cashback", "airdrop", "claim",
+)
+
+
+def _handle_lure_words(text: str) -> List[str]:
+    compact = "".join(ch for ch in (text or "").lower() if ch.isalnum())
+    return sorted(w for w in _HANDLE_LURE_WORDS if w in compact)
+
+
 class SocialDetector(BaseDetector):
     """
     Evaluates suspicious candidate social profiles and pages against verified brand assets.
@@ -335,6 +348,31 @@ class SocialDetector(BaseDetector):
                     explanation=f"Account is only {int(age_days)} days old and not verified, yet uses brand identity.",
                     evidence_fields=["account_age_days", "is_verified"]
                 )
+            )
+
+        # Signal: scam-lure words next to the brand (fake / apk / recharge / lucky draw / ...)
+        lure_words = _handle_lure_words(all_text)
+        if lure_words and (best_sim.similarity_score >= 0.50 or brand_in_handle):
+            signals.append(
+                DetectionSignal(
+                    signal_type="HANDLE_LURE_WORDS",
+                    severity_score=36.0,
+                    confidence=0.85,
+                    explanation=f"Handle or name pairs the brand with scam-lure wording: {lure_words}.",
+                    evidence_fields=["candidate_name", "display_name"]
+                )
+            )
+
+        # A brand name merely contained in a longer handle (e.g. fan pages, personal names, resellers)
+        # is weak evidence on its own: keep it visible as a watch item but below the flag threshold.
+        if (len(signals) == 1 and signals[0].signal_type == "NAME_SIMILARITY"
+                and best_sim.match_type == "SUBSTRING"):
+            signals[0] = DetectionSignal(
+                signal_type="NAME_SIMILARITY",
+                severity_score=min(signals[0].severity_score, 24.0),
+                confidence=signals[0].confidence,
+                explanation=signals[0].explanation + " Weak signal: the brand appears inside a longer handle with no corroborating evidence.",
+                evidence_fields=signals[0].evidence_fields,
             )
 
         # -------------------------------------------------------------

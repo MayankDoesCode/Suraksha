@@ -61,6 +61,13 @@ def evaluate(a):
     if len(rows) < 20:
         sys.exit(f"Only {len(rows)} labelled rows; label at least 20 (aim for 150).")
     y = [r["label"].strip().lower() == "impersonator" for r in rows]
+    if a.rescore:  # re-run the current detector offline on handle + display name (reflects code changes)
+        from backend.app.detection.social_detector import SocialDetector
+        det = SocialDetector()
+        for r in rows:
+            o = det.evaluate_full({"candidate_name": r["handle"], "display_name": r["display_name"],
+                                   "platform": r["platform"], "source_url": r["profile_url"], "asset_type": "social"}, {"name": r["brand"]})
+            r["score"] = o.risk_evaluation.total_score
     app = [float(r["score"]) >= a.threshold for r in rows]
     ml_p = []
     for r in rows:
@@ -91,6 +98,6 @@ if __name__ == "__main__":
     ap = argparse.ArgumentParser(); sub = ap.add_subparsers(dest="cmd", required=True)
     c = sub.add_parser("collect"); c.add_argument("--base", default="http://localhost:5000"); c.add_argument("--out", default="real_candidates.csv")
     c.add_argument("--brands", nargs="*"); c.add_argument("--per-brand", type=int, default=12, dest="per_brand"); c.set_defaults(fn=collect)
-    e = sub.add_parser("evaluate"); e.add_argument("--labels", default="real_candidates.csv"); e.add_argument("--threshold", type=float, default=40.0)
+    e = sub.add_parser("evaluate"); e.add_argument("--labels", default="real_candidates.csv"); e.add_argument("--threshold", type=float, default=40.0); e.add_argument("--rescore", action="store_true")
     e.add_argument("--out-md", default="docs/REAL_EVAL.md", dest="out_md"); e.add_argument("--out-json", default="docs/real_eval.json", dest="out_json"); e.set_defaults(fn=evaluate)
     a = ap.parse_args(); a.fn(a)
