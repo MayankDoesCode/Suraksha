@@ -72,3 +72,7 @@ _to_delete/
 GSD-STYLE.md
 scratch/
 *.db
+
+# temp preview bundles
+_preview_dist.tgz
+*.tgz

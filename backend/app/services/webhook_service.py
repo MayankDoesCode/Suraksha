@@ -12,6 +12,25 @@ import requests
 logger = logging.getLogger(__name__)
 
 
+def _is_public_url(url: str) -> bool:
+    """SSRF guard: only allow http(s) URLs whose host resolves to public IPs."""
+    import ipaddress, socket
+    from urllib.parse import urlparse
+    host = urlparse(url).hostname
+    if not host or host.lower() == "localhost":
+        return False
+    try:
+        infos = socket.getaddrinfo(host, None)
+    except OSError:
+        return False
+    for info in infos:
+        ip = ipaddress.ip_address(info[4][0])
+        if not ip.is_global:
+            return False
+    return True
+
+
+
 class WebhookService:
     def __init__(self, timeout: float = 6.0):
         self.timeout = timeout
@@ -143,6 +162,8 @@ class WebhookService:
         """Dispatch formatted alert to destination webhook."""
         if not webhook_url or not webhook_url.startswith(("http://", "https://")):
             raise ValueError("Invalid webhook URL: Must begin with http:// or https://")
+        if not _is_public_url(webhook_url):
+            raise ValueError("Invalid webhook URL: host must resolve to a public address")
 
         platform = self.detect_platform(webhook_url)
         payload = self.format_payload(platform, alert_data)
@@ -153,13 +174,13 @@ class WebhookService:
                 json=payload,
                 headers={"Content-Type": "application/json"},
                 timeout=self.timeout,
+                allow_redirects=False,
             )
             return {
                 "success": resp.status_code in (200, 201, 204),
                 "platform": platform,
                 "status_code": resp.status_code,
                 "delivered_at": time.time(),
-                "response_text": resp.text[:200],
             }
         except Exception as exc:
             logger.error("Failed to dispatch webhook alert to %s: %s", webhook_url, exc)
