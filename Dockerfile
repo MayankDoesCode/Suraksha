@@ -60,8 +60,8 @@ ENV FLASK_ENV=production
 ENV PYTHONUNBUFFERED=1
 ENV PYTHONPATH=/app
 ENV MALLOC_ARENA_MAX=2
-# Small hosts (512 MB): keep 1 of 3 URL-model calibration folds. Remove for the full ensemble.
-ENV SURAKSHA_LEAN_URL_MODEL=1
+# Render Free (512 MB): the URL model is skipped automatically when RENDER is set. Enable it only via a remote
+# ML service (SURAKSHA_ML_REMOTE_URL) or, on a larger host, with SURAKSHA_ENABLE_URL_MODEL=1 (add SURAKSHA_LEAN_URL_MODEL=1 to save memory).
 
 EXPOSE 5000
 
@@ -70,4 +70,4 @@ HEALTHCHECK --interval=30s --timeout=5s --start-period=5s --retries=3 \
   CMD curl -f http://localhost:${PORT}/api/v1/health || exit 1
 
 # Run database migrations safely and start production server with Gunicorn
-CMD ["sh", "-c", "alembic -c alembic.ini upgrade head && exec gunicorn backend.run:app --bind 0.0.0.0:${PORT:-5000} --workers 1 --threads 4 --timeout 120"]
+CMD ["sh", "-c", "alembic -c alembic.ini upgrade head && exec gunicorn backend.run:app --bind 0.0.0.0:${PORT:-5000} --workers 1 --threads 2 --timeout 120"]
