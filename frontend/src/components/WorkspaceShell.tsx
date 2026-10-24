@@ -22,6 +22,9 @@ import { ThreatGraphView } from '../views/ThreatGraphView';
 import { ReportsView } from '../views/ReportsView';
 import { DiagnosticsView } from '../views/DiagnosticsView';
 import { MethodologyView } from '../views/MethodologyView';
+import { LogoCheckView } from '../views/LogoCheckView';
+import { WebsiteCheckView } from '../views/WebsiteCheckView';
+import { BulkCheckView } from '../views/BulkCheckView';
 import { WatchtowerView } from '../views/WatchtowerView';
 import { AttackSimulator } from './AttackSimulator';
 import { PresenterMode } from './PresenterMode';
@@ -106,6 +109,12 @@ const WorkspaceContent: React.FC<WorkspaceShellProps> = ({ onNavigateHome, initi
         return <ThreatGraphView />;
       case 'reports':
         return <ReportsView />;
+      case 'logo-check':
+        return <LogoCheckView />;
+      case 'bulk-check':
+        return <BulkCheckView />;
+      case 'website-check':
+        return <WebsiteCheckView />;
       case 'methodology':
         return <MethodologyView />;
       case 'diagnostics':
