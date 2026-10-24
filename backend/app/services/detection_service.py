@@ -5,6 +5,7 @@ from backend.app.repositories.brand_repository import BrandRepository
 from backend.app.repositories.threat_repository import ThreatRepository
 from backend.app.detection.social_detector import SocialDetector
 from backend.app.detection.app_detector import AppDetector
+from backend.app.detection.base import DetectionSignal
 from backend.app.detection.combined import combine
 from backend.app.detection.domain_detector import DomainDetector
 from backend.app.ai.risk_classifier import risk_classifier as default_risk_classifier, RiskClassifier
@@ -24,6 +25,27 @@ ASSET_TYPE_ALIASES = {
     "linkedin": "social", "tiktok": "social", "youtube": "social", "telegram": "social",
 }
 DEFAULT_ASSET_TYPE = "social"
+
+
+
+def _synthetic_advisory(kind: str, brand_name: str, fields: Dict[str, str], what: str) -> Optional[Dict[str, Any]]:
+    """Advisory evidence from a synthetic-trained impersonation model. Never fused into a score; officials are excluded upstream."""
+    from backend.app.ml.profile_impersonation_service import score_asset
+    imp = score_asset(kind, brand_name, fields)
+    if not imp:
+        return None
+    return {
+        "evidence_type": f"{kind}_impersonation_ml_{imp['training_data']}",
+        "description": (
+            f"{what} impersonation model ({imp['model_version']}, "
+            + ("trained on real PhishTank phishing labels, judges the domain name only" if imp["training_data"] == "real"
+               else f"SYNTHETIC-trained, not validated on real {kind}s")
+            + f") estimates {round(imp['probability'] * 100)}% that this {kind} impersonates {brand_name}"
+            + ("" if not imp["uses_text"] or imp["text_provided"] else " (no page/listing text supplied, so it judged the names only)")
+            + ". Advisory only: not included in the risk score and not proof of impersonation; an analyst decides."
+        ),
+        "source_reference": f"{kind}_impersonation_{imp['training_data']}_v{imp['model_version']}",
+    }
 
 
 class DetectionService:
@@ -242,6 +264,12 @@ class DetectionService:
             fallback_reason = "Injected custom ML classifier artifact unavailable"
 
         elif asset_type_normalized == "domain":
+            adv = _synthetic_advisory("domain", brand_dict.get("name", ""), {
+                "domain": candidate_data.get("domain") or candidate_name,
+                "text": candidate_data.get("page_text") or candidate_data.get("description") or candidate_data.get("title") or "",
+            }, "Domain")
+            if adv:
+                evidence_records.append(adv)
             indicator = candidate_data.get("source_url") or candidate_data.get("url") or candidate_name
             if self.ml_service and self.ml_service.is_url_model_available():
                 url_pred = self.ml_service.predict_url_risk(indicator)
@@ -274,6 +302,26 @@ class DetectionService:
                 fallback_reason = "URL phishing pipeline artifact unavailable"
 
         elif asset_type_normalized == "social":
+            # Advisory impersonation score from the synthetic-trained profile model. Official accounts already returned
+            # above, so this only sees non-official candidates. Never fused into the score.
+            from backend.app.ml.profile_impersonation_service import score_profile
+            imp = score_profile(
+                brand_dict.get("name", ""), candidate_name,
+                candidate_data.get("display_name") or "",
+                candidate_data.get("bio") or candidate_data.get("description") or "",
+            )
+            if imp:
+                pct = round(imp["probability"] * 100)
+                evidence_records.append({
+                    "evidence_type": "social_impersonation_ml_synthetic",
+                    "description": (
+                        f"Profile impersonation model ({imp['model_version']}, SYNTHETIC-trained, not validated on real "
+                        f"accounts) estimates {pct}% that this profile presents itself as {brand_dict.get('name', 'the brand')}"
+                        f"{'' if imp['bio_provided'] else ' (no bio supplied, so it judged the names only)'}. "
+                        "Advisory only: not included in the risk score and not proof of impersonation; an analyst decides."
+                    ),
+                    "source_reference": f"social_impersonation_synthetic_v{imp['model_version']}",
+                })
             if self.ml_service and self.ml_service.is_social_model_available():
                 social_pred = self.ml_service.predict_social_risk(candidate_data, brand_profile=brand_dict)
                 fake_info = social_pred.get("generic_fake_account_ml", {})
@@ -315,6 +363,14 @@ class DetectionService:
                 fallback_reason = "Social fake account pipeline artifact unavailable"
 
         elif asset_type_normalized == "mobile_app":
+            adv = _synthetic_advisory("app", brand_dict.get("name", ""), {
+                "title": candidate_data.get("app_name") or candidate_name,
+                "package": candidate_data.get("package_id") or candidate_data.get("identifier") or "",
+                "developer": candidate_data.get("developer") or candidate_data.get("publisher_name") or "",
+                "text": candidate_data.get("description") or "",
+            }, "App")
+            if adv:
+                evidence_records.append(adv)
             # Explicitly heuristic: pending verified ground-truth brand impersonation dataset
             ml_fallback_used = True
             ml_predicted_class = "HEURISTIC_EVALUATION"

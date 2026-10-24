@@ -94,7 +94,7 @@ export function PlateCaption({ left, right }) {
     <div className="mb-5 flex items-center gap-3 sm:gap-4">
       <span className="whitespace-nowrap text-[0.58rem] uppercase tracking-[0.24em] text-accent/80 sm:text-[0.62rem] sm:tracking-[0.3em]">{left}</span>
       <span aria-hidden className="h-px min-w-4 flex-1 bg-gradient-to-r from-transparent via-line to-transparent" />
-      <span className="whitespace-nowrap text-[0.58rem] uppercase tracking-[0.24em] text-fgSubtle sm:text-[0.62rem] sm:tracking-[0.3em]">{right}</span>
+      <span className="hidden whitespace-nowrap text-[0.58rem] uppercase tracking-[0.24em] text-fgSubtle sm:inline sm:text-[0.62rem] sm:tracking-[0.3em]">{right}</span>
     </div>
   );
 }

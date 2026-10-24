@@ -361,3 +361,24 @@ def test_unauthorized_package_id_without_official_apps(app):
     signal_types = [s["signal_type"] for s in result["signals"]]
     assert "UNAUTHORIZED_PACKAGE_BRAND_EMBEDDING" in signal_types or "PACKAGE_ID_MISMATCH" in signal_types
 
+
+
+class _FakeUrlModel:
+    """Stands in for the ML service: the URL model is available and flags everything as phishing."""
+    def is_url_model_available(self):
+        return True
+
+    def predict_url_risk(self, indicator):
+        return {"available": True, "is_phishing_risk": True, "risk_score": 88.0, "risk_probability": 0.93, "model_version": "test"}
+
+
+def test_high_risk_url_branch_builds_ml_signal(app, brand_with_assets):
+    """A domain with no rule signals but a high-risk URL-model verdict must be kept as a finding, not crash with NameError."""
+    service = DetectionService(ml_service=_FakeUrlModel())
+    result = service.evaluate_candidate(
+        brand_with_assets,
+        {"asset_type": "domain", "candidate_name": "quiet-garden-supplies.org", "source_url": "https://quiet-garden-supplies.org/x"},
+        persist=False,
+    )
+    assert result["risk_score"] > 0
+    assert any(getattr(sig, "signal_type", None) == "ML_PHISHING_URL_DETECTION" or (isinstance(sig, dict) and sig.get("signal_type") == "ML_PHISHING_URL_DETECTION") for sig in result.get("signals", []))

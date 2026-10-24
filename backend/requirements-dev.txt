@@ -1,0 +1,4 @@
+# Development, tests and training only (not installed in the production image).
+-r requirements.txt
+pytest>=8.0.0
+pyarrow>=15.0  # parquet datasets for URL-model training/evaluation scripts

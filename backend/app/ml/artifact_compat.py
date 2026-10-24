@@ -95,6 +95,18 @@ def classify_versions(artifact: Optional[str], runtime: str, sklearn_warned: boo
     return "mismatch"
 
 
+def file_sha256(path: Any) -> Optional[str]:
+    import hashlib
+    try:
+        h = hashlib.sha256()
+        with open(path, "rb") as fh:
+            for chunk in iter(lambda: fh.read(1 << 20), b""):
+                h.update(chunk)
+        return h.hexdigest()
+    except OSError:
+        return None
+
+
 def load_artifact(path: Any, name: str, manifest: Optional[Dict[str, Any]] = None) -> Tuple[Optional[Any], ArtifactCompat]:
     """
     Load a joblib artifact and judge its compatibility with the running scikit-learn.
@@ -102,6 +114,16 @@ def load_artifact(path: Any, name: str, manifest: Optional[Dict[str, Any]] = Non
     """
     runtime = sklearn.__version__
     manifest_version = ((manifest or {}).get("runtime_versions") or {}).get("scikit-learn")
+
+    # Integrity: refuse an artifact whose bytes do not match the checksum stamped in its manifest (corrupted download,
+    # partial copy, or tampering). Manifests without a stamp are loaded as before.
+    expected = (manifest or {}).get("artifact_sha256")
+    if expected:
+        actual = file_sha256(path)
+        if actual != expected:
+            logger.error("Model artifact '%s' refused: sha256 %s does not match manifest %s", name, actual, expected)
+            return None, ArtifactCompat(name, "checksum_mismatch", False, runtime, manifest_sklearn=manifest_version,
+                                        message="Artifact checksum does not match its manifest; not loaded.")
 
     with warnings.catch_warnings(record=True) as caught:
         warnings.simplefilter("always")

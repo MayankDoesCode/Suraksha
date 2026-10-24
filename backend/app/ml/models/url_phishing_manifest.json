@@ -50,5 +50,6 @@
     }
   },
   "architecture": "char 2-5gram TF-IDF + host-shape features + LogisticRegression, sigmoid-calibrated (cv=3), host-only input",
-  "scope_boundary": "Host-only lexical model. ~3.5% false-alarm rate on benign hosts at 0.5; external test is ~88 root domains from one feed. Supporting evidence only; never sets severity."
+  "scope_boundary": "Host-only lexical model. ~3.5% false-alarm rate on benign hosts at 0.5; external test is ~88 root domains from one feed. Supporting evidence only; never sets severity.",
+  "artifact_sha256": "d8857fbba0ea60c7cba00b1d0af4ccff3b8a58f0e6bc5adbc9c1710492078a70"
 }

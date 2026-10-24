@@ -25,7 +25,7 @@ import SiteNav from './SiteNav';
 import { SectionHead, GlowText } from './Editorial';
 import MobileSection from './MobileSection';
 import CaseDesk from './CaseDesk';
-import { PlatformSection, IconMarquee, ProofStrip, Bento, WhyCard, GoDeeper, ClosingCta } from './Sections';
+import { PlatformSection, ProofStrip, Bento, ClosingCta } from './Sections';
 import { Reveal, CountUp } from './Reveal';
 import { runFullLookalikeAnalysis } from '../../utils/lookalikeEngine';
 import { INITIAL_BRAND_PROFILE } from '../../data/demoData';
@@ -148,7 +148,6 @@ export default function LandingPage({ onLaunchDashboard, onReplayIntro }) {
         <HeroLanding onDemo={openDemo} container={container} />
         <Specimen container={container} />
         <PlatformSection onDemo={openDemo} container={container} />
-        <IconMarquee />
         <ProofStrip container={container} />
         <div id="how" className={`${container} pt-28`}>
           <SectionHead index="03" label="The loop" />
@@ -319,8 +318,6 @@ export default function LandingPage({ onLaunchDashboard, onReplayIntro }) {
         </section>
 
         <MobileSection container={container} />
-        <WhyCard container={container} />
-        <GoDeeper container={container} />
         <ClosingCta onDemo={openDemo} container={container} />
 
         {/* Rules vs models */}

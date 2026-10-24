@@ -1,0 +1,92 @@
+{
+  "trained": true,
+  "status": "synthetic_trained_not_validated",
+  "task": "social_brand_impersonation (Dataset A) from handle + display name + bio, relative to one brand",
+  "model_version": "0.1.0-synthetic",
+  "model_artifact": "social_impersonation_synthetic.joblib",
+  "timestamp": "2026-10-24T10:43:22.766194+00:00",
+  "random_state": 11,
+  "sklearn_version": "1.9.1",
+  "data": {
+    "origin": "Generated in this repo by backend/scripts/train_social_profile_model.py. No third-party data, no real accounts.",
+    "rows": 2350,
+    "brands": 62,
+    "label_counts": {
+      "0": 1359,
+      "1": 991
+    },
+    "kinds": {
+      "impersonator": 991,
+      "disclosed_unofficial": 739,
+      "mentions_brand": 248,
+      "unrelated_lookalike": 248,
+      "official": 124
+    },
+    "train_rows": 890,
+    "test_rows": 285,
+    "test_brands": [
+      "barclays",
+      "cleartrip",
+      "dream11",
+      "fedex",
+      "flipkart",
+      "google",
+      "icici",
+      "lenskart",
+      "oyo",
+      "policybazaar",
+      "razorpay",
+      "spotify",
+      "swiggy",
+      "tata",
+      "vistara"
+    ]
+  },
+  "split": "Test = held-out brands (25%) x held-out bio template family B. Train = remaining brands x family A.",
+  "evaluation_synthetic_holdout": {
+    "model": {
+      "precision": 0.88,
+      "recall": 0.7333,
+      "macro_f1": 0.8371,
+      "pr_auc": 0.9354,
+      "false_positive_rate": 0.0727,
+      "brier": 0.1032,
+      "confusion_tn_fp_fn_tp": [
+        153,
+        12,
+        32,
+        88
+      ],
+      "flag_rate_by_negative_kind": {
+        "disclosed_unofficial": 0.0333,
+        "mentions_brand": 0.0,
+        "official": 0.6,
+        "unrelated_lookalike": 0.0
+      }
+    },
+    "baseline_names_only": {
+      "precision": 0.5808,
+      "recall": 0.9583,
+      "macro_f1": 0.687,
+      "pr_auc": 0.611,
+      "false_positive_rate": 0.503,
+      "brier": 0.1875,
+      "confusion_tn_fp_fn_tp": [
+        82,
+        83,
+        5,
+        115
+      ],
+      "flag_rate_by_negative_kind": {
+        "disclosed_unofficial": 0.9222,
+        "mentions_brand": 0.0,
+        "official": 0.0,
+        "unrelated_lookalike": 0.0
+      }
+    }
+  },
+  "architecture": "LogisticRegression over [look-alike features of handle + display name] + word(1-2) and char(3-5) TF-IDF of bio",
+  "caveat": "Synthetic profiles written from patterns we chose: scores measure fit to those patterns, NOT real-world accuracy. Do not use as a verdict. Validate on reviewed live accounts before enabling.",
+  "not_loaded_by_service": true,
+  "artifact_sha256": "19d9f61b0f58041f7e978fb13610c57e3ef4b401c9c324fc441758cc5d0632c9"
+}

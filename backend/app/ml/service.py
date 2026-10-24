@@ -40,6 +40,31 @@ _LAZY_ATTRS = (
 )
 
 
+def _remote_ml_url() -> Optional[str]:
+    """Base URL of the Hugging Face Space that serves the large URL model (SURAKSHA_ML_REMOTE_URL), if configured."""
+    url = (os.getenv("SURAKSHA_ML_REMOTE_URL") or "").strip().rstrip("/")
+    return url or None
+
+
+def _remote_url_risk(base: str, url_or_domain: str) -> Dict[str, Any]:
+    """Call the remote URL model. Any failure is reported as unavailable, so callers fall back to rules."""
+    import requests
+    headers = {}
+    if os.getenv("SURAKSHA_ML_REMOTE_TOKEN"):
+        headers["Authorization"] = f"Bearer {os.getenv('SURAKSHA_ML_REMOTE_TOKEN')}"
+    try:
+        r = requests.post(f"{base}/predict/url", json={"url": url_or_domain}, headers=headers,
+                          timeout=float(os.getenv("SURAKSHA_ML_REMOTE_TIMEOUT", "4")))
+        r.raise_for_status()
+        data = r.json()
+        data["served_by"] = "remote_space"
+        return data
+    except Exception as exc:
+        logger.warning("Remote URL model unavailable: %s", exc)
+        return {"available": False, "task": "url_phishing_detection", "reason": f"Remote ML service unavailable: {type(exc).__name__}",
+                "risk_score": None, "risk_probability": None}
+
+
 class MLService:
     """
     Unified Inference and Telemetry Service for SURAKSHA ML Components.
@@ -183,6 +208,8 @@ class MLService:
 
     @staticmethod
     def _skip_url_model() -> bool:
+        if _remote_ml_url():
+            return True  # the remote Space serves it; do not spend local memory
         """The calibrated URL model needs several hundred MB when loaded. Render's free plan has 512 MB, so on Render it is
         skipped unless explicitly enabled. SURAKSHA_DISABLE_URL_MODEL=1 forces the skip anywhere."""
         if os.getenv("SURAKSHA_DISABLE_URL_MODEL") == "1":
@@ -190,6 +217,8 @@ class MLService:
         return bool(os.getenv("RENDER")) and os.getenv("SURAKSHA_ENABLE_URL_MODEL") != "1"
 
     def is_url_model_available(self) -> bool:
+        if _remote_ml_url():
+            return True  # served by the remote ML Space; predict_url_risk reports unavailability per call
         return self.url_model is not None and bool(self.url_manifest and self.url_manifest.get("trained"))
 
     def is_social_model_available(self) -> bool:
@@ -323,12 +352,24 @@ class MLService:
                 "social_fake_account": social_meta,
                 "mobile_app_brand_impersonation": mobile_meta,
             },
+            "advisory_impersonation_models": self._impersonation_health(),
         }
+
+    @staticmethod
+    def _impersonation_health() -> Dict[str, Any]:
+        try:
+            from backend.app.ml.profile_impersonation_service import health
+            return health()
+        except Exception as exc:  # status must never fail because of an advisory model
+            return {"error": f"{type(exc).__name__}: {exc}"}
 
     def predict_url_risk(self, url_or_domain: str) -> Dict[str, Any]:
         """
         Execute URL / lookalike domain phishing risk classification.
         """
+        remote = _remote_ml_url()
+        if remote:
+            return _remote_url_risk(remote, url_or_domain)
         if not self.is_url_model_available():
             return {
                 "available": False,

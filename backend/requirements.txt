@@ -3,7 +3,6 @@ Flask-Cors>=6.0.0
 SQLAlchemy>=2.0.0
 alembic>=1.14.0
 python-dotenv>=1.0.0
-pytest>=8.0.0
 requests>=2.32.0
 gunicorn>=23.0.0
 psycopg2-binary>=2.9.9
@@ -12,6 +11,8 @@ psycopg[binary]>=3.2.0
 # scikit-learn version that wrote them (checked at load time by backend/app/ml/artifact_compat.py).
 # When upgrading, retrain every artifact and update these pins together.
 scikit-learn==1.9.1
+xgboost==3.4.1  # social fake-account model v2 (XGBClassifier)
+tldextract==5.4.0  # needed to load the PhishTank domain model (registrable-domain parsing)
 joblib==1.6.0
 pandas>=2.2.0
 numpy>=1.26.0
@@ -24,4 +25,3 @@ confusable-homoglyphs>=3.3.0
 idna>=3.10
 dnspython==2.9.0
 Pillow>=10.0
-pyarrow>=15.0
