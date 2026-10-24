@@ -289,3 +289,41 @@ def test_evaluation_dataset_grounding_and_safety():
     assert eval_results["total_scenarios"] == 5
     assert eval_results["passed_scenarios"] == 5
     assert eval_results["pass_rate_pct"] == 100.0
+
+
+def test_groq_ungrounded_numbers_are_demoted_and_usage_reported():
+    """Facts citing numbers absent from telemetry are moved to unverified claims; tokens/sec is reported."""
+    service = GroqAIService(api_key="gsk_mock_key")
+    mock_client = MagicMock()
+
+    mock_choice = MagicMock()
+    mock_choice.message.content = json.dumps({
+        "summary": "Candidate 'paytmm.com' scored 85 and resembles Paytm.",
+        "observed_facts": [
+            "Detector risk score is 85.",
+            "Domain was registered 37 days ago.",
+        ],
+        "model_inferences": ["TYPO signal suggests a repeated character."],
+        "unverified_claims": [],
+        "recommended_actions": ["Check WHOIS registration date."],
+        "confidence_limitations": "Advisory only.",
+    })
+    mock_response = MagicMock()
+    mock_response.choices = [mock_choice]
+    mock_response.usage.prompt_tokens = 900
+    mock_response.usage.completion_tokens = 300
+    mock_response.usage.completion_time = 1.2
+    mock_client.chat.completions.create.return_value = mock_response
+    service._client = mock_client
+
+    result = service.generate_investigation_brief(
+        brand_profile={"id": "b1", "name": "Paytm", "official_domains": ["paytm.com"]},
+        finding={"id": "f1", "candidate_name": "paytmm.com", "asset_type": "domain", "risk_score": 85.0},
+        signals=[{"signal_type": "TYPO", "severity": "high", "explanation": "Extra 'm'"}],
+    )
+
+    analysis = result["structured_analysis"]
+    assert analysis["observed_facts"] == ["Detector risk score is 85."]
+    assert any("37 days" in c for c in analysis["unverified_claims"])
+    assert analysis["grounding_warnings"]
+    assert result["token_usage"]["tokens_per_second"] == 250.0
