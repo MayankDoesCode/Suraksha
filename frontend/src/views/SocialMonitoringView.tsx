@@ -1,4 +1,5 @@
 import React, { useState } from 'react';
+import { useAutoCase } from '../utils/useAutoCase';
 import { useApp } from '../context/AppContext';
 import { ScoreRing } from '../components/visuals/ScoreRing';
 import { RiskBadge } from '../components/RiskBadge';
@@ -381,6 +382,9 @@ export const SocialMonitoringView: React.FC = () => {
     'Credential & Phishing Risks',
     'Platform & Metadata',
   ];
+
+  // High/Critical results become cases automatically (once per handle)
+  useAutoCase(analysisResult, analysisResult?.riskCategory, analysisResult?.candidate?.username || '', handleSendToInvestigation);
 
   return (
     <div className="w-full max-w-[1720px] mx-auto space-y-6 font-sans text-fg">

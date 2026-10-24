@@ -3,6 +3,7 @@ import { Globe, Building2, ShieldCheck, ShieldAlert } from 'lucide-react';
 import { useApp } from '../context/AppContext';
 import { runFullLookalikeAnalysis } from '../utils/lookalikeEngine';
 import { analyzeSocialCandidate } from '../utils/socialEngine';
+import { useAutoCase } from '../utils/useAutoCase';
 
 /**
  * Fake websites and fake company pages. Websites run through the domain engine (look-alike name, lure words, risky
@@ -69,7 +70,7 @@ function hostAndSlug(url: string) {
 }
 
 export const WebsiteCheckView: React.FC = () => {
-  const { brandProfile } = useApp();
+  const { brandProfile, addCandidate } = useApp();
   const [kind, setKind] = useState<Kind>('website');
   const [form, setForm] = useState(SAMPLES.website[0]);
 
@@ -97,7 +98,21 @@ export const WebsiteCheckView: React.FC = () => {
 
   const level = result ? (/crit/i.test(result.level) ? 'Critical' : /high/i.test(result.level) ? 'High' : /med/i.test(result.level) ? 'Medium' : 'Low') : 'Low';
   const top = result ? [...result.signals].slice(0, 5) : [];
-  const set = (k: keyof typeof form) => (e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>) => setForm({ ...form, [k]: e.target.value });
+  // High/Critical results become cases automatically (once per address)
+  const [caseNote, setCaseNote] = useState('');
+  const [touched, setTouched] = useState(false); // built-in samples never become cases; only addresses you type do
+  useAutoCase(touched && result && !result.official ? result : null, level, `${kind}|${form.url}|${form.title}`, () => {
+    if (!result) return;
+    const c = addCandidate({
+      type: kind === 'website' ? 'domain' : 'social',
+      title: form.title || result.what, identifier: result.what, url: form.url, platform: kind === 'website' ? 'Website' : result.what.split(' page')[0],
+      description: form.text, riskCategory: level as any,
+      summary: `Auto-added from the ${kind === 'website' ? 'website' : 'company page'} check: ${level} risk, ${Math.round(result.score)}/100.`,
+      evidenceSupporting: result.signals.slice(0, 6).map((x: any) => x.title), analysisEngine: 'Websites & pages check (in-browser)',
+    } as any);
+    setCaseNote(`Added to Cases (${c.id}).`);
+  }, 1200);
+  const set = (k: keyof typeof form) => (e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>) => { setTouched(true); setCaseNote(''); setForm({ ...form, [k]: e.target.value }); };
 
   return (
     <div className="space-y-6">
@@ -109,7 +124,7 @@ export const WebsiteCheckView: React.FC = () => {
 
       <div className="inline-flex rounded-xl border border-line bg-surface p-1">
         {([['website', 'Website', Globe], ['page', 'Company page', Building2]] as const).map(([k, label, Icon]) => (
-          <button key={k} type="button" onClick={() => { setKind(k); setForm(SAMPLES[k][0]); }}
+          <button key={k} type="button" onClick={() => { setKind(k); setTouched(false); setCaseNote(''); setForm(SAMPLES[k][0]); }}
             className={`inline-flex items-center gap-2 rounded-lg px-3 py-1.5 text-sm ${kind === k ? 'bg-accent text-onAccent' : 'text-fgMuted hover:text-fg'}`}>
             <Icon className="h-4 w-4" aria-hidden />{label}
           </button>
@@ -129,7 +144,7 @@ export const WebsiteCheckView: React.FC = () => {
           </label>
           <div className="flex flex-wrap gap-2 pt-1">
             {SAMPLES[kind].map((s) => (
-              <button key={s.label} type="button" onClick={() => setForm(s)} className={`rounded-full border px-3 py-1 text-xs ${form.label === s.label ? 'border-accent/70 text-fg' : 'border-line text-fgMuted hover:text-fg'}`}>{s.label}</button>
+              <button key={s.label} type="button" onClick={() => { setTouched(false); setCaseNote(''); setForm(s); }} className={`rounded-full border px-3 py-1 text-xs ${form.label === s.label ? 'border-accent/70 text-fg' : 'border-line text-fgMuted hover:text-fg'}`}>{s.label}</button>
             ))}
           </div>
         </section>
@@ -165,6 +180,7 @@ export const WebsiteCheckView: React.FC = () => {
               {result.next && <p className="mt-4 border-t border-line pt-3 text-xs text-fgMuted"><span className="font-semibold text-fg">Next step: </span>{result.next}</p>}
             </>
           )}
+          {caseNote && level !== 'Low' && level !== 'Medium' && <p className="mt-3 rounded-lg bg-accent/10 px-3 py-2 text-xs text-fg">{caseNote}</p>}
           <p className="mt-4 text-[11px] text-fgSubtle">Triage evidence for an analyst, not a verdict. Pair it with the Logo check if the page uses your logo.</p>
         </section>
       </div>

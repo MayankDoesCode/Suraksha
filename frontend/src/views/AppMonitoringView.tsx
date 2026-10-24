@@ -1,4 +1,5 @@
 import React, { useState } from 'react';
+import { useAutoCase } from '../utils/useAutoCase';
 import { useApp } from '../context/AppContext';
 import { ScoreRing } from '../components/visuals/ScoreRing';
 import { RiskBadge } from '../components/RiskBadge';
@@ -202,6 +203,9 @@ export const AppMonitoringView: React.FC = () => {
 
     setCreatedCandidateId(newCandidate.id);
   };
+
+  // High/Critical results become cases automatically (once per app)
+  useAutoCase(analysisResult, analysisResult?.riskCategory, appName, handleSendToInvestigation);
 
   const officialApp = brandProfile.officialApps[0];
 
