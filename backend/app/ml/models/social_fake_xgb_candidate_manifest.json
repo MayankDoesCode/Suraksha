@@ -201,5 +201,6 @@
     "Low follower count or digits in a username are not proof an account is fake; use only as supporting evidence.",
     "Non-commercial licence: do not ship in a commercial product."
   ],
-  "shipped_model_untouched": "social_fake_pipeline.joblib / social_fake_manifest.json"
+  "shipped_model_untouched": "social_fake_pipeline.joblib / social_fake_manifest.json",
+  "artifact_sha256": "e0df64c3841163aff36ffa5ab4bfe91b5d93e2e7caa480eb93742c14bcbb1942"
 }

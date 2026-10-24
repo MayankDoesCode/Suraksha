@@ -323,7 +323,16 @@ class MLService:
                 "social_fake_account": social_meta,
                 "mobile_app_brand_impersonation": mobile_meta,
             },
+            "advisory_impersonation_models": self._impersonation_health(),
         }
+
+    @staticmethod
+    def _impersonation_health() -> Dict[str, Any]:
+        try:
+            from backend.app.ml.profile_impersonation_service import health
+            return health()
+        except Exception as exc:  # status must never fail because of an advisory model
+            return {"error": f"{type(exc).__name__}: {exc}"}
 
     def predict_url_risk(self, url_or_domain: str) -> Dict[str, Any]:
         """

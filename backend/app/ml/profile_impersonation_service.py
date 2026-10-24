@@ -37,9 +37,16 @@ def _load(kind: str = "social"):
             if manifest.get("status") not in ALLOWED_STATUSES:
                 return None, None
             import joblib
-            c["model"] = joblib.load(os.path.join(MODEL_DIR, manifest["model_artifact"]))
+            from backend.app.ml.artifact_compat import file_sha256
+            path = os.path.join(MODEL_DIR, manifest["model_artifact"])
+            if manifest.get("artifact_sha256") and file_sha256(path) != manifest["artifact_sha256"]:
+                c["error"] = "checksum_mismatch"
+                logger.error("Synthetic/real %s impersonation model refused: checksum mismatch", kind)
+                return None, None
+            c["model"] = joblib.load(path)
             c["manifest"] = manifest
         except Exception as exc:  # missing artifact, version mismatch: stay unavailable, never guess
+            c["error"] = f"{type(exc).__name__}: {exc}"
             logger.warning("Synthetic %s impersonation model unavailable: %s", kind, exc)
         return c.get("model"), c.get("manifest")
 
@@ -97,3 +104,14 @@ def score_profile(brand_name: str, handle: str, display_name: str = "", bio: str
         "validated": False,
         "bio_provided": bool(bio),
     }
+
+
+def health() -> Dict[str, Any]:
+    """Load state of each advisory impersonation model, for the ML status endpoint."""
+    out = {}
+    for kind in MANIFESTS:
+        model, manifest = _load(kind)
+        out[kind] = {"loaded": model is not None, "status": (manifest or {}).get("status"),
+                     "model_version": (manifest or {}).get("model_version"), "artifact": MANIFESTS[kind].replace("_manifest.json", ".joblib"),
+                     "error": _cache.get(kind, {}).get("error"), "advisory_only": True}
+    return out

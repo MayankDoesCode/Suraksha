@@ -230,5 +230,6 @@
     "Brand mix is skewed (Allegro, IRS, Amazon dominate)."
   ],
   "advisory_only": true,
-  "training_data": "real labels (PhishTank verified phish with named targets + Tranco legitimate domains)"
+  "training_data": "real labels (PhishTank verified phish with named targets + Tranco legitimate domains)",
+  "artifact_sha256": "02604198e8d95aa45230ea6b751e5b4e81ad7d8b8b88a8c9177cc01b13c518bb"
 }

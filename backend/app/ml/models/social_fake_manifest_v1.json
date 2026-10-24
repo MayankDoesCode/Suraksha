@@ -1,9 +1,9 @@
 {
   "trained": true,
-  "status": "operational",
+  "status": "retired_backup",
   "task": "social_fake_account_detection",
   "model_version": "1.0.0",
-  "model_artifact": "social_fake_pipeline.joblib",
+  "model_artifact": "social_fake_pipeline_v1.joblib",
   "timestamp": "2026-10-19T05:54:20.045083+00:00",
   "random_state": 42,
   "dataset_metadata": {
@@ -58,5 +58,6 @@
     "follower_following_ratio",
     "digit_ratio"
   ],
-  "scope_boundary": "Model is trained strictly for generic fake/automated social profile detection. Brand impersonation risk requires separate brand allowlist cross-referencing and lexical trademark similarity, which are evaluated assistively by SURAKSHA's threat engine."
+  "scope_boundary": "Model is trained strictly for generic fake/automated social profile detection. Brand impersonation risk requires separate brand allowlist cross-referencing and lexical trademark similarity, which are evaluated assistively by SURAKSHA's threat engine.",
+  "artifact_sha256": "eaacc24e07e5452c444bfb99df40f99e050ff91d0b7bda82d04a5588b3e79b47"
 }

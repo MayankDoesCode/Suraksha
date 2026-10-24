@@ -236,5 +236,6 @@
     "baseline_f1": 0.8889,
     "baseline_false_positive_rate": 0.0259,
     "f1_improvement_pct": 2.0
-  }
+  },
+  "artifact_sha256": "e0df64c3841163aff36ffa5ab4bfe91b5d93e2e7caa480eb93742c14bcbb1942"
 }

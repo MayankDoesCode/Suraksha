@@ -1,0 +1,42 @@
+# Monthly retrain of the real-label domain impersonation model from a fresh PhishTank feed.
+# Opens a pull request only when held-out macro-F1 does not drop; never merges or deploys by itself.
+name: retrain-domain-model
+on:
+  schedule: [{ cron: "0 3 1 * *" }]
+  workflow_dispatch: {}
+permissions:
+  contents: write
+  pull-requests: write
+jobs:
+  retrain:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with: { python-version: "3.12" }
+      - run: pip install -r backend/requirements.txt tldextract pytest
+      - name: Download raw data (PhishTank attribution required; Tranco list id recorded)
+        run: |
+          TS=$(date -u +%Y%m%dT%H%M%SZ)
+          mkdir -p data/raw/phishtank/$TS data/raw/tranco/$TS
+          curl -fsSL -A "phishtank/suraksha-ci" -o data/raw/phishtank/$TS/online-valid.json.bz2 https://data.phishtank.com/data/online-valid.json.bz2
+          curl -fsSL -o data/raw/tranco/$TS/top-1m.csv.zip https://tranco-list.eu/top-1m.csv.zip
+          curl -fsSL -o data/raw/tranco/$TS/list_id.txt https://tranco-list.eu/top-1m-id
+      - name: Retrain and gate on held-out macro-F1
+        run: |
+          OLD=$(python -c "import json;print(json.load(open('backend/app/ml/models/domain_impersonation_phishtank_manifest.json'))['evaluation_held_out_brands']['combined']['macro_f1'])")
+          python -m backend.scripts.build_brand_domain_dataset
+          python -c "import json;p='backend/app/ml/models/domain_impersonation_phishtank_manifest.json';m=json.load(open(p));m['status']='trained_real_labels_advisory';json.dump(m,open(p,'w'),indent=2)"
+          python -m backend.scripts.stamp_artifact_checksums
+          NEW=$(python -c "import json;print(json.load(open('backend/app/ml/models/domain_impersonation_phishtank_manifest.json'))['evaluation_held_out_brands']['combined']['macro_f1'])")
+          echo "old=$OLD new=$NEW"
+          python -c "import sys; sys.exit(0 if float('$NEW') >= float('$OLD') - 0.01 else 1)"
+      - run: PYTEST_DISABLE_PLUGIN_AUTOLOAD=1 python -m pytest backend/tests -q
+      - uses: peter-evans/create-pull-request@v7
+        with:
+          branch: retrain/domain-model
+          title: "Monthly retrain: domain impersonation model (PhishTank)"
+          body: "Automated retrain from a fresh PhishTank feed. Held-out macro-F1 did not drop. Review the manifest before merging. Data: PhishTank (attribution required) and Tranco."
+          add-paths: |
+            backend/app/ml/models/domain_impersonation_phishtank.joblib
+            backend/app/ml/models/domain_impersonation_phishtank_manifest.json

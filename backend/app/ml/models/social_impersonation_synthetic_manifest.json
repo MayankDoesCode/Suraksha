@@ -87,5 +87,6 @@
   },
   "architecture": "LogisticRegression over [look-alike features of handle + display name] + word(1-2) and char(3-5) TF-IDF of bio",
   "caveat": "Synthetic profiles written from patterns we chose: scores measure fit to those patterns, NOT real-world accuracy. Do not use as a verdict. Validate on reviewed live accounts before enabling.",
-  "not_loaded_by_service": true
+  "not_loaded_by_service": true,
+  "artifact_sha256": "19d9f61b0f58041f7e978fb13610c57e3ef4b401c9c324fc441758cc5d0632c9"
 }

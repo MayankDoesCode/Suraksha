@@ -71,5 +71,6 @@
   },
   "caveat": "Synthetic data written from chosen patterns: NOT real-world accuracy. Advisory only; never a verdict. Validate on reviewed real assets before relying on it.",
   "not_loaded_by_service": false,
-  "advisory_only": true
+  "advisory_only": true,
+  "artifact_sha256": "9824a088be65dde2a0438747c5f7fb409746a7735fe8a7b5612184ff5724a840"
 }

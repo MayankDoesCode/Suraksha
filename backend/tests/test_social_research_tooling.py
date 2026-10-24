@@ -140,3 +140,17 @@ def test_domain_and_app_checks_add_synthetic_advisory_without_moving_score(app):
             assert off["risk_score"] == res["risk_score"], kind  # advisory never moves the score
         official = svc.evaluate_candidate(brand.id, {"asset_type": "domain", "candidate_name": "acme.com"}, persist=False)
         assert official["is_official"] and not official.get("evidence")
+
+
+def test_artifact_with_wrong_checksum_is_refused(tmp_path):
+    import shutil
+    from backend.app.ml.artifact_compat import file_sha256, load_artifact
+    src = os.path.join(MODELS, "social_fake_pipeline.joblib")
+    copy = tmp_path / "m.joblib"
+    shutil.copy(src, copy)
+    ok, compat = load_artifact(str(copy), "t", {"artifact_sha256": file_sha256(str(copy))})
+    assert ok is not None and compat.loaded
+    with open(copy, "ab") as fh:
+        fh.write(b"tampered")
+    bad, compat = load_artifact(str(copy), "t", {"artifact_sha256": file_sha256(src)})
+    assert bad is None and compat.status == "checksum_mismatch" and not compat.loaded
