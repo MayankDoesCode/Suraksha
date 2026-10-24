@@ -12,6 +12,7 @@ from backend.app.models.brand import (
 from backend.app.repositories.brand_repository import BrandRepository
 from backend.app.validation.brand_validator import BrandValidator
 from backend.app.utils.errors import ValidationError, NotFoundError, ConflictError, ForbiddenError, UnauthorizedError
+from backend.app.utils.ownership import can_access_brand
 
 logger = logging.getLogger(__name__)
 
@@ -63,11 +64,11 @@ class BrandService:
         if not brand:
             raise NotFoundError(f"Brand profile with ID '{brand_id}' was not found.")
 
-        # Authorization check: real brands can only be accessed by their owner or platform admin
-        if not brand.is_sample and brand.owner_id:
+        # Authorization check: real brands (including unowned ones, which are admin-only) need an owner or platform admin
+        if not brand.is_sample:
             if not requesting_user_id:
                 raise UnauthorizedError("Authentication required to view this brand profile.")
-            if brand.owner_id != requesting_user_id and not is_admin:
+            if not can_access_brand(brand, {"uid": requesting_user_id, "role": "admin" if is_admin else None}):
                 raise ForbiddenError("You are not authorized to view this brand profile.")
 
         return brand.to_dict()
@@ -154,10 +155,10 @@ class BrandService:
             raise NotFoundError(f"Brand profile with ID '{brand_id}' was not found.")
 
         # Authorization check: real brands can only be updated by their owner or platform admin
-        if not brand.is_sample and brand.owner_id:
+        if not brand.is_sample:
             if not requesting_user_id:
                 raise UnauthorizedError("Authentication required to update this brand profile.")
-            if brand.owner_id != requesting_user_id and not is_admin:
+            if not can_access_brand(brand, {"uid": requesting_user_id, "role": "admin" if is_admin else None}):
                 raise ForbiddenError("You are not authorized to update this brand profile.")
 
         cleaned_data, errors = BrandValidator.validate(payload, is_update=True)
@@ -240,10 +241,10 @@ class BrandService:
             raise NotFoundError(f"Brand profile with ID '{brand_id}' was not found.")
 
         # Authorization check: real brands can only be deleted by their owner or platform admin
-        if not brand.is_sample and brand.owner_id:
+        if not brand.is_sample:
             if not requesting_user_id:
                 raise UnauthorizedError("Authentication required to delete this brand profile.")
-            if brand.owner_id != requesting_user_id and not is_admin:
+            if not can_access_brand(brand, {"uid": requesting_user_id, "role": "admin" if is_admin else None}):
                 raise ForbiddenError("You are not authorized to delete this brand profile.")
 
         brand_name = brand.name

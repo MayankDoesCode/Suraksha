@@ -5,6 +5,7 @@ from backend.app.validation.threat_validator import VALID_REVIEW_STATUSES
 from backend.app.utils.errors import NotFoundError, ValidationError, ForbiddenError, UnauthorizedError
 from backend.app.utils.auth import require_auth, get_authenticated_user_optional, get_current_user
 from backend.app.utils.limiter import limiter
+from backend.app.utils.ownership import can_access_brand, can_access_finding
 
 findings_bp = Blueprint("findings", __name__)
 threat_repo = ThreatRepository()
@@ -155,9 +156,7 @@ def get_finding(finding_id: str):
                 }
             }), 401
 
-        user_id = user_info.get("uid")
-        is_admin = (user_info.get("role") == "admin")
-        if finding.brand and finding.brand.owner_id and finding.brand.owner_id != user_id and not is_admin:
+        if not can_access_finding(finding, user_info):
             return jsonify({
                 "success": False,
                 "error": {
@@ -192,10 +191,8 @@ def update_finding_status(finding_id: str):
         }), 404
 
     user_info = get_current_user() or {}
-    user_id = user_info.get("uid")
-    is_admin = (user_info.get("role") == "admin")
 
-    if not finding.is_sample and finding.brand and finding.brand.owner_id and finding.brand.owner_id != user_id and not is_admin:
+    if not can_access_finding(finding, user_info):
         return jsonify({
             "success": False,
             "error": {
@@ -312,9 +309,7 @@ def explain_finding(finding_id: str):
                     "details": []
                 }
             }), 401
-        user_id = user_info.get("uid")
-        is_admin = (user_info.get("role") == "admin")
-        if finding.brand and finding.brand.owner_id and finding.brand.owner_id != user_id and not is_admin:
+        if not can_access_finding(finding, user_info):
             return jsonify({
                 "success": False,
                 "error": {
@@ -379,9 +374,7 @@ def ai_investigate_finding(finding_id: str):
                     "details": []
                 }
             }), 401
-        user_id = user_info.get("uid")
-        is_admin = (user_info.get("role") == "admin")
-        if finding.brand and finding.brand.owner_id and finding.brand.owner_id != user_id and not is_admin:
+        if not can_access_finding(finding, user_info):
             return jsonify({
                 "success": False,
                 "error": {
@@ -443,6 +436,17 @@ def explain_candidate():
             }
         }), 422
 
+    from backend.app.repositories.brand_repository import BrandRepository
+    brand = BrandRepository().get_by_id(brand_id)
+    if not brand:
+        raise NotFoundError(f"Brand with ID '{brand_id}' not found.")
+    if not brand.is_sample:
+        user_info = get_authenticated_user_optional()
+        if not user_info:
+            raise UnauthorizedError("Authentication required to evaluate against this brand.")
+        if not can_access_brand(brand, user_info):
+            raise ForbiddenError("You are not authorized to evaluate against this brand.")
+
     result = watchtower_service.evaluate_watchtower(
         brand_id=brand_id,
         candidate_data=payload,
@@ -501,9 +505,7 @@ def ai_investigate_candidate():
                     "details": []
                 }
             }), 401
-        user_id = user_info.get("uid")
-        is_admin = (user_info.get("role") == "admin")
-        if brand.owner_id and brand.owner_id != user_id and not is_admin:
+        if not can_access_brand(brand, user_info):
             return jsonify({
                 "success": False,
                 "error": {
@@ -558,12 +560,11 @@ def _owned_finding(finding_id: str, allow_sample: bool = False):
     finding = threat_repo.get_by_id(finding_id)
     if not finding:
         raise NotFoundError(f"Finding with ID '{finding_id}' not found.")
-    is_admin = user_info.get("role") == "admin"
     if finding.is_sample:
         if allow_sample:
             return finding, user_info
         raise ForbiddenError("You do not have access to this finding.")
-    if finding.brand and finding.brand.owner_id and finding.brand.owner_id != user_info.get("uid") and not is_admin:
+    if not can_access_finding(finding, user_info):
         raise ForbiddenError("You do not have access to this finding.")
     return finding, user_info
 
