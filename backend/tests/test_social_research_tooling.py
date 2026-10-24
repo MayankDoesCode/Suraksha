@@ -129,8 +129,9 @@ def test_domain_and_app_checks_add_synthetic_advisory_without_moving_score(app):
         }
         for kind, cand in cases.items():
             res = svc.evaluate_candidate(brand.id, cand, persist=False)
-            ev = [e for e in res["evidence"] if e["evidence_type"] == f"{kind}_impersonation_ml_synthetic"]
-            assert len(ev) == 1 and "SYNTHETIC-trained" in ev[0]["description"], kind
+            want = {"domain": ("domain_impersonation_ml_real", "real PhishTank"), "app": ("app_impersonation_ml_synthetic", "SYNTHETIC-trained")}[kind]
+            ev = [e for e in res["evidence"] if e["evidence_type"] == want[0]]
+            assert len(ev) == 1 and want[1] in ev[0]["description"], kind
             os.environ["SURAKSHA_DISABLE_SYNTHETIC_PROFILE_MODEL"] = "1"
             try:
                 off = svc.evaluate_candidate(brand.id, cand, persist=False)

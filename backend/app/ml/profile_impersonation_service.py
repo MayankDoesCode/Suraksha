@@ -7,6 +7,7 @@ accounts before asking. Unavailable (returns None) when the artifact or manifest
 synthetic-trained candidate, or when SURAKSHA_DISABLE_SYNTHETIC_PROFILE_MODEL=1.
 """
 import json
+import re
 import logging
 import os
 import threading
@@ -16,9 +17,10 @@ logger = logging.getLogger(__name__)
 MODEL_DIR = os.path.join(os.path.dirname(os.path.abspath(__file__)), "models")
 MANIFESTS = {
     "social": "social_impersonation_synthetic_manifest.json",
-    "domain": "domain_impersonation_synthetic_manifest.json",
+    "domain": "domain_impersonation_phishtank_manifest.json",  # real-label model replaced the synthetic one
     "app": "app_impersonation_synthetic_manifest.json",
 }
+ALLOWED_STATUSES = {"synthetic_trained_not_validated", "trained_real_labels_advisory"}
 _lock = threading.Lock()
 _cache: Dict[str, Dict[str, Any]] = {}
 
@@ -32,7 +34,7 @@ def _load(kind: str = "social"):
         try:
             with open(os.path.join(MODEL_DIR, MANIFESTS[kind]), encoding="utf-8") as fh:
                 manifest = json.load(fh)
-            if manifest.get("status") != "synthetic_trained_not_validated":
+            if manifest.get("status") not in ALLOWED_STATUSES:
                 return None, None
             import joblib
             c["model"] = joblib.load(os.path.join(MODEL_DIR, manifest["model_artifact"]))
@@ -50,16 +52,28 @@ def score_asset(kind: str, brand_name: str, fields: Dict[str, str]) -> Optional[
     if model is None:
         return None
     import pandas as pd
-    row = {c: str(fields.get(c) or "") for c in manifest.get("input_columns", []) if c != "brand"}
-    if not any(row.values()):
-        return None
+    cols = manifest.get("input_columns", [])
+    if "host" in cols:  # real-label domain model: host + short brand key
+        host = re.sub(r"^https?://", "", str(fields.get("domain") or "").strip().lower()).split("/")[0]
+        host = host[4:] if host.startswith("www.") else host
+        if not host:
+            return None
+        frame = pd.DataFrame([{"host": host, "brand_key": re.sub(r"[^a-z0-9]", "", brand_name.lower().split()[0])}])
+        row = {"text": ""}
+    else:
+        row = {c: str(fields.get(c) or "") for c in cols if c != "brand"}
+        if not any(row.values()):
+            return None
+        frame = pd.DataFrame([{"brand": brand_name.strip().lower(), **row}])
     try:
-        prob = float(model.predict_proba(pd.DataFrame([{"brand": brand_name.strip().lower(), **row}]))[0, 1])
+        prob = float(model.predict_proba(frame)[0, 1])
     except Exception as exc:
         logger.warning("Synthetic %s impersonation scoring failed: %s", kind, exc)
         return None
-    return {"probability": round(prob, 4), "model_version": manifest.get("model_version"), "training_data": "synthetic",
-            "validated": False, "text_provided": bool(row.get("text"))}
+    real = manifest.get("status") == "trained_real_labels_advisory"
+    return {"probability": round(prob, 4), "model_version": manifest.get("model_version"),
+            "training_data": "real" if real else "synthetic", "validated": real,
+            "uses_text": "host" not in cols, "text_provided": bool(row.get("text"))}
 
 
 def score_profile(brand_name: str, handle: str, display_name: str = "", bio: str = "") -> Optional[Dict[str, Any]]:

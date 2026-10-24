@@ -35,14 +35,16 @@ def _synthetic_advisory(kind: str, brand_name: str, fields: Dict[str, str], what
     if not imp:
         return None
     return {
-        "evidence_type": f"{kind}_impersonation_ml_synthetic",
+        "evidence_type": f"{kind}_impersonation_ml_{imp['training_data']}",
         "description": (
-            f"{what} impersonation model ({imp['model_version']}, SYNTHETIC-trained, not validated on real {kind}s) estimates "
-            f"{round(imp['probability'] * 100)}% that this {kind} presents itself as {brand_name}"
-            f"{'' if imp['text_provided'] else ' (no page/listing text supplied, so it judged the names only)'}. "
-            "Advisory only: not included in the risk score and not proof of impersonation; an analyst decides."
+            f"{what} impersonation model ({imp['model_version']}, "
+            + ("trained on real PhishTank phishing labels, judges the domain name only" if imp["training_data"] == "real"
+               else f"SYNTHETIC-trained, not validated on real {kind}s")
+            + f") estimates {round(imp['probability'] * 100)}% that this {kind} impersonates {brand_name}"
+            + ("" if not imp["uses_text"] or imp["text_provided"] else " (no page/listing text supplied, so it judged the names only)")
+            + ". Advisory only: not included in the risk score and not proof of impersonation; an analyst decides."
         ),
-        "source_reference": f"{kind}_impersonation_synthetic_v{imp['model_version']}",
+        "source_reference": f"{kind}_impersonation_{imp['training_data']}_v{imp['model_version']}",
     }
 
 

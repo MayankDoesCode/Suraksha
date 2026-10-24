@@ -1,0 +1,234 @@
+{
+  "trained": true,
+  "status": "trained_real_labels_advisory",
+  "model_version": "0.1.0",
+  "model_artifact": "domain_impersonation_phishtank.joblib",
+  "input_columns": [
+    "host",
+    "brand_key"
+  ],
+  "sklearn_version": "1.9.1",
+  "trained_at": "2026-10-24T11:05:45.072792+00:00",
+  "data": {
+    "sources": [
+      {
+        "name": "PhishTank online-valid feed (Cisco Talos)",
+        "file": "data\\raw\\phishtank\\20261024T110332Z\\online-valid.json.bz2",
+        "sha256": "30c3e80114b702db1d90671bda35f12287292c29047ef87112693cb60df2f972",
+        "records": 57317,
+        "terms": "Free download; attribution to PhishTank required. Confirm current terms at phishtank.org before redistribution or commercial use."
+      },
+      {
+        "name": "Tranco top-1M",
+        "list_id": "262N9",
+        "file": "data\\raw\\tranco\\20261024T110406Z\\top-1m.csv.zip",
+        "sha256": "3e2414dc5eb1e6a7193a3a83d2cd580f18ee0e77e4482d3ca167fc1262190eea",
+        "used_ranks": 200000,
+        "terms": "Free for research; cite the Tranco list id."
+      }
+    ],
+    "counts": {
+      "positives": 4190,
+      "negatives": 12567,
+      "uncertain": 52560,
+      "uncertain_reasons": {
+        "phish_brand_unknown": 51012,
+        "phish_on_popular_registrable_domain": 1543,
+        "legit_domain_contains_brand_name_unverified_ownership": 5
+      },
+      "rejected": {
+        "no_host_or_ip_literal": 82
+      },
+      "brands": 97,
+      "train": {
+        "rows": 5180,
+        "pos": 3082
+      },
+      "test": {
+        "rows": 11421,
+        "pos": 1090,
+        "brands": [
+          "ABN AMRO Bank",
+          "ABSA Bank",
+          "AT&T",
+          "Abonn\u00e9 Free Mobile",
+          "Accurint",
+          "Adobe",
+          "Aetna Health Plans & Dental Coverage",
+          "Alibaba.com",
+          "Allied Bank Limited",
+          "American Express",
+          "Australian Taxation Office",
+          "Banco Bilbao Vizcaya Argentaria",
+          "Banco De Brasil",
+          "Banco Santander, S.A.",
+          "Binance",
+          "Bradesco",
+          "Caixa",
+          "Capitec Bank",
+          "Cariparma Credit Agricole",
+          "Citibank",
+          "Coinbase",
+          "Comcast",
+          "Commonwealth Bank of Australia",
+          "DHL",
+          "Das kann Bank",
+          "Delta Air Lines",
+          "Deutsche Bank",
+          "Development Bank of Singapore",
+          "DocuSign",
+          "East Japan Railway Company",
+          "Facebook",
+          "Fifth Third Bank",
+          "Google",
+          "HSBC Group",
+          "Her Majesty's Revenue and Customs",
+          "Hotmail",
+          "Huntington National Bank",
+          "ING Direct",
+          "Instagram",
+          "Intesa Sanpaolo",
+          "Itau",
+          "JCB Card",
+          "JPMorgan Chase and Co.",
+          "La Banque Postale",
+          "LinkedIn",
+          "Microsoft",
+          "NICOS",
+          "NatWest Bank",
+          "Navy Federal Credit Union",
+          "Nedbank Ltd.",
+          "Netflix",
+          "Nets",
+          "Nordea Bank",
+          "Nubank",
+          "Optus",
+          "Orange",
+          "PayPal",
+          "PayPay Bank",
+          "Rakuten",
+          "Revolut",
+          "Santander UK",
+          "Scotiabank",
+          "Steam",
+          "Sulake Corporation",
+          "Sumitomo Mitsui Banking Corporation",
+          "Swiss Post",
+          "TSB",
+          "The Brazilian Development Bank",
+          "Twitter",
+          "UniCredit",
+          "United Services Automobile Association",
+          "Virustotal",
+          "Visa",
+          "Volksbanken Raiffeisenbanken",
+          "WeTransfer",
+          "Wells Fargo",
+          "Western Union",
+          "WhatsApp",
+          "Yahoo",
+          "eBay, Inc."
+        ],
+        "dropped_for_registrable_overlap": 156
+      },
+      "top_brands": {
+        "Allegro": 2359,
+        "Amazon.com": 349,
+        "Internal Revenue Service": 190,
+        "Microsoft": 185,
+        "Bradesco": 132,
+        "Netflix": 104,
+        "Soci\u00e9t\u00e9 G\u00e9n\u00e9rale": 85,
+        "Facebook": 83,
+        "Sumitomo Mitsui Banking Corporation": 65,
+        "PayPal": 42,
+        "Adobe": 41,
+        "American Express": 40,
+        "Apple": 38,
+        "Google": 31,
+        "Optus": 31
+      }
+    }
+  },
+  "evaluation_held_out_brands": {
+    "brand_relative_only": {
+      "precision": 0.7294,
+      "recall": 0.5615,
+      "macro_f1": 0.8004,
+      "pr_auc": 0.6706,
+      "false_positive_rate": 0.022,
+      "brier": 0.0574,
+      "confusion_tn_fp_fn_tp": [
+        10104,
+        227,
+        478,
+        612
+      ],
+      "flag_rate_by_negative_kind": {
+        "phishtank_named_target": 0.5615,
+        "tranco_unrelated_legitimate": 0.022
+      }
+    },
+    "host_lexical_only": {
+      "precision": 0.7522,
+      "recall": 0.156,
+      "macro_f1": 0.6065,
+      "pr_auc": 0.4387,
+      "false_positive_rate": 0.0054,
+      "brier": 0.0787,
+      "confusion_tn_fp_fn_tp": [
+        10275,
+        56,
+        920,
+        170
+      ],
+      "flag_rate_by_negative_kind": {
+        "phishtank_named_target": 0.156,
+        "tranco_unrelated_legitimate": 0.0054
+      }
+    },
+    "combined": {
+      "precision": 0.8508,
+      "recall": 0.5807,
+      "macro_f1": 0.8316,
+      "pr_auc": 0.7243,
+      "false_positive_rate": 0.0107,
+      "brier": 0.0478,
+      "confusion_tn_fp_fn_tp": [
+        10220,
+        111,
+        457,
+        633
+      ],
+      "flag_rate_by_negative_kind": {
+        "phishtank_named_target": 0.5807,
+        "tranco_unrelated_legitimate": 0.0107
+      }
+    },
+    "synthetic_domain_model_names_only_transfer": {
+      "precision": 0.54,
+      "recall": 0.0248,
+      "macro_f1": 0.4987,
+      "pr_auc": 0.3139,
+      "false_positive_rate": 0.0022,
+      "brier": 0.0815,
+      "confusion_tn_fp_fn_tp": [
+        10308,
+        23,
+        1063,
+        27
+      ],
+      "flag_rate_by_negative_kind": {
+        "phishtank_named_target": 0.0248,
+        "tranco_unrelated_legitimate": 0.0022
+      }
+    }
+  },
+  "known_confounds": [
+    "Negatives are POPULAR legitimate sites, positives are fresh phishing hosts: host-lexical features partly learn 'popular vs throwaway', not brand impersonation. Compare brand_relative_only to see the brand signal alone.",
+    "PhishTank labels phishing pages that use a brand; look-alike domains that never hosted phishing are not covered.",
+    "Brand mix is skewed (Allegro, IRS, Amazon dominate)."
+  ],
+  "advisory_only": true,
+  "training_data": "real labels (PhishTank verified phish with named targets + Tranco legitimate domains)"
+}
