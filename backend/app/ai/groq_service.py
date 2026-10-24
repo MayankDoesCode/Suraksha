@@ -1,4 +1,5 @@
 import os
+import re
 import json
 import time
 import logging
@@ -20,6 +21,21 @@ SUPPORTED_GROQ_MODELS = [
 from backend.app.utils.errors import AppException
 
 DEFAULT_GROQ_MODEL = "llama-3.3-70b-versatile"
+
+_MAX_LIST_ITEMS = 8
+_NUMBER_RE = re.compile(r"(?<![\w.])\d+(?:\.\d+)?(?![\w])")
+# Small counts and ordinals are fine without telemetry backing ("2 signals", "step 1")
+_SAFE_NUMBERS = {str(n) for n in range(0, 11)} | {"100"}
+_INJECTION_MARKERS = ("ignore previous", "ignore all", "system prompt", "you are now", "disregard")
+
+
+def _normalize_number(text: str) -> str:
+    """'85.0' -> '85', '0.90' -> '0.9' so formatting differences don't count as hallucinations."""
+    try:
+        value = float(text)
+    except ValueError:
+        return text
+    return str(int(value)) if value.is_integer() else f"{value:g}"
 
 
 class AIServiceError(AppException):
@@ -67,6 +83,7 @@ class GroqAIService(BaseAIService):
         self.timeout = timeout or float(os.getenv("GROQ_TIMEOUT_SECONDS", "15.0"))
         self.max_retries = max_retries or int(os.getenv("GROQ_MAX_RETRIES", "2"))
         self._client = None
+        self.last_usage: Optional[Dict[str, Any]] = None
 
         if self.api_key:
             try:
@@ -182,6 +199,7 @@ class GroqAIService(BaseAIService):
                     "auto_confirmed": False,
                     "tracing_enabled": langsmith_client.is_active,
                     "execution_time_ms": round(duration_ms, 2),
+                    "token_usage": self.last_usage,
                     "disclaimer": (
                         "AI-generated investigative advisory based solely on verified detector signals. "
                         "Human analyst corroboration is required prior to taking mitigation action."
@@ -240,7 +258,16 @@ class GroqAIService(BaseAIService):
             "   - 'observed_facts': Verifiable, deterministic telemetry (candidate identifier, asset type, registered assets, timestamps).\n"
             "   - 'model_inferences': Probabilistic conclusions derived by detection engines or heuristic rules (ML confidence, similarity score, keyword rules).\n"
             "   - 'unverified_claims': Missing telemetry, knowledge gaps, unconfirmed registrant identities, or assumptions requiring human audit.\n"
-            "6. OUTPUT FORMAT: You must return strictly a valid JSON object matching the requested schema."
+            "6. NUMERIC FIDELITY: Every number you write (scores, percentages, distances, counts) must appear "
+            "verbatim in the telemetry. Never round, estimate, or compute new figures. Fields that are null are "
+            "UNKNOWN: list them under 'unverified_claims', never guess their value.\n"
+            "7. CALIBRATED LANGUAGE: Use definite wording only for 'observed_facts'. Use hedged wording "
+            "('suggests', 'is consistent with') for 'model_inferences'. Do not call an entity malicious, fraudulent, "
+            "or phishing as a fact. If 'ml_fallback_used' is true, state that the ML model was not used.\n"
+            "8. TRACEABILITY: Each model inference should name the signal_type or telemetry field it comes from. "
+            "Recommended actions must be specific to the asset_type (domain, social, app) and the signals present. "
+            "Empty lists are acceptable; padding with generic statements is not.\n"
+            "9. OUTPUT FORMAT: You must return strictly a valid JSON object matching the requested schema."
         )
 
     def _build_user_prompt(self, telemetry: Dict[str, Any]) -> str:
@@ -308,6 +335,9 @@ class GroqAIService(BaseAIService):
                 "ml_model_version": finding.get("ml_model_version"),
                 "ml_predicted_class": finding.get("ml_predicted_class"),
                 "ml_confidence": finding.get("ml_confidence"),
+                "ml_risk_score": finding.get("ml_risk_score"),
+                "ml_fallback_used": finding.get("ml_fallback_used"),
+                "rule_based_score": finding.get("rule_based_score"),
             },
             "signals": clean_signals,
             "evidence": clean_evidence,
@@ -327,8 +357,11 @@ class GroqAIService(BaseAIService):
         """Invoke Groq completions with bounded retry logic and JSON response mode."""
         last_exception = None
 
+        self.last_usage = None
+
         for attempt in range(1, self.max_retries + 2):
             try:
+                call_start = time.perf_counter()
                 response = self._client.chat.completions.create(
                     model=self.model,
                     messages=[
@@ -336,11 +369,19 @@ class GroqAIService(BaseAIService):
                         {"role": "user", "content": user_prompt},
                     ],
                     response_format={"type": "json_object"},
-                    temperature=0.1,  # Low temperature for factual consistency
+                    # Low temperature for factual consistency; fully greedy on retries
+                    temperature=0.1 if attempt == 1 else 0.0,
                     max_tokens=1024,
                 )
+                self.last_usage = self._extract_usage(response, time.perf_counter() - call_start)
                 content = response.choices[0].message.content
                 return json.loads(content)
+
+            except json.JSONDecodeError as e:
+                # Truncated or malformed JSON is usually transient; retry deterministically
+                last_exception = e
+                logger.warning(f"Groq returned malformed JSON on attempt {attempt}: {e}. Retrying...")
+                continue
 
             except Exception as e:
                 last_exception = e
@@ -354,7 +395,53 @@ class GroqAIService(BaseAIService):
                     logger.error(f"Unrecoverable Groq API call error: {e}")
                     raise AIServiceError(f"Groq API error: {e}")
 
+        if isinstance(last_exception, json.JSONDecodeError):
+            raise AIOutputValidationError(f"Groq returned malformed JSON after retries: {last_exception}")
         raise AITimeoutError(f"Groq API exceeded maximum retries ({self.max_retries}): {last_exception}")
+
+    @staticmethod
+    def _extract_usage(response: Any, elapsed_s: float) -> Optional[Dict[str, Any]]:
+        """Token usage and generation throughput (tokens/sec) for performance reporting."""
+        usage = getattr(response, "usage", None)
+        prompt_tokens = getattr(usage, "prompt_tokens", None)
+        completion_tokens = getattr(usage, "completion_tokens", None)
+        if not isinstance(prompt_tokens, int) or not isinstance(completion_tokens, int):
+            return None
+        # Groq reports server-side completion time; fall back to wall-clock time
+        completion_time = getattr(usage, "completion_time", None)
+        gen_seconds = completion_time if isinstance(completion_time, (int, float)) and completion_time > 0 else elapsed_s
+        return {
+            "prompt_tokens": prompt_tokens,
+            "completion_tokens": completion_tokens,
+            "total_tokens": prompt_tokens + completion_tokens,
+            "tokens_per_second": round(completion_tokens / gen_seconds, 1) if gen_seconds > 0 else None,
+        }
+
+    @staticmethod
+    def _collect_numbers(value: Any, out: set) -> set:
+        """Collect every numeric value in the telemetry, in the forms an LLM might write it."""
+        if isinstance(value, bool) or value is None:
+            return out
+        if isinstance(value, (int, float)):
+            out.add(_normalize_number(str(value)))
+            if 0 < value <= 1:  # confidences are often rendered as percentages
+                out.add(_normalize_number(str(round(value * 100, 2))))
+        elif isinstance(value, dict):
+            for v in value.values():
+                GroqAIService._collect_numbers(v, out)
+        elif isinstance(value, (list, tuple)):
+            for v in value:
+                GroqAIService._collect_numbers(v, out)
+        else:
+            for match in _NUMBER_RE.findall(str(value)):
+                out.add(_normalize_number(match))
+        return out
+
+    def _ungrounded_numbers(self, text: str, grounded: set) -> List[str]:
+        return [
+            n for n in _NUMBER_RE.findall(text)
+            if _normalize_number(n) not in grounded and _normalize_number(n) not in _SAFE_NUMBERS
+        ]
 
     def _validate_and_sanitize_output(
         self,
@@ -388,6 +475,41 @@ class GroqAIService(BaseAIService):
         # Ensure summary is string
         raw_json["summary"] = str(raw_json.get("summary", "")).strip()
         raw_json["confidence_limitations"] = str(raw_json.get("confidence_limitations", "")).strip()
+
+        if not raw_json["summary"]:
+            raise AIOutputValidationError("AI output contained an empty summary.")
+
+        # Bound list sizes and item lengths so the UI and audit trail stay readable
+        for list_key in ["observed_facts", "model_inferences", "unverified_claims", "recommended_actions"]:
+            raw_json[list_key] = [item[:400] for item in raw_json[list_key][:_MAX_LIST_ITEMS]]
+
+        # Hallucination guard: any number the model states must exist in the telemetry.
+        # Ungrounded "facts" are demoted to unverified claims rather than shown as verified.
+        grounded = self._collect_numbers(telemetry_context, set())
+        warnings = []
+        kept_facts = []
+        for fact in raw_json["observed_facts"]:
+            bad = self._ungrounded_numbers(fact, grounded)
+            if bad:
+                warnings.append(f"Observed fact cited values not in telemetry ({', '.join(bad)}); moved to unverified.")
+                raw_json["unverified_claims"].append(f"[Unverified AI statement] {fact}")
+            else:
+                kept_facts.append(fact)
+        raw_json["observed_facts"] = kept_facts
+
+        for key in ("summary", "model_inferences"):
+            texts = [raw_json[key]] if key == "summary" else raw_json[key]
+            for text in texts:
+                bad = self._ungrounded_numbers(text, grounded)
+                if bad:
+                    warnings.append(f"{key} cites values not in telemetry: {', '.join(bad)}.")
+
+        # The candidate is untrusted input: flag it if its text leaks into the analysis as instructions
+        candidate = str(telemetry_context.get("candidate_finding", {}).get("candidate_name") or "").lower()
+        if any(marker in candidate for marker in _INJECTION_MARKERS):
+            warnings.append("Candidate identifier contains instruction-like text; treat AI narrative with extra care.")
+
+        raw_json["grounding_warnings"] = warnings
 
         # Invariant checks: ensure model did not invent confirmation or score changes
         raw_json.pop("risk_score", None)
@@ -436,10 +558,14 @@ class GroqAIService(BaseAIService):
                 f"Rule heuristic score: {finding.get('rule_based_score')}/100 based on trademark token patterns."
             )
         if finding.get("ml_risk_score") is not None and not finding.get("ml_fallback_used"):
-            conf_pct = int(float(finding.get("ml_confidence", 0.85)) * 100)
-            model_inferences.append(
-                f"ML model predicted {finding.get('ml_predicted_class', 'SUSPICIOUS')} with {conf_pct}% confidence."
-            )
+            predicted = finding.get("ml_predicted_class") or "an unlabelled class"
+            if finding.get("ml_confidence") is not None:
+                conf_pct = int(float(finding["ml_confidence"]) * 100)
+                model_inferences.append(f"ML model predicted {predicted} with {conf_pct}% confidence.")
+            else:
+                model_inferences.append(f"ML model predicted {predicted}; confidence was not recorded.")
+        elif finding.get("ml_fallback_used"):
+            model_inferences.append("ML model was unavailable for this finding; rule heuristics were used instead.")
         for sig in signals:
             exp = sig.get("explanation")
             if exp:
@@ -478,6 +604,7 @@ class GroqAIService(BaseAIService):
             "unverified_claims": unverified_claims,
             "recommended_actions": recommended_actions,
             "confidence_limitations": "Deterministic advisory heuristics. Human analyst corroboration is required.",
+            "grounding_warnings": [],
         }
 
 

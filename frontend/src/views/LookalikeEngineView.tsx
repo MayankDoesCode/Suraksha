@@ -1,4 +1,5 @@
 import React, { useState } from 'react';
+import { useAutoCase } from '../utils/useAutoCase';
 import { useApp } from '../context/AppContext';
 import { ScoreRing } from '../components/visuals/ScoreRing';
 import {
@@ -663,6 +664,9 @@ ${analysisResult.recommendedNextSteps.map((s, i) => `${i + 1}. ${s}`).join('\n')
     setCopiedReport(true);
     setTimeout(() => setCopiedReport(false), 2500);
   };
+
+  // High/Critical results become cases automatically (once per domain); saved to the backend when a brand is selected
+  useAutoCase(analysisResult, analysisResult?.overallRiskCategory, analysisResult ? (analysisResult.candidateDomain || analysisResult.candidateName) : '', () => { void handleCreateInvestigationCase(); });
 
   return (
     <div className="w-full max-w-[1720px] mx-auto space-y-6 font-sans text-fg">
