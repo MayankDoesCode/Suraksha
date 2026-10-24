@@ -1,0 +1,205 @@
+{
+  "trained": true,
+  "status": "candidate_not_deployed",
+  "task": "social_fake_account_detection (Dataset B1: generic fake/spam-like profiles, NOT brand impersonation)",
+  "model_version": "2.0.0-candidate",
+  "model_artifact": "social_fake_xgb_candidate.joblib",
+  "timestamp": "2026-10-24T10:36:38.210160+00:00",
+  "random_state": 42,
+  "library_versions": {
+    "scikit-learn": "1.9.1",
+    "xgboost": "3.4.1"
+  },
+  "architecture": "XGBClassifier(n_estimators=300, max_depth=4, learning_rate=0.05, subsample=0.9, colsample_bytree=0.9)",
+  "feature_schema": [
+    "userFollowerCount",
+    "userFollowingCount",
+    "userBiographyLength",
+    "userMediaCount",
+    "userHasProfilPic",
+    "userIsPrivate",
+    "usernameDigitCount",
+    "usernameLength",
+    "follower_following_ratio",
+    "digit_ratio"
+  ],
+  "dataset_metadata": {
+    "source": "InstaFake (fcakyon/instafake-dataset, fake-v1.0) fakeAccountData.json + realAccountData.json",
+    "license": "CC BY-NC 4.0: non-commercial research use only",
+    "files": [
+      {
+        "file": "backend/app/ml/data/instafake/fakeAccountData.json",
+        "sha256": "a3da0b2937ad8b05d032dc7b4c3115f927afa0d9dc85749dfe9db82a017b83d8",
+        "rows": 200
+      },
+      {
+        "file": "backend/app/ml/data/instafake/realAccountData.json",
+        "sha256": "3f66e6aceda0ef71a2c0f40244359ce5abcde4d9de76778057b0c3fb4409a627",
+        "rows": 994
+      }
+    ],
+    "audit_before_dedup": {
+      "rows": 1194,
+      "label_counts": {
+        "0": 994,
+        "1": 200
+      },
+      "exact_duplicate_rows": 29,
+      "unique_feature_vectors": 1165,
+      "label_conflicting_vectors": 0,
+      "rows_in_conflicting_vectors": 0,
+      "missing_values": {}
+    },
+    "rows_after_dedup": 1165,
+    "label_counts_after_dedup": {
+      "real": 965,
+      "fake": 200
+    },
+    "train_rows": 932,
+    "holdout_rows": 233,
+    "holdout_label_counts": {
+      "real": 193,
+      "fake": 40
+    },
+    "grouping_note": "No account IDs exist in the data; leakage control is exact-duplicate removal only."
+  },
+  "evaluation": {
+    "cv_5x5_on_train_split": {
+      "candidate_xgboost": {
+        "precision": {
+          "mean": 0.9044,
+          "std": 0.0573
+        },
+        "recall": {
+          "mean": 0.89,
+          "std": 0.0443
+        },
+        "macro_f1": {
+          "mean": 0.9372,
+          "std": 0.0236
+        },
+        "f1_positive": {
+          "mean": 0.8959,
+          "std": 0.0391
+        },
+        "pr_auc": {
+          "mean": 0.9611,
+          "std": 0.0221
+        },
+        "roc_auc": {
+          "mean": 0.9906,
+          "std": 0.005
+        },
+        "false_positive_rate": {
+          "mean": 0.0202,
+          "std": 0.0127
+        },
+        "brier": {
+          "mean": 0.0263,
+          "std": 0.0084
+        },
+        "ece": {
+          "mean": 0.0288,
+          "std": 0.0068
+        },
+        "confusion_tn_fp_fn_tp_summed": [
+          3782,
+          78,
+          88,
+          712
+        ],
+        "n_folds": 25
+      },
+      "baseline_logreg_production_recipe": {
+        "precision": {
+          "mean": 0.7565,
+          "std": 0.0402
+        },
+        "recall": {
+          "mean": 0.935,
+          "std": 0.0318
+        },
+        "macro_f1": {
+          "mean": 0.898,
+          "std": 0.016
+        },
+        "f1_positive": {
+          "mean": 0.8353,
+          "std": 0.0251
+        },
+        "pr_auc": {
+          "mean": 0.9131,
+          "std": 0.0402
+        },
+        "roc_auc": {
+          "mean": 0.9745,
+          "std": 0.0117
+        },
+        "false_positive_rate": {
+          "mean": 0.0632,
+          "std": 0.0143
+        },
+        "brier": {
+          "mean": 0.051,
+          "std": 0.0087
+        },
+        "ece": {
+          "mean": 0.066,
+          "std": 0.0129
+        },
+        "confusion_tn_fp_fn_tp_summed": [
+          3616,
+          244,
+          52,
+          748
+        ],
+        "n_folds": 25
+      }
+    },
+    "holdout_once": {
+      "candidate_xgboost": {
+        "precision": 0.9714,
+        "recall": 0.85,
+        "macro_f1": 0.9444,
+        "f1_positive": 0.9067,
+        "pr_auc": 0.979,
+        "roc_auc": 0.9952,
+        "false_positive_rate": 0.0052,
+        "brier": 0.0274,
+        "ece": 0.0285,
+        "confusion": [
+          192,
+          1,
+          6,
+          34
+        ]
+      },
+      "baseline_logreg_production_recipe": {
+        "precision": 0.878,
+        "recall": 0.9,
+        "macro_f1": 0.9328,
+        "f1_positive": 0.8889,
+        "pr_auc": 0.9167,
+        "roc_auc": 0.9298,
+        "false_positive_rate": 0.0259,
+        "brier": 0.0397,
+        "ece": 0.0474,
+        "confusion": [
+          188,
+          5,
+          4,
+          36
+        ]
+      }
+    },
+    "threshold": 0.5
+  },
+  "final_fit": "Refit on all deduplicated rows after evaluation.",
+  "limitations": [
+    "Single source: Instagram accounts collected for the InstaFake paper (circa 2018-2019); no out-of-time or cross-platform test.",
+    "Detects generic fake/spam-like profiles from 10 numeric fields. Says nothing about brand impersonation.",
+    "Low follower count or digits in a username are not proof an account is fake; use only as supporting evidence.",
+    "Non-commercial licence: do not ship in a commercial product."
+  ],
+  "shipped_model_untouched": "social_fake_pipeline.joblib / social_fake_manifest.json"
+}

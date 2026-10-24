@@ -76,3 +76,6 @@ scratch/
 # temp preview bundles
 _preview_dist.tgz
 *.tgz
+
+# Research data (raw API responses, review queues, reports). Contains public-profile personal data: never commit.
+/data/

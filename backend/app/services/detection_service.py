@@ -5,6 +5,7 @@ from backend.app.repositories.brand_repository import BrandRepository
 from backend.app.repositories.threat_repository import ThreatRepository
 from backend.app.detection.social_detector import SocialDetector
 from backend.app.detection.app_detector import AppDetector
+from backend.app.detection.base import DetectionSignal
 from backend.app.detection.combined import combine
 from backend.app.detection.domain_detector import DomainDetector
 from backend.app.ai.risk_classifier import risk_classifier as default_risk_classifier, RiskClassifier
@@ -274,6 +275,26 @@ class DetectionService:
                 fallback_reason = "URL phishing pipeline artifact unavailable"
 
         elif asset_type_normalized == "social":
+            # Advisory impersonation score from the synthetic-trained profile model. Official accounts already returned
+            # above, so this only sees non-official candidates. Never fused into the score.
+            from backend.app.ml.profile_impersonation_service import score_profile
+            imp = score_profile(
+                brand_dict.get("name", ""), candidate_name,
+                candidate_data.get("display_name") or "",
+                candidate_data.get("bio") or candidate_data.get("description") or "",
+            )
+            if imp:
+                pct = round(imp["probability"] * 100)
+                evidence_records.append({
+                    "evidence_type": "social_impersonation_ml_synthetic",
+                    "description": (
+                        f"Profile impersonation model ({imp['model_version']}, SYNTHETIC-trained, not validated on real "
+                        f"accounts) estimates {pct}% that this profile presents itself as {brand_dict.get('name', 'the brand')}"
+                        f"{'' if imp['bio_provided'] else ' (no bio supplied, so it judged the names only)'}. "
+                        "Advisory only: not included in the risk score and not proof of impersonation; an analyst decides."
+                    ),
+                    "source_reference": f"social_impersonation_synthetic_v{imp['model_version']}",
+                })
             if self.ml_service and self.ml_service.is_social_model_available():
                 social_pred = self.ml_service.predict_social_risk(candidate_data, brand_profile=brand_dict)
                 fake_info = social_pred.get("generic_fake_account_ml", {})
