@@ -50,3 +50,15 @@ services:
       - key: LANGSMITH_PROJECT
         value: suraksha-investigations
 
+  # Optional: the URL phishing model on its own free instance (fits 512 MB alone, not alongside the main app).
+  # After it is live, set SURAKSHA_ML_REMOTE_URL on suraksha-platform to this service's URL.
+  - type: web
+    name: suraksha-url-ml
+    env: docker
+    dockerfilePath: ./deploy/url_service/Dockerfile
+    dockerContext: .
+    plan: free
+    healthCheckPath: /health
+    envVars:
+      - key: SERVICE_API_TOKEN
+        sync: false
