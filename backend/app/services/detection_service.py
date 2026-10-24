@@ -27,6 +27,25 @@ ASSET_TYPE_ALIASES = {
 DEFAULT_ASSET_TYPE = "social"
 
 
+
+def _synthetic_advisory(kind: str, brand_name: str, fields: Dict[str, str], what: str) -> Optional[Dict[str, Any]]:
+    """Advisory evidence from a synthetic-trained impersonation model. Never fused into a score; officials are excluded upstream."""
+    from backend.app.ml.profile_impersonation_service import score_asset
+    imp = score_asset(kind, brand_name, fields)
+    if not imp:
+        return None
+    return {
+        "evidence_type": f"{kind}_impersonation_ml_synthetic",
+        "description": (
+            f"{what} impersonation model ({imp['model_version']}, SYNTHETIC-trained, not validated on real {kind}s) estimates "
+            f"{round(imp['probability'] * 100)}% that this {kind} presents itself as {brand_name}"
+            f"{'' if imp['text_provided'] else ' (no page/listing text supplied, so it judged the names only)'}. "
+            "Advisory only: not included in the risk score and not proof of impersonation; an analyst decides."
+        ),
+        "source_reference": f"{kind}_impersonation_synthetic_v{imp['model_version']}",
+    }
+
+
 class DetectionService:
     """
     Hybrid cybersecurity detection and risk scoring engine.
@@ -243,6 +262,12 @@ class DetectionService:
             fallback_reason = "Injected custom ML classifier artifact unavailable"
 
         elif asset_type_normalized == "domain":
+            adv = _synthetic_advisory("domain", brand_dict.get("name", ""), {
+                "domain": candidate_data.get("domain") or candidate_name,
+                "text": candidate_data.get("page_text") or candidate_data.get("description") or candidate_data.get("title") or "",
+            }, "Domain")
+            if adv:
+                evidence_records.append(adv)
             indicator = candidate_data.get("source_url") or candidate_data.get("url") or candidate_name
             if self.ml_service and self.ml_service.is_url_model_available():
                 url_pred = self.ml_service.predict_url_risk(indicator)
@@ -336,6 +361,14 @@ class DetectionService:
                 fallback_reason = "Social fake account pipeline artifact unavailable"
 
         elif asset_type_normalized == "mobile_app":
+            adv = _synthetic_advisory("app", brand_dict.get("name", ""), {
+                "title": candidate_data.get("app_name") or candidate_name,
+                "package": candidate_data.get("package_id") or candidate_data.get("identifier") or "",
+                "developer": candidate_data.get("developer") or candidate_data.get("publisher_name") or "",
+                "text": candidate_data.get("description") or "",
+            }, "App")
+            if adv:
+                evidence_records.append(adv)
             # Explicitly heuristic: pending verified ground-truth brand impersonation dataset
             ml_fallback_used = True
             ml_predicted_class = "HEURISTIC_EVALUATION"

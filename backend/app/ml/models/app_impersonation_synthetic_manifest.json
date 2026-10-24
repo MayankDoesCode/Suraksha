@@ -1,0 +1,77 @@
+{
+  "trained": true,
+  "status": "synthetic_trained_not_validated",
+  "task": "mobile app brand impersonation from title + package + developer + description, relative to one brand",
+  "model_version": "0.1.0-synthetic",
+  "model_artifact": "app_impersonation_synthetic.joblib",
+  "input_columns": [
+    "brand",
+    "title",
+    "package",
+    "developer",
+    "text"
+  ],
+  "timestamp": "2026-10-24T10:54:29.359379+00:00",
+  "random_state": 13,
+  "sklearn_version": "1.9.1",
+  "data": {
+    "origin": "Generated in this repo by backend/scripts/train_synthetic_impersonation_models.py. No third-party data, no real assets.",
+    "rows": 2104,
+    "label_counts": {
+      "0": 1114,
+      "1": 990
+    },
+    "kinds": {
+      "impersonator": 990,
+      "unofficial_disclosed": 742,
+      "unrelated_lookalike": 248,
+      "official": 124
+    },
+    "train_rows": 795,
+    "test_rows": 255
+  },
+  "split": "Test = held-out brands (25%) x held-out template family B.",
+  "evaluation_synthetic_holdout": {
+    "model": {
+      "precision": 0.8219,
+      "recall": 1.0,
+      "macro_f1": 0.8978,
+      "pr_auc": 0.906,
+      "false_positive_rate": 0.1926,
+      "brier": 0.1165,
+      "confusion_tn_fp_fn_tp": [
+        109,
+        26,
+        0,
+        120
+      ],
+      "flag_rate_by_negative_kind": {
+        "official": 0.0,
+        "unofficial_disclosed": 0.2889,
+        "unrelated_lookalike": 0.0
+      }
+    },
+    "baseline_names_only": {
+      "precision": 0.5665,
+      "recall": 0.9583,
+      "macro_f1": 0.6074,
+      "pr_auc": 0.6811,
+      "false_positive_rate": 0.6519,
+      "brier": 0.1968,
+      "confusion_tn_fp_fn_tp": [
+        47,
+        88,
+        5,
+        115
+      ],
+      "flag_rate_by_negative_kind": {
+        "official": 0.0,
+        "unofficial_disclosed": 0.9778,
+        "unrelated_lookalike": 0.0
+      }
+    }
+  },
+  "caveat": "Synthetic data written from chosen patterns: NOT real-world accuracy. Advisory only; never a verdict. Validate on reviewed real assets before relying on it.",
+  "not_loaded_by_service": false,
+  "advisory_only": true
+}

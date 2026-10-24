@@ -107,3 +107,35 @@ def test_social_check_adds_synthetic_advisory_evidence_without_moving_score(app)
         official = svc.evaluate_candidate(brand.id, {"asset_type": "social", "candidate_name": "@acme", "platform": "twitter",
                                                      "source_url": "https://twitter.com/acme"}, persist=False)
         assert official["is_official"] and not official.get("evidence")  # officials excluded before any scoring
+
+
+def test_domain_and_app_checks_add_synthetic_advisory_without_moving_score(app):
+    from backend.app.database import get_db
+    from backend.app.models import Brand, BrandDomain, BrandAppIdentifier
+    from backend.app.services.detection_service import DetectionService
+    with app.app_context():
+        db = get_db()
+        brand = Brand(name="Acme")
+        db.add(brand); db.commit(); db.refresh(brand)
+        db.add(BrandDomain(brand_id=brand.id, domain="acme.com", is_primary=True))
+        db.add(BrandAppIdentifier(brand_id=brand.id, platform="android_play_store", identifier="com.acme.android", app_name="Acme"))
+        db.commit()
+        svc = DetectionService()
+        cases = {
+            "domain": {"asset_type": "domain", "candidate_name": "acme-verify.top", "source_url": "https://acme-verify.top",
+                       "page_text": "Your Acme account is suspended. Verify your KYC within 24 hours."},
+            "app": {"asset_type": "mobile_app", "candidate_name": "Acme Rewards", "package_id": "com.acme.rewards", "developer": "Rewards Labs",
+                    "description": "Official Acme rewards app. Log in with your password and UPI PIN to claim cashback."},
+        }
+        for kind, cand in cases.items():
+            res = svc.evaluate_candidate(brand.id, cand, persist=False)
+            ev = [e for e in res["evidence"] if e["evidence_type"] == f"{kind}_impersonation_ml_synthetic"]
+            assert len(ev) == 1 and "SYNTHETIC-trained" in ev[0]["description"], kind
+            os.environ["SURAKSHA_DISABLE_SYNTHETIC_PROFILE_MODEL"] = "1"
+            try:
+                off = svc.evaluate_candidate(brand.id, cand, persist=False)
+            finally:
+                del os.environ["SURAKSHA_DISABLE_SYNTHETIC_PROFILE_MODEL"]
+            assert off["risk_score"] == res["risk_score"], kind  # advisory never moves the score
+        official = svc.evaluate_candidate(brand.id, {"asset_type": "domain", "candidate_name": "acme.com"}, persist=False)
+        assert official["is_official"] and not official.get("evidence")
