@@ -1,5 +1,5 @@
 import React from 'react';
-import { CornerDownLeft, Moon, Search, Sun } from 'lucide-react';
+import { Bot, CornerDownLeft, Fingerprint, Moon, Presentation, Search, Sun, Zap } from 'lucide-react';
 import { useApp } from '../context/AppContext';
 import { useTheme } from '../context/ThemeContext';
 import { NAV_ITEMS } from './navigation';
@@ -14,7 +14,23 @@ interface Command {
 
 const SEV_DOT: Record<string, string> = { Critical: 'bg-danger', High: 'bg-high', Medium: 'bg-warn', Low: 'bg-ok' };
 
-export const CommandPalette: React.FC<{ open: boolean; onClose: () => void }> = ({ open, onClose }) => {
+interface CommandPaletteProps {
+  open: boolean;
+  onClose: () => void;
+  onOpenThreatInspector?: () => void;
+  onSimulateAttack?: () => void;
+  onStartPresenter?: () => void;
+  onOpenCopilot?: () => void;
+}
+
+export const CommandPalette: React.FC<CommandPaletteProps> = ({
+  open,
+  onClose,
+  onOpenThreatInspector,
+  onSimulateAttack,
+  onStartPresenter,
+  onOpenCopilot,
+}) => {
   const { candidates, setActiveTab, setFocusedFindingId } = useApp();
   const { resolved, setPreference } = useTheme();
   const [query, setQuery] = React.useState('');
@@ -41,12 +57,44 @@ export const CommandPalette: React.FC<{ open: boolean; onClose: () => void }> = 
         id: `finding:${c.id}`, section: 'Findings', label: c.title, hint: `${c.riskCategory} · ${c.identifier}`,
         run: () => { setFocusedFindingId(c.id); setActiveTab('investigation-center'); },
       }));
-    const actions: Command[] = [{
-      id: 'theme', section: 'Actions', label: `Switch to ${resolved === 'dark' ? 'light' : 'dark'} theme`,
-      run: () => setPreference(resolved === 'dark' ? 'light' : 'dark'),
-    }].filter((a) => !q || a.label.toLowerCase().includes(q) || 'theme appearance'.includes(q));
+    const actions: Command[] = [
+      {
+        id: 'action:inspector',
+        section: 'Actions',
+        label: 'Open Threat X-Ray Inspector',
+        hint: 'Ctrl/Cmd+I',
+        run: () => onOpenThreatInspector ? onOpenThreatInspector() : window.dispatchEvent(new CustomEvent('open-threat-inspector')),
+      },
+      {
+        id: 'action:simulate',
+        section: 'Actions',
+        label: 'Simulate Live Attack',
+        hint: 'Shift+A',
+        run: () => onSimulateAttack ? onSimulateAttack() : window.dispatchEvent(new CustomEvent('simulate-attack')),
+      },
+      {
+        id: 'action:presenter',
+        section: 'Actions',
+        label: 'Start Guided Presenter Walkthrough',
+        hint: 'Shift+P',
+        run: () => onStartPresenter ? onStartPresenter() : window.dispatchEvent(new CustomEvent('start-presenter')),
+      },
+      {
+        id: 'action:copilot',
+        section: 'Actions',
+        label: 'Ask AI Cyber Defense Copilot',
+        hint: 'Ctrl/Cmd+J',
+        run: () => onOpenCopilot ? onOpenCopilot() : window.dispatchEvent(new CustomEvent('open-copilot')),
+      },
+      {
+        id: 'theme',
+        section: 'Actions',
+        label: `Switch to ${resolved === 'dark' ? 'light' : 'dark'} theme`,
+        run: () => setPreference(resolved === 'dark' ? 'light' : 'dark'),
+      },
+    ].filter((a) => !q || a.label.toLowerCase().includes(q) || (a.hint && a.hint.toLowerCase().includes(q)) || 'theme appearance tools attack simulation x-ray'.includes(q));
     return [...pages, ...findings, ...actions];
-  }, [query, candidates, resolved, setActiveTab, setFocusedFindingId, setPreference]);
+  }, [query, candidates, resolved, setActiveTab, setFocusedFindingId, setPreference, onOpenThreatInspector, onSimulateAttack, onStartPresenter, onOpenCopilot]);
 
   React.useEffect(() => setIndex(0), [query]);
 
@@ -97,7 +145,11 @@ export const CommandPalette: React.FC<{ open: boolean; onClose: () => void }> = 
                   className={`flex cursor-pointer items-center gap-2 rounded-md px-2.5 py-1.5 text-[13px] ${i === index ? 'bg-surface3 text-fg' : 'text-fgMuted'}`}
                 >
                   {finding && <span className={`h-1.5 w-1.5 shrink-0 rounded-full ${SEV_DOT[finding.riskCategory] || 'bg-fgSubtle'}`} aria-hidden />}
-                  {c.id === 'theme' && (resolved === 'dark' ? <Sun className="h-3.5 w-3.5" /> : <Moon className="h-3.5 w-3.5" />)}
+                  {c.id === 'action:inspector' && <Fingerprint className="h-3.5 w-3.5 text-accent shrink-0" />}
+                  {c.id === 'action:simulate' && <Zap className="h-3.5 w-3.5 text-danger shrink-0" />}
+                  {c.id === 'action:presenter' && <Presentation className="h-3.5 w-3.5 text-accent shrink-0" />}
+                  {c.id === 'action:copilot' && <Bot className="h-3.5 w-3.5 text-accent shrink-0" />}
+                  {c.id === 'theme' && (resolved === 'dark' ? <Sun className="h-3.5 w-3.5 text-warn shrink-0" /> : <Moon className="h-3.5 w-3.5 text-fgSubtle shrink-0" />)}
                   <span className="min-w-0 flex-1 truncate">{c.label}</span>
                   {c.hint && <span className="max-w-[45%] truncate font-mono text-[11px] text-fgSubtle">{c.hint}</span>}
                   {i === index && <CornerDownLeft className="h-3 w-3 text-fgSubtle" aria-hidden />}

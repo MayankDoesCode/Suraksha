@@ -1,5 +1,5 @@
 import React from 'react';
-import { ChevronRight, Menu, Search } from 'lucide-react';
+import { ChevronRight, Fingerprint, Menu, Search, Zap } from 'lucide-react';
 import { useApp } from '../context/AppContext';
 import { ThemeToggle } from '../context/ThemeContext';
 import { pageInfo } from './navigation';
@@ -8,9 +8,14 @@ interface HeaderProps {
   onNavigateHome?: () => void;
   onToggleMobileMenu?: () => void;
   onOpenSearch?: () => void;
+  onOpenThreatInspector?: () => void;
 }
 
-export const Header: React.FC<HeaderProps> = ({ onToggleMobileMenu, onOpenSearch }) => {
+export const Header: React.FC<HeaderProps> = ({
+  onToggleMobileMenu,
+  onOpenSearch,
+  onOpenThreatInspector,
+}) => {
   const { activeTab, brandProfile, backendOnline } = useApp();
   const page = pageInfo(activeTab);
   const isMac = typeof navigator !== 'undefined' && /mac/i.test(navigator.platform);
@@ -42,9 +47,23 @@ export const Header: React.FC<HeaderProps> = ({ onToggleMobileMenu, onOpenSearch
           </span>
         </div>
 
+        {/* Threat X-Ray Quick Inspector Trigger */}
+        <button
+          onClick={onOpenThreatInspector}
+          className="hidden sm:inline-flex items-center gap-1.5 rounded-lg border border-accent/30 bg-accent/10 px-2.5 py-1.5 text-xs font-medium text-accent hover:bg-accent/20 transition-all cursor-pointer shadow-xs"
+          title="Inspect character homoglyphs and test threats live (Ctrl/Cmd + I)"
+          aria-label="Open Threat X-Ray live inspector"
+        >
+          <Fingerprint className="h-3.5 w-3.5" />
+          <span>Threat X-Ray</span>
+          <kbd className="hidden lg:inline rounded border border-accent/30 bg-accent/10 px-1 text-[9px] font-mono text-accent">
+            {isMac ? '⌘' : 'Ctrl'}I
+          </kbd>
+        </button>
+
         <button
           onClick={onOpenSearch}
-          className="flex items-center gap-2 rounded-lg border border-line bg-surface/60 px-2.5 py-1.5 text-xs text-fgSubtle transition-colors hover:bg-surface3 hover:text-fgMuted sm:min-w-[180px] cursor-pointer"
+          className="flex items-center gap-2 rounded-lg border border-line bg-surface/60 px-2.5 py-1.5 text-xs text-fgSubtle transition-colors hover:bg-surface3 hover:text-fgMuted sm:min-w-[170px] cursor-pointer"
           aria-label="Search pages and findings"
         >
           <Search className="h-3.5 w-3.5" />

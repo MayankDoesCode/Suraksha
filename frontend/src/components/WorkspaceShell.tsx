@@ -23,6 +23,9 @@ import { ReportsView } from '../views/ReportsView';
 import { DiagnosticsView } from '../views/DiagnosticsView';
 import { MethodologyView } from '../views/MethodologyView';
 import { WatchtowerView } from '../views/WatchtowerView';
+import { AttackSimulator } from './AttackSimulator';
+import { PresenterMode } from './PresenterMode';
+import { ThreatInspectorModal } from './ThreatInspectorModal';
 
 interface WorkspaceShellProps {
   onNavigateHome?: () => void;
@@ -42,17 +45,30 @@ const WorkspaceContent: React.FC<WorkspaceShellProps> = ({ onNavigateHome, initi
   } = useApp();
   const [mobileMenuOpen, setMobileMenuOpen] = React.useState(false);
   const [paletteOpen, setPaletteOpen] = React.useState(false);
+  const [inspectorOpen, setInspectorOpen] = React.useState(false);
 
-  // Ctrl/Cmd+K opens the command palette from anywhere in the workspace.
+  // Ctrl/Cmd+K opens the command palette; Ctrl/Cmd+I opens Threat X-Ray inspector.
   React.useEffect(() => {
     const onKey = (e: KeyboardEvent) => {
+      const tag = (e.target as HTMLElement)?.tagName;
+      if (tag === 'INPUT' || tag === 'TEXTAREA') return;
+
       if ((e.ctrlKey || e.metaKey) && e.key.toLowerCase() === 'k') {
         e.preventDefault();
         setPaletteOpen((o) => !o);
+      } else if ((e.ctrlKey || e.metaKey) && e.key.toLowerCase() === 'i') {
+        e.preventDefault();
+        setInspectorOpen((o) => !o);
       }
     };
+    const onOpenInspectorEvent = () => setInspectorOpen(true);
+
     window.addEventListener('keydown', onKey);
-    return () => window.removeEventListener('keydown', onKey);
+    window.addEventListener('open-threat-inspector', onOpenInspectorEvent);
+    return () => {
+      window.removeEventListener('keydown', onKey);
+      window.removeEventListener('open-threat-inspector', onOpenInspectorEvent);
+    };
   }, []);
 
   // Opening a finding from any other page lands on its detail panel in Investigations.
@@ -113,6 +129,7 @@ const WorkspaceContent: React.FC<WorkspaceShellProps> = ({ onNavigateHome, initi
             onNavigateHome={onNavigateHome}
             onToggleMobileMenu={() => setMobileMenuOpen(!mobileMenuOpen)}
             onOpenSearch={() => setPaletteOpen(true)}
+            onOpenThreatInspector={() => setInspectorOpen(true)}
           />
 
           {/* Subtle Cybernetic Ambient Background in Dashboard Shell */}
@@ -141,7 +158,17 @@ const WorkspaceContent: React.FC<WorkspaceShellProps> = ({ onNavigateHome, initi
       </div>
 
       <BottomNav />
-      <CommandPalette open={paletteOpen} onClose={() => setPaletteOpen(false)} />
+      <CommandPalette
+        open={paletteOpen}
+        onClose={() => setPaletteOpen(false)}
+        onOpenThreatInspector={() => setInspectorOpen(true)}
+      />
+      <AttackSimulator />
+      <PresenterMode />
+      <ThreatInspectorModal
+        isOpen={inspectorOpen}
+        onClose={() => setInspectorOpen(false)}
+      />
 
       {/* Investigation Dossier Modal */}
       {selectedCandidateId && (

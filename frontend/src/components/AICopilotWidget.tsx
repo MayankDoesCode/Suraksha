@@ -23,6 +23,7 @@ import {
 } from 'lucide-react';
 import { api } from '../api/client';
 import { useApp } from '../context/AppContext';
+import { quickCheck } from '../utils/quickCheck';
 
 interface SuggestedAction {
   type: string;
@@ -59,7 +60,20 @@ interface ChatMessage {
   suggested_actions?: SuggestedAction[];
   permutations?: PermutationItem[];
   timestamp: string;
+  /** reveal the text progressively (set on fresh answers only) */
+  fresh?: boolean;
 }
+
+/** Types an answer out in a few quick steps; shows the full text at once for reduced motion. */
+const StreamText: React.FC<{ text: string; render: (t: string) => React.ReactNode; onTick?: () => void }> = ({ text, render, onTick }) => {
+  const [n, setN] = useState(() => (window.matchMedia?.('(prefers-reduced-motion: reduce)').matches ? text.length : 0));
+  useEffect(() => {
+    if (n >= text.length) return undefined;
+    const t = setTimeout(() => { setN((v) => Math.min(text.length, v + Math.max(4, Math.ceil(text.length / 70)))); onTick?.(); }, 18);
+    return () => clearTimeout(t);
+  }, [n, text, onTick]);
+  return <>{render(n >= text.length ? text : text.slice(0, n))}</>;
+};
 
 // Minimal inline markdown: **bold** and `code` (no HTML injection: everything stays React text nodes).
 const renderInline = (text: string): React.ReactNode[] =>
@@ -84,8 +98,8 @@ export const AICopilotWidget: React.FC = () => {
       sender: 'copilot',
       text: "👋 Hello! I am your **Suraksha AI Cyber Defense Copilot**.\n\nPaste any link or domain (e.g. `https://paypal-security-login.xyz` or `chase-verify.top`), and I will verify it against **Google Safe Browsing**, check brand lookalike mimicry, and provide an instant threat analysis with takedown steps.",
       suggested_actions: [
-        { type: 'prompt', label: '🛡️ Scan PayPal Lookalike', prompt: 'Check https://paypal-security-login.xyz' },
-        { type: 'prompt', label: '🛡️ Scan Apple ID Phish', prompt: 'Check https://apple-id-verify.top' },
+        { type: 'prompt', label: '🛡️ Check a look-alike handle', prompt: `Check ${(brandProfile?.officialSocialUrls?.[0]?.handle || '@acme_official').replace('m', 'rn')}` },
+        { type: 'prompt', label: '🛡️ Check a login-lure domain', prompt: `Check ${(brandProfile?.brandName || 'acme').toLowerCase().replace(/\s+/g, '')}-support-login.com` },
         { type: 'prompt', label: '📋 Draft Registrar Abuse Email', prompt: 'Draft registrar abuse notice for paypal-security-login.xyz' },
         { type: 'prompt', label: '🔬 Explain Combosquatting', prompt: 'How does combosquatting work?' },
         { type: 'prompt', label: '🔤 Explain Homoglyphs & Punycode', prompt: 'How do homoglyph attacks work?' },
@@ -95,6 +109,24 @@ export const AICopilotWidget: React.FC = () => {
   ]);
 
   const messagesEndRef = useRef<HTMLDivElement>(null);
+  const inputRef = useRef<HTMLInputElement>(null);
+
+  // Ctrl/Cmd + J opens or closes the copilot; Esc closes it
+  useEffect(() => {
+    const onKey = (e: KeyboardEvent) => {
+      if ((e.ctrlKey || e.metaKey) && e.key.toLowerCase() === 'j') { e.preventDefault(); setIsOpen((o) => !o); }
+      else if (e.key === 'Escape') setIsOpen(false);
+    };
+    const onCustom = () => setIsOpen(true);
+    window.addEventListener('keydown', onKey);
+    window.addEventListener('open-copilot', onCustom);
+    return () => {
+      window.removeEventListener('keydown', onKey);
+      window.removeEventListener('open-copilot', onCustom);
+    };
+  }, []);
+  useEffect(() => { if (isOpen) setTimeout(() => inputRef.current?.focus(), 120); }, [isOpen]);
+  const scrollDown = () => messagesEndRef.current?.scrollIntoView({ behavior: 'auto' });
 
   useEffect(() => {
     if (isOpen) {
@@ -190,6 +222,25 @@ export const AICopilotWidget: React.FC = () => {
     }
   };
 
+  // Handles and offline answers come from the in-browser engines (the same ones the workspace uses).
+  const buildLocal = (textToSend: string): ChatMessage | null => {
+    const local = brandProfile ? quickCheck(textToSend, brandProfile) : null;
+    if (!local) return null;
+    {
+        const lvl = local.level.toUpperCase();
+        const bullets = local.reasons.slice(0, 4).map((r) => `• ${r}`).join('\n') || '• Nothing resembles the registered brand.';
+        const msg: ChatMessage = {
+          id: `loc-${Date.now()}`,
+          sender: 'copilot',
+          fresh: true,
+          text: `**${local.target}** (${local.kind.toLowerCase()}) scores **${Math.round(local.score)}/100, ${local.level} risk**.\n\n${bullets}\n\nScored in your browser with the same engines as the workspace. Safe Browsing and takedown drafting apply to links, so paste a URL for those.`,
+          inspection: { url: local.target, target_brand: brandProfile?.brandName || 'Brand', threat_score: Math.round(local.score), severity: lvl.includes('CRIT') ? 'CRITICAL' : lvl.includes('HIGH') ? 'HIGH' : lvl.includes('MED') ? 'MEDIUM' : 'LOW', signals: local.reasons.slice(0, 5), google_status: 'offline', google_verdict: 'Not checked (offline)', is_flagged_by_google: false, advisory_url: '' },
+          timestamp: new Date().toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' }),
+        };
+        return msg;
+    }
+  };
+
   const handleSendMessage = async (customPrompt?: string) => {
     const textToSend = customPrompt || inputMessage;
     if (!textToSend.trim() || isTyping) return;
@@ -204,6 +255,15 @@ export const AICopilotWidget: React.FC = () => {
     setMessages((prev) => [...prev, userMsg]);
     if (!customPrompt) setInputMessage('');
     setIsTyping(true);
+
+    // a bare @handle is not something the URL scanner understands: score it right here
+    if (/(^|\s)@[A-Za-z0-9_.]{2,}/.test(textToSend)) {
+      const lm = buildLocal(textToSend);
+      if (lm) {
+        setTimeout(() => { setMessages((prev) => [...prev, lm]); setIsTyping(false); }, 600);
+        return;
+      }
+    }
 
     try {
       const res = await api.chatWithCopilot({
@@ -221,15 +281,21 @@ export const AICopilotWidget: React.FC = () => {
         text: data.response || 'Analysis complete.',
         inspection: data.inspection || undefined,
         suggested_actions: data.suggested_actions || undefined,
+        fresh: true,
         timestamp: new Date().toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' }),
       };
 
       setMessages((prev) => [...prev, copilotMsg]);
     } catch {
+      const lm = buildLocal(textToSend);
+      if (lm) {
+        setMessages((prev) => [...prev, lm]);
+        return;
+      }
       const errorMsg: ChatMessage = {
         id: `err-${Date.now()}`,
         sender: 'copilot',
-        text: "⚠️ I could not reach the backend security engine. Please verify the backend server is running on port 5000.",
+        text: "⚠️ I could not reach the backend, and I found no handle or domain in your message to check offline. Paste something like `@acme_help` or `acme-login.com`.",
         timestamp: new Date().toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' }),
       };
       setMessages((prev) => [...prev, errorMsg]);
@@ -310,6 +376,7 @@ export const AICopilotWidget: React.FC = () => {
             <span className="absolute -top-1 -right-1 w-2.5 h-2.5 bg-ok rounded-full" />
           </div>
           <span className="text-xs font-semibold tracking-wide">AI Copilot</span>
+          <kbd className="hidden rounded border border-onAccent/30 px-1 font-mono text-[9px] opacity-70 sm:inline">Ctrl J</kbd>
         </button>
       )}
 
@@ -401,7 +468,7 @@ export const AICopilotWidget: React.FC = () => {
             {messages.map((m) => (
               <div
                 key={m.id}
-                className={`flex flex-col ${m.sender === 'user' ? 'items-end' : 'items-start'}`}
+                className={`flex flex-col animate-in fade-in slide-in-from-bottom-2 duration-300 ${m.sender === 'user' ? 'items-end' : 'items-start'}`}
               >
                 <div
                   className={`max-w-[92%] rounded-xl p-3 border ${
@@ -433,6 +500,9 @@ export const AICopilotWidget: React.FC = () => {
                         </span>
                       </div>
 
+                      <div className="h-1 overflow-hidden rounded-full bg-line">
+                        <div className={`h-full rounded-full transition-[width] duration-700 ${m.inspection.severity === 'CRITICAL' ? 'bg-danger' : m.inspection.severity === 'HIGH' ? 'bg-high' : m.inspection.severity === 'MEDIUM' ? 'bg-warn' : 'bg-ok'}`} style={{ width: `${Math.max(3, Math.min(100, m.inspection.threat_score))}%` }} />
+                      </div>
                       {/* Google Safe Browsing Status */}
                       <div className="flex items-center justify-between gap-1 text-[11px] pt-1.5 border-t border-line/60">
                         <div className="flex items-center gap-1.5">
@@ -505,7 +575,7 @@ export const AICopilotWidget: React.FC = () => {
                   )}
 
                   {/* Render Message Body */}
-                  {renderFormattedMarkdown(m.text, m.id)}
+                  {m.fresh ? <StreamText text={m.text} render={(t) => renderFormattedMarkdown(t, m.id)} onTick={scrollDown} /> : renderFormattedMarkdown(m.text, m.id)}
 
                   {/* Proactive Permutations Table Widget if included */}
                   {m.permutations && m.permutations.length > 0 && (
@@ -563,8 +633,8 @@ export const AICopilotWidget: React.FC = () => {
 
             {isTyping && (
               <div className="flex items-center gap-2 p-2.5 rounded-lg bg-surface2 border border-line text-xs text-fgMuted max-w-[85%]">
-                <Loader2 className="w-3.5 h-3.5 animate-spin text-accent" />
-                <span className="text-[11px]">Suraksha Defense Copilot reasoning with live telemetry…</span>
+                <span className="flex gap-1" aria-hidden>{[0, 1, 2].map((i) => <span key={i} className="h-1.5 w-1.5 animate-bounce rounded-full bg-accent" style={{ animationDelay: `${i * 140}ms` }} />)}</span>
+                <span className="text-[11px]">Checking against your brand profile…</span>
               </div>
             )}
 
@@ -581,6 +651,7 @@ export const AICopilotWidget: React.FC = () => {
               className="flex items-center gap-2"
             >
               <input
+                ref={inputRef}
                 type="text"
                 value={inputMessage}
                 onChange={(e) => setInputMessage(e.target.value)}
@@ -597,6 +668,7 @@ export const AICopilotWidget: React.FC = () => {
                 <Send className="w-3.5 h-3.5" />
               </button>
             </form>
+            <p className="mt-1.5 px-1 text-[10px] text-fgSubtle">Enter to send · Ctrl+J to open or close · answers are advisory</p>
           </div>
         </div>
       )}

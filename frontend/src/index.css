@@ -418,3 +418,10 @@ button[class*='rounded-3xl'][class*='border-line']:hover { transform: translateY
 @keyframes auth-sweep { to { transform: rotate(360deg); } }
 
 @keyframes orbit-rev { to { transform: rotate(-360deg); } }
+
+@keyframes sim-scan { from { transform: translateY(-50vh); } to { transform: translateY(50vh); } }
+@keyframes sim-blink { 50% { opacity: 0.25; } }
+
+/* Readability floor: the smallest labels were 9–10px, which is hard to read on a projector. Nothing renders below 11px. */
+.text-\[9px\], .text-\[10px\], .text-\[0\.58rem\], .text-\[0\.62rem\] { font-size: 11px; line-height: 1.35; }
+.text-\[9px\].font-mono, .text-\[10px\].font-mono { font-size: 11px; }
