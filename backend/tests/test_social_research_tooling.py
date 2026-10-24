@@ -154,3 +154,31 @@ def test_artifact_with_wrong_checksum_is_refused(tmp_path):
         fh.write(b"tampered")
     bad, compat = load_artifact(str(copy), "t", {"artifact_sha256": file_sha256(src)})
     assert bad is None and compat.status == "checksum_mismatch" and not compat.loaded
+
+
+def test_remote_url_model_is_used_when_configured_and_falls_back_when_down(monkeypatch):
+    from backend.app.ml import service as svc
+    calls = {}
+
+    class R:
+        status_code = 200
+        def raise_for_status(self): pass
+        def json(self): return {"available": True, "risk_score": 91.0, "is_phishing_risk": True}
+
+    def fake_post(url, json=None, headers=None, timeout=None):
+        calls["url"] = url
+        return R()
+
+    monkeypatch.setenv("SURAKSHA_ML_REMOTE_URL", "https://example-space.hf.space/")
+    import requests
+    monkeypatch.setattr(requests, "post", fake_post)
+    ml = svc.MLService()
+    assert ml.is_url_model_available()
+    res = ml.predict_url_risk("http://paypal-login.xyz")
+    assert calls["url"] == "https://example-space.hf.space/predict/url" and res["served_by"] == "remote_space"
+
+    def down(*a, **k):
+        raise requests.ConnectionError("down")
+    monkeypatch.setattr(requests, "post", down)
+    res = ml.predict_url_risk("http://paypal-login.xyz")
+    assert res["available"] is False and res["risk_score"] is None  # callers fall back to rules

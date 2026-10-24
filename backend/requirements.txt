@@ -13,6 +13,7 @@ psycopg[binary]>=3.2.0
 # When upgrading, retrain every artifact and update these pins together.
 scikit-learn==1.9.1
 xgboost==3.4.1  # social fake-account model v2 (XGBClassifier)
+tldextract==5.4.0  # needed to load the PhishTank domain model (registrable-domain parsing)
 joblib==1.6.0
 pandas>=2.2.0
 numpy>=1.26.0
