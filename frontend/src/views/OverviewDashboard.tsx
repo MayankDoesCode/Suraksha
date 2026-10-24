@@ -1,3 +1,4 @@
+import { CompanySetup } from '../components/CompanySetup';
 import React, { useEffect, useMemo, useRef, useState } from 'react';
 import { AnimatePresence, motion, useReducedMotion } from 'framer-motion';
 import {
@@ -378,6 +379,7 @@ export const OverviewDashboard: React.FC = () => {
   return (
     <div className="mx-auto w-full max-w-[1720px] pb-6">
       <h1 className="sr-only">Overview</h1>
+      <div className="mb-4"><CompanySetup /></div>
       <div className="grid gap-4 xl:grid-cols-[1fr_340px]">
         <div className="min-w-0 space-y-4">
           <CampusHero

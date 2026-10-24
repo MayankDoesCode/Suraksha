@@ -25,6 +25,7 @@ import { MethodologyView } from '../views/MethodologyView';
 import { LogoCheckView } from '../views/LogoCheckView';
 import { WebsiteCheckView } from '../views/WebsiteCheckView';
 import { BulkCheckView } from '../views/BulkCheckView';
+import { ExecutiveReportView } from '../views/ExecutiveReportView';
 import { WatchtowerView } from '../views/WatchtowerView';
 import { AttackSimulator } from './AttackSimulator';
 import { PresenterMode } from './PresenterMode';
@@ -111,6 +112,8 @@ const WorkspaceContent: React.FC<WorkspaceShellProps> = ({ onNavigateHome, initi
         return <ReportsView />;
       case 'logo-check':
         return <LogoCheckView />;
+      case 'executive-report':
+        return <ExecutiveReportView />;
       case 'bulk-check':
         return <BulkCheckView />;
       case 'website-check':

@@ -8,7 +8,8 @@ const LINKS = [
   { id: 'how', label: 'How it works' },
   { id: 'sandbox', label: 'Scanner' },
   { id: 'product', label: 'Trust' },
-  { id: 'mobile', label: 'Mobile app' },
+  { id: 'companies', label: 'For companies' },
+  { id: 'pricing', label: 'Pricing' },
 ];
 
 /**

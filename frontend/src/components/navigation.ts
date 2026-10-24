@@ -10,7 +10,7 @@ import {
   Smartphone,
   Activity,
   BookOpen,
-  type LucideIcon, Globe, Image as ImageIcon, ListChecks } from 'lucide-react';
+  type LucideIcon, Globe, Image as ImageIcon, ListChecks, PieChart } from 'lucide-react';
 
 export interface NavItem {
   id: string; // matches the `activeTab` values the workspace already routes on
@@ -27,7 +27,10 @@ export interface NavGroup {
 
 /** Task-oriented navigation. Only routes that exist; there is no Settings page yet, so none is listed. */
 export const NAV_GROUPS: NavGroup[] = [
-  { id: 'home', title: null, items: [{ id: 'overview', label: 'Overview', icon: LayoutDashboard, keywords: 'home summary queue dashboard' }] },
+  { id: 'home', title: null, items: [
+    { id: 'overview', label: 'Overview', icon: LayoutDashboard, keywords: 'home summary queue dashboard' },
+    { id: 'executive-report', label: 'Executive report', icon: PieChart, keywords: 'leadership board ciso management pdf monthly summary kpi' },
+  ] },
   {
     id: 'detect',
     title: 'Detection & Recon',

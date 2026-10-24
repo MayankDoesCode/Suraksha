@@ -25,6 +25,7 @@ import SiteNav from './SiteNav';
 import { SectionHead, GlowText } from './Editorial';
 import MobileSection from './MobileSection';
 import CaseDesk from './CaseDesk';
+import ForCompanies from './ForCompanies';
 import { PlatformSection, ProofStrip, Bento, ClosingCta } from './Sections';
 import { Reveal, CountUp } from './Reveal';
 import { runFullLookalikeAnalysis } from '../../utils/lookalikeEngine';
@@ -318,6 +319,7 @@ export default function LandingPage({ onLaunchDashboard, onReplayIntro }) {
         </section>
 
         <MobileSection container={container} />
+        <ForCompanies container={container} onDemo={openDemo} />
         <ClosingCta onDemo={openDemo} container={container} />
 
         {/* Rules vs models */}

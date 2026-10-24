@@ -72,14 +72,14 @@ export default function HeroLanding({ onDemo, container }) {
         <div className="grid items-end gap-10 lg:grid-cols-12">
           <div className="lg:col-span-8">
             <p className="hero-fade inline-flex items-center gap-2 rounded-full border border-line bg-surface/70 px-3 py-1 text-sm text-fgMuted" style={{ '--d': '60ms' }}>
-              <ShieldCheck className="h-4 w-4 text-accent" aria-hidden />Brand impersonation defence
+              <ShieldCheck className="h-4 w-4 text-accent" aria-hidden />Brand protection for companies
             </p>
             <h1 id="hero-title" className="mt-5 font-display text-[2.6rem] font-medium leading-[0.98] tracking-[-0.045em] sm:text-6xl lg:text-[4.6rem] xl:text-[5rem]">
               <span className="hero-line"><span className="lp-gradient-text" style={{ '--d': '120ms' }}>Spot the fake</span></span>
               <span className="hero-line"><span className="lp-gradient-text" style={{ '--d': '220ms' }}>before your customers do.</span></span>
             </h1>
             <p className="hero-fade mt-7 max-w-[34rem] text-lg leading-relaxed text-fgMuted" style={{ '--d': '420ms' }}>
-              Suraksha watches social media, app stores and domains for impersonators of your brand, and shows the evidence behind every flag.
+              Fake websites, support accounts and apps that pretend to be your company cost you customers and trust. Suraksha finds them across domains, social media and app stores, explains every flag, and drafts the takedown for your team to approve.
             </p>
             <div className="hero-fade mt-9 flex flex-wrap items-center gap-3" style={{ '--d': '540ms' }}>
               <button type="button" onClick={onDemo} className="lp-sweep group inline-flex h-12 items-center gap-2 rounded-full bg-accent pl-6 pr-5 text-[15px] font-semibold text-onAccent transition-[transform,background-color] duration-200 hover:bg-accentHover active:scale-[0.98]">
