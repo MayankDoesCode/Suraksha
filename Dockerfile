@@ -30,7 +30,8 @@ RUN npm run build
 
 
 # Stage 2: Production Python WSGI Application
-FROM python:3.11-slim
+# Python 3.12: xgboost 3.4.1 (needed to load the production social model) requires Python >= 3.12
+FROM python:3.12-slim
 WORKDIR /app
 
 # Install system dependencies
