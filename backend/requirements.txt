@@ -12,6 +12,7 @@ psycopg[binary]>=3.2.0
 # scikit-learn version that wrote them (checked at load time by backend/app/ml/artifact_compat.py).
 # When upgrading, retrain every artifact and update these pins together.
 scikit-learn==1.9.1
+xgboost==3.4.1  # social fake-account model v2 (XGBClassifier)
 joblib==1.6.0
 pandas>=2.2.0
 numpy>=1.26.0

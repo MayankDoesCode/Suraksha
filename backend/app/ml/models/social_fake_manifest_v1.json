@@ -1,0 +1,62 @@
+{
+  "trained": true,
+  "status": "operational",
+  "task": "social_fake_account_detection",
+  "model_version": "1.0.0",
+  "model_artifact": "social_fake_pipeline.joblib",
+  "timestamp": "2026-10-19T05:54:20.045083+00:00",
+  "random_state": 42,
+  "dataset_metadata": {
+    "source": "InstaFake Dataset (fcakyon/instafake-dataset fake-v1.0)",
+    "license": "Creative Commons Attribution-NonCommercial 4.0 (CC BY-NC 4.0)",
+    "total_samples": 1194,
+    "real_samples": 994,
+    "fake_samples": 200,
+    "train_samples": 955,
+    "test_samples": 239,
+    "test_class_distribution": {
+      "legitimate": 199,
+      "fake_spam": 40
+    }
+  },
+  "metrics": {
+    "accuracy": 0.9498,
+    "precision": 0.8182,
+    "recall": 0.9,
+    "f1": 0.8571,
+    "roc_auc": 0.9552,
+    "confusion_matrix": [
+      [
+        191,
+        8
+      ],
+      [
+        4,
+        36
+      ]
+    ],
+    "false_positives": 8,
+    "false_negatives": 4
+  },
+  "baseline_comparison": {
+    "heuristic_rule_accuracy": 0.9079,
+    "heuristic_rule_precision": 0.7143,
+    "heuristic_rule_recall": 0.75,
+    "heuristic_rule_f1": 0.7317,
+    "f1_improvement_pct": 12.54
+  },
+  "architecture": "StandardScaler + LogisticRegression(class_weight='balanced')",
+  "feature_schema": [
+    "userFollowerCount",
+    "userFollowingCount",
+    "userBiographyLength",
+    "userMediaCount",
+    "userHasProfilPic",
+    "userIsPrivate",
+    "usernameDigitCount",
+    "usernameLength",
+    "follower_following_ratio",
+    "digit_ratio"
+  ],
+  "scope_boundary": "Model is trained strictly for generic fake/automated social profile detection. Brand impersonation risk requires separate brand allowlist cross-referencing and lexical trademark similarity, which are evaluated assistively by SURAKSHA's threat engine."
+}
